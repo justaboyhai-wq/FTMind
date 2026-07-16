@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	infra_web_search "github.com/Tencent/WeKnora/internal/infrastructure/web_search"
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/types"
-	"github.com/Tencent/WeKnora/internal/types/interfaces"
+	infra_web_search "github.com/justaboyhai-wq/keystone/internal/infrastructure/web_search"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
 )
 
 // webSearchProviderService implements interfaces.WebSearchProviderService
@@ -136,7 +136,8 @@ func isValidProviderType(provider types.WebSearchProviderType) bool {
 		types.WebSearchProviderTypeOllama,
 		types.WebSearchProviderTypeBaidu,
 		types.WebSearchProviderTypeSearxng,
-		types.WebSearchProviderTypeKeenable:
+		types.WebSearchProviderTypeKeenable,
+		types.WebSearchProviderTypeArk:
 		return true
 	default:
 		return false
@@ -168,6 +169,10 @@ func validateProviderParameters(provider types.WebSearchProviderType, params typ
 	case types.WebSearchProviderTypeBaidu:
 		if params.APIKey == "" {
 			return fmt.Errorf("API key is required for Baidu provider")
+		}
+	case types.WebSearchProviderTypeArk:
+		if params.APIKey == "" {
+			return fmt.Errorf("API key is required for Ark AgentPlan provider")
 		}
 	case types.WebSearchProviderTypeDuckDuckGo:
 		// No API key required

@@ -8,10 +8,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Tencent/WeKnora/internal/agent"
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/models/chat"
-	"github.com/Tencent/WeKnora/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/agent"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/models/chat"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 )
 
 // wikiTaxonomyItem is one entity/concept page to be filed into the directory.

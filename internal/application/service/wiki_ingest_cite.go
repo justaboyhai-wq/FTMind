@@ -8,10 +8,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Tencent/WeKnora/internal/agent"
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/models/chat"
-	"github.com/Tencent/WeKnora/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/agent"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/models/chat"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 	"golang.org/x/sync/errgroup"
 )
 

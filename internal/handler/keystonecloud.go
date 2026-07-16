@@ -3,32 +3,32 @@ package handler
 import (
 	"net/http"
 
-	"github.com/Tencent/WeKnora/internal/types/interfaces"
+	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
 	"github.com/gin-gonic/gin"
 )
 
-// WeKnoraCloudHandler 处理 WeKnoraCloud 凭证管理
-type WeKnoraCloudHandler struct {
-	svc interfaces.WeKnoraCloudService
+// KeystoneCloudHandler 处理 KeystoneCloud 凭证管理
+type KeystoneCloudHandler struct {
+	svc interfaces.KeystoneCloudService
 }
 
-// NewWeKnoraCloudHandler 构造函数
-func NewWeKnoraCloudHandler(svc interfaces.WeKnoraCloudService) *WeKnoraCloudHandler {
-	return &WeKnoraCloudHandler{svc: svc}
+// NewKeystoneCloudHandler 构造函数
+func NewKeystoneCloudHandler(svc interfaces.KeystoneCloudService) *KeystoneCloudHandler {
+	return &KeystoneCloudHandler{svc: svc}
 }
 
-type weKnoraCloudCredentialsRequest struct {
+type keystoneCloudCredentialsRequest struct {
 	AppID     string `json:"app_id"     binding:"required"`
 	AppSecret string `json:"app_secret" binding:"required"`
 }
 
-// SaveCredentials POST /api/v1/weknoracloud/credentials
+// SaveCredentials POST /api/v1/keystonecloud/credentials
 // 仅保存 APPID/APPSECRET 凭证到空间配置，不自动创建模型
 //
 // SaveCredentials godoc
-// @Summary      保存 WeKnoraCloud 凭证
+// @Summary      保存 KeystoneCloud 凭证
 // @Description  保存 APPID/APPSECRET 到当前空间配置（不自动创建模型）
-// @Tags         WeKnoraCloud
+// @Tags         KeystoneCloud
 // @Accept       json
 // @Produce      json
 // @Param        request  body      map[string]interface{}  true  "{app_id, app_secret}"
@@ -36,9 +36,9 @@ type weKnoraCloudCredentialsRequest struct {
 // @Failure      400      {object}  map[string]interface{}  "请求参数错误"
 // @Security     Bearer
 // @Security     ApiKeyAuth
-// @Router       /weknoracloud/credentials [post]
-func (h *WeKnoraCloudHandler) SaveCredentials(c *gin.Context) {
-	var req weKnoraCloudCredentialsRequest
+// @Router       /keystonecloud/credentials [post]
+func (h *KeystoneCloudHandler) SaveCredentials(c *gin.Context) {
+	var req keystoneCloudCredentialsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -52,20 +52,20 @@ func (h *WeKnoraCloudHandler) SaveCredentials(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true, "message": "凭证保存成功"})
 }
 
-// Status GET /api/v1/models/weknoracloud/status
-// 检查当前空间的 WeKnoraCloud 凭证是否完好，如需重新初始化则返回 needs_reinit=true
+// Status GET /api/v1/models/keystonecloud/status
+// 检查当前空间的 KeystoneCloud 凭证是否完好，如需重新初始化则返回 needs_reinit=true
 //
 // Status godoc
-// @Summary      检查 WeKnoraCloud 凭证状态
-// @Description  检查当前空间的 WeKnoraCloud 凭证是否完好；needs_reinit=true 表示需要重新保存
-// @Tags         WeKnoraCloud
+// @Summary      检查 KeystoneCloud 凭证状态
+// @Description  检查当前空间的 KeystoneCloud 凭证是否完好；needs_reinit=true 表示需要重新保存
+// @Tags         KeystoneCloud
 // @Produce      json
 // @Success      200  {object}  map[string]interface{}  "凭证状态"
 // @Failure      500  {object}  map[string]interface{}  "服务器错误"
 // @Security     Bearer
 // @Security     ApiKeyAuth
-// @Router       /models/weknoracloud/status [get]
-func (h *WeKnoraCloudHandler) Status(c *gin.Context) {
+// @Router       /models/keystonecloud/status [get]
+func (h *KeystoneCloudHandler) Status(c *gin.Context) {
 	result, err := h.svc.CheckStatus(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Tencent/WeKnora/internal/middleware"
-	"github.com/Tencent/WeKnora/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/middleware"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 	"github.com/gin-gonic/gin"
 )
 

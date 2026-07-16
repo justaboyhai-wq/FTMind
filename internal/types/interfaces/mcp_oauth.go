@@ -3,7 +3,7 @@ package interfaces
 import (
 	"context"
 
-	"github.com/Tencent/WeKnora/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 )
 
 // MCPOAuthRepository persists OAuth clients (per service) and tokens

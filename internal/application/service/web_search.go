@@ -7,12 +7,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Tencent/WeKnora/internal/config"
-	infra_web_search "github.com/Tencent/WeKnora/internal/infrastructure/web_search"
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/searchutil"
-	"github.com/Tencent/WeKnora/internal/types"
-	"github.com/Tencent/WeKnora/internal/types/interfaces"
+	"github.com/justaboyhai-wq/keystone/internal/config"
+	infra_web_search "github.com/justaboyhai-wq/keystone/internal/infrastructure/web_search"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/searchutil"
+	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
 )
 
 // WebSearchService provides web search functionality.

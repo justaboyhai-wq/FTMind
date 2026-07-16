@@ -6,12 +6,12 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/Tencent/WeKnora/internal/config"
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/searchutil"
-	"github.com/Tencent/WeKnora/internal/tracing/langfuse"
-	"github.com/Tencent/WeKnora/internal/types"
-	"github.com/Tencent/WeKnora/internal/types/interfaces"
+	"github.com/justaboyhai-wq/keystone/internal/config"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/searchutil"
+	"github.com/justaboyhai-wq/keystone/internal/tracing/langfuse"
+	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
 )
 
 // PluginSearch implements search functionality for chat pipeline

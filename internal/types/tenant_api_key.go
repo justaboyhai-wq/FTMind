@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Tencent/WeKnora/internal/errors"
-	"github.com/Tencent/WeKnora/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/errors"
+	"github.com/justaboyhai-wq/keystone/internal/utils"
 	"gorm.io/gorm"
 )
 
@@ -82,7 +82,7 @@ const (
 	// messages across the tenant.
 	APIKeyCapabilityMessageHistory APIKeyCapability = "message_history"
 	// APIKeyCapabilityManageModels lets a key manage tenant model
-	// definitions, credentials, model checks, and WeKnoraCloud credentials.
+	// definitions, credentials, model checks, and KeystoneCloud credentials.
 	APIKeyCapabilityManageModels APIKeyCapability = "manage_models"
 	// APIKeyCapabilityManageMCPServices lets a key manage tenant MCP service
 	// definitions, credentials, tool policies, and per-principal OAuth state.

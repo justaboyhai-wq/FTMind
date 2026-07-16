@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Tencent/WeKnora/internal/common"
-	"github.com/Tencent/WeKnora/internal/types"
-	"github.com/Tencent/WeKnora/internal/types/interfaces"
+	"github.com/justaboyhai-wq/keystone/internal/common"
+	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
 	"gorm.io/gorm"
 )
 

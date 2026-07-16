@@ -10,9 +10,9 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/Tencent/WeKnora/internal/datasource"
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/datasource"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 )
 
 // Connector implements the datasource.Connector interface for Feishu.
@@ -53,7 +53,7 @@ func (c *Connector) Validate(ctx context.Context, config *types.DataSourceConfig
 //   - parentID == "spaceID:nodeToken" → list the direct children of that node.
 //
 // Eagerly recursing the whole tree here used to time out for large wikis
-// (Tencent/WeKnora#1672); the recursive walk now happens only at sync time.
+// (justaboyhai-wq/keystone#1672); the recursive walk now happens only at sync time.
 func (c *Connector) ListResources(
 	ctx context.Context, config *types.DataSourceConfig, parentID string,
 ) ([]types.Resource, error) {

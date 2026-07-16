@@ -7,7 +7,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/Tencent/WeKnora/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 	"github.com/hibiken/asynq"
 )
 

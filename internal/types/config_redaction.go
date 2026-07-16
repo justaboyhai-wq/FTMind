@@ -132,12 +132,12 @@ func CredentialsConfigForResponse(cfg *CredentialsConfig, maskSecrets bool) *Cre
 	if !maskSecrets {
 		return &out
 	}
-	if out.WeKnoraCloud != nil {
-		cloud := *out.WeKnoraCloud
+	if out.KeystoneCloud != nil {
+		cloud := *out.KeystoneCloud
 		if cloud.AppSecret != "" {
 			cloud.AppSecret = RedactedSecretPlaceholder
 		}
-		out.WeKnoraCloud = &cloud
+		out.KeystoneCloud = &cloud
 	}
 	return &out
 }

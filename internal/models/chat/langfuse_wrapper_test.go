@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/Tencent/WeKnora/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 )
 
 func TestBuildLangfuseGenerationOutput(t *testing.T) {

@@ -11,10 +11,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/Tencent/WeKnora/cli/internal/cmdutil"
-	"github.com/Tencent/WeKnora/cli/internal/iostreams"
-	"github.com/Tencent/WeKnora/cli/internal/prompt"
-	sdk "github.com/Tencent/WeKnora/client"
+	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/keystone/cli/internal/prompt"
+	sdk "github.com/justaboyhai-wq/keystone/client"
 )
 
 // fakeEditSvc scripts GetAgent (fetch baseline) + UpdateAgent (apply
@@ -286,11 +286,11 @@ func TestEdit_SystemPromptFile(t *testing.T) {
 	assert.Equal(t, "new prompt", svc.updateReq.Config.SystemPrompt)
 }
 
-// withRootHarnessAgent wraps `weknora agent update ...` under a synthetic root
+// withRootHarnessAgent wraps `keystone agent update ...` under a synthetic root
 // cmd that registers the global persistent flags (mirrors addGlobalFlags in
 // cmd/root.go).
 func withRootHarnessAgent(edit *cobra.Command, args ...string) *cobra.Command {
-	root := &cobra.Command{Use: "weknora"}
+	root := &cobra.Command{Use: "keystone"}
 	pf := root.PersistentFlags()
 	pf.BoolP("yes", "y", false, "")
 	pf.String("format", "", "Output format: text | json | ndjson")

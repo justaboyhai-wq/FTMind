@@ -212,15 +212,15 @@ export async function deleteModelCredentialField(
   await del(`/api/v1/models/${id}/credentials/${field}`)
 }
 
-export interface InitializeWeKnoraCloudRequest {
+export interface InitializeKeystoneCloudRequest {
   app_id: string
   app_secret: string
 }
 
-// 仅保存 WeKnoraCloud 凭证，不自动创建模型
-export function saveWeKnoraCloudCredentials(data: InitializeWeKnoraCloudRequest): Promise<{ success: boolean; message: string }> {
+// 仅保存 KeystoneCloud 凭证，不自动创建模型
+export function saveKeystoneCloudCredentials(data: InitializeKeystoneCloudRequest): Promise<{ success: boolean; message: string }> {
   return new Promise((resolve, reject) => {
-    post('/api/v1/weknoracloud/credentials', data)
+    post('/api/v1/keystonecloud/credentials', data)
       .then((response: any) => {
         if (response.success) {
           resolve(response)
@@ -229,21 +229,21 @@ export function saveWeKnoraCloudCredentials(data: InitializeWeKnoraCloudRequest)
         }
       })
       .catch((error: any) => {
-        console.error('Failed to save WeKnoraCloud credentials:', error)
+        console.error('Failed to save KeystoneCloud credentials:', error)
         reject(error)
       })
   })
 }
 
-export interface WeKnoraCloudStatusResult {
+export interface KeystoneCloudStatusResult {
   has_models: boolean
   needs_reinit: boolean
   reason?: string
 }
 
-export function getWeKnoraCloudStatus(): Promise<WeKnoraCloudStatusResult> {
+export function getKeystoneCloudStatus(): Promise<KeystoneCloudStatusResult> {
   return new Promise((resolve, reject) => {
-    get('/api/v1/models/weknoracloud/status')
+    get('/api/v1/models/keystonecloud/status')
       .then((response: any) => {
         // status 接口直接返回对象，不包在 success/data 中
         if (response && typeof response.has_models === 'boolean') {

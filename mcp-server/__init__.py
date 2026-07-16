@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-WeKnora MCP Server Package
+Keystone MCP Server Package
 
-A Model Context Protocol server that provides access to the WeKnora knowledge management API.
+A Model Context Protocol server that provides access to the Keystone knowledge management API.
 """
 
 __version__ = "1.0.0"
-__author__ = "WeKnora Team"
-__description__ = "WeKnora MCP Server - Model Context Protocol server for WeKnora API"
+__author__ = "Keystone Team"
+__description__ = "Keystone MCP Server - Model Context Protocol server for Keystone API"
 
-from .weknora_mcp_server import WeKnoraClient, run
+from .keystone_mcp_server import KeystoneClient, run
 
-__all__ = ["WeKnoraClient", "run"]
+__all__ = ["KeystoneClient", "run"]

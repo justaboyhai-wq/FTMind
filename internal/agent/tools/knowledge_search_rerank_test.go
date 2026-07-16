@@ -3,9 +3,9 @@ package tools
 import (
 	"testing"
 
-	"github.com/Tencent/WeKnora/internal/config"
-	"github.com/Tencent/WeKnora/internal/models/rerank"
-	"github.com/Tencent/WeKnora/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/config"
+	"github.com/justaboyhai-wq/keystone/internal/models/rerank"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 )
 
 func TestFilterRerankRankResults_thresholdAndFallback(t *testing.T) {
@@ -48,7 +48,7 @@ func TestApplyModelRerankScores_faqUsesCompositeScale(t *testing.T) {
 	}
 	originals := []*searchResultWithMeta{
 		{
-			SearchResult:      &types.SearchResult{ID: "faq-1", Content: "Q: WeKnora", Score: 0.011},
+			SearchResult:      &types.SearchResult{ID: "faq-1", Content: "Q: Keystone", Score: 0.011},
 			KnowledgeBaseType: types.KnowledgeBaseTypeFAQ,
 		},
 		{

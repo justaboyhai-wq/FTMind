@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/Tencent/WeKnora/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 )
 
 // TestNewOpenSearchClient_RejectsEmptyAddr verifies the constructor

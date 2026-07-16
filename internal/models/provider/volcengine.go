@@ -3,14 +3,12 @@ package provider
 import (
 	"fmt"
 
-	"github.com/Tencent/WeKnora/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 )
 
 const (
-	// VolcengineChatBaseURL 火山引擎 Ark Chat API BaseURL (OpenAI 兼容模式)
-	VolcengineChatBaseURL = "https://ark.cn-beijing.volces.com/api/v3"
-	// VolcengineEmbeddingBaseURL 火山引擎 Ark Multimodal Embedding API BaseURL
-	VolcengineEmbeddingBaseURL = "https://ark.cn-beijing.volces.com/api/v3/embeddings/multimodal"
+	// VolcengineAgentPlanBaseURL 是 Ark AgentPlan 专属 API Base URL。
+	VolcengineAgentPlanBaseURL = "https://ark.cn-beijing.volces.com/api/plan/v3"
 )
 
 // VolcengineProvider 实现火山引擎 Ark 的 Provider 接口
@@ -24,12 +22,12 @@ func init() {
 func (p *VolcengineProvider) Info() ProviderInfo {
 	return ProviderInfo{
 		Name:        ProviderVolcengine,
-		DisplayName: "火山引擎 Volcengine",
-		Description: "doubao-1-5-pro-32k-250115, doubao-embedding-vision-250615, etc.",
+		DisplayName: "火山引擎 AgentPlan",
+		Description: "火山引擎 AgentPlan（Ark 兼容接口）",
 		DefaultURLs: map[types.ModelType]string{
-			types.ModelTypeKnowledgeQA: VolcengineChatBaseURL,
-			types.ModelTypeEmbedding:   VolcengineEmbeddingBaseURL,
-			types.ModelTypeVLLM:        VolcengineChatBaseURL,
+			types.ModelTypeKnowledgeQA: VolcengineAgentPlanBaseURL,
+			types.ModelTypeEmbedding:   VolcengineAgentPlanBaseURL,
+			types.ModelTypeVLLM:        VolcengineAgentPlanBaseURL,
 		},
 		ModelTypes: []types.ModelType{
 			types.ModelTypeKnowledgeQA,

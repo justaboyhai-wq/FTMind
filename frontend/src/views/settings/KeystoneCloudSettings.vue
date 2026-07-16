@@ -1,16 +1,16 @@
 <template>
-  <div class="weknoracloud-settings">
+  <div class="keystonecloud-settings">
     <div class="section-header">
-      <h2>{{ $t('settings.weknoraCloud.title') }}</h2>
+      <h2>{{ $t('settings.keystoneCloud.title') }}</h2>
       <p class="section-description">
-        {{ $t('settings.weknoraCloud.description') }}
+        {{ $t('settings.keystoneCloud.description') }}
         <a
           class="doc-link"
           href="https://developers.weixin.qq.com/doc/aispeech/knowledge/atomic_capability/atomic_interface.html"
           target="_blank"
           rel="noopener noreferrer"
         >
-          {{ $t('settings.weknoraCloud.viewDocs') }}
+          {{ $t('settings.keystoneCloud.viewDocs') }}
           <t-icon name="link" class="link-icon" />
         </a>
       </p>
@@ -19,22 +19,22 @@
     <!-- 未配置 -->
     <div v-if="credentialState === 'unconfigured'" class="credential-status unconfigured">
       <t-icon name="info-circle" style="font-size: 16px; flex-shrink: 0;" />
-      <span>{{ $t('settings.weknoraCloud.unconfigured') }}</span>
+      <span>{{ $t('settings.keystoneCloud.unconfigured') }}</span>
     </div>
 
     <!-- 凭证失效 -->
     <div v-else-if="credentialState === 'expired'" class="credential-warning">
       <t-icon name="error-circle" style="font-size: 16px; color: #f97316; flex-shrink: 0; margin-top: 1px;" />
       <div class="warning-text">
-        <strong>{{ $t('settings.weknoraCloud.expired') }}</strong><br />
-        {{ reinitReason || $t('settings.weknoraCloud.expiredDefault') }}
+        <strong>{{ $t('settings.keystoneCloud.expired') }}</strong><br />
+        {{ reinitReason || $t('settings.keystoneCloud.expiredDefault') }}
       </div>
     </div>
 
     <!-- 已配置正常 -->
     <div v-else-if="credentialState === 'configured'" class="credential-status success">
       <t-icon name="check-circle" style="font-size: 16px; color: var(--td-brand-color); flex-shrink: 0;" />
-      <span class="status-text">{{ $t('settings.weknoraCloud.configured') }}</span>
+      <span class="status-text">{{ $t('settings.keystoneCloud.configured') }}</span>
       <t-button
         v-if="!formExpanded"
         variant="outline"
@@ -43,7 +43,7 @@
         @click="formExpanded = true"
       >
         <template #icon><t-icon name="edit" /></template>
-        {{ $t('settings.weknoraCloud.reconfigure') }}
+        {{ $t('settings.keystoneCloud.reconfigure') }}
       </t-button>
     </div>
 
@@ -51,13 +51,13 @@
     <div v-if="formExpanded" class="settings-group">
       <div class="setting-row">
         <div class="setting-info">
-          <label class="setting-label">{{ $t('settings.weknoraCloud.appIdLabel') }}</label>
-          <p class="setting-desc">{{ $t('settings.weknoraCloud.appIdDesc') }}</p>
+          <label class="setting-label">{{ $t('settings.keystoneCloud.appIdLabel') }}</label>
+          <p class="setting-desc">{{ $t('settings.keystoneCloud.appIdDesc') }}</p>
         </div>
         <div class="setting-control">
           <t-input
             v-model="form.appId"
-            :placeholder="$t('settings.weknoraCloud.appIdPlaceholder')"
+            :placeholder="$t('settings.keystoneCloud.appIdPlaceholder')"
             autocomplete="off"
             style="width: 280px;"
           />
@@ -66,14 +66,14 @@
 
       <div class="setting-row">
         <div class="setting-info">
-          <label class="setting-label">{{ $t('settings.weknoraCloud.appSecretLabel') }}</label>
-          <p class="setting-desc">{{ $t('settings.weknoraCloud.appSecretDesc') }}</p>
+          <label class="setting-label">{{ $t('settings.keystoneCloud.appSecretLabel') }}</label>
+          <p class="setting-desc">{{ $t('settings.keystoneCloud.appSecretDesc') }}</p>
         </div>
         <div class="setting-control">
           <t-input
             v-model="form.appSecret"
             type="password"
-            :placeholder="$t('settings.weknoraCloud.appSecretPlaceholder')"
+            :placeholder="$t('settings.keystoneCloud.appSecretPlaceholder')"
             autocomplete="new-password"
             style="width: 280px;"
           />
@@ -82,7 +82,7 @@
 
       <div class="setting-row action-row">
         <div class="setting-info">
-          <p class="setting-desc">{{ $t('settings.weknoraCloud.saveHint') }}</p>
+          <p class="setting-desc">{{ $t('settings.keystoneCloud.saveHint') }}</p>
         </div>
         <div class="setting-control">
           <t-button
@@ -91,7 +91,7 @@
             :disabled="!form.appId || !form.appSecret"
             @click="handleSave"
           >
-            {{ $t('settings.weknoraCloud.saveBtn') }}
+            {{ $t('settings.keystoneCloud.saveBtn') }}
           </t-button>
         </div>
       </div>
@@ -103,12 +103,12 @@
       :class="{ 'models-section--disabled': credentialState !== 'configured' }"
     >
       <div class="models-section__header">
-        <h3 class="models-section__title">{{ $t('settings.weknoraCloud.modelsSection.title') }}</h3>
+        <h3 class="models-section__title">{{ $t('settings.keystoneCloud.modelsSection.title') }}</h3>
         <p class="models-section__desc">
           {{
             credentialState === 'configured'
-              ? $t('settings.weknoraCloud.modelsSection.descReady')
-              : $t('settings.weknoraCloud.modelsSection.descPending')
+              ? $t('settings.keystoneCloud.modelsSection.descReady')
+              : $t('settings.keystoneCloud.modelsSection.descPending')
           }}
         </p>
       </div>
@@ -130,15 +130,15 @@
               variant="light"
               size="small"
             >
-              {{ $t('settings.weknoraCloud.modelsSection.statusAdded') }}
+              {{ $t('settings.keystoneCloud.modelsSection.statusAdded') }}
             </t-tag>
             <t-popconfirm
               v-else-if="credentialState === 'configured'"
-              :content="$t('settings.weknoraCloud.modelsSection.confirmAddOne', {
+              :content="$t('settings.keystoneCloud.modelsSection.confirmAddOne', {
                 type: kindLabel(kind),
                 name: WKC_MODEL_NAME_BY_KIND[kind],
               })"
-              :confirm-btn="{ content: $t('settings.weknoraCloud.modelsSection.addOne'), theme: 'primary' }"
+              :confirm-btn="{ content: $t('settings.keystoneCloud.modelsSection.addOne'), theme: 'primary' }"
               :cancel-btn="{ content: $t('common.cancel') }"
               placement="left"
               @confirm="addModels([kind])"
@@ -151,11 +151,11 @@
                 :disabled="addingModels && addingKind !== kind"
                 @click.stop
               >
-                {{ $t('settings.weknoraCloud.modelsSection.addOne') }}
+                {{ $t('settings.keystoneCloud.modelsSection.addOne') }}
               </t-button>
             </t-popconfirm>
             <span v-else class="model-row__pending">
-              {{ $t('settings.weknoraCloud.modelsSection.statusPending') }}
+              {{ $t('settings.keystoneCloud.modelsSection.statusPending') }}
             </span>
           </div>
         </div>
@@ -166,9 +166,9 @@
         class="models-section__batch"
       >
         <t-popconfirm
-          :content="$t('settings.weknoraCloud.modelsSection.confirmAddAll', { count: missingKinds.length })"
+          :content="$t('settings.keystoneCloud.modelsSection.confirmAddAll', { count: missingKinds.length })"
           :confirm-btn="{
-            content: $t('settings.weknoraCloud.modelsSection.addAllConfirm'),
+            content: $t('settings.keystoneCloud.modelsSection.addAllConfirm'),
             theme: 'primary',
           }"
           :cancel-btn="{ content: $t('common.cancel') }"
@@ -181,7 +181,7 @@
             :loading="addingModels && !addingKind"
             :disabled="addingModels && !!addingKind"
           >
-            {{ $t('settings.weknoraCloud.modelsSection.addAllBtn', { count: missingKinds.length }) }}
+            {{ $t('settings.keystoneCloud.modelsSection.addAllBtn', { count: missingKinds.length }) }}
           </t-button>
         </t-popconfirm>
       </div>
@@ -191,14 +191,14 @@
         class="models-section__ready"
       >
         <t-icon name="check-circle-filled" class="models-section__ready-icon" />
-        {{ $t('settings.weknoraCloud.modelsSection.allReady') }}
+        {{ $t('settings.keystoneCloud.modelsSection.allReady') }}
       </p>
     </section>
 
     <!-- 使用说明 -->
     <div class="usage-hint">
-      <p class="hint-title">{{ $t('settings.weknoraCloud.usageTitle') }}</p>
-      <p class="hint-text" v-html="$t('settings.weknoraCloud.usageSteps').replace(/\n/g, '<br />')" />
+      <p class="hint-title">{{ $t('settings.keystoneCloud.usageTitle') }}</p>
+      <p class="hint-text" v-html="$t('settings.keystoneCloud.usageSteps').replace(/\n/g, '<br />')" />
     </div>
   </div>
 </template>
@@ -207,17 +207,17 @@
 import { ref, computed, onMounted } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { useI18n } from 'vue-i18n'
-import { saveWeKnoraCloudCredentials, getWeKnoraCloudStatus, createModel, listModels } from '@/api/model'
+import { saveKeystoneCloudCredentials, getKeystoneCloudStatus, createModel, listModels } from '@/api/model'
 import { testEmbeddingModel } from '@/api/initialization'
 import {
   WKC_MODEL_KINDS,
   WKC_MODEL_NAME_BY_KIND,
-  WEKNORA_CLOUD_BASE_URL,
-  WEKNORA_CLOUD_PROVIDER,
+  KEYSTONE_CLOUD_BASE_URL,
+  KEYSTONE_CLOUD_PROVIDER,
   buildWkcModelConfig,
   existingWkcKinds,
   type WkcModelKind,
-} from '@/utils/weknoraCloudModels'
+} from '@/utils/keystoneCloudModels'
 
 const { t } = useI18n()
 
@@ -247,7 +247,7 @@ const kindLabel = (kind: WkcModelKind) => {
 }
 
 const kindDisplayName = (kind: WkcModelKind) =>
-  t(`settings.weknoraCloud.addModelsDisplayName.${kind}`)
+  t(`settings.keystoneCloud.addModelsDisplayName.${kind}`)
 
 const refreshExistingKinds = async () => {
   try {
@@ -262,11 +262,11 @@ const resolveEmbeddingDimension = async (): Promise<number> => {
   const result = await testEmbeddingModel({
     source: 'remote',
     modelName: WKC_MODEL_NAME_BY_KIND.embedding,
-    baseUrl: WEKNORA_CLOUD_BASE_URL,
-    provider: WEKNORA_CLOUD_PROVIDER,
+    baseUrl: KEYSTONE_CLOUD_BASE_URL,
+    provider: KEYSTONE_CLOUD_PROVIDER,
   })
   if (!result.available || !result.dimension) {
-    throw new Error(result.message || t('settings.weknoraCloud.addModelsEmbeddingFailed'))
+    throw new Error(result.message || t('settings.keystoneCloud.addModelsEmbeddingFailed'))
   }
   return result.dimension
 }
@@ -299,17 +299,17 @@ const addModels = async (kinds: WkcModelKind[]) => {
         existingKinds.value = new Set([...existingKinds.value, kind])
         success += 1
       } catch (err: any) {
-        console.error(`Failed to create WeKnoraCloud ${kind} model:`, err)
+        console.error(`Failed to create KeystoneCloud ${kind} model:`, err)
         failed += 1
       }
     }
 
     if (success > 0 && failed === 0) {
-      MessagePlugin.success(t('settings.weknoraCloud.addModelsSuccess', { count: success }))
+      MessagePlugin.success(t('settings.keystoneCloud.addModelsSuccess', { count: success }))
     } else if (success > 0) {
-      MessagePlugin.warning(t('settings.weknoraCloud.addModelsPartial', { success, failed }))
+      MessagePlugin.warning(t('settings.keystoneCloud.addModelsPartial', { success, failed }))
     } else {
-      MessagePlugin.error(t('settings.weknoraCloud.addModelsFailed'))
+      MessagePlugin.error(t('settings.keystoneCloud.addModelsFailed'))
     }
   } finally {
     addingModels.value = false
@@ -319,16 +319,16 @@ const addModels = async (kinds: WkcModelKind[]) => {
 
 const handleSave = async () => {
   if (!form.value.appId || !form.value.appSecret) {
-    MessagePlugin.warning(t('settings.weknoraCloud.fillRequired'))
+    MessagePlugin.warning(t('settings.keystoneCloud.fillRequired'))
     return
   }
   saving.value = true
   try {
-    await saveWeKnoraCloudCredentials({
+    await saveKeystoneCloudCredentials({
       app_id: form.value.appId,
       app_secret: form.value.appSecret,
     })
-    MessagePlugin.success(t('settings.weknoraCloud.saveSuccess'))
+    MessagePlugin.success(t('settings.keystoneCloud.saveSuccess'))
     form.value.appId = ''
     form.value.appSecret = ''
     needsReinit.value = false
@@ -337,7 +337,7 @@ const handleSave = async () => {
     formExpanded.value = false
     await refreshExistingKinds()
   } catch (err: any) {
-    MessagePlugin.error(err?.message || t('settings.weknoraCloud.saveFailed'))
+    MessagePlugin.error(err?.message || t('settings.keystoneCloud.saveFailed'))
   } finally {
     saving.value = false
   }
@@ -345,7 +345,7 @@ const handleSave = async () => {
 
 const checkStatus = async () => {
   try {
-    const status = await getWeKnoraCloudStatus()
+    const status = await getKeystoneCloudStatus()
     needsReinit.value = status.needs_reinit
     reinitReason.value = status.reason || ''
     hasCredentials.value = status.has_models && !status.needs_reinit
@@ -364,7 +364,7 @@ onMounted(async () => {
 </script>
 
 <style lang="less" scoped>
-.weknoracloud-settings {
+.keystonecloud-settings {
   width: 100%;
 }
 

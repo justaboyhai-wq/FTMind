@@ -1,16 +1,16 @@
-# Makefile for the WeKnora CLI (cli/ Go module).
+# Makefile for the Keystone CLI (cli/ Go module).
 #
 # Usage:
-#   make build         compile to ./bin/weknora with version metadata
+#   make build         compile to ./bin/keystone with version metadata
 #   make test          go test ./...
 #   make test-coverage same with coverage report
 #   make lint          go vet (golangci-lint planned)
 #   make tidy          go mod tidy
 #   make clean         remove ./bin
 
-BINARY      := weknora
+BINARY      := keystone
 BUILD_DIR   := bin
-PKG         := github.com/Tencent/WeKnora/cli
+PKG         := github.com/justaboyhai-wq/keystone/cli
 
 VERSION     := $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 COMMIT      := $(shell git rev-parse --short HEAD 2>/dev/null || echo none)

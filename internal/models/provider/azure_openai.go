@@ -3,7 +3,7 @@ package provider
 import (
 	"fmt"
 
-	"github.com/Tencent/WeKnora/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 )
 
 // AzureOpenAIProvider 实现 Azure OpenAI 的 Provider 接口

@@ -1,4 +1,4 @@
-// Package wecom implements the WeCom (企业微信) IM adapter for WeKnora.
+// Package wecom implements the WeCom (企业微信) IM adapter for Keystone.
 //
 // WeCom Smart Bot flow:
 // 1. User sends a message to the bot (direct or @mention in group)
@@ -31,9 +31,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Tencent/WeKnora/internal/im"
-	"github.com/Tencent/WeKnora/internal/logger"
-	secutils "github.com/Tencent/WeKnora/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/im"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 

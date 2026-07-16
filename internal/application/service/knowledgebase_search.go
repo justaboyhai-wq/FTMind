@@ -3,13 +3,13 @@ package service
 import (
 	"context"
 
-	"github.com/Tencent/WeKnora/internal/application/service/retriever"
-	apperrors "github.com/Tencent/WeKnora/internal/errors"
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/models/embedding"
-	"github.com/Tencent/WeKnora/internal/tracing/langfuse"
-	"github.com/Tencent/WeKnora/internal/types"
-	secutils "github.com/Tencent/WeKnora/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/application/service/retriever"
+	apperrors "github.com/justaboyhai-wq/keystone/internal/errors"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/models/embedding"
+	"github.com/justaboyhai-wq/keystone/internal/tracing/langfuse"
+	"github.com/justaboyhai-wq/keystone/internal/types"
+	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
 )
 
 // GetQueryEmbedding computes the query embedding using the embedding model

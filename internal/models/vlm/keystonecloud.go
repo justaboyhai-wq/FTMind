@@ -10,15 +10,15 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/models/utils"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/models/utils"
 	"github.com/google/uuid"
 )
 
-const weKnoraCloudVLMPath = "/api/v1/chat/completions"
+const keystoneCloudVLMPath = "/api/v1/chat/completions"
 
-// WeKnoraCloudVLM implements VLM via the WeKnoraCloud API.
-type WeKnoraCloudVLM struct {
+// KeystoneCloudVLM implements VLM via the KeystoneCloud API.
+type KeystoneCloudVLM struct {
 	modelName       string
 	remoteModelName string
 	modelID         string
@@ -28,13 +28,13 @@ type WeKnoraCloudVLM struct {
 	client          *http.Client
 }
 
-// NewWeKnoraCloudVLM creates a WeKnoraCloud-backed VLM instance.
-func NewWeKnoraCloudVLM(config *Config) (*WeKnoraCloudVLM, error) {
+// NewKeystoneCloudVLM creates a KeystoneCloud-backed VLM instance.
+func NewKeystoneCloudVLM(config *Config) (*KeystoneCloudVLM, error) {
 	if config.AppID == "" {
-		return nil, fmt.Errorf("WeKnoraCloud VLM: AppID is required")
+		return nil, fmt.Errorf("KeystoneCloud VLM: AppID is required")
 	}
 	if config.AppSecret == "" {
-		return nil, fmt.Errorf("WeKnoraCloud VLM: AppSecret is required")
+		return nil, fmt.Errorf("KeystoneCloud VLM: AppSecret is required")
 	}
 	baseURL := strings.TrimRight(config.BaseURL, "/")
 	if err := validateVLMBaseURL(baseURL); err != nil {
@@ -48,7 +48,7 @@ func NewWeKnoraCloudVLM(config *Config) (*WeKnoraCloudVLM, error) {
 			}
 		}
 	}
-	return &WeKnoraCloudVLM{
+	return &KeystoneCloudVLM{
 		modelName:       config.ModelName,
 		remoteModelName: remoteModelName,
 		modelID:         config.ModelID,
@@ -59,30 +59,30 @@ func NewWeKnoraCloudVLM(config *Config) (*WeKnoraCloudVLM, error) {
 	}, nil
 }
 
-type weKnoraCloudVLMContentPart struct {
+type keystoneCloudVLMContentPart struct {
 	Type     string                   `json:"type"`
 	Text     string                   `json:"text,omitempty"`
-	ImageURL *weKnoraCloudVLMImageURL `json:"image_url,omitempty"`
+	ImageURL *keystoneCloudVLMImageURL `json:"image_url,omitempty"`
 }
 
-type weKnoraCloudVLMImageURL struct {
+type keystoneCloudVLMImageURL struct {
 	URL string `json:"url"`
 }
 
-type weKnoraCloudVLMMessage struct {
+type keystoneCloudVLMMessage struct {
 	Role    string      `json:"role"`
 	Content interface{} `json:"content"`
 }
 
-type weKnoraCloudVLMRequest struct {
+type keystoneCloudVLMRequest struct {
 	Model       string                   `json:"model"`
-	Messages    []weKnoraCloudVLMMessage `json:"messages"`
+	Messages    []keystoneCloudVLMMessage `json:"messages"`
 	MaxTokens   int                      `json:"max_tokens,omitempty"`
 	Temperature float64                  `json:"temperature,omitempty"`
 	Stream      bool                     `json:"stream"`
 }
 
-type weKnoraCloudVLMResponse struct {
+type keystoneCloudVLMResponse struct {
 	Choices []struct {
 		Message struct {
 			Content string `json:"content"`
@@ -90,11 +90,11 @@ type weKnoraCloudVLMResponse struct {
 	} `json:"choices"`
 }
 
-// Predict sends images with a text prompt to the WeKnoraCloud API.
-func (v *WeKnoraCloudVLM) Predict(ctx context.Context, imgBytesList [][]byte, prompt string) (string, error) {
-	var parts []weKnoraCloudVLMContentPart
+// Predict sends images with a text prompt to the KeystoneCloud API.
+func (v *KeystoneCloudVLM) Predict(ctx context.Context, imgBytesList [][]byte, prompt string) (string, error) {
+	var parts []keystoneCloudVLMContentPart
 
-	parts = append(parts, weKnoraCloudVLMContentPart{
+	parts = append(parts, keystoneCloudVLMContentPart{
 		Type: "text",
 		Text: prompt,
 	})
@@ -104,18 +104,18 @@ func (v *WeKnoraCloudVLM) Predict(ctx context.Context, imgBytesList [][]byte, pr
 			mimeType := detectImageMIME(imgBytes)
 			b64 := base64.StdEncoding.EncodeToString(imgBytes)
 			dataURI := fmt.Sprintf("data:%s;base64,%s", mimeType, b64)
-			parts = append(parts, weKnoraCloudVLMContentPart{
+			parts = append(parts, keystoneCloudVLMContentPart{
 				Type: "image_url",
-				ImageURL: &weKnoraCloudVLMImageURL{
+				ImageURL: &keystoneCloudVLMImageURL{
 					URL: dataURI,
 				},
 			})
 		}
 	}
 
-	reqBody := weKnoraCloudVLMRequest{
+	reqBody := keystoneCloudVLMRequest{
 		Model: v.effectiveModelName(),
-		Messages: []weKnoraCloudVLMMessage{
+		Messages: []keystoneCloudVLMMessage{
 			{
 				Role:    "user",
 				Content: parts,
@@ -128,15 +128,15 @@ func (v *WeKnoraCloudVLM) Predict(ctx context.Context, imgBytesList [][]byte, pr
 
 	bodyBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		return "", fmt.Errorf("weknoracloud VLM: marshal: %w", err)
+		return "", fmt.Errorf("keystonecloud VLM: marshal: %w", err)
 	}
 
 	requestID := uuid.New().String()
 	headers := utils.Sign(v.appID, v.apiKey, requestID, string(bodyBytes))
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, v.baseURL+weKnoraCloudVLMPath, bytes.NewReader(bodyBytes))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, v.baseURL+keystoneCloudVLMPath, bytes.NewReader(bodyBytes))
 	if err != nil {
-		return "", fmt.Errorf("weknoracloud VLM: create request: %w", err)
+		return "", fmt.Errorf("keystonecloud VLM: create request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	for k, hv := range headers {
@@ -147,42 +147,42 @@ func (v *WeKnoraCloudVLM) Predict(ctx context.Context, imgBytesList [][]byte, pr
 	for _, img := range imgBytesList {
 		totalImageSize += len(img)
 	}
-	logger.Infof(ctx, "[VLM] Calling WeKnoraCloud API, model=%s, baseURL=%s, numImages=%d, totalImageSize=%d",
+	logger.Infof(ctx, "[VLM] Calling KeystoneCloud API, model=%s, baseURL=%s, numImages=%d, totalImageSize=%d",
 		v.effectiveModelName(), v.baseURL, len(imgBytesList), totalImageSize)
 
 	resp, err := v.client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("weknoracloud VLM: do request: %w", err)
+		return "", fmt.Errorf("keystonecloud VLM: do request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("weknoracloud VLM: read response: %w", err)
+		return "", fmt.Errorf("keystonecloud VLM: read response: %w", err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("weknoracloud VLM: status %d: %s", resp.StatusCode, string(respBytes))
+		return "", fmt.Errorf("keystonecloud VLM: status %d: %s", resp.StatusCode, string(respBytes))
 	}
 
-	var vlmResp weKnoraCloudVLMResponse
+	var vlmResp keystoneCloudVLMResponse
 	if err := json.Unmarshal(respBytes, &vlmResp); err != nil {
-		return "", fmt.Errorf("weknoracloud VLM: unmarshal: %w", err)
+		return "", fmt.Errorf("keystonecloud VLM: unmarshal: %w", err)
 	}
 	if len(vlmResp.Choices) == 0 {
-		return "", fmt.Errorf("weknoracloud VLM: no choices in response")
+		return "", fmt.Errorf("keystonecloud VLM: no choices in response")
 	}
 
 	content := vlmResp.Choices[0].Message.Content
-	logger.Infof(ctx, "[VLM] WeKnoraCloud response received, len=%d", len(content))
+	logger.Infof(ctx, "[VLM] KeystoneCloud response received, len=%d", len(content))
 	return content, nil
 }
 
-func (v *WeKnoraCloudVLM) effectiveModelName() string {
+func (v *KeystoneCloudVLM) effectiveModelName() string {
 	if v.remoteModelName != "" {
 		return v.remoteModelName
 	}
 	return v.modelName
 }
 
-func (v *WeKnoraCloudVLM) GetModelName() string { return v.modelName }
-func (v *WeKnoraCloudVLM) GetModelID() string   { return v.modelID }
+func (v *KeystoneCloudVLM) GetModelName() string { return v.modelName }
+func (v *KeystoneCloudVLM) GetModelID() string   { return v.modelID }

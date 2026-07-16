@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Tencent/WeKnora/internal/logger"
-	secutils "github.com/Tencent/WeKnora/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
 	openai "github.com/sashabaranov/go-openai"
 )
 

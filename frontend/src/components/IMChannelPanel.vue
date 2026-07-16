@@ -600,12 +600,8 @@ const drawerConfirmText = computed(() =>
 const platformOptions = computed(() => ([
   { value: 'wecom' as IMPlatform, label: t('agentEditor.im.wecom'), logo: wecomLogo },
   { value: 'feishu' as IMPlatform, label: t('agentEditor.im.feishu'), logo: feishuLogo },
-  { value: 'slack' as IMPlatform, label: t('agentEditor.im.slack'), logo: slackLogo },
-  { value: 'telegram' as IMPlatform, label: t('agentEditor.im.telegram'), logo: telegramLogo },
   { value: 'dingtalk' as IMPlatform, label: t('agentEditor.im.dingtalk'), logo: dingtalkLogo },
-  { value: 'mattermost' as IMPlatform, label: t('agentEditor.im.mattermost'), logo: mattermostLogo },
   { value: 'wechat' as IMPlatform, label: t('agentEditor.im.wechat'), logo: wechatLogo },
-  { value: 'qqbot' as IMPlatform, label: t('agentEditor.im.qqbot'), logo: qqbotLogo },
 ]));
 
 const drawerTitle = computed(() => {
@@ -708,7 +704,7 @@ function resolvedChannelName(): string {
 }
 
 function platformSupportsThread(platform: string): boolean {
-  return ['slack', 'mattermost', 'feishu', 'telegram'].includes(platform);
+  return platform === 'feishu';
 }
 
 watch(

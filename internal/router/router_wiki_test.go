@@ -7,11 +7,11 @@ import (
 	"strings"
 	"testing"
 
-	apprepo "github.com/Tencent/WeKnora/internal/application/repository"
-	"github.com/Tencent/WeKnora/internal/config"
-	"github.com/Tencent/WeKnora/internal/handler"
-	"github.com/Tencent/WeKnora/internal/middleware"
-	"github.com/Tencent/WeKnora/internal/types"
+	apprepo "github.com/justaboyhai-wq/keystone/internal/application/repository"
+	"github.com/justaboyhai-wq/keystone/internal/config"
+	"github.com/justaboyhai-wq/keystone/internal/handler"
+	"github.com/justaboyhai-wq/keystone/internal/middleware"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )

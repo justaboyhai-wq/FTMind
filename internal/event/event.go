@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/Tencent/WeKnora/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
 )
 
 // EventType represents the type of event in the system

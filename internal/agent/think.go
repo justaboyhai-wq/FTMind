@@ -6,12 +6,12 @@ import (
 	"strings"
 	"time"
 
-	agenttools "github.com/Tencent/WeKnora/internal/agent/tools"
-	"github.com/Tencent/WeKnora/internal/common"
-	"github.com/Tencent/WeKnora/internal/event"
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/models/chat"
-	"github.com/Tencent/WeKnora/internal/types"
+	agenttools "github.com/justaboyhai-wq/keystone/internal/agent/tools"
+	"github.com/justaboyhai-wq/keystone/internal/common"
+	"github.com/justaboyhai-wq/keystone/internal/event"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/models/chat"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 )
 
 // streamLLMResult holds accumulated output from a streaming LLM call.

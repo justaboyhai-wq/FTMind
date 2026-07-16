@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Tencent/WeKnora/cli/internal/format"
+	"github.com/justaboyhai-wq/keystone/cli/internal/format"
 )
 
 func TestWriteNDJSON_ArraySplitsPerElement(t *testing.T) {

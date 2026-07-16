@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Tencent/WeKnora/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
 )
 
 // debugEmbedder wraps an Embedder with LLM debug logging.

@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/models/utils/ollama"
-	"github.com/Tencent/WeKnora/internal/types"
-	secutils "github.com/Tencent/WeKnora/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/models/utils/ollama"
+	"github.com/justaboyhai-wq/keystone/internal/types"
+	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
 	ollamaapi "github.com/ollama/ollama/api"
 )
 

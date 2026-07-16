@@ -10,9 +10,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/Tencent/WeKnora/internal/models/provider"
-	"github.com/Tencent/WeKnora/internal/types"
-	secutils "github.com/Tencent/WeKnora/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/models/provider"
+	"github.com/justaboyhai-wq/keystone/internal/types"
+	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
 )
 
 const anthropicVersion = "2023-06-01"

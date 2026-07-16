@@ -358,10 +358,10 @@ const protectedFileCacheState = (() => {
   });
   if (typeof window === 'undefined') return fresh();
   const scope = window as typeof window & {
-    __weknoraProtectedFileCacheV1__?: ProtectedFileCacheState;
+    __keystoneProtectedFileCacheV1__?: ProtectedFileCacheState;
   };
-  scope.__weknoraProtectedFileCacheV1__ ||= fresh();
-  return scope.__weknoraProtectedFileCacheV1__;
+  scope.__keystoneProtectedFileCacheV1__ ||= fresh();
+  return scope.__keystoneProtectedFileCacheV1__;
 })();
 
 const protectedFileBlobCache = protectedFileCacheState.blobByRequest;
@@ -385,18 +385,18 @@ const PROTECTED_FILE_RETRY_COOLDOWN_MS = 5000;
 function getProtectedFileRequestHeaders(): Record<string, string> {
   const headers: Record<string, string> = {};
   try {
-    const token = (localStorage.getItem('weknora_token') || '').trim();
+    const token = (localStorage.getItem('keystone_token') || '').trim();
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const selectedTenantId = (localStorage.getItem('weknora_selected_tenant_id') || '').trim();
+    const selectedTenantId = (localStorage.getItem('keystone_selected_tenant_id') || '').trim();
     if (selectedTenantId) {
       // Always attach when a selected tenant is set. Same rationale as
       // utils/request.ts / api/chat/streame.ts: the
       // "selectedTenantId === defaultTenantId → skip" short-circuit
       // silently drops the header whenever any code path writes the
-      // active tenant into weknora_tenant, leaving authenticated file
+      // active tenant into keystone_tenant, leaving authenticated file
       // fetches landing on the home tenant.
       headers['X-Tenant-ID'] = selectedTenantId;
     }

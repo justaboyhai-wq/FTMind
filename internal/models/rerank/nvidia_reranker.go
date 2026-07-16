@@ -8,8 +8,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/Tencent/WeKnora/internal/logger"
-	secutils "github.com/Tencent/WeKnora/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
 )
 
 // NvidiaReranker implements a reranking system using Jina AI API

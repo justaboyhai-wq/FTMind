@@ -1,0 +1,17 @@
+[Unit]
+Description=Keystone first-boot initialization (runs once)
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+Before=keystone.service
+ConditionPathExists=/usr/local/sbin/keystone-firstboot.sh
+ConditionPathExists=!/opt/Keystone/.firstboot.done
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/keystone-firstboot.sh
+RemainAfterExit=no
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target

@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Tencent/WeKnora/internal/im"
+	"github.com/justaboyhai-wq/keystone/internal/im"
 )
 
 // TestDownloadFile_EndToEnd drives the full DownloadFile orchestration against a

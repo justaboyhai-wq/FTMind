@@ -3,7 +3,7 @@ package interfaces
 import (
 	"context"
 
-	"github.com/Tencent/WeKnora/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 )
 
 // ChunkImageInfo holds (knowledge_id, image_info) pairs for image cleanup before chunk deletion.

@@ -1,8 +1,8 @@
-# WeKnora Data Source Sync Framework
+# Keystone Data Source Sync Framework
 
 ## Overview
 
-The data source sync framework enables WeKnora to automatically import and synchronize content from external platforms (Feishu, Notion, Confluence, etc.) into knowledge bases. This is the foundational layer upon which all specific connectors are built.
+The data source sync framework enables Keystone to automatically import and synchronize content from external platforms (Feishu, Notion, Confluence, etc.) into knowledge bases. This is the foundational layer upon which all specific connectors are built.
 
 ## Architecture
 

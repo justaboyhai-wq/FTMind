@@ -7,12 +7,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Tencent/WeKnora/internal/agent/tools"
-	"github.com/Tencent/WeKnora/internal/event"
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/models/chat"
-	"github.com/Tencent/WeKnora/internal/models/rerank"
-	"github.com/Tencent/WeKnora/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/agent/tools"
+	"github.com/justaboyhai-wq/keystone/internal/event"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/models/chat"
+	"github.com/justaboyhai-wq/keystone/internal/models/rerank"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 )
 
 // AgentQA performs agent-based question answering with conversation history and streaming support
@@ -461,7 +461,7 @@ func (s *sessionService) configureSkillsFromAgent(
 		return
 	}
 	// When sandbox is disabled, skills cannot be enabled (no script execution environment)
-	sandboxMode := os.Getenv("WEKNORA_SANDBOX_MODE")
+	sandboxMode := os.Getenv("KEYSTONE_SANDBOX_MODE")
 	if sandboxMode == "" || sandboxMode == "disabled" {
 		agentConfig.SkillsEnabled = false
 		agentConfig.SkillDirs = nil

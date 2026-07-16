@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/Tencent/WeKnora/cli/internal/output"
+	"github.com/justaboyhai-wq/keystone/cli/internal/output"
 )
 
 func TestEmitInit_ForcesTypeField(t *testing.T) {

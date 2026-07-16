@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/types"
-	secutils "github.com/Tencent/WeKnora/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/types"
+	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
 )
 
 // NvidiaEmbedder implements text vectorization functionality using NVIDIA API

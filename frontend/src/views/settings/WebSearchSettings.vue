@@ -855,6 +855,10 @@ onMounted(async () => {
   background: rgba(20, 158, 130, 0.12);
   color: #149E82;
 }
+.provider-card--ark .provider-card__badge {
+  background: rgba(36, 99, 235, 0.12);
+  color: #2563EB;
+}
 
 .provider-card__body {
   flex: 1;
@@ -1132,5 +1136,9 @@ onMounted(async () => {
 .websearch-drawer--keenable .setting-drawer__header-icon {
   background: rgba(20, 158, 130, 0.12);
   color: #149E82;
+}
+.websearch-drawer--ark .setting-drawer__header-icon {
+  background: rgba(36, 99, 235, 0.12);
+  color: #2563EB;
 }
 </style>

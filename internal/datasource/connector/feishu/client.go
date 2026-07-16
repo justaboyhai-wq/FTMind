@@ -12,8 +12,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Tencent/WeKnora/internal/datasource"
-	"github.com/Tencent/WeKnora/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/datasource"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
 )
 
 // Client wraps the Feishu Open Platform API for document/wiki operations.

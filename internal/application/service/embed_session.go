@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Tencent/WeKnora/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 	"github.com/redis/go-redis/v9"
 )
 

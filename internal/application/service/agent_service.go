@@ -7,20 +7,20 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Tencent/WeKnora/internal/agent"
-	"github.com/Tencent/WeKnora/internal/agent/approval"
-	"github.com/Tencent/WeKnora/internal/agent/skills"
-	"github.com/Tencent/WeKnora/internal/agent/tools"
-	"github.com/Tencent/WeKnora/internal/config"
-	"github.com/Tencent/WeKnora/internal/event"
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/mcp"
-	"github.com/Tencent/WeKnora/internal/models/chat"
-	"github.com/Tencent/WeKnora/internal/models/rerank"
-	"github.com/Tencent/WeKnora/internal/sandbox"
-	"github.com/Tencent/WeKnora/internal/types"
-	"github.com/Tencent/WeKnora/internal/types/interfaces"
-	secutils "github.com/Tencent/WeKnora/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/agent"
+	"github.com/justaboyhai-wq/keystone/internal/agent/approval"
+	"github.com/justaboyhai-wq/keystone/internal/agent/skills"
+	"github.com/justaboyhai-wq/keystone/internal/agent/tools"
+	"github.com/justaboyhai-wq/keystone/internal/config"
+	"github.com/justaboyhai-wq/keystone/internal/event"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/mcp"
+	"github.com/justaboyhai-wq/keystone/internal/models/chat"
+	"github.com/justaboyhai-wq/keystone/internal/models/rerank"
+	"github.com/justaboyhai-wq/keystone/internal/sandbox"
+	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
 	"gorm.io/gorm"
 )
 
@@ -339,21 +339,21 @@ func (s *agentService) initializeSkillsManager(
 	toolRegistry *tools.ToolRegistry,
 ) (*skills.Manager, error) {
 	// Initialize sandbox manager based on environment variables
-	// WEKNORA_SANDBOX_MODE: "docker", "local", "disabled" (default: "disabled")
-	// WEKNORA_SANDBOX_TIMEOUT: timeout in seconds (default: 60)
-	// WEKNORA_SANDBOX_DOCKER_IMAGE: custom Docker image (default: wechatopenai/weknora-sandbox:latest)
+	// KEYSTONE_SANDBOX_MODE: "docker", "local", "disabled" (default: "disabled")
+	// KEYSTONE_SANDBOX_TIMEOUT: timeout in seconds (default: 60)
+	// KEYSTONE_SANDBOX_DOCKER_IMAGE: custom Docker image (default: wechatopenai/keystone-sandbox:latest)
 	var sandboxMgr sandbox.Manager
 	var err error
 
-	sandboxMode := os.Getenv("WEKNORA_SANDBOX_MODE")
+	sandboxMode := os.Getenv("KEYSTONE_SANDBOX_MODE")
 	if sandboxMode == "" {
 		sandboxMode = "disabled"
 	}
-	dockerImage := os.Getenv("WEKNORA_SANDBOX_DOCKER_IMAGE")
+	dockerImage := os.Getenv("KEYSTONE_SANDBOX_DOCKER_IMAGE")
 	if dockerImage == "" {
 		dockerImage = sandbox.DefaultDockerImage
 	}
-	sandboxTimeoutStr := os.Getenv("WEKNORA_SANDBOX_TIMEOUT")
+	sandboxTimeoutStr := os.Getenv("KEYSTONE_SANDBOX_TIMEOUT")
 	sandboxTimeout := 60
 	if sandboxTimeoutStr != "" {
 		if v, err := strconv.Atoi(sandboxTimeoutStr); err == nil && v > 0 {

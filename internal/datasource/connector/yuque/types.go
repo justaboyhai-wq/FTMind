@@ -1,6 +1,6 @@
-// Package yuque implements the Yuque (语雀) data source connector for WeKnora.
+// Package yuque implements the Yuque (语雀) data source connector for Keystone.
 //
-// It syncs documents from personal and group knowledge bases (books/repos) into WeKnora
+// It syncs documents from personal and group knowledge bases (books/repos) into Keystone
 // knowledge bases, preserving Markdown formatting.
 //
 // Yuque API docs:
@@ -25,8 +25,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/Tencent/WeKnora/internal/datasource"
-	"github.com/Tencent/WeKnora/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/datasource"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 )
 
 // DefaultBaseURL is the Yuque public cloud API base URL.

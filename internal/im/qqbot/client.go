@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	secutils "github.com/Tencent/WeKnora/internal/utils"
+	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
 )
 
 type Client struct {

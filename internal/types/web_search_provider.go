@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/Tencent/WeKnora/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -23,6 +23,7 @@ const (
 	WebSearchProviderTypeBaidu      WebSearchProviderType = "baidu"
 	WebSearchProviderTypeSearxng    WebSearchProviderType = "searxng"
 	WebSearchProviderTypeKeenable   WebSearchProviderType = "keenable"
+	WebSearchProviderTypeArk        WebSearchProviderType = "ark"
 )
 
 // WebSearchProviderEntity represents a configured web search provider instance for a workspace.
@@ -210,6 +211,13 @@ func GetWebSearchProviderTypes() []WebSearchProviderTypeInfo {
 			SupportsProxy:          true,
 			Description:            "Keenable web search built for AI agents (keyless by default; an optional API key lifts the rate limit)",
 			DocsURL:                "https://keenable.ai/",
+		},
+		{
+			ID:             "ark",
+			Name:           "火山方舟 AgentPlan 联网搜索",
+			RequiresAPIKey: true,
+			Description:    "通过火山方舟 AgentPlan 的 Responses API 调用联网搜索工具（需先在方舟开通联网内容插件）",
+			DocsURL:        "https://www.volcengine.com/docs/82379/1756990?lang=zh",
 		},
 	}
 }

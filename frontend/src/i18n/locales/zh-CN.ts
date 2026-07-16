@@ -52,12 +52,12 @@ export default {
     reopen: "新手引导",
     steps: {
       welcome: {
-        title: "欢迎使用 WeKnora",
+        title: "欢迎使用 Keystone",
         desc: "只需几步，带你快速了解知识库、对话与智能体的核心用法。点击「下一步」开始。",
       },
       knowledge: {
         title: "创建你的知识库",
-        desc: "知识库是一切的起点：上传文档、网页或 FAQ，WeKnora 会自动解析并建立索引。点击这里进入知识库。",
+        desc: "知识库是一切的起点：上传文档、网页或 FAQ，Keystone 会自动解析并建立索引。点击这里进入知识库。",
       },
       chat: {
         title: "发起智能对话",
@@ -1099,38 +1099,38 @@ export default {
     roleDenied: {
       title: "权限不足",
       desc: "你当前的角色无权访问此设置项。请联系本空间的管理员获取所需角色。",
-    },    weknoraCloud: {
-      title: "WeKnora Cloud",
-      description: "配置 WeKnora Cloud 的 APPID 和 APPSECRET 凭证。凭证用于模型服务和文档解析引擎。",
+    },    keystoneCloud: {
+      title: "Keystone Cloud",
+      description: "配置 Keystone Cloud 的 APPID 和 APPSECRET 凭证。凭证用于模型服务和文档解析引擎。",
       viewDocs: "查看文档",
       unconfigured: "尚未配置凭证，请填写 APPID 和 APPSECRET",
       configured: "凭证已配置，状态正常",
-      expired: "WeKnora Cloud 凭证已失效",
+      expired: "Keystone Cloud 凭证已失效",
       expiredDefault: "服务重启后加密密钥已变更，已保存的凭证无法解密。请重新填写凭证。",
       reconfigure: "重新配置",
       appIdLabel: "APPID",
-      appIdDesc: "WeKnora Cloud 的应用 ID",
+      appIdDesc: "Keystone Cloud 的应用 ID",
       appIdPlaceholder: "请输入 APPID",
       appSecretLabel: "APPSECRET",
-      appSecretDesc: "WeKnora Cloud 的应用密钥",
+      appSecretDesc: "Keystone Cloud 的应用密钥",
       appSecretPlaceholder: "请输入 APPSECRET",
       saveHint: "保存后将验证服务可达性并加密存储凭证",
       saveBtn: "保存凭证",
       usageTitle: "使用说明",
-      usageSteps: "1. 填写并保存 APPID / APPSECRET\n2. 在下方「云模型接入」中按行添加 chat、embedding、rerank、vlm\n3. 文档解析：知识库设置 → 解析引擎，选择 WeKnora Cloud 引擎",
+      usageSteps: "1. 填写并保存 APPID / APPSECRET\n2. 在下方「云模型接入」中按行添加 chat、embedding、rerank、vlm\n3. 文档解析：知识库设置 → 解析引擎，选择 Keystone Cloud 引擎",
       fillRequired: "请填写 APPID 和 APPSECRET",
       saveSuccess: "凭证保存成功",
       saveFailed: "凭证保存失败",
-      credentialConfigured: "WeKnoraCloud 凭证已配置",
+      credentialConfigured: "Keystone Cloud 凭证已配置",
       credentialExpired: "凭证已失效，请重新配置。",
-      credentialUnconfigured: "尚未配置 WeKnoraCloud 凭证，请先填写 APPID 和 APPSECRET。",
+      credentialUnconfigured: "尚未配置 Keystone Cloud 凭证，请先填写 APPID 和 APPSECRET。",
       checkingStatus: "正在检查凭证状态...",
       goToSettings: "前往设置中配置",
-      modelHintConfigured: "WeKnoraCloud 凭证已配置。支持的模型可参考",
+      modelHintConfigured: "Keystone Cloud 凭证已配置。支持的模型可参考",
       modelHintDocsLink: "接口文档",
       modelsSection: {
         title: "云模型接入",
-        descReady: "将 WeKnora Cloud 提供的四类标准模型注册到当前空间，用于对话、向量检索、重排序与多模态理解。",
+        descReady: "将 Keystone Cloud 提供的四类标准模型注册到当前空间，用于对话、向量检索、重排序与多模态理解。",
         descPending: "请先保存上方凭证，再在此添加云模型。",
         statusAdded: "已添加",
         statusPending: "待配置凭证",
@@ -1147,10 +1147,10 @@ export default {
       addModelsAllExist: "四类模型均已存在",
       addModelsEmbeddingFailed: "Embedding 模型连接测试失败，无法获取向量维度",
       addModelsDisplayName: {
-        chat: "WeKnoraCloud 对话",
-        embedding: "WeKnoraCloud Embedding",
-        rerank: "WeKnoraCloud ReRank",
-        vllm: "WeKnoraCloud 视觉",
+        chat: "Keystone Cloud 对话",
+        embedding: "Keystone Cloud Embedding",
+        rerank: "Keystone Cloud ReRank",
+        vllm: "Keystone Cloud 视觉",
       },
     },
     system: "系统设置",
@@ -1261,8 +1261,8 @@ export default {
       needsConfig: "需要配置",
       configurable: "可配置",
       pathPrefix: "路径前缀（可选）",
-      pathPrefixPlaceholder: "如 weknora/images",
-      prefixPlaceholder: "如 weknora",
+      pathPrefixPlaceholder: "如 keystone/images",
+      prefixPlaceholder: "如 keystone",
       bucketName: "Bucket 名称",
       bucketSelectPlaceholder: "选择或输入 Bucket",
       bucketPlaceholder: "存储桶名称",
@@ -1555,7 +1555,7 @@ export default {
   },
   initialization: {
     title: "初始化",
-    welcome: "欢迎使用WeKnora",
+    welcome: "欢迎使用Keystone",
     description: "请先配置系统以开始使用",
     step1: "步骤1：配置LLM模型",
     step2: "步骤2：配置嵌入模型",
@@ -1807,11 +1807,11 @@ export default {
     backToLogin: "返回登录",
     registerNow: "立即注册",
     loginHint: "登录以继续使用；首次使用请在下方创建账户。",
-    firstTime: "首次使用 WeKnora？",
+    firstTime: "首次使用 Keystone？",
     registerSuccess: "注册成功，请登录",
     registerFailed: "注册失败",
     subtitle: "RAG 问答、ReAct 智能体与 Wiki 知识库，大模型驱动的企业级知识框架",
-    registerSubtitle: "创建账户并开始使用 WeKnora",
+    registerSubtitle: "创建账户并开始使用 Keystone",
     emailPlaceholder: "输入邮箱地址",
     passwordPlaceholder: "输入密码（8-32个字符，包含字母和数字）",
     confirmPasswordPlaceholder: "再次输入密码",
@@ -2441,9 +2441,9 @@ export default {
     loadingInfo: "正在加载信息...",
     retry: "重试",
     versionLabel: "应用版本",
-    versionDescription: "当前应用服务（weknora-app）的版本号",
+    versionDescription: "当前应用服务（keystone-app）的版本号",
     frontendVersionLabel: "UI 版本",
-    frontendVersionDescription: "当前 UI 界面（weknora-ui）的构建版本号",
+    frontendVersionDescription: "当前 UI 界面（keystone-ui）的构建版本号",
     versionMismatch: "与应用版本不一致",
     buildTimeLabel: "构建时间",
     buildTimeDescription: "系统构建的时间",
@@ -3209,8 +3209,8 @@ export default {
           description: "jina-clip-v1, jina-embeddings-v2-base-zh, etc.",
         },
         volcengine: {
-          label: "火山引擎 Volcengine",
-          description: "doubao-1-5-pro-32k-250115, doubao-embedding-vision-250615, etc.",
+          label: "火山引擎 AgentPlan",
+          description: "火山引擎 AgentPlan（Ark 兼容接口）",
         },
         deepseek: {
           label: "DeepSeek",
@@ -3478,7 +3478,7 @@ export default {
     },
   },
   createChat: {
-    title: "Hi，我是 WeKnora，让你的知识触手可及",
+    title: "Hi，我是 Keystone，让你的知识触手可及",
     newSessionTitle: "新会话",
     messages: {
       selectKnowledgeBase: "请先选择知识库",
@@ -3716,10 +3716,10 @@ export default {
     allowFileUpload: "显示文件上传",
     allowFileUploadDesc: "开启后，访客可上传图片与文档附件。仅当绑定的智能体已启用图片上传时才会生效。",
     webhookUrl: "Webhook 地址",
-    webhookUrlPlaceholder: "https://your-server.example.com/weknora/embed-events",
-    webhookUrlDesc: "可选。访客发消息与助手回复完成时，WeKnora 会向该 HTTPS 地址 POST 事件（message_sent / message_received）。",
+    webhookUrlPlaceholder: "https://your-server.example.com/keystone/embed-events",
+    webhookUrlDesc: "可选。访客发消息与助手回复完成时，Keystone 会向该 HTTPS 地址 POST 事件（message_sent / message_received）。",
     webhookSecret: "Webhook 签名密钥",
-    webhookSecretPlaceholder: "用于 HMAC-SHA256 签名（X-WeKnora-Signature）",
+    webhookSecretPlaceholder: "用于 HMAC-SHA256 签名（X-Keystone-Signature）",
     webhookSecretKeep: "留空表示不修改已保存的密钥",
     webhookSecretDesc: "可选。配置后请求体会带 sha256 签名头，便于你的服务端校验来源。",
     secureModeDocHint: "完整集成说明见项目文档 docs/embed-secure-mode.md",
@@ -3829,6 +3829,54 @@ export default {
       granularityFocusedHint: "只抽取文档的主角（如简历 → 人物和项目）。最干净，但可能漏掉次要实体。",
       granularityStandardHint: "抽取主角 + 被详细描述的次要实体/概念。跳过一带而过的通用名词。适合大多数场景。",
       granularityExhaustiveHint: "抽取所有可识别的命名实体与概念，包括一带而过的技术栈。适合将知识库当作术语表使用。",
+      templates: {
+        label: "Wiki 构建模板",
+        tip: "选择模板可预填提取粒度和 Wiki 生成要求；之后仍可按需编辑。",
+        applied: "模板已应用。继续修改下方字段会切换为自定义配置。",
+        customized: "已自定义：保留当前编辑内容，不再关联单一模板。",
+        general: {
+          title: "通用知识库",
+          description: "适合大多数文档，构建清晰的主题与概念网络。",
+          focus: "主题、实体、方法与关键术语",
+          contentInstructions: "以清晰、客观的百科风格组织 Wiki 页面。优先给出主题概览、关键事实、适用范围和相互关系；使用一致的标题层级，并在结尾总结关键结论。",
+          extractionInstructions: "优先识别文档的核心主题、被详细描述的实体、方法、产品和关键术语；跳过仅被顺带提及的通用名词。",
+        },
+        technical: {
+          title: "产品与技术文档",
+          description: "适合产品说明、架构、接口与研发文档。",
+          focus: "产品、模块、接口、版本、参数与错误码",
+          contentInstructions: "按产品概览、架构与模块、接口或操作方式、版本差异、限制条件和示例组织内容。保留精确的参数、版本和兼容性信息，并明确前置条件与边界。",
+          extractionInstructions: "重点识别产品、功能模块、服务、API、配置项、参数、版本、依赖、错误码、部署环境和技术术语；保留别名与上下游关系。",
+        },
+        process: {
+          title: "制度、流程与 SOP",
+          description: "适合规章制度、操作流程、审批规范与作业指引。",
+          focus: "角色、步骤、时限、表单、例外与风险",
+          contentInstructions: "以适用范围、责任主体、前置条件、标准步骤、时限、输出物、例外处理和风险提示组织页面。使用可执行的编号步骤，明确谁在什么条件下完成什么动作。",
+          extractionInstructions: "重点识别部门、角色、职责、流程节点、审批条件、表单、系统、时限、例外情形、控制措施和风险项；保留流程之间的依赖关系。",
+        },
+        project: {
+          title: "项目与决策记录",
+          description: "适合项目资料、会议纪要、方案评审和决策沉淀。",
+          focus: "项目、成员、决策、行动项、风险与时间线",
+          contentInstructions: "围绕背景、目标、范围、关键决策、行动项、负责人、时间线、依赖与风险组织内容。区分已确认事实、待办事项和待决问题，避免将讨论意见写成结论。",
+          extractionInstructions: "重点识别项目、团队成员、角色、里程碑、日期、决策、任务、负责人、风险、依赖和交付物；保留项目与事项之间的关联。",
+        },
+        research: {
+          title: "研究与报告",
+          description: "适合调研报告、分析材料、论文与解决方案。",
+          focus: "研究对象、方法、证据、指标、发现与结论",
+          contentInstructions: "按研究问题、背景、方法、数据或证据、主要发现、结论、局限与建议组织内容。区分证据与推断，保留条件、样本范围和不确定性。",
+          extractionInstructions: "重点识别研究对象、指标、数据来源、样本、方法、模型、假设、结论、建议和引用概念；保留结论与支撑证据的关系。",
+        },
+        glossary: {
+          title: "术语与知识手册",
+          description: "适合行业术语、标准、培训资料和内部知识手册。",
+          focus: "术语、别名、缩写、分类与上下位概念",
+          contentInstructions: "优先生成简洁、可独立理解的定义页面，说明术语的含义、适用范围、别名、分类、相关概念和使用注意事项。保持术语之间的交叉链接清晰一致。",
+          extractionInstructions: "尽可能识别被定义或具有明确业务含义的术语、缩写、别名、标准、分类、工具和方法；保留同义词、上下位关系及相关概念。",
+        },
+      },
     },
     indexing: {
       title: "索引策略",
@@ -5423,9 +5471,9 @@ export default {
           name: "PaddleOCR-VL Cloud",
           desc: "PaddleOCR-VL 云 API",
         },
-        weknoracloud: {
-          name: "WeKnora Cloud",
-          desc: "使用 WeKnora Cloud 进行文档解析",
+        keystoneCloud: {
+          name: "Keystone Cloud",
+          desc: "使用 Keystone Cloud 进行文档解析",
         },
         markitdown: {
           name: "MarkItDown",
@@ -6256,7 +6304,7 @@ export default {
 	      capabilityMessageHistory: "消息历史",
 	      capabilityMessageHistoryHint: "允许检索空间聊天历史并读取聊天历史统计；不授予空间配置权限。",
 	      capabilityManageModels: "管理模型",
-	      capabilityManageModelsHint: "允许管理模型配置、模型凭据、模型连通性测试和 WeKnoraCloud 凭据。",
+	      capabilityManageModelsHint: "允许管理模型配置、模型凭据、模型连通性测试和 Keystone Cloud 凭据。",
 	      capabilityManageMcpServices: "管理 MCP 服务",
 	      capabilityManageMcpServicesHint: "允许管理 MCP 服务、凭据、工具审批策略和该主体的 OAuth 授权状态。",
 	      capabilityManageDatasources: "管理数据源",
@@ -6302,7 +6350,7 @@ export default {
         "任何持有 API Key 的调用方都可以通过修改用户 ID 请求头冒充其他外部用户，从而共用或劫持其 MCP OAuth 授权。请勿用于浏览器或不可信客户端；面向终端用户请使用「签名 Token」。",
       signedRecommended: "推荐给面向用户的应用：由你的业务后端为外部用户签发短期 HS256 JWT。",
       signedFlowDetail:
-        "HMAC 密钥仅保存在 WeKnora 与你的可信后端，切勿放入请求或下发给浏览器。请求头里传的是用该密钥签出的 JWT 字符串（每次签发或过期后会变），不是密钥本身。JWT 须包含 sub（外部用户 ID）、tenant_id、aud=weknora、exp（有效期不超过 24 小时）。",
+        "HMAC 密钥仅保存在 Keystone 与你的可信后端，切勿放入请求或下发给浏览器。请求头里传的是用该密钥签出的 JWT 字符串（每次签发或过期后会变），不是密钥本身。JWT 须包含 sub（外部用户 ID）、tenant_id、aud=keystone、exp（有效期不超过 24 小时）。",
       directHeader: "用户 ID 请求头",
       requireDirectHeader: "必须携带用户 ID",
       requireDirectHeaderDesc:
@@ -6310,7 +6358,7 @@ export default {
       tokenHeader: "Token 请求头",
       tokenHeaderDesc: "客户端在该固定请求头中携带后端签发的 JWT。",
       hmacSecret: "HMAC 密钥",
-      hmacSecretDesc: "与 WeKnora 保存的同一份密钥；仅用于后端签发 JWT，不要作为请求头发送。",
+      hmacSecretDesc: "与 Keystone 保存的同一份密钥；仅用于后端签发 JWT，不要作为请求头发送。",
       secretConfigured: "已配置密钥（不可回看）；输入新值可轮换",
       secretSavedCopyHint: "密钥已保存，请立即复制到后端配置。离开本页后将无法再次查看。",
       generateSecret: "生成密钥",
@@ -6320,7 +6368,7 @@ export default {
       hmacSecretResetConfirmCancel: "取消",
       tokenSignExample: "后端签发 JWT 示例（Go）",
       signedRequestStep0:
-        "# 0. 在你的后端签发 JWT（HS256，aud=weknora，sub=用户 ID，tenant_id={tenantId}，exp 不超过 24 小时）",
+        "# 0. 在你的后端签发 JWT（HS256，aud=keystone，sub=用户 ID，tenant_id={tenantId}，exp 不超过 24 小时）",
       signedRequestStep0Hint: "#    将 JWT 放入 {headerName} 请求头，不要传 HMAC 密钥",
       requestExampleCreateSession: "# 1. 创建会话",
       requestExampleAgentChat: "# 2. Agent 对话（SSE；将 <session_id> 替换为第 1 步返回的 id）",
@@ -6398,7 +6446,7 @@ export default {
     chrome: {
       title: "知识管理助手",
       subtitle:
-        "配合 WeKnora 自建服务使用：在任意网页侧边栏提问、剪藏内容、Markdown 速记，将浏览中的知识沉淀到你的知识库。",
+        "配合 Keystone 自建服务使用：在任意网页侧边栏提问、剪藏内容、Markdown 速记，将浏览中的知识沉淀到你的知识库。",
       capabilitiesTitle: "核心能力",
       capabilities: {
         qa: {
@@ -6433,7 +6481,7 @@ export default {
         },
         port: {
           title: "桌面版配置固定端口（推荐）",
-          desc: "使用 WeKnora 桌面版时，在 API 信息中设置固定端口（如 37841），避免每次启动后地址变化导致插件断连。",
+          desc: "使用 Keystone 桌面版时，在 API 信息中设置固定端口（如 37841），避免每次启动后地址变化导致插件断连。",
         },
         install: {
           title: "安装 Chrome 插件",
@@ -6452,9 +6500,9 @@ export default {
       storeMeta: "Chrome 应用商店 · v1.0.0",
     },
     claw: {
-      title: "WeKnora Skill",
+      title: "Keystone Skill",
       subtitle:
-        "通过 WeKnora REST API 导入文档并执行混合检索（向量 + 关键词）。适用于上传文件/URL/Markdown 到知识库、跨库检索与浏览知识内容。",
+        "通过 Keystone REST API 导入文档并执行混合检索（向量 + 关键词）。适用于上传文件/URL/Markdown 到知识库、跨库检索与浏览知识内容。",
       capabilitiesTitle: "Skill 能力",
       capabilities: {
         upload: {
@@ -6486,7 +6534,7 @@ export default {
         },
         env: {
           title: "配置环境变量",
-          desc: "在终端或 ~/.zshrc、~/.bashrc 中设置 WEKNORA_BASE_URL 与 WEKNORA_API_KEY。下方示例已填入当前 API 地址，请将 API Key 替换为实际值。",
+          desc: "在终端或 ~/.zshrc、~/.bashrc 中设置 KEYSTONE_BASE_URL 与 KEYSTONE_API_KEY。下方示例已填入当前 API 地址，请将 API Key 替换为实际值。",
         },
         install: {
           title: "安装 Skill",
@@ -6502,10 +6550,10 @@ export default {
       copyEnvSuccess: "已复制环境变量示例",
       copyCmdSuccess: "已复制安装命令",
       ecosystemNote:
-        "Skill 托管于 ClawHub（{'@'}lyingbug/weknora），完整 API 说明与版本历史请参见 ClawHub 页面。",
+        "Skill 托管于 ClawHub（{'@'}lyingbug/keystone），完整 API 说明与版本历史请参见 ClawHub 页面。",
       installCta: "前往 ClawHub",
-      installCtaHint: "安装 WeKnora Skill · 将在新标签页打开",
-      hubMeta: "ClawHub · {'@'}lyingbug/weknora · MIT-0",
+      installCtaHint: "安装 Keystone Skill · 将在新标签页打开",
+      hubMeta: "ClawHub · {'@'}lyingbug/keystone · MIT-0",
     },
   },
   imOverview: {

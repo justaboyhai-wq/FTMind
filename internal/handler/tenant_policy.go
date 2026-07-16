@@ -3,13 +3,13 @@ package handler
 import (
 	"context"
 
-	"github.com/Tencent/WeKnora/internal/config"
-	"github.com/Tencent/WeKnora/internal/types/interfaces"
+	"github.com/justaboyhai-wq/keystone/internal/config"
+	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
 )
 
 const (
 	tenantSelfServiceCreationSettingKey = "tenant.self_service_creation_enabled"
-	tenantSelfServiceCreationEnvName    = "WEKNORA_TENANT_SELF_SERVICE_CREATION_ENABLED"
+	tenantSelfServiceCreationEnvName    = "KEYSTONE_TENANT_SELF_SERVICE_CREATION_ENABLED"
 )
 
 // resolveTenantSelfServiceCreationEnabled is the shared policy resolver used

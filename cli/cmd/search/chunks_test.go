@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/Tencent/WeKnora/cli/internal/cmdutil"
-	"github.com/Tencent/WeKnora/cli/internal/iostreams"
-	sdk "github.com/Tencent/WeKnora/client"
+	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/keystone/client"
 )
 
 type fakeChunksSvc struct {
@@ -149,8 +149,8 @@ func TestRunSearch_NilService(t *testing.T) {
 // --kb rule; that safety guard is unrelated to this path.
 func TestNewCmdChunks_NoKBUsesResolver(t *testing.T) {
 	iostreams.SetForTest(t)
-	t.Setenv("WEKNORA_KB_ID", "") // no ambient KB from env
-	t.Chdir(t.TempDir())          // no .weknora project link discoverable
+	t.Setenv("KEYSTONE_KB_ID", "") // no ambient KB from env
+	t.Chdir(t.TempDir())          // no .keystone project link discoverable
 	cmd := NewCmdChunks(&cmdutil.Factory{
 		// Resolution reaches local.kb_id_required before any client is built,
 		// so this must never be invoked; make it loud if it is.
@@ -168,12 +168,12 @@ func TestNewCmdChunks_NoKBUsesResolver(t *testing.T) {
 }
 
 // TestNewCmdChunks_HonorsKBEnv proves the env fallback is wired: with
-// WEKNORA_KB_ID set and no --kb, KB resolution succeeds (no kb-required
+// KEYSTONE_KB_ID set and no --kb, KB resolution succeeds (no kb-required
 // error) and the command proceeds to the client step — which here errors,
 // confirming we got past resolution using the env value alone.
 func TestNewCmdChunks_HonorsKBEnv(t *testing.T) {
 	iostreams.SetForTest(t)
-	t.Setenv("WEKNORA_KB_ID", "kb_from_env")
+	t.Setenv("KEYSTONE_KB_ID", "kb_from_env")
 	cmd := NewCmdChunks(&cmdutil.Factory{
 		Client: func() (*sdk.Client, error) { return nil, errors.New("client boom") },
 	})

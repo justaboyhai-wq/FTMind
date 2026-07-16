@@ -14,22 +14,22 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Tencent/WeKnora/internal/application/repository"
-	chatpipeline "github.com/Tencent/WeKnora/internal/application/service/chat_pipeline"
-	"github.com/Tencent/WeKnora/internal/assets"
-	"github.com/Tencent/WeKnora/internal/config"
-	"github.com/Tencent/WeKnora/internal/errors"
-	"github.com/Tencent/WeKnora/internal/handler/dto"
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/models/asr"
-	"github.com/Tencent/WeKnora/internal/models/chat"
-	"github.com/Tencent/WeKnora/internal/models/embedding"
-	"github.com/Tencent/WeKnora/internal/models/provider"
-	"github.com/Tencent/WeKnora/internal/models/rerank"
-	"github.com/Tencent/WeKnora/internal/models/utils/ollama"
-	"github.com/Tencent/WeKnora/internal/types"
-	"github.com/Tencent/WeKnora/internal/types/interfaces"
-	"github.com/Tencent/WeKnora/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/application/repository"
+	chatpipeline "github.com/justaboyhai-wq/keystone/internal/application/service/chat_pipeline"
+	"github.com/justaboyhai-wq/keystone/internal/assets"
+	"github.com/justaboyhai-wq/keystone/internal/config"
+	"github.com/justaboyhai-wq/keystone/internal/errors"
+	"github.com/justaboyhai-wq/keystone/internal/handler/dto"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/models/asr"
+	"github.com/justaboyhai-wq/keystone/internal/models/chat"
+	"github.com/justaboyhai-wq/keystone/internal/models/embedding"
+	"github.com/justaboyhai-wq/keystone/internal/models/provider"
+	"github.com/justaboyhai-wq/keystone/internal/models/rerank"
+	"github.com/justaboyhai-wq/keystone/internal/models/utils/ollama"
+	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/keystone/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/ollama/ollama/api"
@@ -1696,16 +1696,16 @@ func (h *InitializationHandler) buildTestModel(
 	}
 }
 
-// resolveTenantWeKnoraCloudCreds 从当前空间上下文里取出 WeKnoraCloud 凭证，
-// 供测试连接端点补齐 appID/appSecret。与 service.resolveWeKnoraCloudCredentials
+// resolveTenantKeystoneCloudCreds 从当前空间上下文里取出 KeystoneCloud 凭证，
+// 供测试连接端点补齐 appID/appSecret。与 service.resolveKeystoneCloudCredentials
 // 对应，但因为 handler 还没有被注入 tenantService（历史原因），暂时从
 // TenantInfoFromContext 读取，等效果相同。
-func (h *InitializationHandler) resolveTenantWeKnoraCloudCreds(ctx context.Context) (string, string, bool) {
+func (h *InitializationHandler) resolveTenantKeystoneCloudCreds(ctx context.Context) (string, string, bool) {
 	tenantInfo, ok := types.TenantInfoFromContext(ctx)
 	if !ok {
 		return "", "", false
 	}
-	creds := tenantInfo.Credentials.GetWeKnoraCloud()
+	creds := tenantInfo.Credentials.GetKeystoneCloud()
 	if creds == nil {
 		return "", "", true
 	}
@@ -1748,7 +1748,7 @@ func (h *InitializationHandler) CheckRemoteModel(c *gin.Context) {
 		c.Error(errors.NewBadRequestError(utils.FormatSSRFError("Base URL", req.BaseURL, err)))
 		return
 	}
-	appID, appSecret, ok := h.resolveTenantWeKnoraCloudCreds(ctx)
+	appID, appSecret, ok := h.resolveTenantKeystoneCloudCreds(ctx)
 	if !ok {
 		logger.Error(ctx, "Tenant info not found")
 		c.Error(errors.NewBadRequestError("空间信息未找到"))
@@ -1822,7 +1822,7 @@ func (h *InitializationHandler) TestEmbeddingModel(c *gin.Context) {
 		}
 	}
 
-	appID, appSecret, ok := h.resolveTenantWeKnoraCloudCreds(ctx)
+	appID, appSecret, ok := h.resolveTenantKeystoneCloudCreds(ctx)
 	if !ok {
 		logger.Error(ctx, "Tenant info not found")
 		c.Error(errors.NewBadRequestError("空间信息未找到"))
@@ -1893,7 +1893,11 @@ func (h *InitializationHandler) checkChatModelConnection(
 
 	testMessages := []chat.Message{{Role: "user", Content: "test"}}
 	testOptions := &chat.ChatOptions{
-		MaxTokens: 1,
+		// AgentPlan can return a successful response without choices when the
+		// completion budget is only one token. Keep this probe inexpensive while
+		// allowing enough output for OpenAI-compatible plan endpoints to emit a
+		// normal completion.
+		MaxTokens: 16,
 		Thinking:  &[]bool{false}[0], // for dashscope.aliyuncs qwen3-32b
 	}
 
@@ -1974,7 +1978,7 @@ func (h *InitializationHandler) CheckRerankModel(c *gin.Context) {
 		return
 	}
 
-	appID, appSecret, ok := h.resolveTenantWeKnoraCloudCreds(ctx)
+	appID, appSecret, ok := h.resolveTenantKeystoneCloudCreds(ctx)
 	if !ok {
 		logger.Error(ctx, "Tenant info not found")
 		c.Error(errors.NewBadRequestError("空间信息未找到"))
@@ -2036,7 +2040,7 @@ func (h *InitializationHandler) CheckASRModel(c *gin.Context) {
 		return
 	}
 
-	// 用统一构造器生成测试用 *types.Model（ASR 不涉及 WeKnoraCloud 凭证），
+	// 用统一构造器生成测试用 *types.Model（ASR 不涉及 KeystoneCloud 凭证），
 	// 发送一段极短的静默 WAV 音频验证 /v1/audio/transcriptions 端点可达。
 	model := h.buildTestModel(&req, types.ModelTypeASR, types.ModelSourceRemote)
 	asrInstance, err := asr.NewASR(asr.ConfigFromModel(model))

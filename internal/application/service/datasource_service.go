@@ -12,12 +12,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Tencent/WeKnora/internal/datasource"
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/tracing/langfuse"
-	"github.com/Tencent/WeKnora/internal/types"
-	"github.com/Tencent/WeKnora/internal/types/interfaces"
-	secutils "github.com/Tencent/WeKnora/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/datasource"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/tracing/langfuse"
+	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
 	"github.com/hibiken/asynq"
 )
 
@@ -884,7 +884,7 @@ func (s *DataSourceService) validateDataSourceConfig(ctx context.Context, ds *ty
 //
 // Routing logic:
 //   - Has Content bytes → CreateKnowledgeFromFile (走完整的文档解析 pipeline)
-//   - Has URL only      → CreateKnowledgeFromURL  (让 WeKnora 下载并解析)
+//   - Has URL only      → CreateKnowledgeFromURL  (让 Keystone 下载并解析)
 //
 // Returns (isUpdate, error) — isUpdate is true when an existing item was replaced.
 func (s *DataSourceService) ingestItem(ctx context.Context, ds *types.DataSource, item *types.FetchedItem, tagIDs []string) (bool, error) {
@@ -937,7 +937,7 @@ func (s *DataSourceService) ingestItem(ctx context.Context, ds *types.DataSource
 		return isUpdate, err
 	}
 
-	// Case 2: only a remote URL — let WeKnora handle downloading and parsing
+	// Case 2: only a remote URL — let Keystone handle downloading and parsing
 	if item.URL != "" {
 		_, err := s.knowledgeService.CreateKnowledgeFromURL(
 			ctx,

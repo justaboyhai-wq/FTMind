@@ -1,8 +1,18 @@
 <template>
     <div class="main" ref="dropzone">
         <Menu></Menu>
-        <div v-if="isRouterAlive" class="platform-route-outlet">
-            <RouterView />
+        <div class="platform-column">
+            <header class="blex-workspace-topbar">
+                <div class="blex-workspace-crumb">
+                    <span class="blex-workspace-crumb__dot" aria-hidden="true"></span>
+                    <span>Keystone</span>
+                    <small>/ {{ currentSection }}</small>
+                </div>
+                <div class="blex-workspace-status" title="Keystone"><span></span></div>
+            </header>
+            <div v-if="isRouterAlive" class="platform-route-outlet">
+                <RouterView />
+            </div>
         </div>
         <div class="upload-mask" v-show="ismask">
             <input type="file" style="display: none" ref="uploadInput" accept=".pdf,.docx,.doc,.pptx,.ppt,.epub,.mhtml,.txt,.md,.jpg,.jpeg,.png,.csv,.xls,.xlsx" />
@@ -21,7 +31,7 @@
 </template>
 <script setup lang="ts">
 import Menu from '@/components/menu.vue'
-import { ref, onMounted, onUnmounted, nextTick, provide, watch } from 'vue';
+import { computed, ref, onMounted, onUnmounted, nextTick, provide, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router'
 import useKnowledgeBase from '@/hooks/useKnowledgeBase'
 import UploadMask from '@/components/upload-mask.vue'
@@ -42,6 +52,16 @@ const commandPaletteStore = useCommandPaletteStore();
 let ismask = ref(false)
 let uploadInput = ref();
 const { t } = useI18n();
+
+const currentSection = computed(() => {
+    const path = route.path
+    if (path.includes('/knowledge-bases')) return t('menu.knowledgeBase')
+    if (path.includes('/chat') || path.includes('/creatChat')) return t('menu.chat')
+    if (path.includes('/agents')) return t('menu.agents')
+    if (path.includes('/organizations')) return t('menu.organizations')
+    if (path.includes('/settings')) return t('menu.settings')
+    return 'Workspace'
+})
 
 const isRouterAlive = ref(true)
 const reloadApp = () => {
@@ -187,7 +207,7 @@ const handleGlobalDrop = async (event: DragEvent) => {
 
     if (isChatDropRoute()) {
         event.stopPropagation();
-        window.dispatchEvent(new CustomEvent('weknora:chat-file-drop', {
+        window.dispatchEvent(new CustomEvent('keystone:chat-file-drop', {
             detail: { files: droppedFiles }
         }));
         return;
@@ -264,6 +284,39 @@ onUnmounted(() => {
     /* 统一整页背景，让左侧菜单与右侧内容区视觉连贯 */
     background: var(--td-bg-color-container);
 }
+
+.platform-column {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.blex-workspace-topbar {
+    display: flex;
+    height: 50px;
+    flex: 0 0 50px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 22px;
+    color: var(--td-text-color-secondary);
+    background: rgb(255 255 255 / 82%);
+    border-bottom: 1px solid var(--td-component-stroke);
+    font-size: 12px;
+    font-weight: 620;
+}
+
+.blex-workspace-crumb, .blex-workspace-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.blex-workspace-crumb small { color: var(--td-text-color-placeholder); font-size: 11px; font-weight: 500; }
+.blex-workspace-crumb__dot, .blex-workspace-status > span { width: 7px; height: 7px; background: var(--td-brand-color); border-radius: 50%; box-shadow: 0 0 0 3px var(--td-brand-color-light); }
+.blex-workspace-status { color: var(--td-text-color-placeholder); font-size: 11px; }
+.blex-workspace-status > span { width: 6px; height: 6px; background: #31a26d; box-shadow: 0 0 0 3px #e3f5ea; }
 
 /* 右侧路由区：占满剩余宽度与整列高度，并把 min-height:0 传给子页面以便内部 flex 滚动 */
 .platform-route-outlet {

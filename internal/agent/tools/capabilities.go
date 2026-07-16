@@ -13,7 +13,7 @@
 package tools
 
 import (
-	"github.com/Tencent/WeKnora/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 )
 
 // KBCapability names the capability flags a knowledge base can expose.

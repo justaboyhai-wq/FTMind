@@ -10,26 +10,26 @@ import (
 
 	"github.com/spf13/cobra"
 
-	agentcmd "github.com/Tencent/WeKnora/cli/cmd/agent"
-	apicmd "github.com/Tencent/WeKnora/cli/cmd/api"
-	"github.com/Tencent/WeKnora/cli/cmd/auth"
-	chatcmd "github.com/Tencent/WeKnora/cli/cmd/chat"
-	chunkcmd "github.com/Tencent/WeKnora/cli/cmd/chunk"
-	configcmd "github.com/Tencent/WeKnora/cli/cmd/config"
-	"github.com/Tencent/WeKnora/cli/cmd/doc"
-	"github.com/Tencent/WeKnora/cli/cmd/doctor"
-	"github.com/Tencent/WeKnora/cli/cmd/kb"
-	linkcmd "github.com/Tencent/WeKnora/cli/cmd/link"
-	messagecmd "github.com/Tencent/WeKnora/cli/cmd/message"
-	mcpcmd "github.com/Tencent/WeKnora/cli/cmd/mcp"
-	modelcmd "github.com/Tencent/WeKnora/cli/cmd/model"
-	profilecmd "github.com/Tencent/WeKnora/cli/cmd/profile"
-	"github.com/Tencent/WeKnora/cli/cmd/search"
-	sessioncmd "github.com/Tencent/WeKnora/cli/cmd/session"
-	skillscmd "github.com/Tencent/WeKnora/cli/cmd/skills"
-	"github.com/Tencent/WeKnora/cli/internal/build"
-	"github.com/Tencent/WeKnora/cli/internal/cmdutil"
-	"github.com/Tencent/WeKnora/cli/internal/iostreams"
+	agentcmd "github.com/justaboyhai-wq/keystone/cli/cmd/agent"
+	apicmd "github.com/justaboyhai-wq/keystone/cli/cmd/api"
+	"github.com/justaboyhai-wq/keystone/cli/cmd/auth"
+	chatcmd "github.com/justaboyhai-wq/keystone/cli/cmd/chat"
+	chunkcmd "github.com/justaboyhai-wq/keystone/cli/cmd/chunk"
+	configcmd "github.com/justaboyhai-wq/keystone/cli/cmd/config"
+	"github.com/justaboyhai-wq/keystone/cli/cmd/doc"
+	"github.com/justaboyhai-wq/keystone/cli/cmd/doctor"
+	"github.com/justaboyhai-wq/keystone/cli/cmd/kb"
+	linkcmd "github.com/justaboyhai-wq/keystone/cli/cmd/link"
+	messagecmd "github.com/justaboyhai-wq/keystone/cli/cmd/message"
+	mcpcmd "github.com/justaboyhai-wq/keystone/cli/cmd/mcp"
+	modelcmd "github.com/justaboyhai-wq/keystone/cli/cmd/model"
+	profilecmd "github.com/justaboyhai-wq/keystone/cli/cmd/profile"
+	"github.com/justaboyhai-wq/keystone/cli/cmd/search"
+	sessioncmd "github.com/justaboyhai-wq/keystone/cli/cmd/session"
+	skillscmd "github.com/justaboyhai-wq/keystone/cli/cmd/skills"
+	"github.com/justaboyhai-wq/keystone/cli/internal/build"
+	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
 )
 
 // resolveFormatEarly scans raw argv for --format before cobra's command
@@ -52,7 +52,7 @@ func resolveFormatEarly(args []string) {
 		}
 	}
 	if mode == "" {
-		if v := os.Getenv("WEKNORA_FORMAT"); v != "" {
+		if v := os.Getenv("KEYSTONE_FORMAT"); v != "" {
 			mode = strings.ToLower(v)
 		}
 	}
@@ -134,16 +134,16 @@ var cobraFlagErrorPrefixes = []string{
 func NewRootCmd(f *cmdutil.Factory) *cobra.Command {
 	v, commit, date := build.Info()
 	cmd := &cobra.Command{
-		Use:   "weknora",
-		Short: "WeKnora CLI",
-		Long: `Command-line client for the WeKnora RAG server. Manage knowledge bases
+		Use:   "keystone",
+		Short: "Keystone CLI",
+		Long: `Command-line client for the Keystone RAG server. Manage knowledge bases
 and documents, run hybrid search, chat with grounded answers, or expose
 a curated read-only MCP tool surface for AI agents.`,
-		Example: `  weknora profile add prod --host=https://kb.example.com --use
-  weknora auth login
-  weknora kb list
-  weknora chat "summarise the design doc"
-  weknora doctor --format json`,
+		Example: `  keystone profile add prod --host=https://kb.example.com --use
+  keystone auth login
+  keystone kb list
+  keystone chat "summarise the design doc"
+  keystone doctor --format json`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		// Version makes cobra auto-register a `--version` global flag that
@@ -160,12 +160,12 @@ a curated read-only MCP tool surface for AI agents.`,
 			if err := cmdutil.CheckSafeArgs(args, c.Flags()); err != nil {
 				return err
 			}
-			// Propagate the global --profile flag (or WEKNORA_PROFILE env) into
+			// Propagate the global --profile flag (or KEYSTONE_PROFILE env) into
 			// the Factory for this invocation only - single-shot override, no disk write.
 			// Flag takes precedence over env; env takes precedence over config file.
 			if v, _ := c.Flags().GetString("profile"); v != "" {
 				f.ProfileOverride = v
-			} else if v := os.Getenv("WEKNORA_PROFILE"); v != "" {
+			} else if v := os.Getenv("KEYSTONE_PROFILE"); v != "" {
 				f.ProfileOverride = v
 			}
 			// Pin --format mode for cmdutil.PrintError envelope vs prose decision.
@@ -178,15 +178,15 @@ a curated read-only MCP tool surface for AI agents.`,
 			}
 			// Record the resolved profile for envelope.profile and NDJSON init.profile.
 			cmdutil.SetProfile(f.ActiveProfile())
-			// Resolve --log-level / WEKNORA_LOG_LEVEL and apply to the SDK
+			// Resolve --log-level / KEYSTONE_LOG_LEVEL and apply to the SDK
 			// debug logger before any SDK call is made. Returns a typed error
 			// when --log-level was passed explicitly with an invalid value
 			// (matches --format validation strictness).
 			return f.ApplyLogLevel(c, iostreams.IO.Err)
 		},
 	}
-	// Match `weknora version` line format so both forms output the same.
-	cmd.SetVersionTemplate("weknora {{.Version}}\n")
+	// Match `keystone version` line format so both forms output the same.
+	cmd.SetVersionTemplate("keystone {{.Version}}\n")
 	addGlobalFlags(cmd)
 	// Wrap cobra's flag-parsing errors as FlagError so cmdutil.ExitCode maps
 	// them to exit 2. "unknown command" errors are detected by message prefix
@@ -234,11 +234,11 @@ func addGlobalFlags(cmd *cobra.Command) {
 	// --log-level applies uniformly to all SDK calls.
 	cmdutil.AddLogLevelFlag(cmd)
 	// --format and --jq are persistent globals so unknown-subcommand paths
-	// (e.g. `weknora fooo --format json`) reach the typed-envelope guard
+	// (e.g. `keystone fooo --format json`) reach the typed-envelope guard
 	// instead of being rejected as "unknown flag" exit 2 by cobra. Commands
 	// that don't produce JSON output (e.g. `completion bash`) ignore the flag
 	// rather than error — the unified agent contract is worth the trade.
-	pf.String("format", "", "Output format: text | json | ndjson (default: json; env: WEKNORA_FORMAT)")
+	pf.String("format", "", "Output format: text | json | ndjson (default: json; env: KEYSTONE_FORMAT)")
 	pf.StringP("jq", "q", "", "Filter JSON output using a jq `expression` (requires --format json|ndjson)")
 }
 
@@ -267,14 +267,14 @@ func newVersionCmd(f *cmdutil.Factory) *cobra.Command {
 					"date":    date,
 				}, nil)
 			}
-			fmt.Fprintf(c.OutOrStdout(), "weknora %s (commit %s, built %s)\n", v, commit, date)
+			fmt.Fprintf(c.OutOrStdout(), "keystone %s (commit %s, built %s)\n", v, commit, date)
 			return nil
 		},
 	}
 	cmdutil.AddFormatFlag(cmd, versionFields...)
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:  "show CLI build metadata (version, commit, build date)",
-		Examples: []string{"weknora version --format json"},
+		Examples: []string{"keystone version --format json"},
 		Output:   "envelope.data is {version, commit, date}",
 	})
 	return cmd
@@ -282,7 +282,7 @@ func newVersionCmd(f *cmdutil.Factory) *cobra.Command {
 
 // installUnknownSubcommandGuard recursively attaches a RunE that emits a typed
 // envelope error when a parent command is invoked with no matching subcommand
-// (e.g. `weknora kb bogus`). Without this, cobra falls back to a free-form
+// (e.g. `keystone kb bogus`). Without this, cobra falls back to a free-form
 // "unknown command" string error via legacyArgs validation.
 //
 // cobra's legacyArgs (args.go) fires at Find() time when Args == nil:
@@ -300,7 +300,7 @@ func installUnknownSubcommandGuard(cmd *cobra.Command) {
 }
 
 func unknownSubcommandRunE(cmd *cobra.Command, args []string) error {
-	// Group command invoked with no subcommand (e.g. `weknora kb`):
+	// Group command invoked with no subcommand (e.g. `keystone kb`):
 	// show help rather than emit a confusing `unknown ""` error.
 	if len(args) == 0 {
 		return cmd.Help()

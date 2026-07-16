@@ -44,9 +44,9 @@ class TestWebParserHelpers(unittest.TestCase):
 
     def test_build_fallback_with_title(self):
         text = "A" * 60
-        md = build_visible_text_fallback(text, page_title="WeKnora")
+        md = build_visible_text_fallback(text, page_title="Keystone")
         self.assertIsNotNone(md)
-        self.assertTrue(md.startswith("# WeKnora"))
+        self.assertTrue(md.startswith("# Keystone"))
         self.assertIn(text, md)
 
     def test_build_fallback_without_title(self):

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/Tencent/WeKnora/internal/infrastructure/docparser"
+	"github.com/justaboyhai-wq/keystone/internal/infrastructure/docparser"
 )
 
 // Chunk represents a piece of split text with position tracking.

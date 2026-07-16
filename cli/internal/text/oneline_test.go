@@ -3,7 +3,7 @@ package text_test
 import (
 	"testing"
 
-	"github.com/Tencent/WeKnora/cli/internal/text"
+	"github.com/justaboyhai-wq/keystone/cli/internal/text"
 )
 
 func TestOneLine(t *testing.T) {

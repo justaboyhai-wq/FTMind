@@ -3,8 +3,8 @@ package sse_test
 import (
 	"testing"
 
-	"github.com/Tencent/WeKnora/cli/internal/sse"
-	sdk "github.com/Tencent/WeKnora/client"
+	"github.com/justaboyhai-wq/keystone/cli/internal/sse"
+	sdk "github.com/justaboyhai-wq/keystone/client"
 )
 
 func TestAgentAccumulator_FinalizesOnlyOnComplete(t *testing.T) {

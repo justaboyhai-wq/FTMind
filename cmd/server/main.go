@@ -1,13 +1,13 @@
-// Package main is the main package for the WeKnora server
+// Package main is the main package for the Keystone server
 // It contains the main function and the entry point for the server
 //
-// @title           WeKnora API
+// @title           Keystone API
 // @version         1.0
-// @description     WeKnora 知识库管理系统 API 文档
+// @description     Keystone 知识库管理系统 API 文档
 // @termsOfService  http://swagger.io/terms/
 //
-// @contact.name   WeKnora Github
-// @contact.url    https://github.com/Tencent/WeKnora
+// @contact.name   Keystone Github
+// @contact.url    https://github.com/justaboyhai-wq/keystone
 //
 // @BasePath  /api/v1
 //
@@ -32,11 +32,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/Tencent/WeKnora/internal/config"
-	"github.com/Tencent/WeKnora/internal/container"
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/runtime"
-	"github.com/Tencent/WeKnora/internal/types/interfaces"
+	"github.com/justaboyhai-wq/keystone/internal/config"
+	"github.com/justaboyhai-wq/keystone/internal/container"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/runtime"
+	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
 )
 
 func main() {

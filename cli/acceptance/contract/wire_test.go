@@ -40,8 +40,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Tencent/WeKnora/cli/internal/config"
-	sdk "github.com/Tencent/WeKnora/client"
+	"github.com/justaboyhai-wq/keystone/cli/internal/config"
+	sdk "github.com/justaboyhai-wq/keystone/client"
 )
 
 // wireCase declares one row in the contract matrix. Optional fields:

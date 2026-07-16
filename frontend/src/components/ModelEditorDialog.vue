@@ -1,7 +1,7 @@
 <template>
   <SettingDrawer :visible="dialogVisible" :title="isEdit ? $t('model.editor.editTitle') : $t('model.editor.addTitle')"
     :description="getModalDescription()" :icon="modelTypeIcon" :confirm-loading="saving"
-    :confirm-disabled="formData.provider === 'weknoracloud' && wkcCredentialState !== 'configured'"
+    :confirm-disabled="formData.provider === 'keystonecloud' && wkcCredentialState !== 'configured'"
     @update:visible="(v: boolean) => dialogVisible = v" @confirm="handleConfirm" @cancel="handleCancel">
 
     <!--
@@ -12,7 +12,7 @@
     -->
     <template v-if="formData.source === 'remote'" #footer-left>
       <t-button variant="outline" @click="checkRemoteAPI" :loading="checking"
-        :disabled="!formData.modelName || (!formData.baseUrl && formData.provider !== 'weknoracloud') || (formData.provider === 'weknoracloud' && wkcCredentialState !== 'configured')">
+        :disabled="!formData.modelName || (!formData.baseUrl && formData.provider !== 'keystonecloud') || (formData.provider === 'keystonecloud' && wkcCredentialState !== 'configured')">
         <template #icon>
           <t-icon v-if="!checking && remoteChecked && remoteAvailable" name="check-circle-filled"
             class="status-icon available" />
@@ -173,53 +173,67 @@
             </t-select>
           </div>
 
-          <!-- WeKnoraCloud 提示信息 -->
-          <template v-if="formData.provider === 'weknoracloud'">
+          <!-- KeystoneCloud 提示信息 -->
+          <template v-if="formData.provider === 'keystonecloud'">
             <!-- 凭证已配置 -->
-            <div v-if="wkcCredentialState === 'configured'" class="weknoracloud-hint weknoracloud-hint--ok">
+            <div v-if="wkcCredentialState === 'configured'" class="keystonecloud-hint keystonecloud-hint--ok">
               <t-icon name="check-circle-filled" class="hint-icon hint-icon--ok" />
               <div>
-                {{ $t('settings.weknoraCloud.modelHintConfigured') }}
+                {{ $t('settings.keystoneCloud.modelHintConfigured') }}
                 <a href="https://developers.weixin.qq.com/doc/aispeech/knowledge/atomic_capability/atomic_interface.html"
                   target="_blank" rel="noopener noreferrer" class="doc-link">
-                  {{ $t('settings.weknoraCloud.modelHintDocsLink') }}
+                  {{ $t('settings.keystoneCloud.modelHintDocsLink') }}
                   <t-icon name="link" class="link-icon" />
                 </a>
               </div>
             </div>
 
             <!-- 未配置 / 失效 -->
-            <div v-else-if="wkcCredentialState !== 'loading'" class="weknoracloud-hint weknoracloud-hint--warn">
+            <div v-else-if="wkcCredentialState !== 'loading'" class="keystonecloud-hint keystonecloud-hint--warn">
               <t-icon name="error-circle-filled" class="hint-icon hint-icon--warn" />
               <div style="flex: 1;">
                 <template v-if="wkcCredentialState === 'expired'">
-                  {{ $t('settings.weknoraCloud.credentialExpired') }}
+                  {{ $t('settings.keystoneCloud.credentialExpired') }}
                 </template>
                 <template v-else>
-                  {{ $t('settings.weknoraCloud.credentialUnconfigured') }}
+                  {{ $t('settings.keystoneCloud.credentialUnconfigured') }}
                 </template>
                 <div style="margin-top: 8px;">
-                  <t-button variant="text" size="small" @click="goToWeKnoraCloudSettings"
+                  <t-button variant="text" size="small" @click="goToKeystoneCloudSettings"
                     style="padding: 0; height: auto;">
                     <template #icon><t-icon name="jump" /></template>
-                    {{ $t('settings.weknoraCloud.goToSettings') }}
+                    {{ $t('settings.keystoneCloud.goToSettings') }}
                   </t-button>
                 </div>
               </div>
             </div>
 
             <!-- 加载中 -->
-            <div v-else class="weknoracloud-hint">
+            <div v-else class="keystonecloud-hint">
               <t-icon name="loading" class="spinning hint-icon hint-icon--loading" />
-              <span>{{ $t('settings.weknoraCloud.checkingStatus') }}</span>
+              <span>{{ $t('settings.keystoneCloud.checkingStatus') }}</span>
             </div>
           </template>
 
           <!-- 模型名称 -->
           <div class="form-item">
             <label class="form-label required">{{ $t('model.modelName') }}</label>
-            <t-input v-model="formData.modelName" :placeholder="getModelNamePlaceholder()"
-              :disabled="formData.provider === 'weknoracloud' && wkcCredentialState !== 'configured'" />
+            <t-select
+              v-if="isAgentPlanChat"
+              v-model="formData.modelName"
+              :placeholder="$t('model.searchPlaceholder')"
+              filterable
+              clearable
+            >
+              <t-option
+                v-for="model in agentPlanChatModelOptions"
+                :key="model.value"
+                :value="model.value"
+                :label="model.label"
+              />
+            </t-select>
+            <t-input v-else v-model="formData.modelName" :placeholder="getModelNamePlaceholder()"
+              :disabled="formData.provider === 'keystonecloud' && wkcCredentialState !== 'configured'" />
           </div>
 
           <div class="form-item">
@@ -228,12 +242,12 @@
             <p class="form-desc">{{ $t('model.editor.displayNameDesc') }}</p>
           </div>
 
-          <div v-if="formData.provider !== 'weknoracloud'" class="form-item">
+          <div v-if="formData.provider !== 'keystonecloud'" class="form-item">
             <label class="form-label required">{{ $t('model.editor.baseUrlLabel') }}</label>
             <t-input v-model="formData.baseUrl" :placeholder="getBaseUrlPlaceholder()" />
           </div>
 
-          <div v-if="formData.provider !== 'weknoracloud'" class="form-item">
+          <div v-if="formData.provider !== 'keystonecloud'" class="form-item">
             <label class="form-label">{{
               isLkeapRerank ? $t('model.editor.lkeap.secretIdLabel') : $t('model.editor.apiKeyOptional')
             }}</label>
@@ -282,7 +296,7 @@
           </div>
 
           <!-- 自定义 HTTP Header（类似 OpenAI Python SDK 的 extra_headers） -->
-          <div v-if="formData.provider !== 'weknoracloud'" class="form-item">
+          <div v-if="formData.provider !== 'keystonecloud'" class="form-item">
             <div class="custom-headers-header">
               <label class="form-label" style="margin-bottom: 0;">{{ $t('model.editor.customHeadersLabel') }}</label>
               <t-button variant="text" size="small" theme="primary" @click="addCustomHeader">
@@ -399,7 +413,7 @@ import { ref, watch, computed, onUnmounted, nextTick } from 'vue'
 import { MessagePlugin, DialogPlugin } from 'tdesign-vue-next'
 import { checkOllamaModels, checkRemoteModel, testEmbeddingModel, checkRerankModel, checkASRModel, listOllamaModels, downloadOllamaModel, getDownloadProgress, checkOllamaStatus, listModelProviders, type OllamaModelInfo, type ModelProviderOption } from '@/api/initialization'
 import {
-  getWeKnoraCloudStatus,
+  getKeystoneCloudStatus,
   putModelCredentials,
   deleteModelCredentialField,
   type ModelCredentialField,
@@ -451,6 +465,27 @@ interface ModelFormData {
 
 type EditorModelType = 'chat' | 'embedding' | 'rerank' | 'vllm' | 'asr'
 
+// Keystone 的对话引擎统一使用火山引擎 AgentPlan。该值仅约束新增的
+// Chat 模型；已有模型仍保留其当前服务商，确保历史配置可以继续编辑和调用。
+const DEFAULT_CHAT_PROVIDER = 'volcengine'
+const AGENT_PLAN_CHAT_BASE_URL = 'https://ark.cn-beijing.volces.com/api/plan/v3'
+const DEFAULT_AGENT_PLAN_MODEL = 'doubao-seed-2.0-pro'
+
+const AGENT_PLAN_CHAT_MODELS = [
+  { value: 'ark-code-latest', label: 'ark-code-latest · 智能路由' },
+  { value: 'doubao-seed-2.0-pro', label: 'doubao-seed-2.0-pro · 默认推荐' },
+  { value: 'doubao-seed-2.0-code', label: 'doubao-seed-2.0-code' },
+  { value: 'doubao-seed-2.0-lite', label: 'doubao-seed-2.0-lite' },
+  { value: 'doubao-seed-code', label: 'doubao-seed-code' },
+  { value: 'glm-5.1', label: 'glm-5.1' },
+  { value: 'glm-4.7', label: 'glm-4.7' },
+  { value: 'deepseek-v3.2', label: 'deepseek-v3.2' },
+  { value: 'kimi-k2.6', label: 'kimi-k2.6' },
+  { value: 'kimi-k2.5', label: 'kimi-k2.5' },
+  { value: 'minimax-m2.7', label: 'minimax-m2.7' },
+  { value: 'minimax-m2.5', label: 'minimax-m2.5' },
+]
+
 interface Props {
   visible: boolean
   modelType: EditorModelType
@@ -478,6 +513,22 @@ const activeModelType = computed(() => (
   isEdit.value ? props.modelType : draftModelType.value
 ))
 
+const isAgentPlanChat = computed(() =>
+  activeModelType.value === 'chat' &&
+  formData.value.source === 'remote' &&
+  formData.value.provider === DEFAULT_CHAT_PROVIDER,
+)
+
+const agentPlanChatModelOptions = computed(() => {
+  const currentModel = formData.value.modelName?.trim()
+  if (!currentModel || AGENT_PLAN_CHAT_MODELS.some(model => model.value === currentModel)) {
+    return AGENT_PLAN_CHAT_MODELS
+  }
+
+  // 保留已保存的历史模型，避免编辑时因模型列表更新而丢失当前值。
+  return [{ value: currentModel, label: currentModel }, ...AGENT_PLAN_CHAT_MODELS]
+})
+
 const modelTypeChoices = computed(() => ([
   { value: 'chat' as const, label: t('modelSettings.typeShort.chat'), icon: 'chat' },
   { value: 'embedding' as const, label: t('modelSettings.typeShort.embedding'), icon: 'chart-bubble' },
@@ -492,6 +543,17 @@ const loadingProviders = ref(false)
 
 // 硬编码的后备 Provider 配置 (当 API 不可用时使用)
 const fallbackProviderOptions = computed(() => [
+  {
+    value: 'volcengine',
+    label: t('model.editor.providers.volcengine.label'),
+    defaultUrls: {
+      chat: AGENT_PLAN_CHAT_BASE_URL,
+      embedding: AGENT_PLAN_CHAT_BASE_URL,
+      vllm: AGENT_PLAN_CHAT_BASE_URL,
+    },
+    description: t('model.editor.providers.volcengine.description'),
+    modelTypes: ['chat', 'embedding', 'vllm']
+  },
   {
     value: 'openai',
     label: t('model.editor.providers.openai.label'),
@@ -641,10 +703,17 @@ const loadProviders = async () => {
 // 根据当前模型类型过滤的 Provider 列表
 // API 返回的 defaultUrls/modelTypes 数据优先，但 label/description 使用 i18n
 const providerOptions = computed(() => {
+  let options
+
   // API 数据可用时，用 API 的结构数据 + i18n 的显示文本
   if (apiProviderOptions.value.length > 0) {
-    return apiProviderOptions.value.map(p => ({
+    options = apiProviderOptions.value.map(p => ({
       ...p,
+      // AgentPlan 有独立的 OpenAI 兼容入口；不能沿用通用 Ark /api/v3，
+      // 否则请求不会计入 AgentPlan 套餐额度。
+      defaultUrls: p.value === DEFAULT_CHAT_PROVIDER
+        ? { ...p.defaultUrls, chat: AGENT_PLAN_CHAT_BASE_URL }
+        : p.defaultUrls,
       label: te(`model.editor.providers.${p.value}.label`)
         ? t(`model.editor.providers.${p.value}.label`)
         : p.label,
@@ -652,10 +721,20 @@ const providerOptions = computed(() => {
         ? t(`model.editor.providers.${p.value}.description`)
         : p.description,
     }))
+  } else {
+    // 回退到硬编码值，按 modelTypes 过滤
+    options = fallbackProviderOptions.value.filter(p =>
+      p.modelTypes.includes(activeModelType.value)
+    )
   }
-  // 回退到硬编码值，按 modelTypes 过滤
-  return fallbackProviderOptions.value.filter(p =>
-    p.modelTypes.includes(activeModelType.value)
+
+  if (activeModelType.value !== 'chat') return options
+
+  // 新建对话模型时只呈现 AgentPlan。编辑旧模型时额外保留当前服务商，
+  // 防止旧配置在未改动的情况下被意外覆盖为火山引擎。
+  return options.filter(option =>
+    option.value === DEFAULT_CHAT_PROVIDER ||
+    (isEdit.value && option.value === formData.value.provider),
   )
 })
 
@@ -737,7 +816,7 @@ const credentialFields = computed<CredentialFieldDef<ModelCredentialField>[]>(()
         : t('model.editor.apiKeyOptional')) as string,
     },
   ]
-  if (formData.value.provider === 'weknoracloud') {
+  if (formData.value.provider === 'keystonecloud') {
     fields.push({ key: 'app_secret', label: 'App Secret' })
   } else if (isLkeapRerank.value) {
     fields.push({ key: 'app_secret', label: t('model.editor.lkeap.secretKeyLabel') as string })
@@ -801,13 +880,13 @@ let downloadInterval: any = null
 const ollamaServiceStatus = ref<boolean | null>(null)
 const checkingOllamaStatus = ref(false)
 
-// WeKnoraCloud 凭证状态
+// KeystoneCloud 凭证状态
 const wkcCredentialState = ref<'loading' | 'unconfigured' | 'configured' | 'expired'>('loading')
 
 const checkWkcCredentialStatus = async () => {
   wkcCredentialState.value = 'loading'
   try {
-    const status = await getWeKnoraCloudStatus()
+    const status = await getKeystoneCloudStatus()
     if (status.needs_reinit) {
       wkcCredentialState.value = 'expired'
     } else if (status.has_models) {
@@ -820,13 +899,13 @@ const checkWkcCredentialStatus = async () => {
   }
 }
 
-const goToWeKnoraCloudSettings = async () => {
+const goToKeystoneCloudSettings = async () => {
   emit('update:visible', false)
   if (uiStore.showSettingsModal) {
     uiStore.closeSettings()
     await nextTick()
   }
-  uiStore.openSettings('weknoracloud')
+  uiStore.openSettings('keystonecloud')
 }
 
 const formData = ref<ModelFormData>({
@@ -989,8 +1068,8 @@ const selectModelType = async (type: EditorModelType) => {
   await loadProviders()
   const supported = providerOptions.value.some(p => p.value === formData.value.provider)
   if (!supported) {
-    formData.value.provider = 'generic'
-    formData.value.baseUrl = ''
+    formData.value.provider = type === 'chat' ? DEFAULT_CHAT_PROVIDER : 'generic'
+    formData.value.baseUrl = type === 'chat' ? AGENT_PLAN_CHAT_BASE_URL : ''
   } else {
     handleProviderChange(formData.value.provider || 'generic')
   }
@@ -1050,8 +1129,8 @@ watch(() => props.visible, (val) => {
         formData.value.source = 'remote'
       }
 
-      // 如果当前 provider 是 WeKnoraCloud，检查凭证状态
-      if (formData.value.provider === 'weknoracloud') {
+      // 如果当前 provider 是 KeystoneCloud，检查凭证状态
+      if (formData.value.provider === 'keystonecloud') {
         checkWkcCredentialStatus()
       }
 
@@ -1074,10 +1153,10 @@ const resetForm = () => {
     id: generateId(),
     name: '', // 保留字段但不使用，保存时用 modelName
     source: 'remote',
-    provider: 'generic',
-    modelName: '',
+    provider: DEFAULT_CHAT_PROVIDER,
+    modelName: DEFAULT_AGENT_PLAN_MODEL,
     displayName: '',
-    baseUrl: '',
+    baseUrl: AGENT_PLAN_CHAT_BASE_URL,
     apiKey: '',
     dimension: undefined, // 默认不填，让用户手动输入或通过检测按钮获取
     supportsDimensionOverride: false,
@@ -1085,7 +1164,7 @@ const resetForm = () => {
     isDefault: false,
     supportsVision: false,
     maxConcurrency: undefined,
-    thinkingControl: defaultThinkingControl('generic', ''),
+    thinkingControl: defaultThinkingControl(DEFAULT_CHAT_PROVIDER, ''),
     customHeaders: [],
     appSecret: '',
     lkeapRegion: 'ap-guangzhou',
@@ -1118,8 +1197,8 @@ const handleProviderChange = (value: string) => {
     remoteAvailable.value = false
     remoteMessage.value = ''
   }
-  // WeKnoraCloud: 检查凭证状态
-  if (value === 'weknoracloud') {
+  // KeystoneCloud: 检查凭证状态
+  if (value === 'keystonecloud') {
     checkWkcCredentialStatus()
   }
   if (hydratingForm.value) return
@@ -1304,7 +1383,7 @@ const checkOllamaDimension = async () => {
 
 // 检查 Remote API 连接（根据模型类型调用不同的接口）
 const checkRemoteAPI = async () => {
-  if (!formData.value.modelName || (!formData.value.baseUrl && formData.value.provider !== 'weknoracloud')) {
+  if (!formData.value.modelName || (!formData.value.baseUrl && formData.value.provider !== 'keystonecloud')) {
     MessagePlugin.warning(t('model.editor.fillModelAndUrl'))
     return
   }
@@ -1426,6 +1505,20 @@ const checkRemoteAPI = async () => {
         return
     }
 
+    // AgentPlan 的 OpenAI 兼容端点会接受最小探测请求（HTTP 200），但在
+    // 1-token 探测下可能返回空 choices。旧后端会将其归为 "no response from
+    // API"；这不是网络或鉴权失败，允许保存并由实际对话继续验证。
+    const isLegacyAgentPlanProbe = isAgentPlanChat.value &&
+      typeof result.message === 'string' &&
+      result.message.includes('no response from API')
+    if (isLegacyAgentPlanProbe) {
+      result = {
+        ...result,
+        available: true,
+        message: 'AgentPlan 已接受连接探测，请保存后发送一条消息完成验证',
+      }
+    }
+
     remoteChecked.value = true
     remoteAvailable.value = result.available || false
     // 之前这里把 backend 的错误 message 只丢到 console.debug，用户只能
@@ -1434,7 +1527,9 @@ const checkRemoteAPI = async () => {
     // 给到的具体原因（已经在后端 classifyConnectionError 中包了一层
     // 易读的中文 hint + 原始 SDK 报错），方便排查。
     if (result.available) {
-      remoteMessage.value = t('model.editor.connectionSuccess')
+      remoteMessage.value = isLegacyAgentPlanProbe
+        ? result.message
+        : t('model.editor.connectionSuccess')
       MessagePlugin.success(remoteMessage.value)
     } else {
       remoteMessage.value = result.message || t('model.editor.connectionFailed')
@@ -1469,8 +1564,8 @@ const handleConfirm = async () => {
       return
     }
 
-    // 如果是 remote 类型且非 WeKnoraCloud，必须填写 baseUrl
-    if (formData.value.source === 'remote' && formData.value.provider !== 'weknoracloud') {
+    // 如果是 remote 类型且非 KeystoneCloud，必须填写 baseUrl
+    if (formData.value.source === 'remote' && formData.value.provider !== 'keystonecloud') {
       if (!formData.value.baseUrl || !formData.value.baseUrl.trim()) {
         MessagePlugin.warning(t('model.editor.remoteBaseUrlRequired'))
         return
@@ -1926,8 +2021,8 @@ const handleCancel = () => {
   }
 }
 
-// WeKnoraCloud 提示信息
-.weknoracloud-hint {
+// KeystoneCloud 提示信息
+.keystonecloud-hint {
   display: flex;
   align-items: flex-start;
   gap: 10px;

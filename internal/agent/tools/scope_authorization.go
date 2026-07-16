@@ -3,8 +3,8 @@ package tools
 import (
 	"context"
 
-	"github.com/Tencent/WeKnora/internal/types"
-	"github.com/Tencent/WeKnora/internal/types/interfaces"
+	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
 )
 
 type knowledgeTagsFetcher func(context.Context, []string) (map[string][]*types.KnowledgeTag, error)

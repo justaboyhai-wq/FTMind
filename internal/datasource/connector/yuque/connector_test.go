@@ -7,8 +7,8 @@ import (
 	"os"
 	"testing"
 
-	secutils "github.com/Tencent/WeKnora/internal/utils"
-	"github.com/Tencent/WeKnora/internal/types"
+	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 )
 
 func TestMain(m *testing.M) {

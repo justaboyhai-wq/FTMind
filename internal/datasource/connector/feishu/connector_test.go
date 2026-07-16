@@ -12,8 +12,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	secutils "github.com/Tencent/WeKnora/internal/utils"
-	"github.com/Tencent/WeKnora/internal/types"
+	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/types"
 )
 
 func TestMain(m *testing.M) {
@@ -478,7 +478,7 @@ func TestConnectorListResources(t *testing.T) {
 
 // TestConnectorListResources_LazyLoadsOneLevel verifies that ListResources loads
 // the wiki tree lazily — only the requested level — instead of recursing the whole
-// tree up front (Tencent/WeKnora#1672).
+// tree up front (justaboyhai-wq/keystone#1672).
 func TestConnectorListResources_LazyLoadsOneLevel(t *testing.T) {
 	topNodes := []wikiNode{
 		{NodeToken: "nt-root", ObjToken: "obj-root", ObjType: "docx", Title: "Root", HasChild: true, ObjEditTime: "100"},

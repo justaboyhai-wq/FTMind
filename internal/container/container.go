@@ -33,59 +33,59 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
-	"github.com/Tencent/WeKnora/internal/agent/approval"
-	"github.com/Tencent/WeKnora/internal/application/repository"
-	memoryRepo "github.com/Tencent/WeKnora/internal/application/repository/memory/neo4j"
-	dorisRepo "github.com/Tencent/WeKnora/internal/application/repository/retriever/doris"
-	elasticsearchRepoV7 "github.com/Tencent/WeKnora/internal/application/repository/retriever/elasticsearch/v7"
-	elasticsearchRepoV8 "github.com/Tencent/WeKnora/internal/application/repository/retriever/elasticsearch/v8"
-	milvusRepo "github.com/Tencent/WeKnora/internal/application/repository/retriever/milvus"
-	neo4jRepo "github.com/Tencent/WeKnora/internal/application/repository/retriever/neo4j"
-	openSearchRepo "github.com/Tencent/WeKnora/internal/application/repository/retriever/opensearch"
-	postgresRepo "github.com/Tencent/WeKnora/internal/application/repository/retriever/postgres"
-	qdrantRepo "github.com/Tencent/WeKnora/internal/application/repository/retriever/qdrant"
-	sqliteRetrieverRepo "github.com/Tencent/WeKnora/internal/application/repository/retriever/sqlite"
-	tencentVectorDBRepo "github.com/Tencent/WeKnora/internal/application/repository/retriever/tencentvectordb"
-	weaviateRepo "github.com/Tencent/WeKnora/internal/application/repository/retriever/weaviate"
-	"github.com/Tencent/WeKnora/internal/application/service"
-	chatpipeline "github.com/Tencent/WeKnora/internal/application/service/chat_pipeline"
-	"github.com/Tencent/WeKnora/internal/application/service/file"
-	memoryService "github.com/Tencent/WeKnora/internal/application/service/memory"
-	"github.com/Tencent/WeKnora/internal/application/service/retriever"
-	"github.com/Tencent/WeKnora/internal/common"
-	"github.com/Tencent/WeKnora/internal/config"
-	"github.com/Tencent/WeKnora/internal/database"
-	"github.com/Tencent/WeKnora/internal/datasource"
-	feishuConnector "github.com/Tencent/WeKnora/internal/datasource/connector/feishu"
-	notionConnector "github.com/Tencent/WeKnora/internal/datasource/connector/notion"
-	rssConnector "github.com/Tencent/WeKnora/internal/datasource/connector/rss"
-	yuqueConnector "github.com/Tencent/WeKnora/internal/datasource/connector/yuque"
-	"github.com/Tencent/WeKnora/internal/event"
-	"github.com/Tencent/WeKnora/internal/handler"
-	"github.com/Tencent/WeKnora/internal/handler/session"
-	imPkg "github.com/Tencent/WeKnora/internal/im"
-	"github.com/Tencent/WeKnora/internal/im/dingtalk"
-	"github.com/Tencent/WeKnora/internal/im/feishu"
-	"github.com/Tencent/WeKnora/internal/im/mattermost"
-	"github.com/Tencent/WeKnora/internal/im/qqbot"
-	"github.com/Tencent/WeKnora/internal/im/slack"
-	"github.com/Tencent/WeKnora/internal/im/telegram"
-	"github.com/Tencent/WeKnora/internal/im/wechat"
-	"github.com/Tencent/WeKnora/internal/im/wecom"
-	"github.com/Tencent/WeKnora/internal/infrastructure/docparser"
-	infra_web_search "github.com/Tencent/WeKnora/internal/infrastructure/web_search"
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/mcp"
-	"github.com/Tencent/WeKnora/internal/models/chat"
-	"github.com/Tencent/WeKnora/internal/models/embedding"
-	"github.com/Tencent/WeKnora/internal/models/limiter"
-	"github.com/Tencent/WeKnora/internal/models/utils/ollama"
-	"github.com/Tencent/WeKnora/internal/router"
-	"github.com/Tencent/WeKnora/internal/stream"
-	"github.com/Tencent/WeKnora/internal/tracing/langfuse"
-	"github.com/Tencent/WeKnora/internal/types"
-	"github.com/Tencent/WeKnora/internal/types/interfaces"
-	secutils "github.com/Tencent/WeKnora/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/agent/approval"
+	"github.com/justaboyhai-wq/keystone/internal/application/repository"
+	memoryRepo "github.com/justaboyhai-wq/keystone/internal/application/repository/memory/neo4j"
+	dorisRepo "github.com/justaboyhai-wq/keystone/internal/application/repository/retriever/doris"
+	elasticsearchRepoV7 "github.com/justaboyhai-wq/keystone/internal/application/repository/retriever/elasticsearch/v7"
+	elasticsearchRepoV8 "github.com/justaboyhai-wq/keystone/internal/application/repository/retriever/elasticsearch/v8"
+	milvusRepo "github.com/justaboyhai-wq/keystone/internal/application/repository/retriever/milvus"
+	neo4jRepo "github.com/justaboyhai-wq/keystone/internal/application/repository/retriever/neo4j"
+	openSearchRepo "github.com/justaboyhai-wq/keystone/internal/application/repository/retriever/opensearch"
+	postgresRepo "github.com/justaboyhai-wq/keystone/internal/application/repository/retriever/postgres"
+	qdrantRepo "github.com/justaboyhai-wq/keystone/internal/application/repository/retriever/qdrant"
+	sqliteRetrieverRepo "github.com/justaboyhai-wq/keystone/internal/application/repository/retriever/sqlite"
+	tencentVectorDBRepo "github.com/justaboyhai-wq/keystone/internal/application/repository/retriever/tencentvectordb"
+	weaviateRepo "github.com/justaboyhai-wq/keystone/internal/application/repository/retriever/weaviate"
+	"github.com/justaboyhai-wq/keystone/internal/application/service"
+	chatpipeline "github.com/justaboyhai-wq/keystone/internal/application/service/chat_pipeline"
+	"github.com/justaboyhai-wq/keystone/internal/application/service/file"
+	memoryService "github.com/justaboyhai-wq/keystone/internal/application/service/memory"
+	"github.com/justaboyhai-wq/keystone/internal/application/service/retriever"
+	"github.com/justaboyhai-wq/keystone/internal/common"
+	"github.com/justaboyhai-wq/keystone/internal/config"
+	"github.com/justaboyhai-wq/keystone/internal/database"
+	"github.com/justaboyhai-wq/keystone/internal/datasource"
+	feishuConnector "github.com/justaboyhai-wq/keystone/internal/datasource/connector/feishu"
+	notionConnector "github.com/justaboyhai-wq/keystone/internal/datasource/connector/notion"
+	rssConnector "github.com/justaboyhai-wq/keystone/internal/datasource/connector/rss"
+	yuqueConnector "github.com/justaboyhai-wq/keystone/internal/datasource/connector/yuque"
+	"github.com/justaboyhai-wq/keystone/internal/event"
+	"github.com/justaboyhai-wq/keystone/internal/handler"
+	"github.com/justaboyhai-wq/keystone/internal/handler/session"
+	imPkg "github.com/justaboyhai-wq/keystone/internal/im"
+	"github.com/justaboyhai-wq/keystone/internal/im/dingtalk"
+	"github.com/justaboyhai-wq/keystone/internal/im/feishu"
+	"github.com/justaboyhai-wq/keystone/internal/im/mattermost"
+	"github.com/justaboyhai-wq/keystone/internal/im/qqbot"
+	"github.com/justaboyhai-wq/keystone/internal/im/slack"
+	"github.com/justaboyhai-wq/keystone/internal/im/telegram"
+	"github.com/justaboyhai-wq/keystone/internal/im/wechat"
+	"github.com/justaboyhai-wq/keystone/internal/im/wecom"
+	"github.com/justaboyhai-wq/keystone/internal/infrastructure/docparser"
+	infra_web_search "github.com/justaboyhai-wq/keystone/internal/infrastructure/web_search"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/mcp"
+	"github.com/justaboyhai-wq/keystone/internal/models/chat"
+	"github.com/justaboyhai-wq/keystone/internal/models/embedding"
+	"github.com/justaboyhai-wq/keystone/internal/models/limiter"
+	"github.com/justaboyhai-wq/keystone/internal/models/utils/ollama"
+	"github.com/justaboyhai-wq/keystone/internal/router"
+	"github.com/justaboyhai-wq/keystone/internal/stream"
+	"github.com/justaboyhai-wq/keystone/internal/tracing/langfuse"
+	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
 	"github.com/tencent/vectordatabase-sdk-go/tcvectordb"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate/auth"
@@ -202,7 +202,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(service.NewEvaluationService))
 	must(container.Provide(service.NewUserService))
 	must(container.Provide(service.NewSystemSettingService))
-	must(container.Provide(service.NewWeKnoraCloudService))
+	must(container.Provide(service.NewKeystoneCloudService))
 
 	// Extract services - register individual extracters with names
 	must(container.Provide(service.NewChunkExtractService, dig.Name("chunkExtractor")))
@@ -374,7 +374,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Invoke(registerIMAdapterFactories))
 	must(container.Provide(handler.NewIMHandler))
 	must(container.Provide(handler.NewEmbedChannelHandler))
-	must(container.Provide(handler.NewWeKnoraCloudHandler))
+	must(container.Provide(handler.NewKeystoneCloudHandler))
 	logger.Debugf(ctx, "[Container] HTTP handlers registered")
 
 	// Wire the chat package's local image resolver so multimodal chat can read
@@ -455,7 +455,7 @@ func initLangfuse() (*langfuse.Manager, error) {
 }
 
 // defaultModelMaxConcurrency is the per-model cap on concurrent background
-// (ingestion/enrichment) chat calls when WEKNORA_MODEL_MAX_CONCURRENCY /
+// (ingestion/enrichment) chat calls when KEYSTONE_MODEL_MAX_CONCURRENCY /
 // model.max_concurrency is unset. summary / question / graph enrichment all
 // share the same model, so this bounds their combined pressure on one provider
 // across every replica. Interactive chat is never gated.
@@ -470,7 +470,7 @@ func resolveModelMaxConcurrency(ss interfaces.SystemSettingService) int {
 		return defaultModelMaxConcurrency
 	}
 	return int(ss.GetInt(context.Background(), "model.max_concurrency",
-		"WEKNORA_MODEL_MAX_CONCURRENCY", int64(defaultModelMaxConcurrency)))
+		"KEYSTONE_MODEL_MAX_CONCURRENCY", int64(defaultModelMaxConcurrency)))
 }
 
 // registerModelConcurrencyLimiter builds the Redis-backed per-model background
@@ -591,7 +591,7 @@ func initDatabase(cfg *config.Config) (*gorm.DB, error) {
 	case "sqlite":
 		dbPath := os.Getenv("DB_PATH")
 		if dbPath == "" {
-			dbPath = "./data/weknora.db"
+			dbPath = "./data/keystone.db"
 		}
 		if dir := filepath.Dir(dbPath); dir != "." && dir != "" {
 			if err := os.MkdirAll(dir, 0o755); err != nil {
@@ -823,7 +823,7 @@ func initFileService(cfg *config.Config) (interfaces.FileService, error) {
 		}
 		pathPrefix := os.Getenv("S3_PATH_PREFIX")
 		if pathPrefix == "" {
-			pathPrefix = "weknora/"
+			pathPrefix = "keystone/"
 		}
 		return file.NewS3FileService(
 			os.Getenv("S3_ENDPOINT"),
@@ -843,7 +843,7 @@ func initFileService(cfg *config.Config) (interfaces.FileService, error) {
 		obsRegion := os.Getenv("OBS_REGION")
 		obsPathPrefix := os.Getenv("OBS_PATH_PREFIX")
 		if obsPathPrefix == "" {
-			obsPathPrefix = "weknora/"
+			obsPathPrefix = "keystone/"
 		}
 		return file.NewObsFileService(
 			os.Getenv("OBS_ENDPOINT"),
@@ -863,7 +863,7 @@ func initFileService(cfg *config.Config) (interfaces.FileService, error) {
 		}
 		pathPrefix := os.Getenv("OSS_PATH_PREFIX")
 		if pathPrefix == "" {
-			pathPrefix = "weknora/"
+			pathPrefix = "keystone/"
 		}
 		return file.NewOssFileServiceWithTempBucket(
 			os.Getenv("OSS_ENDPOINT"),
@@ -1132,7 +1132,7 @@ func initRetrieveEngineRegistry(
 		}
 		dorisDatabase := os.Getenv("DORIS_DATABASE")
 		if dorisDatabase == "" {
-			dorisDatabase = "weknora"
+			dorisDatabase = "keystone"
 		}
 		dorisUsername := os.Getenv("DORIS_USERNAME")
 		if dorisUsername == "" {
@@ -1410,6 +1410,7 @@ func registerWebSearchProviders(registry *infra_web_search.Registry) {
 	registry.Register("baidu", infra_web_search.NewBaiduProvider)
 	registry.Register("searxng", infra_web_search.NewSearxngProvider)
 	registry.Register("keenable", infra_web_search.NewKeenableProvider)
+	registry.Register("ark", infra_web_search.NewArkProvider)
 }
 
 // registerIMAdapterFactories registers adapter factories for each IM platform

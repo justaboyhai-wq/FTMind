@@ -6,8 +6,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/Tencent/WeKnora/cli/internal/format"
-	sdk "github.com/Tencent/WeKnora/client"
+	"github.com/justaboyhai-wq/keystone/cli/internal/format"
+	sdk "github.com/justaboyhai-wq/keystone/client"
 )
 
 // ProjectedEvent is the bounded event representation shared by

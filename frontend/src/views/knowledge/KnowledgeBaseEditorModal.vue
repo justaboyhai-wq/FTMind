@@ -115,6 +115,35 @@
 
                       <!-- Wiki 提取粒度 (仅当 Wiki 启用时显示) -->
                       <div v-if="!isFAQ && formData.indexingStrategy.wikiEnabled" class="form-item">
+                        <label class="form-label">{{ $t('knowledgeEditor.wiki.templates.label') }}</label>
+                        <p class="form-tip">{{ $t('knowledgeEditor.wiki.templates.tip') }}</p>
+                        <div class="wiki-template-grid" role="list">
+                          <button
+                            v-for="template in wikiTemplates"
+                            :key="template.id"
+                            type="button"
+                            class="wiki-template-card"
+                            :class="{ 'is-selected': selectedWikiTemplateId === template.id }"
+                            :aria-pressed="selectedWikiTemplateId === template.id"
+                            @click="applyWikiTemplate(template)"
+                          >
+                            <span class="wiki-template-card__header">
+                              <span class="wiki-template-card__title">{{ template.title }}</span>
+                              <span class="wiki-template-card__granularity">{{ template.granularityLabel }}</span>
+                            </span>
+                            <span class="wiki-template-card__description">{{ template.description }}</span>
+                            <span class="wiki-template-card__focus">{{ template.focus }}</span>
+                          </button>
+                        </div>
+                        <p v-if="selectedWikiTemplateId === 'custom'" class="form-tip wiki-template-status">
+                          {{ $t('knowledgeEditor.wiki.templates.customized') }}
+                        </p>
+                        <p v-else-if="selectedWikiTemplateId" class="form-tip wiki-template-status">
+                          {{ $t('knowledgeEditor.wiki.templates.applied') }}
+                        </p>
+                      </div>
+
+                      <div v-if="!isFAQ && formData.indexingStrategy.wikiEnabled" class="form-item">
                         <label class="form-label">{{ $t('knowledgeEditor.wiki.extractionGranularityLabel') }}</label>
                         <p class="form-tip">{{ $t('knowledgeEditor.wiki.extractionGranularityTip') }}</p>
                         <t-radio-group
@@ -143,6 +172,7 @@
                           :placeholder="$t('knowledgeEditor.wiki.contentInstructionsPlaceholder')"
                           :maxlength="4000"
                           :autosize="{ minRows: 3, maxRows: 8 }"
+                          @update:model-value="markWikiTemplateCustomized"
                         />
                       </div>
 
@@ -154,6 +184,7 @@
                           :placeholder="$t('knowledgeEditor.wiki.extractionInstructionsPlaceholder')"
                           :maxlength="4000"
                           :autosize="{ minRows: 3, maxRows: 8 }"
+                          @update:model-value="markWikiTemplateCustomized"
                         />
                       </div>
 
@@ -444,7 +475,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import KbCreateContextualGuide from '@/components/KbCreateContextualGuide.vue'
 import { KB_EDITOR_FOCUS_SECTION_EVENT, markContextualGuideDone } from '@/config/contextualGuides'
 import { MessagePlugin, DialogPlugin } from 'tdesign-vue-next'
@@ -554,6 +585,85 @@ const canShareKB = computed(() => {
 })
 // 用户是否在分块设置中手动改过任何值。一旦为 true，就不再根据索引策略自动调整默认分块参数。
 const chunkingDirty = ref(false)
+
+type WikiTemplateId = 'general' | 'technical' | 'process' | 'project' | 'research' | 'glossary'
+type WikiTemplate = {
+  id: WikiTemplateId
+  title: string
+  description: string
+  focus: string
+  granularity: 'focused' | 'standard' | 'exhaustive'
+  granularityLabel: string
+  contentInstructions: string
+  extractionInstructions: string
+}
+
+// Templates are UI presets only. They map to the existing WikiConfig fields,
+// so selecting one never changes the API contract or the wiki ingest protocol.
+const selectedWikiTemplateId = ref<WikiTemplateId | 'custom' | ''>('')
+const applyingWikiTemplate = ref(false)
+const wikiTemplates = computed<WikiTemplate[]>(() => [
+  {
+    id: 'general',
+    title: t('knowledgeEditor.wiki.templates.general.title'),
+    description: t('knowledgeEditor.wiki.templates.general.description'),
+    focus: t('knowledgeEditor.wiki.templates.general.focus'),
+    granularity: 'standard',
+    granularityLabel: t('knowledgeEditor.wiki.granularityStandard'),
+    contentInstructions: t('knowledgeEditor.wiki.templates.general.contentInstructions'),
+    extractionInstructions: t('knowledgeEditor.wiki.templates.general.extractionInstructions'),
+  },
+  {
+    id: 'technical',
+    title: t('knowledgeEditor.wiki.templates.technical.title'),
+    description: t('knowledgeEditor.wiki.templates.technical.description'),
+    focus: t('knowledgeEditor.wiki.templates.technical.focus'),
+    granularity: 'exhaustive',
+    granularityLabel: t('knowledgeEditor.wiki.granularityExhaustive'),
+    contentInstructions: t('knowledgeEditor.wiki.templates.technical.contentInstructions'),
+    extractionInstructions: t('knowledgeEditor.wiki.templates.technical.extractionInstructions'),
+  },
+  {
+    id: 'process',
+    title: t('knowledgeEditor.wiki.templates.process.title'),
+    description: t('knowledgeEditor.wiki.templates.process.description'),
+    focus: t('knowledgeEditor.wiki.templates.process.focus'),
+    granularity: 'standard',
+    granularityLabel: t('knowledgeEditor.wiki.granularityStandard'),
+    contentInstructions: t('knowledgeEditor.wiki.templates.process.contentInstructions'),
+    extractionInstructions: t('knowledgeEditor.wiki.templates.process.extractionInstructions'),
+  },
+  {
+    id: 'project',
+    title: t('knowledgeEditor.wiki.templates.project.title'),
+    description: t('knowledgeEditor.wiki.templates.project.description'),
+    focus: t('knowledgeEditor.wiki.templates.project.focus'),
+    granularity: 'standard',
+    granularityLabel: t('knowledgeEditor.wiki.granularityStandard'),
+    contentInstructions: t('knowledgeEditor.wiki.templates.project.contentInstructions'),
+    extractionInstructions: t('knowledgeEditor.wiki.templates.project.extractionInstructions'),
+  },
+  {
+    id: 'research',
+    title: t('knowledgeEditor.wiki.templates.research.title'),
+    description: t('knowledgeEditor.wiki.templates.research.description'),
+    focus: t('knowledgeEditor.wiki.templates.research.focus'),
+    granularity: 'standard',
+    granularityLabel: t('knowledgeEditor.wiki.granularityStandard'),
+    contentInstructions: t('knowledgeEditor.wiki.templates.research.contentInstructions'),
+    extractionInstructions: t('knowledgeEditor.wiki.templates.research.extractionInstructions'),
+  },
+  {
+    id: 'glossary',
+    title: t('knowledgeEditor.wiki.templates.glossary.title'),
+    description: t('knowledgeEditor.wiki.templates.glossary.description'),
+    focus: t('knowledgeEditor.wiki.templates.glossary.focus'),
+    granularity: 'exhaustive',
+    granularityLabel: t('knowledgeEditor.wiki.granularityExhaustive'),
+    contentInstructions: t('knowledgeEditor.wiki.templates.glossary.contentInstructions'),
+    extractionInstructions: t('knowledgeEditor.wiki.templates.glossary.extractionInstructions'),
+  },
+])
 
 // 仅 Wiki 索引模式下的分块预设：更大 chunk、无 overlap、关闭父子分块。
 // 该预设只在「创建模式」下、且用户尚未手动调整分块参数时生效，避免覆盖既有 KB 的配置。
@@ -941,6 +1051,28 @@ const handleGranularityChange = (value: string | number | boolean) => {
     ...formData.value.wikiConfig,
     extractionGranularity: next,
   }
+  markWikiTemplateCustomized()
+}
+
+const applyWikiTemplate = (template: WikiTemplate) => {
+  if (!formData.value) return
+  applyingWikiTemplate.value = true
+  formData.value.wikiConfig = {
+    ...formData.value.wikiConfig,
+    extractionGranularity: template.granularity,
+    contentInstructions: template.contentInstructions,
+    extractionInstructions: template.extractionInstructions,
+  }
+  selectedWikiTemplateId.value = template.id
+  void nextTick(() => {
+    applyingWikiTemplate.value = false
+  })
+}
+
+const markWikiTemplateCustomized = () => {
+  if (!applyingWikiTemplate.value && selectedWikiTemplateId.value) {
+    selectedWikiTemplateId.value = 'custom'
+  }
 }
 
 const isIndexingLocked = computed(() => props.mode === 'edit' && hasFiles.value)
@@ -957,6 +1089,9 @@ const toggleWikiIndexing = () => {
   if (!formData.value) return
   if (isIndexingLocked.value) return
   formData.value.indexingStrategy.wikiEnabled = !formData.value.indexingStrategy.wikiEnabled
+  if (!formData.value.indexingStrategy.wikiEnabled) {
+    selectedWikiTemplateId.value = ''
+  }
 }
 
 const handleChunkingConfigUpdate = (config: any) => {
@@ -1454,6 +1589,8 @@ const resetState = () => {
   saving.value = false
   loading.value = false
   chunkingDirty.value = false
+  selectedWikiTemplateId.value = ''
+  applyingWikiTemplate.value = false
   kbCreatorId.value = ''
 }
 
@@ -1783,6 +1920,88 @@ watch(
 
 .granularity-radio-group {
   margin-top: 4px;
+}
+
+.wiki-template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.wiki-template-card {
+  display: flex;
+  min-width: 0;
+  min-height: 132px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 14px;
+  color: var(--td-text-color-primary);
+  text-align: left;
+  background: var(--td-bg-color-container);
+  border: 1px solid var(--td-component-stroke);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color .2s ease, background .2s ease, box-shadow .2s ease;
+
+  &:hover {
+    border-color: var(--td-brand-color);
+    box-shadow: 0 3px 10px color-mix(in srgb, var(--td-brand-color) 12%, transparent);
+  }
+
+  &.is-selected {
+    border-color: var(--td-brand-color);
+    background: var(--td-brand-color-light);
+  }
+}
+
+.wiki-template-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.wiki-template-card__title {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wiki-template-card__granularity {
+  flex: none;
+  padding: 2px 6px;
+  font-size: 11px;
+  color: var(--td-brand-color);
+  background: color-mix(in srgb, var(--td-brand-color) 10%, transparent);
+  border-radius: 999px;
+}
+
+.wiki-template-card__description,
+.wiki-template-card__focus {
+  display: -webkit-box;
+  overflow: hidden;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.wiki-template-card__description {
+  font-size: 12px;
+  color: var(--td-text-color-secondary);
+}
+
+.wiki-template-card__focus {
+  margin-top: auto;
+  font-size: 12px;
+  color: var(--td-text-color-placeholder);
+}
+
+.wiki-template-status {
+  color: var(--td-brand-color);
 }
 
 .granularity-hint {

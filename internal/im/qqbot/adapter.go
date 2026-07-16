@@ -10,7 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/Tencent/WeKnora/internal/im"
+	"github.com/justaboyhai-wq/keystone/internal/im"
 )
 
 var _ im.Adapter = (*Adapter)(nil)

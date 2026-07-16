@@ -10,13 +10,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Tencent/WeKnora/internal/logger"
-	secutils "github.com/Tencent/WeKnora/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
 )
 
 const (
-	// VolcengineMultimodalEmbeddingPath 火山引擎 Ark 多模态 Embedding API 路径
-	VolcengineMultimodalEmbeddingPath = "/api/v3/embeddings/multimodal"
+	// VolcengineMultimodalEmbeddingPath 火山方舟多模态 Embedding API 相对路径。
+	// 标准方舟、AgentPlan 和 Coding Plan 的 Base URL 均已包含各自的 API 版本前缀。
+	VolcengineMultimodalEmbeddingPath = "/embeddings/multimodal"
+	volcengineStandardAPIPath         = "/api/v3"
+	volcengineAgentPlanAPIPath        = "/api/plan/v3"
+	volcengineCodingPlanAPIPath       = "/api/coding/v3"
 )
 
 // VolcengineEmbedder implements text vectorization using Volcengine Ark multimodal embedding API
@@ -91,21 +95,15 @@ func NewVolcengineEmbedder(apiKey, baseURL, modelName string,
 	truncatePromptTokens int, dimensions int, modelID string, pooler EmbedderPooler,
 ) (*VolcengineEmbedder, error) {
 	if baseURL == "" {
-		baseURL = "https://ark.cn-beijing.volces.com"
+		baseURL = "https://ark.cn-beijing.volces.com" + volcengineStandardAPIPath
 	}
 
 	// Remove trailing slash
 	baseURL = strings.TrimRight(baseURL, "/")
 
-	// Extract base host if URL contains the full multimodal path
+	// Accept the complete Embedding endpoint as well as either Ark API base URL.
 	if strings.Contains(baseURL, "/embeddings/multimodal") {
-		// Strip the path to get base URL
-		if idx := strings.Index(baseURL, "/api/"); idx != -1 {
-			baseURL = baseURL[:idx]
-		}
-	} else if strings.HasSuffix(baseURL, "/api/v3") {
-		// If it ends with /api/v3, keep just the host
-		baseURL = strings.TrimSuffix(baseURL, "/api/v3")
+		baseURL = strings.TrimSuffix(baseURL, VolcengineMultimodalEmbeddingPath)
 	}
 
 	if modelName == "" {
@@ -153,7 +151,7 @@ func (e *VolcengineEmbedder) Embed(ctx context.Context, text string) ([]float32,
 func (e *VolcengineEmbedder) doRequestWithRetry(ctx context.Context, jsonData []byte) (*http.Response, error) {
 	var resp *http.Response
 	var err error
-	url := e.baseURL + VolcengineMultimodalEmbeddingPath
+	url := volcengineMultimodalEmbeddingURL(e.baseURL)
 
 	for i := 0; i <= e.maxRetries; i++ {
 		if i > 0 {
@@ -189,6 +187,19 @@ func (e *VolcengineEmbedder) doRequestWithRetry(ctx context.Context, jsonData []
 	}
 
 	return nil, err
+}
+
+// volcengineMultimodalEmbeddingURL supports both the standard Ark API base
+// and the AgentPlan / Coding Plan bases. Legacy host-only values retain the
+// standard Ark API behavior for backwards compatibility.
+func volcengineMultimodalEmbeddingURL(baseURL string) string {
+	baseURL = strings.TrimRight(baseURL, "/")
+	if strings.HasSuffix(baseURL, volcengineStandardAPIPath) ||
+		strings.HasSuffix(baseURL, volcengineAgentPlanAPIPath) ||
+		strings.HasSuffix(baseURL, volcengineCodingPlanAPIPath) {
+		return baseURL + VolcengineMultimodalEmbeddingPath
+	}
+	return baseURL + volcengineStandardAPIPath + VolcengineMultimodalEmbeddingPath
 }
 
 func (e *VolcengineEmbedder) BatchEmbed(ctx context.Context, texts []string) ([][]float32, error) {

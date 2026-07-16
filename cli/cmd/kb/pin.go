@@ -6,9 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/Tencent/WeKnora/cli/internal/cmdutil"
-	"github.com/Tencent/WeKnora/cli/internal/iostreams"
-	sdk "github.com/Tencent/WeKnora/client"
+	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/keystone/client"
 )
 
 // kbPinFields enumerates the fields surfaced for `--format json` discovery on
@@ -31,12 +31,12 @@ type PinService interface {
 	TogglePinKnowledgeBase(ctx context.Context, id string) (*sdk.KnowledgeBase, error)
 }
 
-// NewCmdPin builds `weknora kb pin <id>`.
+// NewCmdPin builds `keystone kb pin <id>`.
 func NewCmdPin(f *cmdutil.Factory) *cobra.Command {
 	return newPinCmd(f, "pin", true, "Pin a knowledge base to the top of the list")
 }
 
-// NewCmdUnpin builds `weknora kb unpin <id>`.
+// NewCmdUnpin builds `keystone kb unpin <id>`.
 func NewCmdUnpin(f *cmdutil.Factory) *cobra.Command {
 	return newPinCmd(f, "unpin", false, "Unpin a knowledge base")
 }
@@ -76,7 +76,7 @@ func newPinCmd(f *cmdutil.Factory, use string, want bool, short string) *cobra.C
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:       use + " a knowledge base (idempotent: a no-op if it is already in the target state)",
 		RequiredFlags: []string{"<kb-id> (positional)"},
-		Examples:      []string{"weknora kb " + use + " kb_abc"},
+		Examples:      []string{"keystone kb " + use + " kb_abc"},
 		Output:        "envelope.data is the KnowledgeBase with is_pinned reflecting the new state",
 	})
 	return cmd

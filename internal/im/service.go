@@ -14,17 +14,17 @@ import (
 	"sync"
 	"time"
 
-	agenttools "github.com/Tencent/WeKnora/internal/agent/tools"
-	filesvc "github.com/Tencent/WeKnora/internal/application/service/file"
-	"github.com/Tencent/WeKnora/internal/config"
-	apperrors "github.com/Tencent/WeKnora/internal/errors"
-	"github.com/Tencent/WeKnora/internal/event"
-	"github.com/Tencent/WeKnora/internal/logger"
-	mcppkg "github.com/Tencent/WeKnora/internal/mcp"
-	"github.com/Tencent/WeKnora/internal/models/chat"
-	"github.com/Tencent/WeKnora/internal/ratelimit"
-	"github.com/Tencent/WeKnora/internal/types"
-	"github.com/Tencent/WeKnora/internal/types/interfaces"
+	agenttools "github.com/justaboyhai-wq/keystone/internal/agent/tools"
+	filesvc "github.com/justaboyhai-wq/keystone/internal/application/service/file"
+	"github.com/justaboyhai-wq/keystone/internal/config"
+	apperrors "github.com/justaboyhai-wq/keystone/internal/errors"
+	"github.com/justaboyhai-wq/keystone/internal/event"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	mcppkg "github.com/justaboyhai-wq/keystone/internal/mcp"
+	"github.com/justaboyhai-wq/keystone/internal/models/chat"
+	"github.com/justaboyhai-wq/keystone/internal/ratelimit"
+	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
@@ -88,7 +88,7 @@ var storageSchemeRe = regexp.MustCompile(`\b(local|minio|s3|cos|tos|oss)://[^\s)
 //   - Successful rewrite logs at INFO with the full signed URL so operators
 //     can copy it out of logs and verify public reachability directly. The
 //     trade-off: anyone with log access can use a signed URL until it
-//     expires (WeKnora 2h, MinIO 24h). Acceptable for diagnosability.
+//     expires (Keystone 2h, MinIO 24h). Acceptable for diagnosability.
 //   - Failure or no-op rewrite logs at WARN. The no-op case typically means
 //     APP_EXTERNAL_URL is not configured for the local backend, which is
 //     the most common cause of "image broken in IM" reports.
@@ -342,9 +342,9 @@ type inflightEntry struct {
 
 // Service orchestrates IM message handling:
 // 1. Receives a unified IncomingMessage from an Adapter
-// 2. Resolves or creates a WeKnora session for the IM channel
+// 2. Resolves or creates a Keystone session for the IM channel
 // 3. Dispatches slash-commands (/help, /kb, /clear, etc.) without entering QA
-// 4. Calls the WeKnora QA pipeline for normal messages
+// 4. Calls the Keystone QA pipeline for normal messages
 // 5. Collects the streaming answer and sends it back via the Adapter
 type Service struct {
 	db             *gorm.DB
@@ -557,7 +557,7 @@ func (s *Service) buildIMMCPAuthNotice(ctx context.Context, services []imMCPAuth
 		if authURL != "" {
 			lines = append(lines, fmt.Sprintf("• %s：%s", name, authURL))
 		} else {
-			lines = append(lines, fmt.Sprintf("• %s（请在 WeKnora 管理后台完成 OAuth 授权）", name))
+			lines = append(lines, fmt.Sprintf("• %s（请在 Keystone 管理后台完成 OAuth 授权）", name))
 		}
 	}
 
@@ -1428,7 +1428,7 @@ func (s *Service) HandleMessage(ctx context.Context, msg *IncomingMessage, chann
 	sessionCtx := context.WithValue(ctx, types.TenantInfoContextKey, tenant)
 	sessionCtx = withIMIdentity(sessionCtx, tenantID, channelID, msg)
 
-	// 2. Resolve or create a WeKnora session
+	// 2. Resolve or create a Keystone session
 	channelSession, err := s.resolveSession(sessionCtx, msg, tenantID, agentID, channelID, channel.SessionMode)
 	if err != nil {
 		return fmt.Errorf("resolve session: %w", err)
@@ -1459,7 +1459,7 @@ func (s *Service) HandleMessage(ctx context.Context, msg *IncomingMessage, chann
 		return nil
 	}
 
-	// 4. Get the WeKnora session
+	// 4. Get the Keystone session
 	session, err := s.sessionService.GetSession(sessionCtx, channelSession.SessionID)
 	if err != nil {
 		// The underlying session may have been deleted from the UI while the
@@ -1654,7 +1654,7 @@ func (s *Service) handleCommand(
 	switch result.Action {
 	case ActionClear:
 		// Soft-delete the current ChannelSession so the next IM message
-		// starts a completely fresh WeKnora session. Conversation history
+		// starts a completely fresh Keystone session. Conversation history
 		// is keyed by session ID and rebuilt from DB on demand, so no
 		// separate cache invalidation step is needed.
 		if err := s.db.Model(&ChannelSession{}).
@@ -1748,7 +1748,7 @@ func (s *Service) sendStreamReply(ctx context.Context, msg *IncomingMessage, str
 	return nil
 }
 
-// isSessionNotFound reports whether err indicates the underlying WeKnora
+// isSessionNotFound reports whether err indicates the underlying Keystone
 // session no longer exists. The session repository translates GORM's
 // ErrRecordNotFound into apperrors.ErrSessionNotFound, so the application
 // sentinel is what GetSession returns today; the GORM check is kept as a
@@ -1845,7 +1845,7 @@ func (s *Service) resolveUserSession(ctx context.Context, msg *IncomingMessage, 
 		return nil, fmt.Errorf("query channel session: %w", result.Error)
 	}
 
-	// Create a new WeKnora session. Start untitled when there's text to summarise
+	// Create a new Keystone session. Start untitled when there's text to summarise
 	// so it gets a content-based title after the first message (see HandleMessage);
 	// fall back to the IM identity title otherwise.
 	title := imInitialSessionTitle(msg, buildUserSessionTitle)
@@ -2446,7 +2446,7 @@ func (s *Service) fallbackNonStream(ctx context.Context, msg *IncomingMessage, s
 	return adapter.SendReply(ctx, msg, &ReplyMessage{Content: formatIMOutboundAnswer(ctx, answer, tenant, s.defaultFileSvc), IsFinal: true})
 }
 
-// runQA executes the WeKnora QA pipeline and returns the full answer text.
+// runQA executes the Keystone QA pipeline and returns the full answer text.
 func (s *Service) runQA(ctx context.Context, session *types.Session, query string, customAgent *types.CustomAgent, kbIDs []string, userKey string, quote *QuotedMessage) (string, error) {
 	// Cancellable context (no hard deadline): each agent round has its own
 	// LLMCallTimeout. The context can still be cancelled by /stop.

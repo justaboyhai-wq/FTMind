@@ -6,8 +6,8 @@ import (
 	"github.com/open-dingtalk/dingtalk-stream-sdk-go/chatbot"
 	dtsdk "github.com/open-dingtalk/dingtalk-stream-sdk-go/client"
 
-	"github.com/Tencent/WeKnora/internal/im"
-	"github.com/Tencent/WeKnora/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/im"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
 )
 
 // MessageHandler is called when an IM message is received via stream connection.

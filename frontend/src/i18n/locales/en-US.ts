@@ -52,12 +52,12 @@ export default {
     reopen: 'Product tour',
     steps: {
       welcome: {
-        title: 'Welcome to WeKnora',
+        title: 'Welcome to Keystone',
         desc: 'A few quick steps to get you familiar with knowledge bases, chat and agents. Click "Next" to begin.',
       },
       knowledge: {
         title: 'Create your knowledge base',
-        desc: 'Everything starts here: upload documents, web pages or FAQs and WeKnora parses and indexes them automatically. Click here to open knowledge bases.',
+        desc: 'Everything starts here: upload documents, web pages or FAQs and Keystone parses and indexes them automatically. Click here to open knowledge bases.',
       },
       chat: {
         title: 'Start an AI chat',
@@ -1233,38 +1233,38 @@ export default {
       title: 'Insufficient permissions',
       desc: "Your role can't access this settings page. Ask an admin of this workspace to grant the required role.",
     },
-    weknoraCloud: {
-      title: 'WeKnora Cloud',
-      description: 'Configure WeKnora Cloud APPID and APPSECRET credentials. Credentials are used for model services and document parsing engine.',
+    keystoneCloud: {
+      title: 'Keystone Cloud',
+      description: 'Configure Keystone Cloud APPID and APPSECRET credentials. Credentials are used for model services and document parsing engine.',
       viewDocs: 'View Docs',
       unconfigured: 'Credentials not configured. Please fill in APPID and APPSECRET.',
       configured: 'Credentials configured and working.',
-      expired: 'WeKnora Cloud credentials expired',
+      expired: 'Keystone Cloud credentials expired',
       expiredDefault: 'Encryption key changed after service restart. Saved credentials cannot be decrypted. Please re-enter credentials.',
       reconfigure: 'Reconfigure',
       appIdLabel: 'APPID',
-      appIdDesc: 'WeKnora Cloud application ID',
+      appIdDesc: 'Keystone Cloud application ID',
       appIdPlaceholder: 'Enter APPID',
       appSecretLabel: 'APPSECRET',
-      appSecretDesc: 'WeKnora Cloud application secret',
+      appSecretDesc: 'Keystone Cloud application secret',
       appSecretPlaceholder: 'Enter APPSECRET',
       saveHint: 'Credentials will be validated and encrypted before saving.',
       saveBtn: 'Save Credentials',
       usageTitle: 'Usage Guide',
-      usageSteps: '1. Save APPID and APPSECRET\n2. Register chat, embedding, rerank, and vlm in Cloud Models below\n3. Parser: Knowledge Base Settings → Parser Engine → WeKnora Cloud',
+      usageSteps: '1. Save APPID and APPSECRET\n2. Register chat, embedding, rerank, and vlm in Cloud Models below\n3. Parser: Knowledge Base Settings → Parser Engine → Keystone Cloud',
       fillRequired: 'Please fill in APPID and APPSECRET',
       saveSuccess: 'Credentials saved successfully',
       saveFailed: 'Failed to save credentials',
-      credentialConfigured: 'WeKnoraCloud credentials configured.',
+      credentialConfigured: 'Keystone Cloud credentials configured.',
       credentialExpired: 'Credentials expired. Please reconfigure.',
-      credentialUnconfigured: 'WeKnoraCloud credentials not configured. Please set up APPID and APPSECRET first.',
+      credentialUnconfigured: 'Keystone Cloud credentials not configured. Please set up APPID and APPSECRET first.',
       checkingStatus: 'Checking credential status...',
       goToSettings: 'Go to Settings',
-      modelHintConfigured: 'WeKnoraCloud credentials configured. See supported models in',
+      modelHintConfigured: 'Keystone Cloud credentials configured. See supported models in',
       modelHintDocsLink: 'API docs',
       modelsSection: {
         title: 'Cloud Models',
-        descReady: 'Register the four standard WeKnora Cloud models for chat, retrieval, reranking, and vision.',
+        descReady: 'Register the four standard Keystone Cloud models for chat, retrieval, reranking, and vision.',
         descPending: 'Save credentials above before adding cloud models here.',
         statusAdded: 'Added',
         statusPending: 'Credentials required',
@@ -1281,10 +1281,10 @@ export default {
       addModelsAllExist: 'All four model types already exist',
       addModelsEmbeddingFailed: 'Embedding connection test failed; could not detect vector dimension',
       addModelsDisplayName: {
-        chat: 'WeKnoraCloud Chat',
-        embedding: 'WeKnoraCloud Embedding',
-        rerank: 'WeKnoraCloud ReRank',
-        vllm: 'WeKnoraCloud Vision',
+        chat: 'Keystone Cloud Chat',
+        embedding: 'Keystone Cloud Embedding',
+        rerank: 'Keystone Cloud ReRank',
+        vllm: 'Keystone Cloud Vision',
       },
     },
     system: 'System Settings',
@@ -1395,8 +1395,8 @@ export default {
       needsConfig: 'Needs Configuration',
       configurable: 'Configurable',
       pathPrefix: 'Path Prefix (optional)',
-      pathPrefixPlaceholder: 'e.g. weknora/images',
-      prefixPlaceholder: 'e.g. weknora',
+      pathPrefixPlaceholder: 'e.g. keystone/images',
+      prefixPlaceholder: 'e.g. keystone',
       bucketName: 'Bucket Name',
       bucketSelectPlaceholder: 'Select or enter bucket name',
       bucketPlaceholder: 'Bucket name',
@@ -1687,7 +1687,7 @@ export default {
   },
   initialization: {
     title: 'Initialization',
-    welcome: 'Welcome to WeKnora',
+    welcome: 'Welcome to Keystone',
     description: 'Please configure the system before starting',
     step1: 'Step 1: Configure LLM Model',
     step2: 'Step 2: Configure Embedding Model',
@@ -1948,11 +1948,11 @@ export default {
     backToLogin: 'Back to Login',
     registerNow: 'Register Now',
     loginHint: 'Sign in to continue, or create an account below if this is your first time.',
-    firstTime: 'New to WeKnora?',
+    firstTime: 'New to Keystone?',
     registerSuccess: 'Registration successful. Please sign in',
     registerFailed: 'Registration failed',
     subtitle: 'RAG Q&A, ReAct Agent and Wiki — an LLM-powered enterprise knowledge framework',
-    registerSubtitle: 'Create your account and start using WeKnora',
+    registerSubtitle: 'Create your account and start using Keystone',
     emailPlaceholder: 'Enter email address',
     passwordPlaceholder: 'Enter password (8-32 characters, including letters and numbers)',
     confirmPasswordPlaceholder: 'Enter password again',
@@ -2245,7 +2245,7 @@ export default {
     goToAgentSettings: 'Go to agent settings'
   },
   createChat: {
-    title: 'Hi, I am WeKnora — your knowledge, within reach',
+    title: 'Hi, I am Keystone — your knowledge, within reach',
     newSessionTitle: 'New Session',
     messages: {
       selectKnowledgeBase: 'Please select a knowledge base first',
@@ -2482,10 +2482,10 @@ export default {
     allowFileUpload: 'Show file upload',
     allowFileUploadDesc: 'When enabled, visitors can upload images and document attachments. Requires the bound agent to support image upload.',
     webhookUrl: 'Webhook URL',
-    webhookUrlPlaceholder: 'https://your-server.example.com/weknora/embed-events',
-    webhookUrlDesc: 'Optional. WeKnora POSTs message_sent / message_received events to this HTTPS endpoint.',
+    webhookUrlPlaceholder: 'https://your-server.example.com/keystone/embed-events',
+    webhookUrlDesc: 'Optional. Keystone POSTs message_sent / message_received events to this HTTPS endpoint.',
     webhookSecret: 'Webhook secret',
-    webhookSecretPlaceholder: 'HMAC-SHA256 secret (X-WeKnora-Signature header)',
+    webhookSecretPlaceholder: 'HMAC-SHA256 secret (X-Keystone-Signature header)',
     webhookSecretKeep: 'Leave blank to keep the saved secret',
     webhookSecretDesc: 'Optional. When set, request bodies are signed for verification on your server.',
     secureModeDocHint: 'See docs/embed-secure-mode.md for the full integration guide',
@@ -2595,6 +2595,54 @@ export default {
       granularityFocusedHint: 'Extract only the document\u2019s main subjects (e.g. a resume yields the person and their projects). Cleanest, may miss secondary entities.',
       granularityStandardHint: 'Main subjects plus secondary entities/concepts that receive substantial discussion. Skips name-dropped terms. Recommended default.',
       granularityExhaustiveHint: 'Extract every named entity and concept, including passing mentions of stacks/tools. Use when the KB serves as a glossary.',
+      templates: {
+        label: 'Wiki Build Template',
+        tip: 'A template pre-fills extraction granularity and Wiki instructions. You can still edit every field afterwards.',
+        applied: 'Template applied. Editing the fields below switches this Wiki to a custom configuration.',
+        customized: 'Customized: current edits are retained and no single template is active.',
+        general: {
+          title: 'General Knowledge Base',
+          description: 'For most documents; builds a clear network of topics and concepts.',
+          focus: 'Topics, entities, methods, and key terms',
+          contentInstructions: 'Organize Wiki pages in a clear, objective encyclopedic style. Prioritize topic overviews, key facts, scope, and relationships; use consistent headings and end with key takeaways.',
+          extractionInstructions: 'Prioritize core topics, substantively discussed entities, methods, products, and key terms. Skip generic nouns mentioned only in passing.',
+        },
+        technical: {
+          title: 'Product & Technical Docs',
+          description: 'For product guides, architecture, APIs, and engineering documents.',
+          focus: 'Products, modules, APIs, versions, parameters, and errors',
+          contentInstructions: 'Organize content by product overview, architecture and modules, APIs or operations, version differences, constraints, and examples. Preserve exact parameters, versions, compatibility, prerequisites, and boundaries.',
+          extractionInstructions: 'Prioritize products, modules, services, APIs, settings, parameters, versions, dependencies, error codes, deployment environments, and technical terms. Preserve aliases and upstream/downstream relationships.',
+        },
+        process: {
+          title: 'Policies, Processes & SOPs',
+          description: 'For policies, operating procedures, approval rules, and work instructions.',
+          focus: 'Roles, steps, time limits, forms, exceptions, and risks',
+          contentInstructions: 'Organize pages by scope, responsible roles, prerequisites, standard steps, time limits, outputs, exceptions, and risks. Use executable numbered steps and state who does what under which conditions.',
+          extractionInstructions: 'Prioritize departments, roles, responsibilities, process steps, approval conditions, forms, systems, deadlines, exceptions, controls, and risks. Preserve dependencies between processes.',
+        },
+        project: {
+          title: 'Projects & Decisions',
+          description: 'For project materials, meeting notes, reviews, and decision records.',
+          focus: 'Projects, people, decisions, action items, risks, and timelines',
+          contentInstructions: 'Organize content around background, goals, scope, decisions, action items, owners, timeline, dependencies, and risks. Distinguish confirmed facts, open actions, and unresolved questions.',
+          extractionInstructions: 'Prioritize projects, team members, roles, milestones, dates, decisions, tasks, owners, risks, dependencies, and deliverables. Preserve links between projects and items.',
+        },
+        research: {
+          title: 'Research & Reports',
+          description: 'For research, analysis, papers, and solution proposals.',
+          focus: 'Research subjects, methods, evidence, metrics, findings, and conclusions',
+          contentInstructions: 'Organize content by research question, context, method, data or evidence, findings, conclusions, limitations, and recommendations. Distinguish evidence from inference and retain conditions, scope, and uncertainty.',
+          extractionInstructions: 'Prioritize research subjects, metrics, data sources, samples, methods, models, assumptions, conclusions, recommendations, and cited concepts. Preserve links between conclusions and evidence.',
+        },
+        glossary: {
+          title: 'Glossary & Knowledge Manual',
+          description: 'For terminology, standards, training materials, and internal handbooks.',
+          focus: 'Terms, aliases, abbreviations, categories, and concept hierarchy',
+          contentInstructions: 'Prioritize concise, self-contained definition pages covering meaning, scope, aliases, categories, related concepts, and usage notes. Keep cross-links consistent and clear.',
+          extractionInstructions: 'Extract terms, abbreviations, aliases, standards, categories, tools, and methods that are defined or have clear domain meaning. Preserve synonyms, hierarchy, and related concepts.',
+        },
+      },
     },
     indexing: {
       title: 'Indexing Strategy',
@@ -3453,9 +3501,9 @@ export default {
     loadingInfo: 'Loading information...',
     retry: 'Retry',
     versionLabel: 'App Version',
-    versionDescription: 'Version of the application service (weknora-app)',
+    versionDescription: 'Version of the application service (keystone-app)',
     frontendVersionLabel: 'UI Version',
-    frontendVersionDescription: 'Build version of the UI (weknora-ui)',
+    frontendVersionDescription: 'Build version of the UI (keystone-ui)',
     versionMismatch: 'Mismatch with app version',
     buildTimeLabel: 'Build Time',
     buildTimeDescription: 'Time when the system was built',
@@ -4203,8 +4251,8 @@ export default {
           description: 'jina-clip-v1, jina-embeddings-v2-base-zh, etc.',
         },
         volcengine: {
-          label: 'Volcengine',
-          description: 'doubao-1-5-pro-32k-250115, doubao-embedding-vision-250615, etc.',
+          label: 'Volcengine AgentPlan',
+          description: 'Volcengine AgentPlan (Ark-compatible API)',
         },
         deepseek: {
           label: 'DeepSeek',
@@ -5398,9 +5446,9 @@ export default {
           name: 'PaddleOCR-VL Cloud',
           desc: 'PaddleOCR-VL Cloud API',
         },
-        weknoracloud: {
-          name: 'WeKnora Cloud',
-          desc: 'Document parsing via WeKnora Cloud',
+        keystoneCloud: {
+          name: 'Keystone Cloud',
+          desc: 'Document parsing via Keystone Cloud',
         },
         markitdown: {
           name: 'MarkItDown',
@@ -6231,7 +6279,7 @@ export default {
 	      capabilityMessageHistory: 'Message history',
 	      capabilityMessageHistoryHint: 'Let this key search workspace chat history and read chat-history stats. It does not grant workspace configuration access.',
 	      capabilityManageModels: 'Manage models',
-	      capabilityManageModelsHint: 'Manage model definitions, credentials, connectivity checks, and WeKnoraCloud credentials.',
+	      capabilityManageModelsHint: 'Manage model definitions, credentials, connectivity checks, and Keystone Cloud credentials.',
 	      capabilityManageMcpServices: 'Manage MCP services',
 	      capabilityManageMcpServicesHint: 'Manage MCP services, credentials, tool approval policies, and OAuth state for this principal.',
 	      capabilityManageDatasources: 'Manage data sources',
@@ -6277,7 +6325,7 @@ export default {
         'Anyone with the API key can change the user ID header to impersonate another external user and reuse or hijack that user\'s MCP OAuth authorization. Do not use this from browsers or untrusted clients; use Signed token for end-user apps.',
       signedRecommended: 'Recommended for user-facing apps: your backend signs a short-lived HS256 JWT for the external user.',
       signedFlowDetail:
-        'Keep the HMAC secret only on WeKnora and your trusted backend—never put it in requests or ship it to browsers. The request header carries the JWT string signed with that secret (it changes on each issuance or after expiry), not the secret itself. JWT must include sub (external user ID), tenant_id, aud=weknora, and exp (max 24h lifetime).',
+        'Keep the HMAC secret only on Keystone and your trusted backend—never put it in requests or ship it to browsers. The request header carries the JWT string signed with that secret (it changes on each issuance or after expiry), not the secret itself. JWT must include sub (external user ID), tenant_id, aud=keystone, and exp (max 24h lifetime).',
       directHeader: 'User ID header',
       requireDirectHeader: 'Require user ID header',
       requireDirectHeaderDesc:
@@ -6285,7 +6333,7 @@ export default {
       tokenHeader: 'Token header',
       tokenHeaderDesc: 'Clients send the backend-signed JWT in this fixed header.',
       hmacSecret: 'HMAC secret',
-      hmacSecretDesc: 'Same secret stored in WeKnora; used only on your backend to sign JWTs—never send it as a request header.',
+      hmacSecretDesc: 'Same secret stored in Keystone; used only on your backend to sign JWTs—never send it as a request header.',
       secretConfigured: 'Secret configured (not shown again); enter a new value to rotate',
       secretSavedCopyHint: 'Secret saved. Copy it to your backend now — you will not be able to view it again after leaving this page.',
       generateSecret: 'Generate secret',
@@ -6295,7 +6343,7 @@ export default {
       hmacSecretResetConfirmCancel: 'Cancel',
       tokenSignExample: 'Backend JWT signing example (Go)',
       signedRequestStep0:
-        '# 0. Sign JWT on your backend (HS256, aud=weknora, sub=user id, tenant_id={tenantId}, exp<=24h)',
+        '# 0. Sign JWT on your backend (HS256, aud=keystone, sub=user id, tenant_id={tenantId}, exp<=24h)',
       signedRequestStep0Hint: '#    Put the JWT in {headerName} — not the HMAC secret',
       requestExampleCreateSession: '# 1. Create a session',
       requestExampleAgentChat: '# 2. Agent chat (SSE; replace <session_id> with the id from step 1)',
@@ -6373,7 +6421,7 @@ export default {
     chrome: {
       title: 'Knowledge Assistant',
       subtitle:
-        'For self-hosted WeKnora: ask questions in a sidebar, clip web pages, and save Markdown notes into your knowledge bases while you browse.',
+        'For self-hosted Keystone: ask questions in a sidebar, clip web pages, and save Markdown notes into your knowledge bases while you browse.',
       capabilitiesTitle: 'Core capabilities',
       capabilities: {
         qa: {
@@ -6408,7 +6456,7 @@ export default {
         },
         port: {
           title: 'Desktop: fixed port (recommended)',
-          desc: 'On WeKnora Desktop, set a fixed API port (e.g. 37841) in API Info so the URL stays stable across restarts.',
+          desc: 'On Keystone Desktop, set a fixed API port (e.g. 37841) in API Info so the URL stays stable across restarts.',
         },
         install: {
           title: 'Install the extension',
@@ -6427,9 +6475,9 @@ export default {
       storeMeta: 'Chrome Web Store · v1.0.0',
     },
     claw: {
-      title: 'WeKnora Skill',
+      title: 'Keystone Skill',
       subtitle:
-        'Import documents and run hybrid retrieval (vector + keyword) via the WeKnora REST API—for uploads, URL imports, Markdown entries, and cross-KB search.',
+        'Import documents and run hybrid retrieval (vector + keyword) via the Keystone REST API—for uploads, URL imports, Markdown entries, and cross-KB search.',
       capabilitiesTitle: 'Skill capabilities',
       capabilities: {
         upload: {
@@ -6461,7 +6509,7 @@ export default {
         },
         env: {
           title: 'Configure environment',
-          desc: 'Set WEKNORA_BASE_URL and WEKNORA_API_KEY in your shell or ~/.zshrc / ~/.bashrc. The example below uses your current API base URL—replace the API Key with your actual value.',
+          desc: 'Set KEYSTONE_BASE_URL and KEYSTONE_API_KEY in your shell or ~/.zshrc / ~/.bashrc. The example below uses your current API base URL—replace the API Key with your actual value.',
         },
         install: {
           title: 'Install the skill',
@@ -6477,10 +6525,10 @@ export default {
       copyEnvSuccess: 'Environment example copied',
       copyCmdSuccess: 'Install command copied',
       ecosystemNote:
-        'Skill hosted on ClawHub ({\'@\'}lyingbug/weknora). See the ClawHub page for full API docs and version history.',
+        'Skill hosted on ClawHub ({\'@\'}lyingbug/keystone). See the ClawHub page for full API docs and version history.',
       installCta: 'Open ClawHub',
-      installCtaHint: 'Install WeKnora Skill · opens in a new tab',
-      hubMeta: 'ClawHub · {\'@\'}lyingbug/weknora · MIT-0',
+      installCtaHint: 'Install Keystone Skill · opens in a new tab',
+      hubMeta: 'ClawHub · {\'@\'}lyingbug/keystone · MIT-0',
     },
   },
   imOverview: {

@@ -22,7 +22,7 @@ package token
 import (
 	"fmt"
 
-	"github.com/Tencent/WeKnora/internal/models/chat"
+	"github.com/justaboyhai-wq/keystone/internal/models/chat"
 	"github.com/tiktoken-go/tokenizer"
 )
 

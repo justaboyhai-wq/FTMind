@@ -9,11 +9,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/Tencent/WeKnora/cli/internal/cmdutil"
-	"github.com/Tencent/WeKnora/cli/internal/iostreams"
-	"github.com/Tencent/WeKnora/cli/internal/output"
-	"github.com/Tencent/WeKnora/cli/internal/text"
-	sdk "github.com/Tencent/WeKnora/client"
+	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/keystone/cli/internal/output"
+	"github.com/justaboyhai-wq/keystone/cli/internal/text"
+	sdk "github.com/justaboyhai-wq/keystone/client"
 )
 
 // kbListFields enumerates the fields surfaced for `--format json` discovery on
@@ -43,7 +43,7 @@ type ListService interface {
 	ListKnowledgeBases(ctx context.Context) ([]sdk.KnowledgeBase, error)
 }
 
-// NewCmdList builds `weknora kb list`.
+// NewCmdList builds `keystone kb list`.
 func NewCmdList(f *cmdutil.Factory) *cobra.Command {
 	opts := &ListOptions{}
 	cmd := &cobra.Command{
@@ -75,7 +75,7 @@ func NewCmdList(f *cmdutil.Factory) *cobra.Command {
 	cmdutil.AddFormatFlag(cmd, kbListFields...)
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:  "List knowledge bases in the current tenant. --format json emits the standard envelope {ok, data:[...], meta:{count}, profile}.",
-		Examples: []string{"weknora kb list --format json"},
+		Examples: []string{"keystone kb list --format json"},
 		Output:   "envelope.data is an array of KnowledgeBase objects with id, name, is_pinned, type, embedding_model_id; meta.total_count is the full tenant set and meta.has_more=true means --limit truncated it (raise --limit to get the rest)",
 	})
 	return cmd

@@ -21,10 +21,10 @@ import (
 	"strings"
 	"time"
 
-	secutils "github.com/Tencent/WeKnora/internal/utils"
+	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
 
-	"github.com/Tencent/WeKnora/internal/types"
-	"github.com/Tencent/WeKnora/internal/types/interfaces"
+	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
 	"github.com/google/uuid"
 )
 
@@ -861,7 +861,7 @@ func downloadImage(ctx context.Context, client *http.Client, remoteURL string) (
 		return nil, "", fmt.Errorf("create request: %w", err)
 	}
 	// Some CDNs require a browser-like User-Agent.
-	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; WeKnora/1.0)")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; Keystone/1.0)")
 
 	resp, err := client.Do(req)
 	if err != nil {

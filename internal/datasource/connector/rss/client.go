@@ -10,7 +10,7 @@ import (
 	"time"
 
 	readability "codeberg.org/readeck/go-readability/v2"
-	"github.com/Tencent/WeKnora/internal/utils"
+	"github.com/justaboyhai-wq/keystone/internal/utils"
 )
 
 const (
@@ -24,7 +24,7 @@ const (
 	maxArticleSize = 5 * 1024 * 1024 // 5 MB
 
 	// defaultUserAgent is sent on every request; some feeds reject empty UAs.
-	defaultUserAgent = "Mozilla/5.0 (compatible; WeKnora-RSS/1.0; +https://weknora.weixin.qq.com)"
+	defaultUserAgent = "Mozilla/5.0 (compatible; Keystone-RSS/1.0; +https://keystone.weixin.qq.com)"
 )
 
 // client performs SSRF-safe HTTP fetches with optional custom headers.

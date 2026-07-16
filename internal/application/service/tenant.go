@@ -5,10 +5,10 @@ import (
 	"errors"
 	"time"
 
-	werrors "github.com/Tencent/WeKnora/internal/errors"
-	"github.com/Tencent/WeKnora/internal/logger"
-	"github.com/Tencent/WeKnora/internal/types"
-	"github.com/Tencent/WeKnora/internal/types/interfaces"
+	werrors "github.com/justaboyhai-wq/keystone/internal/errors"
+	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
 )
 
 // ListTenantsParams defines parameters for listing tenants with filtering and pagination
@@ -231,11 +231,11 @@ func (s *tenantService) GetTenantByIDForUser(ctx context.Context, tenantID uint6
 	return tenant, nil
 }
 
-func (s *tenantService) GetWeKnoraCloudCredentials(ctx context.Context) *types.WeKnoraCloudCredentials {
+func (s *tenantService) GetKeystoneCloudCredentials(ctx context.Context) *types.KeystoneCloudCredentials {
 	// Try to get tenant info from context first (already loaded by middleware).
 	// CredentialsConfig.Scan handles decryption, so credentials are ready to use.
 	if tenant, ok := types.TenantInfoFromContext(ctx); ok {
-		if creds := tenant.Credentials.GetWeKnoraCloud(); creds != nil {
+		if creds := tenant.Credentials.GetKeystoneCloud(); creds != nil {
 			return creds
 		}
 	}
@@ -250,7 +250,7 @@ func (s *tenantService) GetWeKnoraCloudCredentials(ctx context.Context) *types.W
 	if err != nil || tenant == nil {
 		return nil
 	}
-	return tenant.Credentials.GetWeKnoraCloud()
+	return tenant.Credentials.GetKeystoneCloud()
 }
 
 func (s *tenantService) validateStorageBucketUniqueness(ctx context.Context, tenant *types.Tenant) error {
