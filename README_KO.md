@@ -21,7 +21,7 @@
     <a href="https://chromewebstore.google.com/detail/jpemjbopikggjlmikmclgbmkhhopjdgd" target="_blank">
         <img alt="Chrome 확장 프로그램" src="https://img.shields.io/badge/Chrome_확장_프로그램-Keystone-4285F4">
     </a>
-    <a href="https://clawhub.ai/lyingbug/keystone" target="_blank">
+    <a href="https://clawhub.ai/justaboyhai-wq/skills/keystone" target="_blank">
         <img alt="ClawHub Skill" src="https://img.shields.io/badge/ClawHub_Skill-Keystone-ff6b35">
     </a>
     <a href="https://github.com/justaboyhai-wq/keystone/blob/main/LICENSE">
@@ -165,7 +165,7 @@ Feishu, Notion, Yuque 등 외부 플랫폼에서 지식 자동 동기화를 지�
 
 ## 🦞 ClawHub Skill
 
-[**Keystone ClawHub Skill**](https://clawhub.ai/lyingbug/keystone)은 ClawHub 플랫폼에 게시된 Keystone 스킬입니다. 설치 후 Keystone REST API를 통해 문서 업로드(파일 / URL / Markdown), 하이브리드 검색(벡터 + 키워드), 지식 항목 관리가 가능합니다.
+[**Keystone ClawHub Skill**](https://clawhub.ai/justaboyhai-wq/skills/keystone)은 ClawHub 플랫폼에 게시된 Keystone 스킬입니다. 설치 후 Keystone REST API를 통해 문서 업로드(파일 / URL / Markdown), 하이브리드 검색(벡터 + 키워드), 지식 항목 관리가 가능합니다.
 
 - **문서 임포트** — 에이전트를 통한 파일 업로드, 웹페이지 임포트, Markdown 지식 작성
 - **하이브리드 검색** — 단일 또는 다중 지식베이스에서 벡터 + 키워드 통합 검색

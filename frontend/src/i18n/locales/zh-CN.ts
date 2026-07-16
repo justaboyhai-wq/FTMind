@@ -268,7 +268,7 @@ export default {
       steps: {
         kb: {
           title: "选择知识范围",
-          desc: "点击 @ 可指定一个或多个知识库/文件，仅基于选中内容回答；不选则按当前智能体配置检索。",
+          desc: "点击 {'@'} 可指定一个或多个知识库/文件，仅基于选中内容回答；不选则按当前智能体配置检索。",
         },
         input: {
           title: "输入你的问题",
@@ -6550,10 +6550,10 @@ export default {
       copyEnvSuccess: "已复制环境变量示例",
       copyCmdSuccess: "已复制安装命令",
       ecosystemNote:
-        "Skill 托管于 ClawHub（{'@'}lyingbug/keystone），完整 API 说明与版本历史请参见 ClawHub 页面。",
+        "Skill 托管于 ClawHub（{'@'}justaboyhai-wq/keystone），完整 API 说明与版本历史请参见 ClawHub 页面。",
       installCta: "前往 ClawHub",
       installCtaHint: "安装 Keystone Skill · 将在新标签页打开",
-      hubMeta: "ClawHub · {'@'}lyingbug/keystone · MIT-0",
+      hubMeta: "ClawHub · {'@'}justaboyhai-wq/keystone · MIT-0",
     },
   },
   imOverview: {

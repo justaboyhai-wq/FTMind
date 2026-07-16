@@ -129,7 +129,7 @@ const capabilityIcons: Record<(typeof capabilityKeys)[number], string> = {
   browse: 'view-list',
 }
 
-const installCommand = 'openclaw skills install @lyingbug/keystone'
+const installCommand = 'openclaw skills install @justaboyhai-wq/keystone'
 
 const envExample = computed(() => {
   const base = apiBaseUrlDisplay.value || 'https://your-server.com/api/v1'

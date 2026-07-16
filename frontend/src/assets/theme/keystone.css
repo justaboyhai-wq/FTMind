@@ -45,12 +45,46 @@
 }
 
 :root[theme-mode="dark"] {
-  --brand-main: #8989eb;
-  --td-brand-color: #8989eb;
-  --td-brand-color-hover: #9d9df2;
-  --td-brand-color-active: #7777d8;
-  --td-brand-color-light: rgb(137 137 235 / 18%);
-  --td-brand-color-focus: rgb(137 137 235 / 28%);
+  color-scheme: dark;
+  --brand-main: #9696f4;
+  --td-brand-color: #9696f4;
+  --td-brand-color-hover: #aaaafa;
+  --td-brand-color-active: #7d7de1;
+  --td-brand-color-light: rgb(150 150 244 / 18%);
+  --td-brand-color-focus: rgb(150 150 244 / 28%);
+  --td-brand-color-1: #20203b;
+  --td-brand-color-2: #2b2b51;
+  --td-brand-color-3: #45457b;
+  --td-brand-color-4: #9696f4;
+  --td-brand-color-5: #aaaafa;
+  --td-brand-color-6: #bbbbff;
+  --td-bg-color-page: #101116;
+  --td-bg-color-sidebar: #15161c;
+  --td-bg-color-settings-modal: #15161c;
+  --td-bg-color-container: #1b1d25;
+  --td-bg-color-container-select: #1b1d25;
+  --td-bg-color-container-hover: #242631;
+  --td-bg-color-container-active: #30305a;
+  --td-bg-color-secondarycontainer: #20222b;
+  --td-bg-color-secondarycontainer-hover: #292b36;
+  --td-bg-color-secondarycontainer-active: #35375b;
+  --td-bg-color-component: #282a34;
+  --td-bg-color-component-hover: #31333f;
+  --td-bg-color-component-active: #3b3e4d;
+  --td-bg-color-component-disabled: #20222b;
+  --td-component-stroke: #30323d;
+  --td-component-border: #484b58;
+  --td-font-gray-1: rgb(246 247 251 / 92%);
+  --td-font-gray-2: rgb(246 247 251 / 64%);
+  --td-font-gray-3: rgb(246 247 251 / 42%);
+  --td-font-gray-4: rgb(246 247 251 / 27%);
+  --td-text-color-primary: var(--td-font-gray-1);
+  --td-text-color-secondary: var(--td-font-gray-2);
+  --td-text-color-placeholder: var(--td-font-gray-3);
+  --td-text-color-disabled: var(--td-font-gray-4);
+  --td-shadow-1: 0 1px 2px rgb(0 0 0 / 22%);
+  --td-shadow-2: 0 12px 30px rgb(0 0 0 / 32%);
+  --td-shadow-3: 0 20px 48px rgb(0 0 0 / 42%);
 }
 
 html { color-scheme: light dark; }
@@ -98,11 +132,37 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .t-table th { color: #92989f !important; background: #fafafa !important; font-size: 11px; font-weight: 650; letter-spacing: .04em; text-transform: uppercase; }
 .t-table tr:hover td { background: #fcfcfd !important; }
 
-/* Cards, lists, tags and settings share a single restrained surface language. */
-.knowledge-card, .knowledge-base-card, .agent-card, .card-item, .setting-card, .settings-card, .settings-group, .settings-section-panel, .settings-modal, .settings-container, .upload-progress-panel, .warning-banner { background: #fff !important; border: 1px solid #e7e8ea !important; border-radius: 10px !important; box-shadow: 0 1px 1px rgb(31 35 40 / 2%) !important; }
+/* Cards and lists share a restrained surface language. Settings use their
+ * own list treatment below: forcing every nested settings wrapper into a
+ * card made the modal look like a stack of heavy outlines. */
+.knowledge-card, .knowledge-base-card, .agent-card, .card-item, .setting-card, .settings-card, .settings-section-panel, .upload-progress-panel, .warning-banner { background: #fff !important; border: 1px solid #e7e8ea !important; border-radius: 10px !important; box-shadow: 0 1px 1px rgb(31 35 40 / 2%) !important; }
 .settings-sidebar, .settings-nav { background: #fafafa !important; border-color: #e7e8ea !important; }
 .settings-nav .active, .settings-nav-item.active, .settings-nav-item:hover { color: #4949b7 !important; background: #eeeeff !important; border-radius: 7px !important; }
 .t-tag, .badge-count, .tag-filter-chip, .resource-origin-badge { border-color: #e1e2e6 !important; border-radius: 999px !important; }
+
+/* Settings are a single calm form surface, not a card inside another card.
+ * Keep borders only as subtle row separators and on interactive controls. */
+.settings-modal .settings-container,
+.settings-modal .settings-group {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+.settings-modal .setting-row {
+  border-color: #eef0f1 !important;
+}
+.settings-modal .setting-row:first-child {
+  border-top: 1px solid #eef0f1;
+}
+.settings-modal .font-preview {
+  background: #fafafa !important;
+  border-color: transparent !important;
+  color: #4b5560;
+}
+:root[theme-mode="dark"] .settings-modal .font-preview {
+  background: rgb(255 255 255 / 5%) !important;
+}
 
 /* High-frequency feature surfaces retain their own behavior while sharing the reference app's hierarchy. */
 .knowledge-layout, .knowledge-main, .knowledge-list, .kb-list-container, .kb-list-content, .chat, .dialogue-wrap { background: var(--td-bg-color-page); }
@@ -136,6 +196,98 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 :root[theme-mode="dark"] .keystone-mark, :root[theme-mode="dark"] .header-logo .keystone-mark { color: #f6f7fb; }
 :root[theme-mode="dark"] .blex-workspace-topbar { background: rgb(24 24 24 / 82%); }
 :root[theme-mode="dark"] .aside_box .logo_row { border-bottom-color: rgb(255 255 255 / 7%); }
+
+/* Hard-coded light surfaces above are intentional for the default theme.
+ * Mirror them here so switching themes changes the whole application rather
+ * than only the controls that happen to inherit TDesign variables. */
+:root[theme-mode="dark"] .aside_box,
+:root[theme-mode="dark"] .settings-sidebar,
+:root[theme-mode="dark"] .settings-nav,
+:root[theme-mode="dark"] .kb-list-container .list-space-sidebar,
+:root[theme-mode="dark"] .agent-list-container .list-space-sidebar {
+  background: #15161c !important;
+  border-color: #30323d !important;
+}
+:root[theme-mode="dark"] .knowledge-card,
+:root[theme-mode="dark"] .knowledge-base-card,
+:root[theme-mode="dark"] .agent-card,
+:root[theme-mode="dark"] .card-item,
+:root[theme-mode="dark"] .setting-card,
+:root[theme-mode="dark"] .settings-card,
+:root[theme-mode="dark"] .settings-section-panel,
+:root[theme-mode="dark"] .upload-progress-panel,
+:root[theme-mode="dark"] .warning-banner,
+:root[theme-mode="dark"] .suggested-question-card,
+:root[theme-mode="dark"] .settings-modal,
+:root[theme-mode="dark"] .t-card,
+:root[theme-mode="dark"] .t-dialog__ctx .t-dialog,
+:root[theme-mode="dark"] .t-drawer__content,
+:root[theme-mode="dark"] .t-popup__content,
+:root[theme-mode="dark"] .t-select__dropdown,
+:root[theme-mode="dark"] .t-dropdown__menu {
+  background: #1b1d25 !important;
+  border-color: #30323d !important;
+}
+:root[theme-mode="dark"] .knowledge-layout,
+:root[theme-mode="dark"] .knowledge-main,
+:root[theme-mode="dark"] .knowledge-list,
+:root[theme-mode="dark"] .kb-list-container,
+:root[theme-mode="dark"] .kb-list-content,
+:root[theme-mode="dark"] .agent-list-container,
+:root[theme-mode="dark"] .agent-list-content,
+:root[theme-mode="dark"] .agent-list-main,
+:root[theme-mode="dark"] .chat,
+:root[theme-mode="dark"] .dialogue-wrap,
+:root[theme-mode="dark"] .chat_scroll_box,
+:root[theme-mode="dark"] .embed-page,
+:root[theme-mode="dark"] .embed-chat-container,
+:root[theme-mode="dark"] .embed-chat {
+  background: #101116 !important;
+}
+:root[theme-mode="dark"] .aside_box .menu_item:hover,
+:root[theme-mode="dark"] .aside_box .submenu_item_p:hover,
+:root[theme-mode="dark"] .aside_box .session-chat-row--active,
+:root[theme-mode="dark"] .settings-nav .active,
+:root[theme-mode="dark"] .settings-nav-item.active,
+:root[theme-mode="dark"] .settings-nav-item:hover {
+  background: #29294c !important;
+  color: #b9b9ff !important;
+}
+:root[theme-mode="dark"] .t-table th {
+  background: #20222b !important;
+  color: #aeb2bd !important;
+  border-color: #30323d !important;
+}
+:root[theme-mode="dark"] .t-table,
+:root[theme-mode="dark"] .t-table th,
+:root[theme-mode="dark"] .t-table td,
+:root[theme-mode="dark"] .settings-modal .setting-row {
+  border-color: #30323d !important;
+}
+:root[theme-mode="dark"] .t-table tr:hover td {
+  background: #20222b !important;
+}
+:root[theme-mode="dark"] .login-layout {
+  background: radial-gradient(circle at 60% 0%, #25254b 0, transparent 37%), #101116 !important;
+}
+:root[theme-mode="dark"] .login-layout .form-card {
+  background: rgb(27 29 37 / 94%) !important;
+  border-color: #3a3c48 !important;
+}
+:root[theme-mode="dark"] .login-layout .form-title,
+:root[theme-mode="dark"] .dialogue-title,
+:root[theme-mode="dark"] .kb-list-content .header h2,
+:root[theme-mode="dark"] .agent-list-content .header h2,
+:root[theme-mode="dark"] .settings-overview h1 {
+  color: #f6f7fb !important;
+}
+:root[theme-mode="dark"] .login-layout .form-welcome,
+:root[theme-mode="dark"] .login-layout .form-subtitle,
+:root[theme-mode="dark"] .login-layout .form-hint,
+:root[theme-mode="dark"] .kb-list-content .header-subtitle,
+:root[theme-mode="dark"] .agent-list-content .header-subtitle {
+  color: #b6b9c4 !important;
+}
 
 @media (max-width: 760px) {
   .blex-workspace-topbar { padding: 0 14px; }

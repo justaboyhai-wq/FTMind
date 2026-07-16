@@ -24,6 +24,12 @@ export function useApiBaseUrlDisplay() {
     if (!origin || origin === 'null') {
       origin = ''
     }
+    // The Vite dev server proxies /api to the backend, which works for the
+    // browser but is not a usable API endpoint for an external agent. Show the
+    // real local API listener in integration instructions instead.
+    if (import.meta.env.DEV && window.location.port === '5173' && !configured) {
+      return `${window.location.protocol}//${window.location.hostname}:8080/api/v1`
+    }
     const base = configured || origin
     return `${base}/api/v1`
   })

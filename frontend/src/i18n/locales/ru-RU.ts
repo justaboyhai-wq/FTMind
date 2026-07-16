@@ -6281,10 +6281,10 @@ export default {
       copyEnvSuccess: 'Пример переменных скопирован',
       copyCmdSuccess: 'Команда установки скопирована',
       ecosystemNote:
-        'Skill размещён на ClawHub ({\'@\'}lyingbug/keystone). Полная документация API — на странице ClawHub.',
+        'Skill размещён на ClawHub ({\'@\'}justaboyhai-wq/keystone). Полная документация API — на странице ClawHub.',
       installCta: 'Открыть ClawHub',
       installCtaHint: 'Установка Keystone Skill · откроется в новой вкладке',
-      hubMeta: 'ClawHub · {\'@\'}lyingbug/keystone · MIT-0',
+      hubMeta: 'ClawHub · {\'@\'}justaboyhai-wq/keystone · MIT-0',
     },
   },
   imOverview: {

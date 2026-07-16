@@ -1,7 +1,7 @@
 export const CHROME_EXTENSION_URL =
   'https://chromewebstore.google.com/detail/jpemjbopikggjlmikmclgbmkhhopjdgd?utm_source=item-share-cb'
 
-export const CLAWHUB_SKILL_URL = 'https://clawhub.ai/lyingbug/keystone'
+export const CLAWHUB_SKILL_URL = 'https://clawhub.ai/justaboyhai-wq/skills/keystone'
 
 export type IntegrationTab = 'im' | 'embed' | 'api' | 'chrome' | 'claw'
 

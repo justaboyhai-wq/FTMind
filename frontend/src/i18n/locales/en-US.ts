@@ -6525,10 +6525,10 @@ export default {
       copyEnvSuccess: 'Environment example copied',
       copyCmdSuccess: 'Install command copied',
       ecosystemNote:
-        'Skill hosted on ClawHub ({\'@\'}lyingbug/keystone). See the ClawHub page for full API docs and version history.',
+        'Skill hosted on ClawHub ({\'@\'}justaboyhai-wq/keystone). See the ClawHub page for full API docs and version history.',
       installCta: 'Open ClawHub',
       installCtaHint: 'Install Keystone Skill · opens in a new tab',
-      hubMeta: 'ClawHub · {\'@\'}lyingbug/keystone · MIT-0',
+      hubMeta: 'ClawHub · {\'@\'}justaboyhai-wq/keystone · MIT-0',
     },
   },
   imOverview: {

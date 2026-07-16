@@ -6459,10 +6459,10 @@ export default {
       copy: "복사",
       copyEnvSuccess: "환경 변수 예시가 복사되었습니다",
       copyCmdSuccess: "설치 명령이 복사되었습니다",
-      ecosystemNote: "Skill은 ClawHub({'@'}lyingbug/keystone)에 호스팅됩니다. 전체 API 문서는 ClawHub 페이지를 참고하세요.",
+      ecosystemNote: "Skill은 ClawHub({'@'}justaboyhai-wq/keystone)에 호스팅됩니다. 전체 API 문서는 ClawHub 페이지를 참고하세요.",
       installCta: "ClawHub 열기",
       installCtaHint: "Keystone Skill 설치 · 새 탭에서 열림",
-      hubMeta: "ClawHub · {'@'}lyingbug/keystone · MIT-0",
+      hubMeta: "ClawHub · {'@'}justaboyhai-wq/keystone · MIT-0",
     },
   },
   imOverview: {

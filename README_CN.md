@@ -21,14 +21,14 @@
     <a href="https://chromewebstore.google.com/detail/jpemjbopikggjlmikmclgbmkhhopjdgd" target="_blank">
         <img alt="Chrome 插件" src="https://img.shields.io/badge/Chrome 插件-Keystone-4285F4">
     </a>
-    <a href="https://clawhub.ai/lyingbug/keystone" target="_blank">
+    <a href="https://clawhub.ai/justaboyhai-wq/skills/keystone" target="_blank">
         <img alt="ClawHub Skill" src="https://img.shields.io/badge/ClawHub Skill-Keystone-ff6b35">
     </a>
     <a href="https://github.com/justaboyhai-wq/keystone/blob/main/LICENSE">
         <img src="https://img.shields.io/badge/License-MIT-ffffff?labelColor=d4eaf7&color=2e6cc4" alt="License">
     </a>
     <a href="./CHANGELOG.md">
-        <img alt="版本" src="https://img.shields.io/badge/version-0.6.3-2e6cc4?labelColor=d4eaf7">
+        <img alt="版本" src="https://img.shields.io/badge/version-1.0.0-5b5bd6?labelColor=eeeeff">
     </a>
 </p>
 
@@ -56,6 +56,7 @@
 
 ## ✨ 最新更新
 
+- **v1.0.0** —— Keystone 最终产品命名与浅色 / 深色工作台视觉统一；面向 AgentPlan 的模型和联网搜索配置；可配置的 Wiki 知识库构建模板；发布可供外部 Agent 调用知识库的 **Keystone ClawHub Skill**；设置、智能体与集成页面同步焕新。详见 [Keystone Skill](https://clawhub.ai/justaboyhai-wq/skills/keystone)。
 - **v0.6.3** —— 网站嵌入 Widget 与发布集成中心（安全模式 Token 交换 + 限流）；对话体验全面革新（引用浮层、RAG 流水线进度、流式 Markdown）；文档多标签与批量重新解析；Wiki 文件夹与层级导航；RSS 数据源；MCP OAuth2；EPUB / MHTML 解析；Agent 模型就绪校验；模型调试器；会话来源筛选；工作区删除 UI。详见 [`CHANGELOG.md`](./CHANGELOG.md)。
 - **v0.6.2** —— 按批次解析配置（`process_config`）+ 上传确认对话框；文档重新解析（reparse）支持覆盖配置；`keystone` CLI v0.9（内置 Agent Skills、`session stop`、auth/profile 统一）；知识库框选多选；pgvector 1024 维 HNSW 索引；对话资源 Store 重构；仅保留 Langfuse 追踪（移除 Jaeger）。详见 [`CHANGELOG.md`](./CHANGELOG.md)。
 - **v0.6.1** —— 文档解析追踪时间线（Langfuse 风格 Span 树，逐阶段进度展示 + 解析中止）；OpenSearch 向量库驱动；YAML 声明式内置模型配置；系统管理员与统一平台设置 + 审计日志；新用户引导；设置页 UI 重构；`keystone` CLI v0.7 / v0.8（Agent 优先线协议、NDJSON、`--dry-run`）；OpenDataLoader 与 PaddleOCR-VL 解析引擎；MCP Server 多传输（stdio / SSE / HTTP）；按模型的思考模式配置；腾讯云 LKEAP 重排 + 原生 Gemini Embedding + MiniMax-M3。详见 [`CHANGELOG.md`](./CHANGELOG.md)。
@@ -163,7 +164,22 @@
 
 ## 🦞 ClawHub Skill
 
-[**Keystone ClawHub Skill**](https://clawhub.ai/lyingbug/keystone) 是 Keystone 发布在 ClawHub 平台上的技能。安装后，可通过 Keystone REST API 上传文档（文件 / URL / Markdown）、执行混合检索（向量 + 关键词）以及管理知识条目。
+[**Keystone ClawHub Skill**](https://clawhub.ai/justaboyhai-wq/skills/keystone) 是面向 OpenClaw 与其他支持 `SKILL.md` 的 Agent 的官方、可版本化集成。它直接使用 Keystone REST API 凭证，不需要额外注册知识库服务。
+
+在 OpenClaw 中安装：
+
+```bash
+openclaw skills install @justaboyhai-wq/keystone
+```
+
+在 Agent 运行环境中配置可访问的 Keystone API 地址和在「设置 → API 集成」创建的 API Key：
+
+```bash
+export KEYSTONE_BASE_URL="http://localhost:8080/api/v1"
+export KEYSTONE_API_KEY="sk-your-api-key"
+```
+
+该 Skill 已覆盖五类操作：上传文件、导入 URL、写入 Markdown 知识、浏览知识库与条目、执行混合检索（向量 + 关键词）。源文件位于 [`frontend/public/keystone-skill/SKILL.md`](./frontend/public/keystone-skill/SKILL.md)，ClawHub 发布包使用同一份文件。若 Agent 不在本机，请将 `localhost` 替换为可从 Agent 侧访问的 Keystone 地址。
 
 - **文档导入** — 通过 Agent 上传文件、导入网页或写入 Markdown 知识
 - **混合检索** — 在单个或多个知识库中进行向量 + 关键词混合搜索

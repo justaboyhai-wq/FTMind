@@ -21,7 +21,7 @@
     <a href="https://chromewebstore.google.com/detail/jpemjbopikggjlmikmclgbmkhhopjdgd" target="_blank">
         <img alt="Chrome 拡張機能" src="https://img.shields.io/badge/Chrome 拡張機能-Keystone-4285F4">
     </a>
-    <a href="https://clawhub.ai/lyingbug/keystone" target="_blank">
+    <a href="https://clawhub.ai/justaboyhai-wq/skills/keystone" target="_blank">
         <img alt="ClawHub Skill" src="https://img.shields.io/badge/ClawHub Skill-Keystone-ff6b35">
     </a>
     <a href="https://github.com/justaboyhai-wq/keystone/blob/main/LICENSE">
@@ -155,7 +155,7 @@ Feishu、Notion、Yuqueなどの外部プラットフォームからのナレッ
 
 ## 🦞 ClawHub Skill
 
-[**Keystone ClawHub Skill**](https://clawhub.ai/lyingbug/keystone)はClawHubプラットフォームで公開されたKeystoneスキルです。インストール後、Keystone REST APIを通じてドキュメントのアップロード（ファイル / URL / Markdown）、ハイブリッド検索（ベクトル + キーワード）、ナレッジエントリの管理が可能になります。
+[**Keystone ClawHub Skill**](https://clawhub.ai/justaboyhai-wq/skills/keystone)はClawHubプラットフォームで公開されたKeystoneスキルです。インストール後、Keystone REST APIを通じてドキュメントのアップロード（ファイル / URL / Markdown）、ハイブリッド検索（ベクトル + キーワード）、ナレッジエントリの管理が可能になります。
 
 - **ドキュメントインポート** — エージェント経由でファイルアップロード、Webページインポート、Markdownナレッジの作成
 - **ハイブリッド検索** — 単一または複数のナレッジベースをベクトル + キーワードで横断検索

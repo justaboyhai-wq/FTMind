@@ -21,14 +21,14 @@
     <a href="https://chromewebstore.google.com/detail/jpemjbopikggjlmikmclgbmkhhopjdgd" target="_blank">
         <img alt="Chrome Extension" src="https://img.shields.io/badge/Chrome Extension-Keystone-4285F4">
     </a>
-    <a href="https://clawhub.ai/lyingbug/keystone" target="_blank">
+    <a href="https://clawhub.ai/justaboyhai-wq/skills/keystone" target="_blank">
         <img alt="ClawHub Skill" src="https://img.shields.io/badge/ClawHub Skill-Keystone-ff6b35">
     </a>
     <a href="https://github.com/justaboyhai-wq/keystone/blob/main/LICENSE">
         <img src="https://img.shields.io/badge/License-MIT-ffffff?labelColor=d4eaf7&color=2e6cc4" alt="License">
     </a>
     <a href="./CHANGELOG.md">
-        <img alt="Version" src="https://img.shields.io/badge/version-0.6.3-2e6cc4?labelColor=d4eaf7">
+        <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-5b5bd6?labelColor=eeeeff">
     </a>
 </p>
 
@@ -57,6 +57,7 @@ The framework supports auto-syncing knowledge from Feishu, Notion, and Yuque (mo
 
 ## ✨ Latest Updates
 
+- **v1.0.0** — Keystone final product identity and unified light/dark workspace UI; AgentPlan-ready model and web-search configuration; configurable Wiki knowledge-base templates; a public **Keystone ClawHub Skill** for agent-driven document import and retrieval; refreshed Settings, Agent, and integration surfaces. See the [Keystone Skill](https://clawhub.ai/justaboyhai-wq/skills/keystone).
 - **v0.6.3** — Website embed widget & Integrations Center (secure-mode token exchange + rate limits); chat experience overhaul (citation popovers, RAG pipeline progress, streaming markdown); document multi-tag & batch reparse; Wiki folders & hierarchy navigation; RSS data source; MCP OAuth2; EPUB / MHTML parsing; agent model-readiness checks; model test debugger; session source filter; workspace deletion UI. See [`CHANGELOG.md`](./CHANGELOG.md).
 - **v0.6.2** — Per-upload process configuration with upload-confirm dialog; document reparse with `process_config`; `keystone` CLI v0.9 (bundled Agent Skills, `session stop`, auth/profile harmonization); KB marquee multi-select; HNSW index for 1024-dim pgvector embeddings; chat resources store refactor; Langfuse-only tracing (Jaeger removed). See [`CHANGELOG.md`](./CHANGELOG.md).
 - **v0.6.1** — Document parsing trace timeline (Langfuse-style span tree with stage-by-stage progress + stop-parse); OpenSearch vector store driver; declarative built-in models via YAML; system admin & consolidated platform settings + audit log; new-user onboarding guide; settings UI redesign; `keystone` CLI v0.7 / v0.8 (agent-first wire contract, NDJSON, `--dry-run`); OpenDataLoader + PaddleOCR-VL parsers; MCP server multi-transport (stdio / SSE / HTTP); per-model thinking-mode config; Tencent LKEAP rerank + native Gemini embeddings + MiniMax-M3. See [`CHANGELOG.md`](./CHANGELOG.md).
@@ -163,7 +164,22 @@ The [Keystone Mini Program](./miniprogram/README.md) provides a lightweight mobi
 
 ## 🦞 ClawHub Skill
 
-[**Keystone ClawHub Skill**](https://clawhub.ai/lyingbug/keystone) is a Keystone skill published on the ClawHub platform. Once installed, it enables document import (file / URL / Markdown), hybrid search (vector + keyword) across knowledge bases, and knowledge entry management — all through the Keystone REST API.
+[**Keystone ClawHub Skill**](https://clawhub.ai/justaboyhai-wq/skills/keystone) is the official, versioned integration for OpenClaw and other agents that support `SKILL.md`. It uses your Keystone REST API credentials and never requires a separate knowledge-store account.
+
+Install it with OpenClaw:
+
+```bash
+openclaw skills install @justaboyhai-wq/keystone
+```
+
+Configure the agent with an API endpoint reachable from its runtime and an API key created in **Settings → API Integration**:
+
+```bash
+export KEYSTONE_BASE_URL="http://localhost:8080/api/v1"
+export KEYSTONE_API_KEY="sk-your-api-key"
+```
+
+The Skill covers five operations: upload a document, import a URL, write Markdown knowledge, browse knowledge bases and entries, and run hybrid retrieval (vector + keyword). The tracked source is [`frontend/public/keystone-skill/SKILL.md`](./frontend/public/keystone-skill/SKILL.md); the same file is packaged on ClawHub. For agents outside the local machine, replace `localhost` with the publicly reachable Keystone URL.
 
 - **Document Import** — Upload files, import web pages, or write Markdown knowledge via the agent
 - **Hybrid Search** — Search within or across knowledge bases with vector + keyword retrieval
