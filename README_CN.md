@@ -1,25 +1,12 @@
-<p align="center">
-  <img src="./docs/images/logo.png" alt="Keystone" height="112" />
-</p>
+# Keystone
 
-<h1 align="center">Keystone</h1>
-
-<p align="center">
-  面向文档、RAG、智能体与动态 Wiki 的私有化知识工作台。
-</p>
-
-<p align="center">
-  <a href="./README.md">English</a> ·
-  <a href="https://github.com/justaboyhai-wq/keystone">GitHub</a> ·
-  <a href="./LICENSE">MIT 许可</a> ·
-  <a href="https://clawhub.ai/justaboyhai-wq/skills/keystone">ClawHub Skill</a>
-</p>
+[English](./README.md)
 
 ## 项目介绍
 
-Keystone 将文件、网页和 Markdown 沉淀为可私有部署、可持续演进的知识工作台。它把文档解析、向量化、混合检索、流式对话、智能体编排和 Wiki 构建整合在同一应用中。
+Keystone 将文件、网页和 Markdown 沉淀为可私有部署、可持续演进的知识工作台。它把文档解析、向量化、混合检索、流式对话、受控智能体和 Wiki 构建整合在同一应用中。
 
-项目适用于本地与私有云部署。模型、向量数据库、对象存储、解析引擎和网络搜索服务均可独立配置，因此既可对接本地服务，也可接入兼容 API 或托管服务。
+这是一个面向私有部署和内部维护的受控应用仓库：仅通过获准的基础设施部署，使用受管凭据配置外部服务，并将业务与运行数据保留在指定环境内。模型、向量数据库、对象存储、解析引擎和网络搜索服务均可独立配置。
 
 ## 核心能力
 
@@ -27,24 +14,21 @@ Keystone 将文件、网页和 Markdown 沉淀为可私有部署、可持续演�
 - 使用向量 + 关键词混合检索、引用展示与可选重排模型获得可追溯的回答。
 - 使用快速问答或可组合知识检索、MCP 工具与网络搜索的智能体完成任务。
 - 自动生成相互关联的 Wiki 页面，并浏览层级结构与知识图谱。
-- 集中配置对话、向量、重排、文生图、ASR 与 TTS 等模型。
+- 集中配置对话、向量、重排、视觉语言与 ASR 等模型。
 - 支持 Qdrant、pgvector、Milvus、Weaviate、Elasticsearch/OpenSearch 等向量后端。
 - 支持本地存储、MinIO 与兼容对象存储服务。
 - 通过空间、角色、API Key、审计信息和嵌入式聊天管理访问范围。
-- 通过 Keystone ClawHub Skill 或 REST API 为外部 Agent 提供知识库能力。
+- 通过 REST API、CLI 或 MCP 服务接入已获准的外部集成。
 
 ## 快速开始
 
 ### 环境要求
 
 - Docker Desktop（含 Docker Compose）
-- Git
 
 ### 启动 Keystone
 
 ```bash
-git clone https://github.com/justaboyhai-wq/keystone.git
-cd keystone
 cp .env.example .env
 docker compose up -d
 ```
@@ -92,23 +76,6 @@ docker compose --profile minio --profile neo4j up -d
 
 已有部署升级时可以继续使用现有数据和服务配置。更换存储或向量库标识前，请先阅读[迁移排障说明](./docs/migration-troubleshooting.md)。
 
-## 外部 Agent 接入
-
-为 OpenClaw 或兼容的 Agent 运行环境安装官方 Keystone Skill：
-
-```bash
-openclaw skills install @justaboyhai-wq/keystone
-```
-
-在「设置 → API 集成」创建 API Key，并在 Agent 运行环境中配置可访问的地址：
-
-```bash
-export KEYSTONE_BASE_URL="http://localhost:8080/api/v1"
-export KEYSTONE_API_KEY="sk-your-api-key"
-```
-
-Skill 支持上传文件、导入 URL、写入 Markdown、浏览知识库以及混合检索。其版本化源文件为 [frontend/public/keystone-skill/SKILL.md](./frontend/public/keystone-skill/SKILL.md)。
-
 ## 接口与扩展
 
 | 接口 | 入口 |
@@ -122,7 +89,7 @@ Skill 支持上传文件、导入 URL、写入 Markdown、浏览知识库以及�
 | Agent Skills | [docs/agent-skills.md](./docs/agent-skills.md) |
 | 架构与部署说明 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
 
-## 本地开发
+## 本地开发与验证
 
 启动前端开发服务：
 
@@ -134,7 +101,7 @@ npm run dev -- --host 127.0.0.1 --port 5173
 
 前端默认将 API 请求代理到 `http://localhost:8080`；如后端位于其他地址，请设置 `VITE_DEV_PROXY_TARGET`。
 
-提交前建议运行与改动相关的检查：
+先执行与改动最相关的检查，再覆盖受影响的 API、队列、Provider 或部署路径：
 
 ```bash
 npm --prefix frontend run type-check
@@ -144,8 +111,4 @@ go test ./...
 
 ## 文档策略
 
-Keystone 的项目介绍仅维护英文与简体中文版本。技术文档会在保证可用性的前提下逐步收敛，但只描述 Keystone 本身，不代表任何外部平台或上游服务。
-
-## 许可
-
-Keystone 采用 [MIT License](./LICENSE) 发布。第三方依赖及其许可仍以各自条款为准。
+项目入口文档仅维护英文与简体中文。基础设施、模型、检索引擎和后台任务的必读基线见[架构与部署说明](./docs/ARCHITECTURE.md)，修改相关能力前必须先阅读。

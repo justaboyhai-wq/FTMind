@@ -186,34 +186,10 @@ Pinia 中的 `authStore` 暴露：
 
 ### 前端实际界面
 
-<table>
-  <tr>
-    <td colspan="2" align="center">
-      <b>成员管理页</b><br/>
-      <img src="./images/rbac-member-management.png" alt="成员管理" width="100%"/>
-      <br/><sub>同时展示「待接受的邀请」和「空间成员」两组列表；只有 Owner 可以新增 / 移除成员；右上角的「审计日志」入口跳转到 <code>audit_logs</code> 视图。</sub>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" align="center">
-      <b>用户菜单 + 工作区切换器</b><br/>
-      <img src="./images/rbac-workspace-switcher.png" alt="用户菜单 + 切换空间" width="100%"/>
-      <br/><sub>左侧：当前空间角色徽章 / 设置入口 / 退出；右侧：切换到其它空间，「当前」角标标识活跃工作区。</sub>
-    </td>
-    <td width="50%" align="center">
-      <b>自助创建工作区</b><br/>
-      <img src="./images/rbac-create-workspace.png" alt="创建新空间" width="100%"/>
-      <br/><sub>任何用户都可以自助创建空间，创建后自动成为新空间的 Owner（受 <code>KEYSTONE_TENANT_MAX_PER_USER</code> 上限保护）。</sub>
-    </td>
-  </tr>
-  <tr>
-    <td colspan="2" align="center">
-      <b>待处理邀请弹窗</b><br/>
-      <img src="./images/rbac-pending-invitation.png" alt="我的邀请" width="80%"/>
-      <br/><sub>用户菜单上的邀请铃铛会展示来自其它空间的待处理邀请，可直接「接受 / 拒绝」；7 天未响应自动过期。</sub>
-    </td>
-  </tr>
-</table>
+- **成员管理**同时展示待接受邀请和空间成员；仅 Owner 可新增或移除成员，审计入口跳转到 `audit_logs` 视图。
+- **用户菜单和工作区切换器**展示当前角色、设置和退出入口，并标识活跃工作区。
+- **自助创建工作区**会让创建者成为 Owner，受 `KEYSTONE_TENANT_MAX_PER_USER` 上限保护。
+- **待处理邀请**可直接接受或拒绝；七天未响应自动过期。
 
 ## 九、常见问题
 

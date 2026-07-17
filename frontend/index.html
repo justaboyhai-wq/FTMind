@@ -9,19 +9,19 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="keywords" content="知识问答、微信对话开放平台、对话开放平台、对话平台、人工智能定制、人机对话、智能问答、人机交互、自然语言处理、自然语言理解、NLP、人工智能产品、人工智能开源、人工智能算法、语音助手"/>
-    <meta name="description" content="Keystone是一款基于大语言模型的文档理解与语义检索框架，专为结构复杂、内容异构的文档场景而打造。"/>
+    <meta name="keywords" content="知识工作台、文档解析、语义检索、RAG、智能体、Wiki、私有部署、人工智能应用"/>
+    <meta name="description" content="Keystone 是面向私有部署的知识工作台，提供文档解析、语义检索、流式对话、智能体与 Wiki 能力。"/>
     <link rel="shortcut icon" type="image/png" href="./public/favicon.ico"/>
     <link rel="apple-touch-icon" sizes="120x120" type="image/png" href="./public/favicon.ico"/>
 </head>
 <body>
 <script>
 (function(){
-  var legacyTheme=localStorage.getItem('BlexWiki_theme')||localStorage.getItem('WeKnora_theme');
+  var legacyTheme=localStorage.getItem('BlexWiki_theme');
   if(localStorage.getItem('Keystone_theme')===null&&legacyTheme!==null)localStorage.setItem('Keystone_theme',legacyTheme);
-  var legacyLite=localStorage.getItem('blexwiki_lite_mode')||localStorage.getItem('weknora_lite_mode');
+  var legacyLite=localStorage.getItem('blexwiki_lite_mode');
   if(localStorage.getItem('keystone_lite_mode')===null&&legacyLite!==null)localStorage.setItem('keystone_lite_mode',legacyLite);
-  var legacyPath=sessionStorage.getItem('blexwiki_lite_last_path')||sessionStorage.getItem('weknora_lite_last_path');
+  var legacyPath=sessionStorage.getItem('blexwiki_lite_last_path');
   if(sessionStorage.getItem('keystone_lite_last_path')===null&&legacyPath!==null)sessionStorage.setItem('keystone_lite_last_path',legacyPath);
   var t=localStorage.getItem('Keystone_theme')||'light';
   if(t==='system')t=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';

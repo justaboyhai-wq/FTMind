@@ -1,25 +1,12 @@
-<p align="center">
-  <img src="./docs/images/logo.png" alt="Keystone" height="112" />
-</p>
+# Keystone
 
-<h1 align="center">Keystone</h1>
-
-<p align="center">
-  A self-hosted knowledge workspace for documents, RAG, Agents and living Wiki.
-</p>
-
-<p align="center">
-  <a href="./README_CN.md">简体中文</a> ·
-  <a href="https://github.com/justaboyhai-wq/keystone">GitHub</a> ·
-  <a href="./LICENSE">MIT License</a> ·
-  <a href="https://clawhub.ai/justaboyhai-wq/skills/keystone">ClawHub Skill</a>
-</p>
+[简体中文](./README_CN.md)
 
 ## Overview
 
-Keystone turns files, web pages and Markdown into a private, searchable knowledge workspace. It combines document parsing, embeddings, hybrid retrieval, streaming chat, configurable Agents and Wiki generation in one deployable application.
+Keystone turns files, web pages and Markdown into a private, searchable knowledge workspace. It combines document parsing, embeddings, hybrid retrieval, streaming chat, controlled Agents and Wiki generation in one deployable application.
 
-The project is designed for local and private-cloud deployment. Models, vector stores, object storage, parsing engines and web-search providers are independently configurable, so the stack can run with local services, compatible APIs, or managed providers.
+This is a controlled application repository for private deployment and internal maintenance. Deploy it only through approved infrastructure, configure external services with managed credentials, and retain operational data in the intended environment. Models, vector stores, object storage, parsing engines and web-search providers are independently configurable.
 
 ## What you can do
 
@@ -27,29 +14,26 @@ The project is designed for local and private-cloud deployment. Models, vector s
 - Search with dense-vector and keyword retrieval, citations and configurable reranking.
 - Use Quick Q&A or Agents that can combine knowledge retrieval, MCP tools and web search.
 - Generate linked Wiki pages and browse their hierarchy and knowledge graph.
-- Configure chat, embedding, rerank, image, ASR and TTS models centrally.
+- Configure chat, embedding, rerank, vision-language and ASR models centrally.
 - Run with Qdrant, pgvector, Milvus, Weaviate, Elasticsearch/OpenSearch and other supported backends.
 - Store files locally, in MinIO, or in compatible object storage.
 - Control access with workspaces, roles, API keys, audit information and embeddable chat.
-- Connect external agents through the versioned Keystone ClawHub Skill or the REST API.
+- Connect approved integrations through the REST API, CLI or MCP service.
 
 ## Quick start
 
 ### Requirements
 
 - Docker Desktop with Docker Compose
-- Git
 
 ### Start Keystone
 
 ```bash
-git clone https://github.com/justaboyhai-wq/keystone.git
-cd keystone
 cp .env.example .env
 docker compose up -d
 ```
 
-On Windows PowerShell, copy the environment file with:
+On Windows PowerShell:
 
 ```powershell
 Copy-Item .env.example .env
@@ -92,23 +76,6 @@ docker compose --profile minio --profile neo4j up -d
 
 Existing deployments can keep their current data and service configuration when upgrading. Refer to [migration troubleshooting](./docs/migration-troubleshooting.md) before changing storage or vector-store identifiers.
 
-## External-agent integration
-
-Install the official Keystone Skill for OpenClaw or any compatible agent runtime:
-
-```bash
-openclaw skills install @justaboyhai-wq/keystone
-```
-
-Create an API key in **Settings → API Integration**, then expose a reachable API address to the agent:
-
-```bash
-export KEYSTONE_BASE_URL="http://localhost:8080/api/v1"
-export KEYSTONE_API_KEY="sk-your-api-key"
-```
-
-The Skill supports file upload, URL import, Markdown authoring, knowledge browsing and hybrid retrieval. Its tracked source is [frontend/public/keystone-skill/SKILL.md](./frontend/public/keystone-skill/SKILL.md).
-
 ## Interfaces and extensions
 
 | Interface | Entry point |
@@ -122,7 +89,7 @@ The Skill supports file upload, URL import, Markdown authoring, knowledge browsi
 | Agent skills | [docs/agent-skills.md](./docs/agent-skills.md) |
 | Architecture and deployment | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
 
-## Development
+## Development and verification
 
 For a local frontend development server:
 
@@ -134,7 +101,7 @@ npm run dev -- --host 127.0.0.1 --port 5173
 
 The frontend proxies API requests to `http://localhost:8080` by default. Set `VITE_DEV_PROXY_TARGET` when the backend runs elsewhere.
 
-Before contributing, run the relevant checks:
+Run the narrowest relevant checks first, then include the affected API, queue, provider or deployment path:
 
 ```bash
 npm --prefix frontend run type-check
@@ -144,8 +111,4 @@ go test ./...
 
 ## Documentation policy
 
-Keystone maintains project introductions in English and Simplified Chinese. Technical guides may retain their most useful original language while they are progressively consolidated; they describe Keystone only and do not represent any external platform or upstream service.
-
-## License
-
-Keystone is distributed under the [MIT License](./LICENSE). Third-party dependencies and their licenses remain subject to their own terms.
+Project entry documentation is maintained in English and Simplified Chinese. The required design and operations baseline is [Architecture and deployment](./docs/ARCHITECTURE.md); use it before changing infrastructure, models, retrieval engines or background tasks.

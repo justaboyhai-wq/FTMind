@@ -1,6 +1,20 @@
-# Keystone 架构与部署设计说明
+# Keystone 开发必读：系统、基础设施与模型架构
 
-> 本文是 Keystone 的部署基线文档，面向未来的单机、私有云与生产集群部署。它描述当前代码与 `docker-compose.yml` 的实际组件边界、数据流和调度模型；配置项以 `.env.example` 为准。
+> 本文是 Keystone 的开发与部署事实基线，面向单机、私有云与生产集群。它描述当前代码与 `docker-compose.yml` 的实际组件边界、数据流和调度模型；配置项以 `.env.example` 为准。新功能、部署变更或模型接入前应先阅读本文。项目按私有部署和受控维护设计，不应将示例配置、镜像标签或外部服务地址视为公共承诺。
+
+## 开发导航：先读什么、改哪里
+
+| 目标 | 首选位置 | 约束 |
+| --- | --- | --- |
+| HTTP 路由、认证与权限 | `internal/router/`、`internal/handler/`、`internal/middleware/` | 所有资源访问都必须经过工作区、角色和 API Key 策略。 |
+| 核心业务与后台任务 | `internal/application/service/` | 知识处理、检索、聊天、Agent、Wiki 与数据源在此编排；任务必须可重试且幂等。 |
+| 数据与外部适配 | `internal/application/repository/`、`internal/container/engine_factory.go` | 新存储或向量引擎实现既有接口，并由容器工厂注册。 |
+| 进程启动与依赖注入 | `cmd/server/main.go`、`internal/container/container.go` | 容器负责连接、路由和 worker；不要在包初始化时创建外部连接。 |
+| 前端工作台 | `frontend/src/` | Vue 3 + TDesign；API、路由、Pinia 和本地偏好必须保持兼容。 |
+| 文档解析 | `docreader/`、`internal/infrastructure/docparser/` | 简单文本格式可由 Go 原生处理，复杂格式经 DocReader。 |
+| 部署与密钥 | `.env.example`、`docker-compose.yml`、`config/` | `.env`、本地卷、令牌与密码不得提交。 |
+
+推荐改动路径：路由/DTO → service → repository 或 provider → 测试 → 前端。跨边界功能必须同时说明迁移、队列、权限、配置键和回滚方式。
 
 ## 1. 设计目标
 
@@ -149,6 +163,37 @@ sequenceDiagram
 
 建议的起点：单个远程 embedding 模型设置较低的并发（例如 2–5），确认稳定后逐步增加；对话模型、Rerank 与多模态模型分别独立评估。模型服务、DocReader 和向量库才是入库吞吐的共同瓶颈。
 
+### 6.3 配置与调用契约
+
+模型以 `internal/types/model.go` 的类型定义和模型配置为边界；配置可由管理界面持久化，或通过 `config/builtin_models.yaml`（基于 `.example`）声明。显示名称与实际调用模型名、Base URL、Provider、API Key、参数和并发限制是不同字段，生产变更必须一并核验。
+
+- `KnowledgeQA`：聊天、Agent 推理、查询改写、摘要和 Wiki 生成；前台流式聊天不受后台模型门控。
+- `Embedding`：文档分块入库和语义查询；模型维度必须与目标索引一致，换维度须新建索引或完整回填。
+- `Rerank`：只重排召回候选；其分数不能与向量相似度直接混用。
+- `VLLM`：图像理解、扫描件或图文提取；仅在相应处理开启时调用，受超时和后台限流约束。
+- `ASR`：音频转写；需同时评估音频大小、时长和上游配额。
+
+模型密钥只能由 `.env`、受控密钥系统或加密存储提供，不得写入文档、示例中的真实值或日志。
+
+### 6.4 向量与检索引擎边界
+
+`RETRIEVE_DRIVER` 决定启动时可用的默认检索实现；管理界面的 VectorStore 配置由 `internal/container/engine_factory.go` 动态创建。已实现后端位于 `internal/application/repository/retriever/`。
+
+| 引擎 | 实现目录 | 运维要点 |
+| --- | --- | --- |
+| PostgreSQL / ParadeDB | `postgres/` | 关系数据与检索同域；关注数据库容量、索引构建和 SQL 负载。 |
+| Qdrant | `qdrant/` | 保存 collection 前缀、向量维度、距离度量与快照。 |
+| Milvus | `milvus/` | 保持 collection、metric 和索引参数一致。 |
+| Weaviate | `weaviate/` | 同时检查 HTTP、gRPC、认证和 schema。 |
+| Elasticsearch v7/v8 | `elasticsearch/` | 客户端实现必须与服务版本匹配。 |
+| OpenSearch | `opensearch/` | 保存 index mapping 与插件能力。 |
+| Doris | `doris/` | 确认表前缀、兼容模式和多维度表策略。 |
+| Tencent VectorDB | `tencentvectordb/` | 记录地址、数据库、集合前缀、副本和鉴权。 |
+| SQLite | `sqlite/` | 适合 Lite/受限环境，不按高并发集群设计。 |
+| Neo4j | `neo4j/` | 图谱增强，不替代主向量检索。 |
+
+检索前必须完成权限与知识库范围限制；检索后才允许 Rerank 重排。Embedding 模型、维度、距离度量、collection/index 前缀或分块策略改变都可能使旧索引失效，必须明确“新建并回填”或“停机重建”的计划。
+
 ## 7. 异步调度架构
 
 App 进程内运行多个独立 Asynq Server；它们共用 Redis，但具有硬隔离的并发预算。因此部署一个 App 副本不仅增加 API 吞吐，也会增加该副本的后台 worker 容量。
@@ -249,6 +294,9 @@ Redis 主要保存运行态，一般不替代上述备份；升级前应让关�
 - [ ] 仅网关暴露公网端口；DocReader、Redis、数据库、向量库仅在私网可达。
 - [ ] 生产部署使用固定镜像标签与明确的回滚版本；升级前已在预发布环境验证。
 - [ ] 已验证一个完整路径：上传 → 解析 → 向量化 → 检索 → 对话引用 → 删除/重解析。
+- [ ] 新 API 已定义权限、输入验证、审计需要和错误边界；新任务具备幂等性、超时和死信可观测性。
+- [ ] 涉及 Embedding 时已核验维度、索引/集合与回填策略；新 Provider 已覆盖凭据、连接检测和 SSRF 约束。
+- [ ] 已运行与改动相关的最小检查；前端改动至少执行 `npm --prefix frontend run type-check`、`npm --prefix frontend run build` 和 `git diff --check`。
 
 ## 12. 相关文件
 
