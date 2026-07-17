@@ -302,9 +302,9 @@ const closePreImg = () => {
     }
 
     &.channel-api {
-        color: var(--td-success-color);
-        background: var(--td-success-color-1, rgba(0, 168, 112, 0.06));
-        border-color: var(--td-success-color-2, rgba(0, 168, 112, 0.15));
+        color: var(--td-brand-color);
+        background: color-mix(in srgb, var(--td-brand-color) 8%, transparent);
+        border-color: color-mix(in srgb, var(--td-brand-color) 20%, transparent);
     }
 
     &.channel-im {

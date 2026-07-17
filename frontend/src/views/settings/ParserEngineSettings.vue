@@ -782,7 +782,7 @@ onMounted(loadAll)
 
   &--active {
     border-color: var(--td-brand-color);
-    background: var(--td-brand-color-1, rgba(7, 192, 95, 0.06));
+    background: color-mix(in srgb, var(--td-brand-color) 6%, var(--td-bg-color-container));
   }
 }
 
@@ -802,11 +802,11 @@ onMounted(loadAll)
   color: #0052D9;
 }
 
-// 解析引擎徽章配色 —— 内置/官方系绿，外部工具按性质各取一色。
+// 解析引擎徽章配色 —— 内置引擎使用 Keystone 品牌色，外部工具保留各自识别色。
 .engine-card--builtin .engine-card__badge,
 .engine-card--keystonecloud .engine-card__badge {
-  background: rgba(7, 192, 95, 0.12);
-  color: #07C05F;
+  background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
+  color: var(--td-brand-color);
 }
 .engine-card--simple .engine-card__badge {
   background: rgba(70, 70, 70, 0.1);
@@ -1154,8 +1154,8 @@ onMounted(loadAll)
 <style lang="less">
 .parser-engine-drawer--builtin .setting-drawer__header-icon,
 .parser-engine-drawer--keystonecloud .setting-drawer__header-icon {
-  background: rgba(7, 192, 95, 0.12);
-  color: #07C05F;
+  background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
+  color: var(--td-brand-color);
 }
 .parser-engine-drawer--simple .setting-drawer__header-icon {
   background: rgba(70, 70, 70, 0.1);

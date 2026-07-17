@@ -1,162 +1,56 @@
 <template>
-  <div class="login-layout">
-    <div class="animated-bg">
-      <div class="knowledge-node node-1">
-        <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-        </svg>
-      </div>
-      <div class="knowledge-node node-2">
-        <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-        </svg>
-      </div>
-      <div class="knowledge-node node-3">
-        <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2L2 7l10 5 10-5-10-5z" />
-          <path d="M2 17l10 5 10-5" />
-          <path d="M2 12l10 5 10-5" />
-        </svg>
-      </div>
-      <div class="knowledge-node node-4">
-        <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <ellipse cx="12" cy="5" rx="9" ry="3" />
-          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
-          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
-        </svg>
-      </div>
-      <div class="knowledge-node node-5">
-        <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8" />
-          <path d="m21 21-4.35-4.35" />
-        </svg>
-      </div>
-      <div class="knowledge-node node-6">
-        <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path
-            d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-          <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-          <line x1="12" y1="22.08" x2="12" y2="12" />
-        </svg>
-      </div>
-      <div class="knowledge-node node-7">
-        <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-          <polyline points="14 2 14 8 20 8" />
-        </svg>
-      </div>
-      <div class="knowledge-node node-8">
-        <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-          <circle cx="9" cy="7" r="4" />
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-        </svg>
-      </div>
-      <div class="knowledge-node node-9">
-        <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-        </svg>
-      </div>
-      <div class="knowledge-node node-10">
-        <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="3" />
-          <path
-            d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24" />
-        </svg>
-      </div>
-      <div class="knowledge-node node-11">
-        <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M9 11l3 3L22 4" />
-          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-        </svg>
-      </div>
-      <div class="knowledge-node node-12">
-        <svg class="node-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon
-            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
+  <div class="login-layout login-layout--gateway">
+    <KeystoneAuthGraph />
+
+    <header class="auth-topbar">
+      <div class="header-logo" title="Keystone">
+        <img :src="brandLogo" class="logo-image" alt="波粒二象 WAVE-PARTICLE DUALITY" />
       </div>
 
-      <svg class="knowledge-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <line class="connection-line line-1" x1="20" y1="15" x2="35" y2="25" />
-        <line class="connection-line line-2" x1="35" y1="25" x2="55" y2="20" />
-        <line class="connection-line line-3" x1="55" y1="20" x2="85" y2="12" />
-        <line class="connection-line line-4" x1="8" y1="35" x2="25" y2="45" />
-        <line class="connection-line line-5" x1="25" y1="45" x2="65" y2="48" />
-        <line class="connection-line line-6" x1="20" y1="60" x2="60" y2="75" />
-        <line class="connection-line line-7" x1="20" y1="15" x2="20" y2="60" />
-        <line class="connection-line line-8" x1="55" y1="20" x2="45" y2="50" />
-        <line class="connection-line line-9" x1="65" y1="48" x2="90" y2="38" />
-        <line class="connection-line line-10" x1="40" y1="70" x2="75" y2="80" />
-        <line class="connection-line line-11" x1="35" y1="25" x2="25" y2="45" />
-        <line class="connection-line line-12" x1="75" y1="30" x2="65" y2="48" />
-      </svg>
-    </div>
+      <div class="auth-system">
+        <span class="auth-system__gateway">KEYSTONE AUTH GATEWAY · 01</span>
+        <span class="auth-system__status"><i></i>SYSTEM READY</span>
+        <div class="language-switch">
+          <button @click="toggleLanguageMenu" class="header-link" :title="currentLangOption?.label">
+            <span class="lang-flag-icon">{{ currentLangOption?.flag }}</span>
+            <span class="link-text">{{ currentLangOption?.shortLabel }}</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
 
-    <!-- Brand - Top Left -->
-    <div class="header-logo" title="Keystone">
-      <span class="keystone-mark" aria-label="Keystone">
-        <span class="keystone-mark__glyph" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
-        </span><span class="keystone-mark__name">Keystone</span>
-      </span>
-    </div>
-
-    <!-- Header Links - Top Right -->
-    <div class="header-links">
-      <div class="language-switch">
-        <button @click="toggleLanguageMenu" class="header-link" :title="currentLangOption?.label">
-          <span class="lang-flag-icon">{{ currentLangOption?.flag }}</span>
-          <span class="link-text">{{ currentLangOption?.shortLabel }}</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-            stroke-linecap="round">
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </button>
-
-        <!-- Language Dropdown -->
-        <div v-if="showLanguageMenu" class="language-dropdown">
-          <div v-for="lang in languageOptions" :key="lang.value" @click="selectLanguage(lang.value)"
-            class="language-option" :class="{ active: currentLanguage === lang.value }">
-            <span class="lang-flag">{{ lang.flag }}</span>
-            <span class="lang-label">{{ lang.label }}</span>
-            <span v-if="currentLanguage === lang.value" class="check-icon">✓</span>
+          <div v-if="showLanguageMenu" class="language-dropdown">
+            <div v-for="lang in languageOptions" :key="lang.value" @click="selectLanguage(lang.value)"
+              class="language-option" :class="{ active: currentLanguage === lang.value }">
+              <span class="lang-flag">{{ lang.flag }}</span>
+              <span class="lang-label">{{ lang.label }}</span>
+              <span v-if="currentLanguage === lang.value" class="check-icon">✓</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </header>
 
-    <!-- Left Showcase Section -->
-    <div class="showcase-section">
+    <section class="showcase-section">
       <div class="showcase-content">
-        <p class="showcase-subtitle">{{ $t('platform.subtitle') }}</p>
+        <div class="showcase-overline"><span></span>KNOWLEDGE SPACE ONLINE</div>
+        <h1 class="showcase-title">{{ $t('platform.subtitle') }}</h1>
         <p class="showcase-description">{{ $t('platform.description') }}</p>
-
         <div class="feature-tags">
           <span class="tag">{{ $t('platform.rag') }}</span>
           <span class="tag">{{ $t('platform.agent') }}</span>
           <span class="tag">{{ $t('platform.wiki') }}</span>
           <span class="tag">{{ $t('platform.hybridSearch') }}</span>
         </div>
-
-        <!-- Swiper Carousel -->
-        <div class="carousel-container">
-          <swiper :modules="modules" :slides-per-view="1" :loop="true" :autoplay="{
-            delay: 4000,
-            disableOnInteraction: false,
-          }" :effect="'fade'" :fade-effect="{ crossFade: true }"
-            :pagination="{ clickable: true, dynamicBullets: false }" :speed="800" class="screenshot-swiper">
-            <swiper-slide v-for="(slide, index) in slides" :key="index">
-              <div class="slide-content">
-                <img :src="slide.image" :alt="slide.title" class="slide-image" />
-              </div>
-            </swiper-slide>
-          </swiper>
+        <div class="graph-meta">
+          <span class="graph-meta__pulse"></span>
+          <strong>KY-01 / KNOWLEDGE GRAPH</strong>
+          <span>INDEX SYNCHRONIZED</span>
+          <span class="graph-meta__hint">DRAG · ZOOM · EXPLORE</span>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- Right Form Section -->
     <div class="form-section">
@@ -305,6 +199,7 @@
         </div>
       </div>
     </div>
+    <footer class="auth-footer">Keystone · Intelligent Knowledge System</footer>
   </div>
 </template>
 
@@ -314,11 +209,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { useRoleLabel } from '@/composables/useRoleLabel'
 import { notifyLoginSuccess } from '@/utils/loginNotify'
-import { Swiper, SwiperSlide } from 'swiper/vue'
-import { Autoplay, EffectFade, Pagination } from 'swiper/modules'
-import 'swiper/css'
-import 'swiper/css/effect-fade'
-import 'swiper/css/pagination'
+import KeystoneAuthGraph from '@/components/auth/KeystoneAuthGraph.vue'
+import brandLogo from '@/assets/img/brand/wave-particle-duality-logo.png'
 import {
   login,
   register,
@@ -334,44 +226,11 @@ import {
 import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
 
-// Import screenshot images
-import screenshot1 from '@/assets/img/screenshot-1.svg'
-import screenshot2 from '@/assets/img/screenshot-2.svg'
-import screenshot3 from '@/assets/img/screenshot-3.svg'
-import screenshot4 from '@/assets/img/screenshot-4.svg'
-
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 const { t, tm, locale } = useI18n()
 const { formatRole, roleIcon } = useRoleLabel()
-
-// Swiper modules
-const modules = [Autoplay, EffectFade, Pagination]
-
-// Carousel slides data
-const slides = [
-  {
-    image: screenshot4,
-    title: t('platform.carousel.agenticRagTitle'),
-    description: t('platform.carousel.agenticRagDesc')
-  },
-  {
-    image: screenshot2,
-    title: t('platform.carousel.hybridSearchTitle'),
-    description: t('platform.carousel.hybridSearchDesc')
-  },
-  {
-    image: screenshot3,
-    title: t('platform.carousel.wikiTitle'),
-    description: t('platform.carousel.wikiDesc')
-  },
-  {
-    image: screenshot1,
-    title: t('platform.carousel.smartDocRetrievalTitle'),
-    description: t('platform.carousel.smartDocRetrievalDesc')
-  }
-]
 
 // Form references
 const formRef = ref()
@@ -772,7 +631,7 @@ onMounted(async () => {
   min-height: 100%;
   overflow: hidden;
   position: relative;
-  background: linear-gradient(225deg, #022c22 0%, #064e3b 15%, #065f46 25%, #047857 38%, #059669 50%, #07C05F 65%, #10B981 78%, #34D399 90%, #6EE7B7 100%);
+  background: linear-gradient(225deg, #111827 0%, #1e1b4b 15%, #312e81 25%, #3730a3 38%, #4f46e5 50%, #5b5bd6 65%, #3b82f6 78%, #8b5cf6 90%, #c4b5fd 100%);
 
   &::before {
     content: '';
@@ -808,7 +667,7 @@ onMounted(async () => {
   border: 2px solid rgba(255, 255, 255, 0.3);
   box-shadow:
     0 0 15px rgba(255, 255, 255, 0.35),
-    0 0 30px rgba(16, 185, 129, 0.2),
+    0 0 30px rgba(91, 91, 214, 0.24),
     inset 0 0 8px rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
@@ -1342,7 +1201,7 @@ onMounted(async () => {
   margin: 10px 0 0;
   padding: 8px 12px;
   border-radius: 8px;
-  background: var(--td-success-color-light, rgba(7, 192, 95, 0.08));
+  background: var(--td-brand-color-light, rgba(91, 91, 214, 0.08));
   color: var(--td-brand-color-active);
   font-size: 12.5px;
   line-height: 1.5;
@@ -1390,7 +1249,7 @@ onMounted(async () => {
     &:hover {
       border-color: var(--td-brand-color-active);
       color: var(--td-brand-color-active);
-      background: var(--td-success-color-light, rgba(7, 192, 95, 0.08));
+      background: var(--td-brand-color-light, rgba(91, 91, 214, 0.08));
     }
   }
 }
@@ -1421,7 +1280,7 @@ onMounted(async () => {
 
     &:focus-within {
       border-color: var(--td-brand-color);
-      box-shadow: 0 0 0 3px rgba(7, 192, 95, 0.1);
+      box-shadow: 0 0 0 3px rgba(91, 91, 214, 0.12);
     }
 
     &:hover {
@@ -1750,7 +1609,7 @@ onMounted(async () => {
 <style lang="less">
 html[theme-mode="dark"] {
   .login-layout {
-    background: linear-gradient(225deg, #011a14 0%, #032e22 15%, #043a2c 25%, #05503d 38%, #046647 50%, #038a56 65%, #049b60 78%, #06a06a 90%, #07b074 100%);
+    background: linear-gradient(225deg, #080b1a 0%, #10132d 15%, #171b3f 25%, #1e2254 38%, #282c6b 50%, #34398b 65%, #3b4aa8 78%, #4f5fc5 90%, #6366d9 100%);
   }
 
   .knowledge-node {
@@ -1823,6 +1682,642 @@ html[theme-mode="dark"] {
 
   .login-features .feature-icon {
     background: rgba(6, 176, 77, 0.15);
+  }
+}
+</style>
+
+<style lang="less">
+.login-layout.login-layout--gateway {
+  position: relative;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.08fr) minmax(410px, 0.72fr);
+  grid-template-rows: 82px minmax(0, 1fr);
+  place-items: stretch !important;
+  width: 100%;
+  height: 100dvh;
+  min-height: 620px !important;
+  padding: 0 !important;
+  overflow: hidden;
+  color: #151824;
+  background: #fbfcff !important;
+
+  &::before {
+    display: none;
+  }
+
+  > .keystone-auth-graph {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  > .auth-topbar {
+    position: relative;
+    z-index: 10;
+    grid-column: 1 / -1;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 0;
+    padding: 0 clamp(24px, 4vw, 68px);
+    border-bottom: 1px solid rgba(219, 226, 255, 0.82);
+    background: rgba(255, 255, 255, 0.76);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.68) inset;
+    backdrop-filter: blur(16px) saturate(132%);
+  }
+
+  .header-logo {
+    position: static !important;
+    display: flex;
+    align-items: center;
+    height: 54px;
+    cursor: default;
+
+    .logo-image {
+      display: block;
+      width: clamp(158px, 12vw, 194px) !important;
+      height: auto;
+      max-height: 54px;
+      object-fit: contain;
+      filter: none !important;
+    }
+  }
+
+  .auth-system {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    color: #70778a;
+    font: 10px ui-monospace, SFMono-Regular, Consolas, monospace;
+    letter-spacing: 0.07em;
+    white-space: nowrap;
+  }
+
+  .auth-system__status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #4f5872;
+
+    i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #3447ff;
+      box-shadow: 0 0 0 5px rgba(52, 71, 255, 0.1);
+      animation: authStatusPulse 2.2s ease-out infinite;
+    }
+  }
+
+  .language-switch {
+    position: relative;
+  }
+
+  .header-link {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 34px;
+    padding: 7px 11px;
+    color: #50586c;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid #dfe4f5;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.78);
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      color: #3447ff;
+      border-color: rgba(52, 71, 255, 0.35);
+      background: #fff;
+    }
+  }
+
+  .language-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 1000;
+    min-width: 168px;
+    padding: 5px;
+    overflow: hidden;
+    border: 1px solid #dfe4f5;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 18px 48px rgba(24, 39, 102, 0.14);
+    backdrop-filter: blur(16px);
+  }
+
+  .language-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 11px;
+    color: #42495d;
+    font-size: 13px;
+    border-radius: 6px;
+    cursor: pointer;
+
+    .lang-label {
+      flex: 1;
+    }
+
+    .check-icon {
+      color: #3447ff;
+    }
+
+    &:hover,
+    &.active {
+      color: #3447ff;
+      background: #f0f2ff;
+    }
+  }
+
+  > .showcase-section {
+    position: relative;
+    z-index: 3;
+    grid-column: 1;
+    grid-row: 2;
+    display: flex !important;
+    align-items: flex-end;
+    min-width: 0;
+    min-height: 0;
+    padding: 42px clamp(28px, 4.5vw, 74px) 48px !important;
+    pointer-events: none;
+  }
+
+  .showcase-content {
+    position: relative;
+    z-index: 3;
+    display: block;
+    width: min(520px, 100%);
+    max-width: 520px;
+    margin: 0 !important;
+    padding: 20px 22px 18px;
+    color: #151824;
+    border: 1px solid rgba(210, 219, 255, 0.72);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.64);
+    box-shadow: 0 18px 52px rgba(19, 47, 154, 0.09);
+    backdrop-filter: blur(16px) saturate(122%);
+  }
+
+  .showcase-overline {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 11px;
+    color: #3447ff;
+    font: 10px ui-monospace, SFMono-Regular, Consolas, monospace;
+    letter-spacing: 0.1em;
+
+    span {
+      width: 24px;
+      height: 1px;
+      background: #3447ff;
+    }
+  }
+
+  .showcase-title {
+    margin: 0;
+    color: #151824;
+    font-size: clamp(26px, 2.45vw, 38px);
+    font-weight: 650;
+    line-height: 1.24;
+    letter-spacing: -0.05em;
+  }
+
+  .showcase-description {
+    max-width: 470px;
+    margin: 12px 0 0;
+    color: #697184;
+    font-size: 13px;
+    line-height: 1.75;
+  }
+
+  .feature-tags {
+    display: flex;
+    gap: 7px;
+    margin: 16px 0 0;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 25px;
+    padding: 4px 9px;
+    color: #4f5d88;
+    font-size: 11px;
+    font-weight: 500;
+    border: 1px solid rgba(52, 71, 255, 0.13);
+    border-radius: 6px;
+    background: rgba(240, 242, 255, 0.72);
+  }
+
+  .graph-meta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 17px;
+    color: #8a91a4;
+    font: 9px ui-monospace, SFMono-Regular, Consolas, monospace;
+    letter-spacing: 0.055em;
+    white-space: nowrap;
+
+    strong {
+      color: #555e77;
+      font-weight: 500;
+    }
+  }
+
+  .graph-meta__pulse {
+    width: 6px;
+    height: 6px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: #3447ff;
+    box-shadow: 0 0 0 4px rgba(52, 71, 255, 0.09);
+  }
+
+  > .form-section {
+    position: relative;
+    z-index: 4;
+    grid-column: 2;
+    grid-row: 2;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: auto !important;
+    min-width: 0;
+    min-height: 0 !important;
+    padding: 34px clamp(28px, 4.8vw, 72px) 46px !important;
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(52, 71, 255, 0.2) transparent;
+  }
+
+  .form-panel {
+    position: relative;
+    z-index: 2;
+    width: min(430px, 100%) !important;
+    max-width: 430px !important;
+    margin: auto !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  .form-card {
+    width: 100% !important;
+    padding: 30px !important;
+    color: #181b26;
+    border: 1px solid rgba(214, 222, 252, 0.9) !important;
+    border-radius: 13px !important;
+    background: rgba(255, 255, 255, 0.91) !important;
+    box-shadow:
+      0 28px 68px rgba(18, 38, 121, 0.14),
+      0 0 0 1px rgba(255, 255, 255, 0.68) inset !important;
+    backdrop-filter: blur(22px) saturate(126%);
+  }
+
+  .form-header {
+    margin-bottom: 24px;
+    text-align: left !important;
+  }
+
+  .form-title {
+    margin: 0 0 7px;
+    color: #171a25 !important;
+    font-size: 28px !important;
+    font-weight: 650;
+    line-height: 1.1 !important;
+    letter-spacing: -0.045em !important;
+  }
+
+  .form-welcome,
+  .form-subtitle {
+    margin: 0;
+    color: #70778a !important;
+    font-size: 12px !important;
+    line-height: 1.55 !important;
+  }
+
+  .form-hint {
+    margin: 12px 0 0;
+    padding: 9px 11px;
+    color: #4e5b84 !important;
+    font-size: 11px !important;
+    line-height: 1.55 !important;
+    border: 1px solid #dce3ff;
+    border-radius: 7px;
+    background: #f4f6ff !important;
+  }
+
+  .form-content {
+    .t-form-item__label {
+      margin-bottom: 6px;
+      color: #454b5e;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .t-form-item {
+      margin-bottom: 15px;
+    }
+
+    .t-input {
+      min-height: 42px;
+      border-color: #dfe4f3;
+      border-radius: 7px;
+      background: rgba(255, 255, 255, 0.88);
+
+      &:hover,
+      &:focus-within {
+        border-color: #3447ff;
+      }
+
+      &:focus-within {
+        box-shadow: 0 0 0 3px rgba(52, 71, 255, 0.08);
+      }
+    }
+  }
+
+  .submit-button,
+  .oidc-button,
+  .register-cta__button {
+    height: 42px;
+    border-radius: 7px;
+    font-size: 13px;
+  }
+
+  .submit-button {
+    margin: 17px 0 15px;
+    box-shadow: 0 9px 22px rgba(52, 71, 255, 0.18);
+  }
+
+  .register-cta__divider,
+  .oidc-divider {
+    margin: 3px 0 12px;
+    color: #969cac;
+    font-size: 11px;
+
+    span {
+      background: rgba(255, 255, 255, 0.91);
+    }
+  }
+
+  .login-features {
+    margin-top: 18px;
+    padding-top: 14px !important;
+    border-top: 1px solid #edf0f6 !important;
+
+    .feature-item {
+      margin-bottom: 9px;
+      color: #7a8193;
+      font-size: 11px;
+    }
+
+    .feature-icon {
+      width: 18px;
+      height: 18px;
+      margin-right: 8px;
+      color: #3447ff !important;
+      font-size: 10px;
+      background: #eef0ff !important;
+    }
+  }
+
+  > .auth-footer {
+    position: absolute;
+    z-index: 3;
+    right: clamp(24px, 3vw, 52px);
+    bottom: 18px;
+    color: #9aa0ae;
+    font: 9px ui-monospace, SFMono-Regular, Consolas, monospace;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+  }
+}
+
+@keyframes authStatusPulse {
+  50% {
+    box-shadow: 0 0 0 10px rgba(52, 71, 255, 0);
+  }
+}
+
+@media (max-width: 1080px) {
+  .login-layout.login-layout--gateway {
+    grid-template-columns: minmax(0, 1fr) minmax(390px, 0.82fr);
+
+    .graph-meta__hint,
+    .graph-meta > span:nth-last-child(2) {
+      display: none;
+    }
+
+    .auth-system__gateway {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 820px) {
+  .login-layout.login-layout--gateway {
+    grid-template-columns: minmax(0, 1fr);
+
+    > .showcase-section {
+      display: none !important;
+    }
+
+    > .form-section {
+      grid-column: 1;
+      padding-inline: 24px !important;
+    }
+
+    > .keystone-auth-graph {
+      opacity: 0.92;
+    }
+  }
+}
+
+@media (max-width: 540px) {
+  .login-layout.login-layout--gateway {
+    grid-template-rows: 68px minmax(0, 1fr);
+    min-height: 100dvh !important;
+
+    > .auth-topbar {
+      padding: 0 18px;
+    }
+
+    .header-logo .logo-image {
+      width: 142px !important;
+    }
+
+    .auth-system__status {
+      display: none;
+    }
+
+    .header-link {
+      padding: 7px 9px;
+
+      .link-text {
+        display: none;
+      }
+    }
+
+    > .form-section {
+      padding: 22px 16px 38px !important;
+    }
+
+    .form-card {
+      padding: 24px 21px !important;
+      border-radius: 11px !important;
+    }
+
+    > .auth-footer {
+      display: none;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-layout.login-layout--gateway .auth-system__status i {
+    animation: none;
+  }
+}
+
+html[theme-mode='dark'] {
+  .login-layout.login-layout--gateway {
+    color: #eef1ff;
+    background: #0c1020 !important;
+
+    > .auth-topbar {
+      border-bottom-color: rgba(129, 140, 248, 0.18);
+      background: rgba(12, 16, 32, 0.74);
+      box-shadow: 0 1px 0 rgba(129, 140, 248, 0.05) inset;
+    }
+
+    .header-logo .logo-image {
+      filter: invert(1) brightness(1.08) !important;
+    }
+
+    .auth-system,
+    .auth-system__status {
+      color: #a9b1ca;
+    }
+
+    .header-link {
+      color: #c4cae0;
+      border-color: rgba(129, 140, 248, 0.22);
+      background: rgba(19, 25, 49, 0.78);
+
+      &:hover {
+        color: #c7d2fe;
+        border-color: rgba(129, 140, 248, 0.48);
+        background: rgba(29, 36, 68, 0.92);
+      }
+    }
+
+    .language-dropdown {
+      border-color: rgba(129, 140, 248, 0.22);
+      background: rgba(18, 23, 45, 0.97) !important;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.36);
+    }
+
+    .language-option {
+      color: #c4cae0;
+
+      &:hover,
+      &.active {
+        color: #c7d2fe;
+        background: rgba(99, 102, 241, 0.15);
+      }
+    }
+
+    .showcase-content {
+      color: #eef1ff;
+      border-color: rgba(129, 140, 248, 0.2);
+      background: rgba(14, 19, 39, 0.64);
+      box-shadow: 0 18px 52px rgba(0, 0, 0, 0.24);
+    }
+
+    .showcase-title {
+      color: #f3f5ff;
+    }
+
+    .showcase-description {
+      color: #aeb7d0;
+    }
+
+    .tag {
+      color: #c6cced;
+      border-color: rgba(129, 140, 248, 0.2);
+      background: rgba(99, 102, 241, 0.12);
+    }
+
+    .graph-meta,
+    .graph-meta strong {
+      color: #929bb6;
+    }
+
+    .form-card {
+      color: #eef1ff;
+      border-color: rgba(129, 140, 248, 0.2) !important;
+      background: rgba(16, 21, 42, 0.91) !important;
+      box-shadow:
+        0 28px 68px rgba(0, 0, 0, 0.38),
+        0 0 0 1px rgba(129, 140, 248, 0.04) inset !important;
+    }
+
+    .form-title {
+      color: #f2f4ff !important;
+    }
+
+    .form-welcome,
+    .form-subtitle {
+      color: #aeb7d0 !important;
+    }
+
+    .form-hint {
+      color: #bdc7ed !important;
+      border-color: rgba(129, 140, 248, 0.2);
+      background: rgba(99, 102, 241, 0.12) !important;
+    }
+
+    .form-content {
+      .t-form-item__label {
+        color: #c8cee2;
+      }
+
+      .t-input {
+        border-color: rgba(129, 140, 248, 0.18) !important;
+        background: rgba(8, 12, 27, 0.72) !important;
+      }
+    }
+
+    .register-cta__divider span,
+    .oidc-divider span {
+      background: rgba(16, 21, 42, 0.91);
+    }
+
+    .login-features {
+      border-top-color: rgba(129, 140, 248, 0.14) !important;
+
+      .feature-item {
+        color: #aeb7d0;
+      }
+
+      .feature-icon {
+        color: #a5b4fc !important;
+        background: rgba(99, 102, 241, 0.16) !important;
+      }
+    }
+
+    > .auth-footer {
+      color: #747d99;
+    }
   }
 }
 </style>

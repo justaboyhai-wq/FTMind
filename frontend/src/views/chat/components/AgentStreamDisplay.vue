@@ -744,7 +744,7 @@ const handleWikiDrawerClick = (e: MouseEvent) => {
 
 // Import icons
 import agentIcon from '@/assets/img/agent.svg';
-import thinkingIcon from '@/assets/img/Frame3718.svg';
+import thinkingIcon from '@/assets/img/keystone-thinking.svg';
 
 interface SessionData {
   id?: string;

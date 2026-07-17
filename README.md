@@ -1,339 +1,151 @@
 <p align="center">
-  <picture>
-    <img src="./docs/images/logo.png" alt="Keystone Logo" height="120"/>
-  </picture>
+  <img src="./docs/images/logo.png" alt="Keystone" height="112" />
+</p>
+
+<h1 align="center">Keystone</h1>
+
+<p align="center">
+  A self-hosted knowledge workspace for documents, RAG, Agents and living Wiki.
 </p>
 
 <p align="center">
-  <picture>
-    <a href="https://trendshift.io/repositories/15289" target="_blank">
-      <img src="https://trendshift.io/api/badge/repositories/15289" alt="justaboyhai-wq%2Fkeystone | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/>
-    </a>
-  </picture>
-</p>
-<p align="center">
-    <a href="https://keystone.weixin.qq.com" target="_blank">
-        <img alt="Official Website" src="https://img.shields.io/badge/Official Website-Keystone-4e6b99">
-    </a>
-    <a href="https://chatbot.weixin.qq.com" target="_blank">
-        <img alt="WeChat Dialog Open Platform" src="https://img.shields.io/badge/WeChat Dialog Open Platform-5ac725">
-    </a>
-    <a href="https://chromewebstore.google.com/detail/jpemjbopikggjlmikmclgbmkhhopjdgd" target="_blank">
-        <img alt="Chrome Extension" src="https://img.shields.io/badge/Chrome Extension-Keystone-4285F4">
-    </a>
-    <a href="https://clawhub.ai/justaboyhai-wq/skills/keystone" target="_blank">
-        <img alt="ClawHub Skill" src="https://img.shields.io/badge/ClawHub Skill-Keystone-ff6b35">
-    </a>
-    <a href="https://github.com/justaboyhai-wq/keystone/blob/main/LICENSE">
-        <img src="https://img.shields.io/badge/License-MIT-ffffff?labelColor=d4eaf7&color=2e6cc4" alt="License">
-    </a>
-    <a href="./CHANGELOG.md">
-        <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-5b5bd6?labelColor=eeeeff">
-    </a>
+  <a href="./README_CN.md">简体中文</a> ·
+  <a href="https://github.com/justaboyhai-wq/keystone">GitHub</a> ·
+  <a href="./LICENSE">MIT License</a> ·
+  <a href="https://clawhub.ai/justaboyhai-wq/skills/keystone">ClawHub Skill</a>
 </p>
 
-<p align="center">
-| <b>English</b> | <a href="./README_CN.md"><b>简体中文</b></a> | <a href="./README_JA.md"><b>日本語</b></a> | <a href="./README_KO.md"><b>한국어</b></a> |
-</p>
+## Overview
 
-<p align="center">
-  <h4 align="center">
+Keystone turns files, web pages and Markdown into a private, searchable knowledge workspace. It combines document parsing, embeddings, hybrid retrieval, streaming chat, configurable Agents and Wiki generation in one deployable application.
 
-  [Overview](#-overview) • [Architecture](#-architecture) • [Key Features](#-key-features) • [Getting Started](#-getting-started) • [API Reference](#-api-reference) • [Developer Guide](#-developer-guide)
-  
-  </h4>
-</p>
+The project is designed for local and private-cloud deployment. Models, vector stores, object storage, parsing engines and web-search providers are independently configurable, so the stack can run with local services, compatible APIs, or managed providers.
 
-# 💡 Keystone — Turn Documents into Living Knowledge with RAG, Agents and Auto-Wiki
+## What you can do
 
-## 📌 Overview
+- Build document, FAQ and Wiki knowledge bases from files, URLs, folders and Markdown.
+- Search with dense-vector and keyword retrieval, citations and configurable reranking.
+- Use Quick Q&A or Agents that can combine knowledge retrieval, MCP tools and web search.
+- Generate linked Wiki pages and browse their hierarchy and knowledge graph.
+- Configure chat, embedding, rerank, image, ASR and TTS models centrally.
+- Run with Qdrant, pgvector, Milvus, Weaviate, Elasticsearch/OpenSearch and other supported backends.
+- Store files locally, in MinIO, or in compatible object storage.
+- Control access with workspaces, roles, API keys, audit information and embeddable chat.
+- Connect external agents through the versioned Keystone ClawHub Skill or the REST API.
 
-[**Keystone**](https://keystone.weixin.qq.com) is an open-source, LLM-powered knowledge framework built for enterprise-grade document understanding, semantic retrieval, and autonomous reasoning.
+## Quick start
 
-It is organized around three core capabilities: **RAG-based Quick Q&A** for everyday lookups, a **ReAct Agent** that autonomously orchestrates retrieval, MCP tools and web search to handle complex multi-step tasks, and a brand-new **Wiki Mode** in which agents distill raw documents into a self-maintaining, interlinked markdown knowledge base with an interactive knowledge graph. Combined with multi-source ingestion (Feishu / Notion / Yuque / RSS, and growing), **website embed widgets** for publishing agents to external sites, 20+ LLM provider integrations, full Langfuse observability, **enterprise-ready multi-workspace RBAC** (4-tier role matrix + per-resource ownership + per-workspace audit log), and a fully self-hostable modular architecture, Keystone turns scattered documents into a queryable, reasoning-capable, continuously evolving knowledge asset.
+### Requirements
 
-The framework supports auto-syncing knowledge from Feishu, Notion, and Yuque (more data sources coming soon), handles 10+ document formats including PDF, Word, images, and Excel, and can serve Q&A directly through IM channels like WeCom, Feishu, Slack, and Telegram. It is compatible with major LLM providers including OpenAI, DeepSeek, Qwen (Alibaba Cloud), Zhipu, Hunyuan, Gemini, MiniMax, NVIDIA, and Ollama. Its fully modular design allows swapping LLMs, vector databases, and storage backends, with support for local and private cloud deployment ensuring complete data sovereignty. Keystone also integrates with **Langfuse** for comprehensive observability into agent reasoning, token usage, and pipeline tracing.
+- Docker Desktop with Docker Compose
+- Git
 
+### Start Keystone
 
-## ✨ Latest Updates
+```bash
+git clone https://github.com/justaboyhai-wq/keystone.git
+cd keystone
+cp .env.example .env
+docker compose up -d
+```
 
-- **v1.0.0** — Keystone final product identity and unified light/dark workspace UI; AgentPlan-ready model and web-search configuration; configurable Wiki knowledge-base templates; a public **Keystone ClawHub Skill** for agent-driven document import and retrieval; refreshed Settings, Agent, and integration surfaces. See the [Keystone Skill](https://clawhub.ai/justaboyhai-wq/skills/keystone).
-- **v0.6.3** — Website embed widget & Integrations Center (secure-mode token exchange + rate limits); chat experience overhaul (citation popovers, RAG pipeline progress, streaming markdown); document multi-tag & batch reparse; Wiki folders & hierarchy navigation; RSS data source; MCP OAuth2; EPUB / MHTML parsing; agent model-readiness checks; model test debugger; session source filter; workspace deletion UI. See [`CHANGELOG.md`](./CHANGELOG.md).
-- **v0.6.2** — Per-upload process configuration with upload-confirm dialog; document reparse with `process_config`; `keystone` CLI v0.9 (bundled Agent Skills, `session stop`, auth/profile harmonization); KB marquee multi-select; HNSW index for 1024-dim pgvector embeddings; chat resources store refactor; Langfuse-only tracing (Jaeger removed). See [`CHANGELOG.md`](./CHANGELOG.md).
-- **v0.6.1** — Document parsing trace timeline (Langfuse-style span tree with stage-by-stage progress + stop-parse); OpenSearch vector store driver; declarative built-in models via YAML; system admin & consolidated platform settings + audit log; new-user onboarding guide; settings UI redesign; `keystone` CLI v0.7 / v0.8 (agent-first wire contract, NDJSON, `--dry-run`); OpenDataLoader + PaddleOCR-VL parsers; MCP server multi-transport (stdio / SSE / HTTP); per-model thinking-mode config; Tencent LKEAP rerank + native Gemini embeddings + MiniMax-M3. See [`CHANGELOG.md`](./CHANGELOG.md).
-- **v0.6.0** — Workspace RBAC (4-tier role matrix `Owner` / `Admin` / `Contributor` / `Viewer` + per-KB ownership + per-workspace audit log), workspace member management & multi-workspace UX, self-service workspaces; `keystone` CLI v0.4 GA with `mcp serve`; KB retrieval fan-out across vector stores; AES-256-GCM credential encryption + docreader gRPC TLS + Token; Zhipu embedder + Huawei OBS; server-side user preferences; Go 1.26.0. See [`docs/RBAC说明.md`](./docs/RBAC说明.md) and [`CHANGELOG.md`](./CHANGELOG.md).
-- **v0.5.2** — Wiki ingest scales to 40k-document KBs (task queue + DLQ); MCP human-in-the-loop tool approval; Anthropic / Apache Doris / Tencent VectorDB / KS3 / SearXNG backends; adaptive 3-tier chunking with live preview; global ⌘K command palette; Yuque connector + WeChat Mini Program; `keystone` CLI preview.
-- **v0.5.1** — Knowledge-base batch management; workspace-wide IM channels overview; session search + user-scoped pinning; unified Model / Web Search / MCP settings cards; per-agent LLM timeout; desktop workspace switching.
-- **v0.5.0** — Wiki Mode GA — agents auto-generate structured, interlinked Markdown wiki pages with a knowledge graph; wiki browser + visual graph in the UI.
-- **v0.4.0** — Keystone Cloud (hosted LLM + parsing); Chrome Extension; ClawHub Skill; WeChat IM; attachment processing; Azure OpenAI / Alibaba OSS; Notion connector; Baidu + Ollama web search; VectorStore management.
-- **v0.3.6** — ASR (audio); Feishu data-source auto-sync; OIDC; IM quote-reply context + thread-based sessions; document summarization; Tavily search; parallel tool calling; agent @mention scope restriction.
-- **v0.3.5** — Telegram / DingTalk / Mattermost IM; IM slash commands + QA queue; suggested questions; VLM auto-describe MCP tool images; Novita AI; channel tracking.
-- **v0.3.4** — WeCom / Feishu / Slack IM; multimodal image support; NVIDIA model API; Weaviate; AWS S3; AES-256-GCM API-key encryption; built-in MCP service; hybrid-search optimization; `final_answer` tool.
-- **v0.3.3** — Parent-child chunking; KB pinning; fallback response; passage cleaning for rerank; storage auto-creation; Milvus.
-- **v0.3.2** — Knowledge Search entry; per-source parser & storage engine config; image rendering in local storage; document preview; Volcengine TOS; Mermaid rendering; batch session management; memory graph preview.
-- **v0.3.0** — Shared Space; Agent Skills + sandboxed execution; custom agents; Data Analyst agent; thinking mode; Bing / Google web search; API Key auth; Helm chart; Korean i18n; Qdrant.
-- **v0.2.0** — Agent Mode (ReACT); multi-type knowledge bases (FAQ + document); conversation strategy config; DuckDuckGo web search; MCP tool integration; new UI with agent mode switching; MQ async task management.
+On Windows PowerShell, copy the environment file with:
 
+```powershell
+Copy-Item .env.example .env
+```
 
-## 📱 Interface Showcase
+Open [http://localhost](http://localhost), create or sign in to a workspace, then configure models from **Settings → Model Management**. The default API endpoint is `http://localhost:8080/api/v1`.
 
-<table>
-  <tr>
-    <td colspan="2" align="center"><b>💬 Intelligent Q&A Conversation</b><br/><img src="./docs/images/qa.png" alt="Intelligent Q&A Conversation" width="100%"></td>
-  </tr>
-  <tr>
-    <td width="50%" align="center"><b>📖 Wiki Browser</b><br/><img src="./docs/images/wiki-browser.png" alt="Wiki Browser" width="100%"></td>
-    <td width="50%" align="center"><b>🕸️ Wiki Knowledge Graph</b><br/><img src="./docs/images/wiki-graph.png" alt="Wiki Knowledge Graph" width="100%"></td>
-  </tr>
-  <tr>
-    <td width="50%" align="center"><b>🤖 Agent Mode · Tool Call Process</b><br/><img src="./docs/images/agent-qa.png" alt="Agent Mode Tool Call Process" width="100%"></td>
-    <td width="50%" align="center"><b>⚙️ Conversation Settings</b><br/><img src="./docs/images/settings.png" alt="Conversation Settings" width="100%"></td>
-  </tr>
-  <tr>
-    <td colspan="2" align="center"><b>🔭 Observability · Langfuse Tracing</b><br/><img src="./docs/images/langfuse.png" alt="Observability Langfuse Tracing" width="100%"></td>
-  </tr>
-</table>
+To stop the local stack:
 
-## 🏗️ Architecture
+```bash
+docker compose down
+```
 
-![keystone-architecture.png](./docs/images/architecture.png)
+### Optional services
 
-Fully modular pipeline from document parsing, vectorization, and retrieval to LLM inference — every component is swappable and extensible. Supports local / private cloud deployment with full data sovereignty and a zero-barrier Web UI for quick onboarding.
+Enable only the components your workspace needs:
 
-## 🧩 Feature Overview
+| Profile | Purpose | Command |
+| --- | --- | --- |
+| Default | Core application services | `docker compose up -d` |
+| `minio` | S3-compatible object storage | `docker compose --profile minio up -d` |
+| `neo4j` | Wiki knowledge graph | `docker compose --profile neo4j up -d` |
+| `langfuse` | Tracing and observability | `docker compose --profile langfuse up -d` |
+| `full` | All optional services | `docker compose --profile full up -d` |
 
-**Intelligent Conversation**
+Profiles can be combined, for example:
 
-| Capability | Details |
-|------------|---------|
-| Intelligent Reasoning | ReACT progressive multi-step reasoning, autonomously orchestrating knowledge retrieval, MCP tools, and web search |
-| Quick Q&A | RAG-based Q&A over knowledge bases for fast and accurate answers |
-| Wiki Mode | Agent-driven auto-generation of structured, interlinked markdown Wiki pages from raw documents |
-| Tool Calling | Built-in tools, MCP tools (incl. OAuth2 remote services), web search |
-| Conversation Strategy | Online Prompt editing, retrieval threshold tuning, multi-turn context awareness |
-| Suggested Questions | Auto-generated question suggestions based on knowledge base content |
-| Citations & RAG Progress | Inline citation popovers, shared markdown rendering, and stage-by-stage RAG pipeline progress in chat |
-| Session Management | Filter and group sidebar sessions by source (Web / IM / Embed) |
+```bash
+docker compose --profile minio --profile neo4j up -d
+```
 
-**Knowledge Management**
+## Configure a knowledge workspace
 
-| Capability | Details |
-|------------|---------|
-| Knowledge Base Types | FAQ / Document / Wiki with folder import, URL import, multi-tag management, and online entry |
-| Per-Upload Process Config | Override parser, chunking, multimodal (VLM / ASR), graph extraction, and question generation per upload batch via upload-confirm dialog or `process_config` API; reparse with new settings |
-| Batch Reparse | Re-queue parsing for multiple documents at once with optional per-batch `process_config` |
-| Data Source Import | Auto-sync from Feishu / Notion / Yuque / RSS feeds (more data sources coming soon); incremental and full sync |
-| Document Formats | PDF / Word / Txt / Markdown / HTML / EPUB / MHTML / Images / CSV / Excel / PPT / JSON |
-| Retrieval Strategies | BM25 sparse / Dense retrieval / GraphRAG / parent-child chunking / HNSW-accelerated pgvector (1024-dim) / multi-dimensional indexing |
-| Batch Selection | Marquee drag-select multiple documents in the KB list for batch operations |
-| E2E Testing | Full-pipeline visualization with recall hit rate, BLEU / ROUGE metric evaluation |
+1. In **Settings → Storage Engine**, choose Local, MinIO, or another configured object store.
+2. In **Settings → Vector Database Engine**, create or choose a vector-store connection.
+3. In **Settings → Model Management**, add the chat, embedding and optional rerank models required by your workflow.
+4. Create a knowledge base and select its parsing, chunking, retrieval and storage options.
+5. Upload documents or import URLs. For a Wiki knowledge base, choose a template before setting extraction granularity.
+6. Open Chat, select the knowledge base and an Agent, then ask a question.
 
-**Integrations & Extensions**
+Existing deployments can keep their current data and service configuration when upgrading. Refer to [migration troubleshooting](./docs/migration-troubleshooting.md) before changing storage or vector-store identifiers.
 
-| Capability | Details |
-|------------|---------|
-| LLMs | OpenAI / Azure OpenAI / Anthropic (Claude) / DeepSeek / Qwen (Alibaba Cloud) / Zhipu / Hunyuan / Doubao (Volcengine) / Gemini / MiniMax / NVIDIA / Novita AI / SiliconFlow / OpenRouter / Ollama |
-| Embeddings | Ollama / BGE / GTE / Zhipu / OpenAI-compatible APIs |
-| Vector DBs | PostgreSQL (pgvector) / Elasticsearch / OpenSearch / Milvus / Weaviate / Qdrant / Apache Doris / Tencent VectorDB |
-| Object Storage | Local / MinIO / AWS S3 / Volcengine TOS / Alibaba Cloud OSS / Kingsoft Cloud KS3 / Huawei Cloud OBS |
-| IM Channels | WeCom / Feishu / Slack / Telegram / DingTalk / Mattermost / WeChat |
-| Website Embed | Publish agents via embed widget with domain allowlists, rate limits, and secure-mode token exchange |
-| Web Search | DuckDuckGo / Bing / Google / Tavily / Baidu / Ollama / SearXNG |
+## External-agent integration
 
-**Platform**
-
-| Capability | Details |
-|------------|---------|
-| Deployment | Local / Docker / Kubernetes (Helm) with private and offline support |
-| UI | Web UI / RESTful API / CLI (`keystone`) / Chrome Extension / Website Embed Widget / WeChat Mini Program |
-| Access Control | Workspace RBAC with 4-tier role matrix (Owner / Admin / Contributor / Viewer), per-KB resource ownership, per-workspace audit log, invite-only workspaces, self-service workspace creation, cross-workspace superuser |
-| Security | AES-256-GCM at-rest encryption for API keys and MCP / data-source credentials with graceful key rotation; gRPC TLS + Token between app and docreader; SSRF-safe HTTP client; sandbox isolation for agent skills |
-| Observability | Integrated Langfuse (sole tracing backend) for ReAct loops, token tracking, tool calls, and pipeline tracing; built-in Langfuse-style document parsing trace timeline with stage-by-stage progress |
-| Task Management | MQ async tasks, automatic database migration on version upgrade |
-| Model Management | Centralized config, declarative built-in models via YAML, per-knowledge-base model selection, per-model thinking-mode and embedding-dimension overrides, interactive model test debugger, multi-workspace built-in model sharing, Keystone Cloud hosted models and parsing |
-
-## 🧩 Chrome Extension
-
-[**Keystone Chrome Extension**](https://chromewebstore.google.com/detail/jpemjbopikggjlmikmclgbmkhhopjdgd) lets you capture web content directly into your Keystone knowledge base. Select text, images, or entire pages in the browser and save them as knowledge entries with one click — no copy-paste or file upload needed.
-
-
-## 📱 WeChat Mini Program
-
-The [Keystone Mini Program](./miniprogram/README.md) provides a lightweight mobile client for configuring Keystone API access, selecting knowledge bases, importing URLs, and asking knowledge chat from WeChat.
-
-
-## 🦞 ClawHub Skill
-
-[**Keystone ClawHub Skill**](https://clawhub.ai/justaboyhai-wq/skills/keystone) is the official, versioned integration for OpenClaw and other agents that support `SKILL.md`. It uses your Keystone REST API credentials and never requires a separate knowledge-store account.
-
-Install it with OpenClaw:
+Install the official Keystone Skill for OpenClaw or any compatible agent runtime:
 
 ```bash
 openclaw skills install @justaboyhai-wq/keystone
 ```
 
-Configure the agent with an API endpoint reachable from its runtime and an API key created in **Settings → API Integration**:
+Create an API key in **Settings → API Integration**, then expose a reachable API address to the agent:
 
 ```bash
 export KEYSTONE_BASE_URL="http://localhost:8080/api/v1"
 export KEYSTONE_API_KEY="sk-your-api-key"
 ```
 
-The Skill covers five operations: upload a document, import a URL, write Markdown knowledge, browse knowledge bases and entries, and run hybrid retrieval (vector + keyword). The tracked source is [`frontend/public/keystone-skill/SKILL.md`](./frontend/public/keystone-skill/SKILL.md); the same file is packaged on ClawHub. For agents outside the local machine, replace `localhost` with the publicly reachable Keystone URL.
+The Skill supports file upload, URL import, Markdown authoring, knowledge browsing and hybrid retrieval. Its tracked source is [frontend/public/keystone-skill/SKILL.md](./frontend/public/keystone-skill/SKILL.md).
 
-- **Document Import** — Upload files, import web pages, or write Markdown knowledge via the agent
-- **Hybrid Search** — Search within or across knowledge bases with vector + keyword retrieval
-- **Knowledge Management** — List, browse, edit, and delete knowledge entries programmatically
+## Interfaces and extensions
 
-## ⌨️ Command-Line Interface
+| Interface | Entry point |
+| --- | --- |
+| Web workspace | `http://localhost` |
+| REST API | `http://localhost:8080/api/v1` |
+| CLI | [cli/README.md](./cli/README.md) |
+| MCP server | [mcp-server/README.md](./mcp-server/README.md) |
+| API reference | [docs/api/README.md](./docs/api/README.md) |
+| Built-in models | [docs/BUILTIN_MODELS.md](./docs/BUILTIN_MODELS.md) |
+| Agent skills | [docs/agent-skills.md](./docs/agent-skills.md) |
+| Architecture and deployment | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
 
-`keystone` is the official CLI for driving the API from a terminal or an AI
-agent. It is **agent-first**: every command emits a stable JSON envelope by
-default (with typed error codes mapped to exit codes), and `--format text`
-renders for humans. It also serves a curated MCP tool surface
-(`keystone mcp serve`) and ships bundled Agent Skills.
+## Development
 
-```bash
-keystone profile add prod --host https://kb.example.com --use
-keystone auth login
-keystone kb list
-keystone link --kb my-knowledge-base    # bind the current directory
-keystone doc upload notes.md
-keystone chat "summarise the design doc"
-```
-
-For headless / CI use, set `KEYSTONE_API_KEY` + `KEYSTONE_HOST` and skip
-`auth login` entirely — no credentials written to disk.
-
-See [`cli/README.md`](./cli/README.md) for install + 5-minute quickstart and
-[`cli/AGENTS.md`](./cli/AGENTS.md) for the operational contract AI agents rely on.
-
-## 🚀 Getting Started
-
-### 🛠 Prerequisites
-
-- [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
-- [Git](https://git-scm.com/)
-
-### 📦 Installation & Launch
+For a local frontend development server:
 
 ```bash
-git clone https://github.com/justaboyhai-wq/keystone.git
-cd Keystone
-cp .env.example .env   # Edit .env as needed, see comments in the file
-docker compose up -d   # Start core services
+cd frontend
+npm install
+npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
-Once started, visit **http://localhost** to get started.
+The frontend proxies API requests to `http://localhost:8080` by default. Set `VITE_DEV_PROXY_TARGET` when the backend runs elsewhere.
 
-> To use a local Ollama model, run `ollama serve > /dev/null 2>&1 &` first.
-
-### 🔧 Optional Services (Docker Compose Profiles)
-
-Add `--profile` flags to enable additional components. Multiple profiles can be combined:
-
-| Profile | Description | Command |
-|---------|-------------|---------|
-| _(default)_ | Core services | `docker compose up -d` |
-| `full` | All features | `docker compose --profile full up -d` |
-| `neo4j` | Knowledge Graph (Neo4j) | `docker compose --profile neo4j up -d` |
-| `minio` | Object Storage (MinIO) | `docker compose --profile minio up -d` |
-| `langfuse` | Tracing (Langfuse) | `docker compose --profile langfuse up -d` |
-
-Combine profiles: `docker compose --profile neo4j --profile minio up -d`
-
-Stop services: `docker compose down`
-
-### 🌐 Service URLs
-
-| Service | URL |
-|---------|-----|
-| Web UI | `http://localhost` |
-| Backend API | `http://localhost:8080` |
-| Langfuse Tracing | `http://localhost:3000` |
-
-## MCP Server
-
-Please refer to the [MCP Configuration Guide](./mcp-server/MCP_CONFIG.md) for the necessary setup.
-
-## 🔌 Using WeChat Dialog Open Platform
-
-Keystone serves as the core technology framework for the [WeChat Dialog Open Platform](https://chatbot.weixin.qq.com), providing a more convenient usage approach:
-
-- **Zero-code Deployment**: Simply upload knowledge to quickly deploy intelligent Q&A services within the WeChat ecosystem, achieving an "ask and answer" experience
-- **Efficient Question Management**: Support for categorized management of high-frequency questions, with rich data tools to ensure accurate, reliable, and easily maintainable answers
-- **WeChat Ecosystem Integration**: Through the WeChat Dialog Open Platform, Keystone's intelligent Q&A capabilities can be seamlessly integrated into WeChat Official Accounts, Mini Programs, and other WeChat scenarios, enhancing user interaction experiences
-
-
-
-## 📘 API Reference
-
-Troubleshooting FAQ: [Troubleshooting FAQ](./docs/QA.md)
-
-Detailed API documentation is available at: [API Docs](./docs/api/README.md)
-
-Product plans and upcoming features: [Roadmap](./docs/ROADMAP.md)
-
-## 🧭 Developer Guide
-
-### ⚡ Fast Development Mode (Recommended)
-
-If you need to frequently modify code, **you don't need to rebuild Docker images every time**! Use fast development mode:
+Before contributing, run the relevant checks:
 
 ```bash
-# Start infrastructure
-make dev-start
-
-# Start backend (new terminal)
-make dev-app
-
-# Start frontend (new terminal)
-make dev-frontend
+npm --prefix frontend run type-check
+npm --prefix frontend run build
+go test ./...
 ```
 
-**Development Advantages:**
-- ✅ Frontend modifications auto hot-reload (no restart needed)
-- ✅ Backend modifications quick restart (5-10 seconds, supports Air hot-reload)
-- ✅ No need to rebuild Docker images
-- ✅ Support IDE breakpoint debugging
+## Documentation policy
 
-**Detailed Documentation:** [Development Environment Quick Start](./docs/开发指南.md)
+Keystone maintains project introductions in English and Simplified Chinese. Technical guides may retain their most useful original language while they are progressively consolidated; they describe Keystone only and do not represent any external platform or upstream service.
 
+## License
 
-## 🤝 Contributing
-
-Welcome to submit [Issues](https://github.com/justaboyhai-wq/keystone/issues) or Pull Requests.
-
-**Process:** Fork → Create branch → Commit changes → Open PR
-
-**Standards:** Format code with `gofmt`, follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:` / `fix:` / `docs:` / `test:` / `refactor:`)
-
-## 🔒 Security Notice
-
-**Important:** Starting from v0.1.3, Keystone includes login authentication functionality to enhance system security. For production deployments, we strongly recommend:
-
-- Deploy Keystone services in internal/private network environments rather than public internet
-- Avoid exposing the service directly to public networks to prevent potential information leakage
-- Configure proper firewall rules and access controls for your deployment environment
-- Regularly update to the latest version for security patches and improvements
-
-## 👥 Contributors
-
-Thanks to these excellent contributors:
-
-[![Contributors](https://contrib.rocks/image?repo=justaboyhai-wq/keystone)](https://github.com/justaboyhai-wq/keystone/graphs/contributors)
-
-## 📄 License
-
-This project is licensed under the [MIT License](./LICENSE).
-You are free to use, modify, and distribute the code with proper attribution.
-
-## 📈 Project Statistics
-
-<a href="https://www.star-history.com/#justaboyhai-wq/keystone&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=justaboyhai-wq/keystone&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=justaboyhai-wq/keystone&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=justaboyhai-wq/keystone&type=date&legend=top-left" />
- </picture>
-</a>
+Keystone is distributed under the [MIT License](./LICENSE). Third-party dependencies and their licenses remain subject to their own terms.

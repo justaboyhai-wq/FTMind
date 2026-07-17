@@ -17,8 +17,7 @@
               <t-tooltip :content="canManageOrg ? $t('organization.createOrg') : noPermissionTip" placement="bottom">
                 <t-button variant="text" theme="default" size="small" class="header-action-btn"
                   style="--wails-draggable: no-drag" :disabled="!canManageOrg" @click="handleCreateOrganization">
-                  <template #icon><img src="@/assets/img/organization-green.svg" class="org-create-icon" alt=""
-                      aria-hidden="true" /></template>
+                  <template #icon><t-icon name="usergroup-add" class="org-create-icon" /></template>
                 </t-button>
               </t-tooltip>
             </div>
@@ -150,7 +149,7 @@
                   </t-tooltip>
                   <t-tooltip :content="$t('organization.invite.agents')" placement="top">
                     <div class="feature-badge stat-agent">
-                      <img src="@/assets/img/agent-green.svg" class="stat-agent-icon" alt="" aria-hidden="true" />
+                      <t-icon name="control-platform" class="stat-agent-icon" aria-hidden="true" />
                       <span class="badge-count">{{ org.agent_share_count ?? 0 }}</span>
                     </div>
                   </t-tooltip>
@@ -176,7 +175,7 @@
 
         <!-- 空状态（按筛选显示不同文案） -->
         <div v-else-if="!loading" class="empty-state">
-          <img class="empty-img" src="@/assets/img/upload.svg" alt="">
+          <KeystoneEmptyStateArt class="empty-art" variant="shared" />
           <span class="empty-txt">{{ emptyStateTitle }}</span>
           <span class="empty-desc">{{ emptyStateDesc }}</span>
           <div class="empty-state-actions">
@@ -189,8 +188,7 @@
             </t-tooltip>
             <t-tooltip :content="noPermissionTip" placement="top" :disabled="canManageOrg">
               <t-button class="org-create-btn" :disabled="!canManageOrg" @click="handleCreateOrganization">
-                <template #icon><img src="@/assets/img/organization-green.svg" class="org-create-icon" alt=""
-                    aria-hidden="true" /></template>
+                <template #icon><t-icon name="usergroup-add" class="org-create-icon" /></template>
                 {{ $t('organization.createOrg') }}
               </t-button>
             </t-tooltip>
@@ -322,7 +320,7 @@
                       <div class="searchable-list-wrap">
                         <t-loading :loading="searchLoading">
                           <div v-if="searchableList.length === 0 && !searchLoading" class="searchable-empty">
-                            <img class="searchable-empty-img" src="@/assets/img/upload.svg" alt="">
+                            <KeystoneEmptyStateArt class="searchable-empty-art" variant="shared" />
                             <span class="searchable-empty-txt">
                               {{ searchQuery ? $t('organization.join.noSearchResult') :
                                 $t('organization.join.noSearchableSpaces') }}
@@ -558,6 +556,7 @@ import OrganizationSettingsModal from './OrganizationSettingsModal.vue'
 import SpaceAvatar from '@/components/SpaceAvatar.vue'
 import ListSpaceSidebar from '@/components/ListSpaceSidebar.vue'
 import { shouldShowOrgRelationTag } from '@/utils/card-list-badge'
+import KeystoneEmptyStateArt from '@/components/KeystoneEmptyStateArt.vue'
 
 interface OrgWithUI extends Organization {
   showMore?: boolean
@@ -1333,7 +1332,7 @@ onUnmounted(() => {
 }
 
 .org-join-btn {
-  border-color: rgba(7, 192, 95, 0.5);
+  border-color: color-mix(in srgb, var(--td-brand-color) 50%, transparent);
   color: var(--td-brand-color);
   font-weight: 500;
   transition: all 0.2s ease;
@@ -1343,7 +1342,7 @@ onUnmounted(() => {
   }
 
   &:hover {
-    background: rgba(7, 192, 95, 0.08);
+    background: color-mix(in srgb, var(--td-brand-color) 8%, transparent);
     border-color: var(--td-brand-color);
     color: var(--td-brand-color);
 
@@ -1358,18 +1357,18 @@ onUnmounted(() => {
   border: none;
   color: var(--td-text-color-anti);
   font-weight: 500;
-  box-shadow: 0 2px 8px rgba(7, 192, 95, 0.25);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--td-brand-color) 25%, transparent);
   transition: all 0.25s ease;
 
   &:hover {
     background: var(--td-brand-color);
-    box-shadow: 0 4px 14px rgba(7, 192, 95, 0.35);
+    box-shadow: 0 4px 14px color-mix(in srgb, var(--td-brand-color) 35%, transparent);
   }
 
   .org-create-icon {
     width: 16px;
     height: 16px;
-    filter: brightness(0) invert(1);
+    color: currentColor;
   }
 }
 
@@ -1569,29 +1568,29 @@ onUnmounted(() => {
     right: 0;
     width: 120px;
     height: 80px;
-    background: radial-gradient(ellipse 60% 50% at 100% 0%, rgba(7, 192, 95, 0.06) 0%, transparent 70%);
+    background: radial-gradient(ellipse 60% 50% at 100% 0%, color-mix(in srgb, var(--td-brand-color) 6%, transparent) 0%, transparent 70%);
     pointer-events: none;
     z-index: 0;
   }
 
   &.joined-org {
     &:hover {
-      border-color: rgba(7, 192, 95, 0.4);
-      box-shadow: 0 4px 16px rgba(7, 192, 95, 0.08);
+      border-color: color-mix(in srgb, var(--td-brand-color) 40%, transparent);
+      box-shadow: 0 4px 16px color-mix(in srgb, var(--td-brand-color) 8%, transparent);
     }
   }
 
   &:hover {
-    border-color: rgba(7, 192, 95, 0.5);
-    box-shadow: 0 6px 20px rgba(7, 192, 95, 0.12);
+    border-color: color-mix(in srgb, var(--td-brand-color) 50%, transparent);
+    box-shadow: 0 6px 20px color-mix(in srgb, var(--td-brand-color) 12%, transparent);
   }
 
   .card-decoration {
-    color: rgba(7, 192, 95, 0.35);
+    color: color-mix(in srgb, var(--td-brand-color) 35%, transparent);
   }
 
   &:hover .card-decoration {
-    color: rgba(7, 192, 95, 0.55);
+    color: color-mix(in srgb, var(--td-brand-color) 55%, transparent);
   }
 
   .card-header {
@@ -1815,7 +1814,7 @@ onUnmounted(() => {
   }
 
   &.stat-kb {
-    background: rgba(7, 192, 95, 0.08);
+    background: color-mix(in srgb, var(--td-brand-color) 8%, transparent);
     color: var(--td-brand-color);
 
     .t-icon {
@@ -1823,7 +1822,7 @@ onUnmounted(() => {
     }
 
     &:hover {
-      background: rgba(7, 192, 95, 0.12);
+      background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
     }
   }
 
@@ -1835,8 +1834,7 @@ onUnmounted(() => {
       width: 14px;
       height: 14px;
       flex-shrink: 0;
-      /* 将绿色 icon 着色为紫色，与标签统一 */
-      filter: brightness(0) saturate(100%) invert(48%) sepia(79%) saturate(2476%) hue-rotate(236deg);
+      color: currentColor;
     }
 
     &:hover {
@@ -1894,7 +1892,7 @@ onUnmounted(() => {
   }
 
   &.admin {
-    background: rgba(7, 192, 95, 0.12);
+    background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
     color: var(--td-brand-color);
 
     .t-icon {
@@ -1903,7 +1901,7 @@ onUnmounted(() => {
   }
 
   &.editor {
-    background: rgba(7, 192, 95, 0.08);
+    background: color-mix(in srgb, var(--td-brand-color) 8%, transparent);
     color: var(--td-brand-color);
 
     .t-icon {
@@ -1929,10 +1927,9 @@ onUnmounted(() => {
   align-items: center;
   padding: 60px 20px;
 
-  .empty-img {
-    width: 162px;
-    height: 162px;
-    margin-bottom: 20px;
+  .empty-art {
+    width: 190px;
+    margin-bottom: 18px;
   }
 
   .empty-txt {
@@ -2327,11 +2324,10 @@ onUnmounted(() => {
   min-height: 140px;
   text-align: center;
 
-  .searchable-empty-img {
-    width: 80px;
-    height: 80px;
+  .searchable-empty-art {
+    width: 112px;
     margin-bottom: 16px;
-    opacity: 0.7;
+    opacity: 0.86;
   }
 
   .searchable-empty-txt {
@@ -2374,14 +2370,14 @@ onUnmounted(() => {
     right: 0;
     width: 80px;
     height: 56px;
-    background: radial-gradient(ellipse 60% 50% at 100% 0%, rgba(7, 192, 95, 0.06) 0%, transparent 70%);
+    background: radial-gradient(ellipse 60% 50% at 100% 0%, color-mix(in srgb, var(--td-brand-color) 6%, transparent) 0%, transparent 70%);
     pointer-events: none;
     z-index: 0;
   }
 
   &:hover:not(.is-full) {
-    border-color: rgba(7, 192, 95, 0.5);
-    box-shadow: 0 4px 16px rgba(7, 192, 95, 0.08);
+    border-color: color-mix(in srgb, var(--td-brand-color) 50%, transparent);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--td-brand-color) 8%, transparent);
   }
 
   &.is-full {
@@ -2397,13 +2393,13 @@ onUnmounted(() => {
     position: absolute;
     top: 6px;
     right: 12px;
-    color: rgba(7, 192, 95, 0.35);
+    color: color-mix(in srgb, var(--td-brand-color) 35%, transparent);
     pointer-events: none;
     z-index: 0;
   }
 
   &:hover:not(.is-full) .searchable-card-decoration {
-    color: rgba(7, 192, 95, 0.55);
+    color: color-mix(in srgb, var(--td-brand-color) 55%, transparent);
   }
 
   .searchable-card-header {
@@ -2497,7 +2493,7 @@ onUnmounted(() => {
     font-family: var(--app-font-family);
 
     &.member {
-      background: rgba(7, 192, 95, 0.08);
+      background: color-mix(in srgb, var(--td-brand-color) 8%, transparent);
       color: var(--td-brand-color);
     }
 
@@ -2507,7 +2503,7 @@ onUnmounted(() => {
     }
 
     &.searchable-badge-agent {
-      background: rgba(7, 192, 95, 0.08);
+      background: color-mix(in srgb, var(--td-brand-color) 8%, transparent);
       color: var(--td-brand-color);
 
       .searchable-badge-agent-icon {
@@ -2637,7 +2633,7 @@ onUnmounted(() => {
     right: 0;
     width: 120px;
     height: 80px;
-    background: radial-gradient(ellipse 60% 50% at 100% 0%, rgba(7, 192, 95, 0.06) 0%, transparent 70%);
+    background: radial-gradient(ellipse 60% 50% at 100% 0%, color-mix(in srgb, var(--td-brand-color) 6%, transparent) 0%, transparent 70%);
     pointer-events: none;
     z-index: 0;
   }
@@ -2647,7 +2643,7 @@ onUnmounted(() => {
   position: absolute;
   top: 8px;
   right: 16px;
-  color: rgba(7, 192, 95, 0.35);
+  color: color-mix(in srgb, var(--td-brand-color) 35%, transparent);
   pointer-events: none;
   z-index: 0;
 }
@@ -2765,7 +2761,7 @@ onUnmounted(() => {
   font-family: var(--app-font-family);
 
   &.member {
-    background: rgba(7, 192, 95, 0.08);
+    background: color-mix(in srgb, var(--td-brand-color) 8%, transparent);
     color: var(--td-brand-color);
   }
 
@@ -2775,7 +2771,7 @@ onUnmounted(() => {
   }
 
   &.preview-badge-agent {
-    background: rgba(7, 192, 95, 0.08);
+    background: color-mix(in srgb, var(--td-brand-color) 8%, transparent);
     color: var(--td-brand-color);
 
     .preview-badge-agent-icon {

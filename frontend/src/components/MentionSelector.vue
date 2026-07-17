@@ -89,7 +89,7 @@
                     {{ $t('mentionDetail.kbCount', { count: detailCache[item.id].data.knowledge_count ?? detailCache[item.id].data.count ?? 0 }) }}
                   </span>
                   <span v-if="detailCache[item.id].data.org_name || item.orgName" class="detail-org">
-                    <img src="@/assets/img/organization-green.svg" class="detail-icon-img" alt="" aria-hidden="true" />
+                    <t-icon name="usergroup" class="detail-icon-img" aria-hidden="true" />
                     <span class="detail-label">{{ $t('mentionDetail.belongsToOrg') }}</span>
                     <span
                       class="detail-value clickable"
@@ -229,7 +229,7 @@
                     </span>
                   </span>
                   <span v-if="item.orgName" class="detail-org">
-                    <img src="@/assets/img/organization-green.svg" class="detail-icon-img" alt="" aria-hidden="true" />
+                    <t-icon name="usergroup" class="detail-icon-img" aria-hidden="true" />
                     <span class="detail-label">{{ $t('mentionDetail.belongsToOrg') }}</span>
                     <span
                       class="detail-value clickable"
@@ -958,7 +958,7 @@ const scrollToItem = (index: number) => {
   transition: color 0.2s, text-decoration-color 0.2s;
 }
 .mention-detail-content .detail-value.clickable:hover {
-  color: var(--td-brand-color, #07c05f);
-  text-decoration-color: var(--td-brand-color, #07c05f);
+  color: var(--td-brand-color, #5b5bd6);
+  text-decoration-color: var(--td-brand-color, #5b5bd6);
 }
 </style>

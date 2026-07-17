@@ -482,7 +482,7 @@ All notable changes to this project will be documented in this file.
 ## [0.4.0] - 2026-04-14
 
 ### 🚀 New Features
-- **NEW**: Cloud Knowledge Assistant — [Keystone Platform](https://keystone.weixin.qq.com/platform), a cloud-hosted knowledge assistant service for quick onboarding without local deployment
+- **NEW**: Cloud Knowledge Assistant — a cloud-hosted knowledge assistant service for quick onboarding without local deployment
 - **NEW**: Keystone Cloud — Keystone Cloud provider integration, providing hosted LLM models and document parsing capabilities, with credential management, status checks, and UI feedback
 - **NEW**: Chrome Extension — browser extension support with menu entry and quick access integration for seamless knowledge capture from web pages
 - **NEW**: WeChat IM Integration — WeChat channel adapter with QR code login and long-polling message support

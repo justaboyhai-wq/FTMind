@@ -10,7 +10,7 @@
                     <span class="thinking-text">{{ $t('chat.thinking') }}</span>
                 </span>
                 <span v-else class="done-status">
-                    <img class="done-icon" src="@/assets/img/Frame3718.svg" :alt="$t('chat.deepThoughtAlt')">
+                    <t-icon class="done-icon" name="check-circle" :aria-label="$t('chat.deepThoughtAlt')" />
                     <span class="done-text">{{ $t('chat.deepThoughtCompleted') }}</span>
                 </span>
             </div>

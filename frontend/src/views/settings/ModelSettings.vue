@@ -850,8 +850,8 @@ onMounted(() => {
 }
 
 .model-card--asr .model-card__badge {
-  background: rgba(17, 128, 83, 0.1);
-  color: #118053;
+  background: color-mix(in srgb, var(--td-brand-color) 10%, transparent);
+  color: color-mix(in srgb, var(--td-brand-color) 68%, #3b82f6);
 }
 
 .model-card__body {

@@ -4,15 +4,14 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"regexp"
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/justaboyhai-wq/keystone/internal/logger"
 	"github.com/justaboyhai-wq/keystone/internal/types"
 	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 const (
@@ -37,19 +36,6 @@ func (r loggerResponseBodyWriter) Write(b []byte) (int, error) {
 		}
 	}
 	return r.ResponseWriter.Write(b)
-}
-
-// sensitiveFieldRegex 匹配 JSON 中的敏感字段（不区分大小写，兼容 snake_case / camelCase / PascalCase）。
-// $1 捕获原始字段名（包括两侧引号），保持日志中的字段名不变，仅将值替换为 "***"。
-var sensitiveFieldRegex = regexp.MustCompile(
-	`(?i)("(?:new[_-]?password|old[_-]?password|password|passwd|token|access[_-]?token|` +
-		`refresh[_-]?token|id[_-]?token|authorization|auth[_-]?token|api[_-]?key|` +
-		`api[_-]?secret|secret[_-]?key|client[_-]?secret|private[_-]?key|secret)")\s*:\s*"[^"]*"`,
-)
-
-// sanitizeBody 清理敏感信息
-func sanitizeBody(body string) string {
-	return sensitiveFieldRegex.ReplaceAllString(body, `$1:"***"`)
 }
 
 // readRequestBody 读取请求体（限制大小用于日志，但完整读取用于重置）

@@ -224,7 +224,7 @@ const indexKey = (index: number, item: WebFetchResultItem): string => {
   align-items: center;
   padding: 2px 6px;
   border-radius: 999px;
-  background: rgba(7, 192, 95, 0.08);
+  background: color-mix(in srgb, var(--td-brand-color) 8%, transparent);
   color: var(--td-success-color);
   font-size: 10px;
   font-weight: 600;

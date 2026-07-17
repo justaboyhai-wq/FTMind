@@ -2,13 +2,13 @@
     <div class="main" ref="dropzone">
         <Menu></Menu>
         <div class="platform-column">
-            <header class="blex-workspace-topbar">
-                <div class="blex-workspace-crumb">
-                    <span class="blex-workspace-crumb__dot" aria-hidden="true"></span>
+            <header class="keystone-workspace-topbar">
+                <div class="keystone-workspace-crumb">
+                    <span class="keystone-workspace-crumb__dot" aria-hidden="true"></span>
                     <span>Keystone</span>
                     <small>/ {{ currentSection }}</small>
                 </div>
-                <div class="blex-workspace-status" title="Keystone"><span></span></div>
+                <div class="keystone-workspace-status" title="Keystone"><span></span></div>
             </header>
             <div v-if="isRouterAlive" class="platform-route-outlet">
                 <RouterView />
@@ -293,7 +293,7 @@ onUnmounted(() => {
     flex-direction: column;
 }
 
-.blex-workspace-topbar {
+.keystone-workspace-topbar {
     display: flex;
     height: 50px;
     flex: 0 0 50px;
@@ -307,16 +307,33 @@ onUnmounted(() => {
     font-weight: 620;
 }
 
-.blex-workspace-crumb, .blex-workspace-status {
+.keystone-workspace-crumb, .keystone-workspace-status {
     display: inline-flex;
     align-items: center;
     gap: 8px;
 }
 
-.blex-workspace-crumb small { color: var(--td-text-color-placeholder); font-size: 11px; font-weight: 500; }
-.blex-workspace-crumb__dot, .blex-workspace-status > span { width: 7px; height: 7px; background: var(--td-brand-color); border-radius: 50%; box-shadow: 0 0 0 3px var(--td-brand-color-light); }
-.blex-workspace-status { color: var(--td-text-color-placeholder); font-size: 11px; }
-.blex-workspace-status > span { width: 6px; height: 6px; background: #31a26d; box-shadow: 0 0 0 3px #e3f5ea; }
+.keystone-workspace-crumb small { color: var(--td-text-color-placeholder); font-size: 11px; font-weight: 500; }
+.keystone-workspace-crumb__dot { width: 7px; height: 7px; background: var(--td-brand-color); border-radius: 50%; box-shadow: 0 0 0 3px var(--td-brand-color-light); }
+.keystone-workspace-status { color: var(--td-text-color-placeholder); font-size: 11px; }
+.keystone-workspace-status > span {
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    background: linear-gradient(135deg, var(--td-brand-color), #3b82f6);
+    box-shadow: 0 0 0 3px var(--td-brand-color-light), 0 0 14px rgb(91 91 214 / 32%);
+    transform: rotate(45deg);
+    animation: keystone-signal 2.8s ease-in-out infinite;
+}
+
+@keyframes keystone-signal {
+    0%, 100% { opacity: .62; box-shadow: 0 0 0 3px var(--td-brand-color-light), 0 0 8px rgb(91 91 214 / 18%); }
+    50% { opacity: 1; box-shadow: 0 0 0 4px var(--td-brand-color-light), 0 0 17px rgb(59 130 246 / 34%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .keystone-workspace-status > span { animation: none; }
+}
 
 /* 右侧路由区：占满剩余宽度与整列高度，并把 min-height:0 传给子页面以便内部 flex 滚动 */
 .platform-route-outlet {

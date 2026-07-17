@@ -362,8 +362,7 @@
                 <div class="bottom-right">
                   <t-tooltip :content="kb.org_name" placement="top">
                     <div class="org-source">
-                      <img src="@/assets/img/organization-green.svg" class="org-source-icon" alt=""
-                        aria-hidden="true" />
+                      <t-icon name="usergroup" class="org-source-icon" aria-hidden="true" />
                       <span>{{ kb.org_name }}</span>
                     </div>
                   </t-tooltip>
@@ -632,7 +631,7 @@
 
         <!-- 全部空状态：保留「新建知识库」CTA，因为是空间没有任何 KB 的真空场景 -->
         <div v-if="spaceSelection === 'all' && filteredKnowledgeBases.length === 0 && !loading" class="empty-state">
-          <img class="empty-img" src="@/assets/img/upload.svg" alt="">
+          <KeystoneEmptyStateArt class="empty-art" variant="knowledge" />
           <span class="empty-txt">{{ $t('knowledgeList.empty.title') }}</span>
           <span class="empty-desc">{{ $t('knowledgeList.empty.description') }}</span>
           <t-button v-if="authStore.hasRole('contributor')" class="kb-create-btn empty-state-btn"
@@ -660,7 +659,7 @@
 
         <!-- 我的知识库空状态 -->
         <div v-if="spaceSelection === 'mine' && kbs.length === 0 && !loading" class="empty-state">
-          <img class="empty-img" src="@/assets/img/upload.svg" alt="">
+          <KeystoneEmptyStateArt class="empty-art" variant="knowledge" />
           <span class="empty-txt">{{ $t('knowledgeList.empty.title') }}</span>
           <span class="empty-desc">{{ $t('knowledgeList.empty.description') }}</span>
           <t-button v-if="authStore.hasRole('contributor')" class="kb-create-btn empty-state-btn"
@@ -672,7 +671,7 @@
 
         <!-- 空间下知识库空状态 -->
         <div v-if="spaceSelectionOrgId && !spaceKbsLoading && spaceKbsList.length === 0" class="empty-state">
-          <img class="empty-img" src="@/assets/img/upload.svg" alt="">
+          <KeystoneEmptyStateArt class="empty-art" variant="shared" />
           <span class="empty-txt">{{ $t('knowledgeList.empty.sharedTitle') }}</span>
           <span class="empty-desc">{{ $t('knowledgeList.empty.sharedDescription') }}</span>
         </div>
@@ -736,8 +735,7 @@
                 <span class="shared-detail-label">{{ currentSharedKbForDetail.source_from_agent ?
                   $t('knowledgeList.detail.sourceFromAgent') : $t('knowledgeList.detail.sourceOrg') }}</span>
                 <span class="shared-detail-value shared-detail-org">
-                  <img src="@/assets/img/organization-green.svg" class="shared-detail-org-icon" alt=""
-                    aria-hidden="true" />
+                  <t-icon name="usergroup" class="shared-detail-org-icon" aria-hidden="true" />
                   {{ currentSharedKbForDetail.source_from_agent ? currentSharedKbForDetail.source_from_agent.agent_name
                     :
                     currentSharedKbForDetail.org_name }}
@@ -803,6 +801,7 @@ import { useTenantModelReadiness } from '@/composables/useTenantModelReadiness'
 import { useI18n } from 'vue-i18n'
 import { useListUrlState } from '@/composables/useListUrlState'
 import { useResourcePins } from '@/composables/useResourcePins'
+import KeystoneEmptyStateArt from '@/components/KeystoneEmptyStateArt.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -1371,7 +1370,7 @@ function isMyKb(kb: { creator_id?: string }): boolean {
 }
 
 // kbOriginVariant 决定卡片右下角徽章的展示形态：
-//   - 我自己创建的：mine（绿色 "我创建"）
+//   - 我自己创建的：mine（Keystone 品牌色“我创建”）
 //   - 同空间他人创建的：creator 变体——只显示创建者名字。用户始终在
 //     某个工作空间内浏览（顶部 TenantSelector 已经标了空间身份），右下
 //     角再贴一遍空间名属于重复信息；contributor / admin / owner / viewer
@@ -1836,7 +1835,7 @@ const handleUploadFinishedEvent = (event: Event) => {
 }
 
 .kb-create-btn {
-  background: linear-gradient(135deg, var(--td-brand-color) 0%, #00a67e 100%);
+  background: linear-gradient(135deg, var(--td-brand-color) 0%, #3b82f6 100%);
   border: none;
   color: var(--td-text-color-anti);
 
@@ -1870,7 +1869,7 @@ const handleUploadFinishedEvent = (event: Event) => {
   display: inline-flex;
   align-items: center;
   padding: 2px 6px;
-  background: rgba(7, 192, 95, 0.1);
+  background: color-mix(in srgb, var(--td-brand-color) 10%, transparent);
   border-radius: 4px;
   font-size: 12px;
   color: var(--td-brand-color);
@@ -1956,7 +1955,7 @@ const handleUploadFinishedEvent = (event: Event) => {
 
 
 // 共享知识库卡片样式
-// 共享标识（文档类型默认绿色，位置贴右上角）
+// 共享标识使用 Keystone 品牌表面，位置贴右上角。
 .shared-badge {
   position: absolute;
   top: 8px;
@@ -1965,7 +1964,7 @@ const handleUploadFinishedEvent = (event: Event) => {
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  background: rgba(7, 192, 95, 0.1);
+  background: color-mix(in srgb, var(--td-brand-color) 10%, transparent);
   border-radius: 4px;
   font-size: 12px;
   color: var(--td-brand-color);
@@ -1982,7 +1981,7 @@ const handleUploadFinishedEvent = (event: Event) => {
   align-items: center;
   gap: 5px;
   padding: 3px 8px;
-  background: rgba(7, 192, 95, 0.06);
+  background: color-mix(in srgb, var(--td-brand-color) 6%, transparent);
   border-radius: 6px;
   font-size: 12px;
   line-height: 1.4;
@@ -2010,13 +2009,13 @@ const handleUploadFinishedEvent = (event: Event) => {
   }
 }
 
-// 「我的」知识库标签（与 .org-source 同套样式：灰字 + 绿标 + 浅绿底）
+// 「我的」知识库标签与 .org-source 使用同一套 Keystone 品牌表面。
 .personal-source {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   padding: 3px 8px;
-  background: rgba(7, 192, 95, 0.06);
+  background: color-mix(in srgb, var(--td-brand-color) 6%, transparent);
   border-radius: 6px;
   font-size: 11px;
   line-height: 1.4;
@@ -2039,16 +2038,16 @@ const handleUploadFinishedEvent = (event: Event) => {
 
   // 共享知识库根据类型显示不同样式
   &.kb-type-document {
-    background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(7, 192, 95, 0.04) 100%) !important;
+    background: linear-gradient(135deg, var(--td-bg-color-container) 0%, color-mix(in srgb, var(--td-brand-color) 4%, transparent) 100%) !important;
 
     &:hover {
       border-color: var(--td-brand-color) !important;
-      box-shadow: 0 4px 12px rgba(7, 192, 95, 0.12) !important;
-      background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(7, 192, 95, 0.08) 100%) !important;
+      box-shadow: 0 4px 12px color-mix(in srgb, var(--td-brand-color) 12%, transparent) !important;
+      background: linear-gradient(135deg, var(--td-bg-color-container) 0%, color-mix(in srgb, var(--td-brand-color) 8%, transparent) 100%) !important;
     }
 
     &::after {
-      background: linear-gradient(135deg, rgba(7, 192, 95, 0.08) 0%, transparent 100%) !important;
+      background: linear-gradient(135deg, color-mix(in srgb, var(--td-brand-color) 8%, transparent) 0%, transparent 100%) !important;
     }
   }
 
@@ -2315,7 +2314,7 @@ const handleUploadFinishedEvent = (event: Event) => {
 
   &:hover {
     border-color: var(--td-brand-color);
-    box-shadow: 0 4px 12px rgba(7, 192, 95, 0.12);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--td-brand-color) 12%, transparent);
   }
 
   &.uninitialized {
@@ -2324,11 +2323,11 @@ const handleUploadFinishedEvent = (event: Event) => {
 
   // 文档类型样式
   &.kb-type-document {
-    background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(7, 192, 95, 0.04) 100%);
+    background: linear-gradient(135deg, var(--td-bg-color-container) 0%, color-mix(in srgb, var(--td-brand-color) 4%, transparent) 100%);
 
     &:hover {
       border-color: var(--td-brand-color);
-      background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(7, 192, 95, 0.08) 100%);
+      background: linear-gradient(135deg, var(--td-bg-color-container) 0%, color-mix(in srgb, var(--td-brand-color) 8%, transparent) 100%);
     }
 
     // 右上角装饰
@@ -2339,7 +2338,7 @@ const handleUploadFinishedEvent = (event: Event) => {
       right: 0;
       width: 60px;
       height: 60px;
-      background: linear-gradient(135deg, rgba(7, 192, 95, 0.08) 0%, transparent 100%);
+      background: linear-gradient(135deg, color-mix(in srgb, var(--td-brand-color) 8%, transparent) 0%, transparent 100%);
       border-radius: 0 12px 0 100%;
       pointer-events: none;
       z-index: 0;
@@ -2621,14 +2620,14 @@ const handleUploadFinishedEvent = (event: Event) => {
   transition: background 0.2s ease;
 
   &.type-document {
-    background: rgba(7, 192, 95, 0.08);
+    background: color-mix(in srgb, var(--td-brand-color) 8%, transparent);
     color: var(--td-brand-color-active);
     width: auto;
     padding: 0 6px;
     gap: 3px;
 
     &:hover {
-      background: rgba(7, 192, 95, 0.12);
+      background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
     }
 
     .badge-count {
@@ -2681,11 +2680,11 @@ const handleUploadFinishedEvent = (event: Event) => {
   }
 
   &.question {
-    background: rgba(0, 150, 136, 0.08);
-    color: var(--td-success-color);
+    background: rgb(59 130 246 / 8%);
+    color: #3b82f6;
 
     &:hover {
-      background: rgba(0, 150, 136, 0.12);
+      background: rgb(59 130 246 / 12%);
     }
   }
 
@@ -2699,11 +2698,11 @@ const handleUploadFinishedEvent = (event: Event) => {
   }
 
   &.role-admin {
-    background: rgba(7, 192, 95, 0.1);
+    background: color-mix(in srgb, var(--td-brand-color) 10%, transparent);
     color: var(--td-brand-color-active);
 
     &:hover {
-      background: rgba(7, 192, 95, 0.15);
+      background: color-mix(in srgb, var(--td-brand-color) 15%, transparent);
     }
   }
 
@@ -2739,19 +2738,19 @@ const handleUploadFinishedEvent = (event: Event) => {
 @keyframes highlightFlash {
   0% {
     border-color: var(--td-brand-color);
-    box-shadow: 0 0 0 0 rgba(7, 192, 95, 0.4);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--td-brand-color) 40%, transparent);
     transform: scale(1);
   }
 
   50% {
     border-color: var(--td-brand-color);
-    box-shadow: 0 0 0 8px rgba(7, 192, 95, 0);
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--td-brand-color) 0%, transparent);
     transform: scale(1.02);
   }
 
   100% {
     border-color: var(--td-brand-color);
-    box-shadow: 0 0 0 0 rgba(7, 192, 95, 0);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--td-brand-color) 0%, transparent);
     transform: scale(1);
   }
 }
@@ -2759,7 +2758,7 @@ const handleUploadFinishedEvent = (event: Event) => {
 .kb-card.highlight-flash {
   animation: highlightFlash 0.6s ease-in-out 3;
   border-color: var(--td-brand-color) !important;
-  box-shadow: 0 0 12px rgba(7, 192, 95, 0.3) !important;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--td-brand-color) 30%, transparent) !important;
 }
 
 .card-time {
@@ -2778,10 +2777,9 @@ const handleUploadFinishedEvent = (event: Event) => {
   align-items: center;
   padding: 60px 20px;
 
-  .empty-img {
-    width: 162px;
-    height: 162px;
-    margin-bottom: 20px;
+  .empty-art {
+    width: 190px;
+    margin-bottom: 18px;
   }
 
   .empty-txt {
@@ -2946,7 +2944,7 @@ const handleUploadFinishedEvent = (event: Event) => {
   }
 
   &:hover {
-    background: rgba(7, 192, 95, 0.08);
+    background: color-mix(in srgb, var(--td-brand-color) 8%, transparent);
     color: var(--td-brand-color);
   }
 }

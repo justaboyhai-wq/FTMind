@@ -483,10 +483,10 @@ onMounted(() => {
   color: #0052D9;
 }
 
-// 三种 transport 的徽章配色：sse 流式 → 绿，http-streamable → 蓝，stdio → 橙
+// 三种 transport 的徽章配色：SSE 使用 Keystone 紫，HTTP Streamable 使用蓝，stdio 使用橙。
 .service-card--sse .service-card__badge {
-  background: rgba(17, 128, 83, 0.12);
-  color: #118053;
+  background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
+  color: var(--td-brand-color);
 }
 .service-card--http-streamable .service-card__badge {
   background: rgba(0, 82, 217, 0.1);

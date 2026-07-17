@@ -325,6 +325,8 @@ services:
     image: redis:7.0-alpine
     container_name: Keystone-redis
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
     restart: always
     networks:
       - Keystone-network
@@ -426,11 +428,14 @@ services:
       - full
 
   qdrant:
-    image: qdrant/qdrant:v1.16.2
+    image: qdrant/qdrant:v1.18.1
     container_name: Keystone-qdrant
-    ports:
-      - "${QDRANT_REST_PORT:-6333}:6333"
-      - "${QDRANT_PORT:-6334}:6334"
+    # Qdrant is an internal dependency of the app. Keeping these ports inside
+    # the Compose network avoids colliding with an existing host Qdrant while
+    # still making REST/gRPC available to other Keystone services.
+    expose:
+      - "6333"
+      - "6334"
     volumes:
       - qdrant_data:/qdrant/storage
     networks:
@@ -801,11 +806,18 @@ networks:
 
 volumes:
   postgres-data:
+    name: keystone_postgres_data
   data-files:
+    name: keystone_data_files
   docreader-tmp:
+    name: keystone_docreader_tmp
   minio_data:
+    name: keystone_minio_data
   neo4j-data:
   qdrant_data:
+    name: keystone_qdrant_data
+  redis_data:
+    name: keystone_redis_data
   milvus_data:
   weaviate_data:
   doris_fe_meta:

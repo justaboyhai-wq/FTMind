@@ -488,7 +488,7 @@ const agentImageUploadEnabledEffective = computed(() =>
   drawerAgent.value?.config?.image_upload_enabled === true,
 )
 
-const KEYSTONE_BRAND_COLOR = '#07C05F'
+const KEYSTONE_BRAND_COLOR = '#5B5BD6'
 
 function getDefaultEmbedPrimaryColor(): string {
   if (typeof window === 'undefined') return KEYSTONE_BRAND_COLOR

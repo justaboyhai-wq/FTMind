@@ -106,8 +106,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .aside_box .menu_item:hover { background: #f2f3f5 !important; }
 .aside_box .menu_item_active, .aside_box .menu_item_c_active { color: #4949b7 !important; background: #eeeeff !important; }
 .aside_box .menu_item_active .menu_title, .aside_box .menu_item_c_active .menu_title { color: #4949b7 !important; font-weight: 650; }
-.aside_box .menu_item .menu_icon img.icon { filter: grayscale(1) contrast(.85); opacity: .72; }
-.aside_box .menu_item_active .menu_icon img.icon, .aside_box .menu_item_c_active .menu_icon img.icon { filter: invert(34%) sepia(24%) saturate(2162%) hue-rotate(203deg) brightness(88%) contrast(90%); opacity: 1; }
+.aside_box .menu_item .menu_icon .icon { color: currentColor; opacity: .78; }
+.aside_box .menu_item_active .menu_icon .icon, .aside_box .menu_item_c_active .menu_icon .icon { color: currentColor; opacity: 1; }
 .aside_box .submenu { border-top-color: #ececef !important; }
 .aside_box .submenu_item_p:hover, .aside_box .session-chat-row--active { background: #f4f4f6 !important; border-radius: 7px; }
 
@@ -194,7 +194,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .embed-header, .embed-input-box { border-color: #e7e8ea !important; box-shadow: 0 8px 22px rgb(30 35 40 / 5%) !important; }
 
 :root[theme-mode="dark"] .keystone-mark, :root[theme-mode="dark"] .header-logo .keystone-mark { color: #f6f7fb; }
-:root[theme-mode="dark"] .blex-workspace-topbar { background: rgb(24 24 24 / 82%); }
+:root[theme-mode="dark"] .keystone-workspace-topbar { background: rgb(24 24 24 / 82%); }
 :root[theme-mode="dark"] .aside_box .logo_row { border-bottom-color: rgb(255 255 255 / 7%); }
 
 /* Hard-coded light surfaces above are intentional for the default theme.
@@ -290,6 +290,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 }
 
 @media (max-width: 760px) {
-  .blex-workspace-topbar { padding: 0 14px; }
+  .keystone-workspace-topbar { padding: 0 14px; }
   .aside_box { border-right: 0 !important; }
 }

@@ -159,7 +159,7 @@ watch(() => props.visible, async (open) => {
     }
 
     &:nth-child(3) {
-      background: #28c840;
+      background: var(--td-brand-color);
     }
   }
 

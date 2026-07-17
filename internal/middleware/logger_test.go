@@ -24,9 +24,14 @@ func TestSanitizeBody(t *testing.T) {
 			want: `{"APIKey":"***"}`,
 		},
 		{
-			name: "secretKey camelCase",
-			in:   `{"secretKey":"abc","accessKeyId":"id"}`,
-			want: `{"secretKey":"***","accessKeyId":"id"}`,
+			name: "object storage credentials in camelCase",
+			in:   `{"secretAccessKey":"abc","accessKeyId":"id","accessKey":"key"}`,
+			want: `{"secretAccessKey":"***","accessKeyId":"***","accessKey":"***"}`,
+		},
+		{
+			name: "object storage credentials in snake_case",
+			in:   `{"secret_access_key":"abc","access_key_id":"id","access_key":"key"}`,
+			want: `{"secret_access_key":"***","access_key_id":"***","access_key":"***"}`,
 		},
 		{
 			name: "refreshToken / accessToken camelCase",
@@ -47,6 +52,11 @@ func TestSanitizeBody(t *testing.T) {
 			name: "extra whitespace around colon",
 			in:   `{"apiKey"  :   "leak"}`,
 			want: `{"apiKey":"***"}`,
+		},
+		{
+			name: "authorization variants and credentials",
+			in:   `{"authorization":"Bearer token","proxyAuthorization":"Basic token","credentials":"value"}`,
+			want: `{"authorization":"***","proxyAuthorization":"***","credentials":"***"}`,
 		},
 		{
 			name: "non sensitive fields untouched",

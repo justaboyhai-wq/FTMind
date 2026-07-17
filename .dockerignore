@@ -36,6 +36,18 @@ temp/
 *.log
 *.pid
 
+# 本地运行时数据、数据库备份与向量快照不得进入镜像上下文
+.local-data/
+**/.local-data/
+**/backups/
+**/dumps/
+**/snapshots/
+**/*.dump
+**/*.backup
+**/*.snapshot
+**/*.snap
+**/*.sql.gz
+
 # 本地构建产物 / 二进制
 WeKnora
 WeKnora-lite
@@ -53,8 +65,10 @@ data/*.db-shm
 test/data/mswag.txt
 
 # 敏感文件
-.env
-.env.lite
+.env*
+**/.env*
+!.env.example
+config/builtin_models.yaml
 *.pem
 *.key
 *.crt

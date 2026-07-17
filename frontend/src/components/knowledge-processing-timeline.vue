@@ -2419,12 +2419,9 @@ const processConfigLines = computed<string[]>(() => {
   top: calc(100% + 8px);
 }
 
-/* Status palette — NOT all green. The project brand color happens
-   to be green, which made done/running visually identical (both
-   solid green). Done stays green (universal "success" semantic);
-   running goes amber + striped (CI-style "in progress" — recognized
-   everywhere from GitHub Actions to Jenkins). The two are now
-   unmistakably different at a glance. */
+/* Status colors are independent from the Keystone brand palette.
+   Done keeps the universal success semantic, while running uses an
+   amber striped treatment so lifecycle states remain easy to scan. */
 .kp-bar-done {
   background: var(--td-success-color);
 }
@@ -2500,7 +2497,7 @@ const processConfigLines = computed<string[]>(() => {
 }
 
 .kp-bar-wrap-done {
-  border-color: rgba(7, 192, 95, 0.35);
+  border-color: color-mix(in srgb, var(--td-success-color) 35%, transparent);
 }
 
 .kp-bar-wrap-failed {

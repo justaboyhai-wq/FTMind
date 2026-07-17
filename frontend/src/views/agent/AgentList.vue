@@ -293,7 +293,7 @@
                 </div>
                 <!-- 右下角：内置 / 来源徽章 / 空间图标+名称 -->
                 <div v-if="!agent.isMine" class="card-bottom-source">
-                  <img src="@/assets/img/organization-green.svg" class="org-icon" alt="" aria-hidden="true" />
+                  <t-icon name="usergroup" class="org-icon" aria-hidden="true" />
                   <span class="org-source-text">{{ agent.org_name }}</span>
                 </div>
                 <div v-else-if="showAgentBuiltinBadge(agent)" class="builtin-badge">
@@ -638,7 +638,7 @@
 
         <!-- 空状态：全部（保留创建 CTA） -->
         <div v-if="spaceSelection === 'all' && filteredAgents.length === 0 && !loading" class="empty-state">
-          <img class="empty-img" src="@/assets/img/upload.svg" alt="">
+          <KeystoneEmptyStateArt class="empty-art" variant="agent" />
           <span class="empty-txt">{{ $t('agent.empty.title') }}</span>
           <span class="empty-desc">{{ $t('agent.empty.description') }}</span>
           <t-button v-if="authStore.hasRole('contributor')" class="agent-create-btn empty-state-btn"
@@ -679,7 +679,7 @@
         </div>
         <!-- 空状态：我的 -->
         <div v-if="spaceSelection === 'mine' && agents.length === 0 && !loading" class="empty-state">
-          <img class="empty-img" src="@/assets/img/upload.svg" alt="">
+          <KeystoneEmptyStateArt class="empty-art" variant="agent" />
           <span class="empty-txt">{{ $t('agent.empty.title') }}</span>
           <span class="empty-desc">{{ $t('agent.empty.description') }}</span>
           <t-button v-if="authStore.hasRole('contributor')" class="agent-create-btn empty-state-btn"
@@ -708,7 +708,7 @@
         </div>
         <!-- 空状态：空间下 -->
         <div v-if="spaceSelectionOrgId && !spaceAgentsLoading && spaceAgentsList.length === 0" class="empty-state">
-          <img class="empty-img" src="@/assets/img/upload.svg" alt="">
+          <KeystoneEmptyStateArt class="empty-art" variant="shared" />
           <span class="empty-txt">{{ $t('agent.empty.sharedTitle') }}</span>
           <span class="empty-desc">{{ $t('agent.empty.sharedDescription') }}</span>
         </div>
@@ -753,8 +753,7 @@
             <div class="shared-detail-row">
               <span class="shared-detail-label">{{ $t('knowledgeList.detail.sourceOrg') }}</span>
               <span class="shared-detail-value shared-detail-org">
-                <img src="@/assets/img/organization-green.svg" class="shared-detail-org-icon" alt=""
-                  aria-hidden="true" />
+                <t-icon name="usergroup" class="shared-detail-org-icon" aria-hidden="true" />
                 <span>{{ currentSharedAgent.org_name }}</span>
               </span>
             </div>
@@ -838,6 +837,7 @@ import { shouldShowResourceOriginBadge } from '@/utils/card-list-badge'
 import { useAuthStore } from '@/stores/auth'
 import { useListUrlState } from '@/composables/useListUrlState'
 import { useResourcePins } from '@/composables/useResourcePins'
+import KeystoneEmptyStateArt from '@/components/KeystoneEmptyStateArt.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -1626,7 +1626,7 @@ defineExpose({
   display: inline-flex;
   align-items: center;
   padding: 2px 6px;
-  background: rgba(7, 192, 95, 0.1);
+  background: color-mix(in srgb, var(--td-brand-color) 10%, transparent);
   border-radius: 4px;
   font-size: 12px;
   color: var(--td-brand-color);
@@ -1975,7 +1975,7 @@ defineExpose({
 
   &:hover {
     border-color: var(--td-brand-color);
-    box-shadow: 0 4px 12px rgba(7, 192, 95, 0.12);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--td-brand-color) 12%, transparent);
   }
 
   .agent-favorite-star {
@@ -2015,19 +2015,19 @@ defineExpose({
 
   // 普通模式样式
   &.agent-mode-normal {
-    background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(7, 192, 95, 0.04) 100%);
+    background: linear-gradient(135deg, var(--td-bg-color-container) 0%, color-mix(in srgb, var(--td-brand-color) 4%, transparent) 100%);
 
     &:hover {
       border-color: var(--td-brand-color);
-      background: linear-gradient(135deg, var(--td-bg-color-container) 0%, rgba(7, 192, 95, 0.08) 100%);
+      background: linear-gradient(135deg, var(--td-bg-color-container) 0%, color-mix(in srgb, var(--td-brand-color) 8%, transparent) 100%);
     }
 
     .card-decoration {
-      color: rgba(7, 192, 95, 0.35);
+      color: color-mix(in srgb, var(--td-brand-color) 35%, transparent);
     }
 
     &:hover .card-decoration {
-      color: rgba(7, 192, 95, 0.5);
+      color: color-mix(in srgb, var(--td-brand-color) 50%, transparent);
     }
   }
 
@@ -2184,7 +2184,7 @@ defineExpose({
   }
 
   &.normal {
-    background: linear-gradient(135deg, rgba(7, 192, 95, 0.15) 0%, rgba(7, 192, 95, 0.08) 100%);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--td-brand-color) 15%, transparent) 0%, color-mix(in srgb, var(--td-brand-color) 8%, transparent) 100%);
     color: var(--td-brand-color-active);
   }
 
@@ -2301,11 +2301,11 @@ defineExpose({
   transition: background 0.2s ease;
 
   &.mode-normal {
-    background: rgba(7, 192, 95, 0.08);
+    background: color-mix(in srgb, var(--td-brand-color) 8%, transparent);
     color: var(--td-brand-color-active);
 
     &:hover {
-      background: rgba(7, 192, 95, 0.12);
+      background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
     }
   }
 
@@ -2328,11 +2328,11 @@ defineExpose({
   }
 
   &.knowledge {
-    background: rgba(7, 192, 95, 0.08);
+    background: color-mix(in srgb, var(--td-brand-color) 8%, transparent);
     color: var(--td-brand-color-active);
 
     &:hover {
-      background: rgba(7, 192, 95, 0.12);
+      background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
     }
   }
 
@@ -2370,10 +2370,9 @@ defineExpose({
   align-items: center;
   padding: 60px 20px;
 
-  .empty-img {
-    width: 162px;
-    height: 162px;
-    margin-bottom: 20px;
+  .empty-art {
+    width: 190px;
+    margin-bottom: 18px;
   }
 
   .empty-txt {

@@ -25,24 +25,20 @@ const props = withDefaults(defineProps<{
   size: 'medium'
 });
 
-// 预定义的渐变色方案 - 现代、柔和、专业
+// Keystone 自有头像色谱：仅使用蓝、靛、紫与少量品红，避免旧品牌绿。
 const gradients = [
-  { from: '#667eea', to: '#764ba2' },  // 紫蓝渐变
-  { from: '#4facfe', to: '#00f2fe' },  // 蓝青渐变
-  { from: '#43e97b', to: '#38f9d7' },  // 绿青渐变
-  { from: '#11998e', to: '#38ef7d' },  // 深绿渐变
-  { from: '#5ee7df', to: '#b490ca' },  // 青紫渐变
-  { from: '#48c6ef', to: '#6f86d6' },  // 蓝紫渐变
-  { from: '#a8edea', to: '#fed6e3' },  // 青粉渐变（柔和）
-  { from: '#667db6', to: '#0082c8' },  // 蓝色渐变
-  { from: '#36d1dc', to: '#5b86e5' },  // 青蓝渐变
-  { from: '#56ab2f', to: '#a8e063' },  // 草绿渐变
-  { from: '#614385', to: '#516395' },  // 深紫蓝渐变
-  { from: '#02aab0', to: '#00cdac' },  // 青绿渐变
-  { from: '#6a82fb', to: '#fc5c7d' },  // 蓝粉渐变（柔和）
-  { from: '#834d9b', to: '#d04ed6' },  // 紫色渐变
-  { from: '#4776e6', to: '#8e54e9' },  // 蓝紫渐变
-  { from: '#00b09b', to: '#96c93d' },  // 青绿渐变
+  { from: '#5b5bd6', to: '#3b82f6' },
+  { from: '#4f46e5', to: '#8b5cf6' },
+  { from: '#2563eb', to: '#60a5fa' },
+  { from: '#3730a3', to: '#6366f1' },
+  { from: '#1d4ed8', to: '#7c3aed' },
+  { from: '#0f4c81', to: '#4f46e5' },
+  { from: '#6366f1', to: '#a855f7' },
+  { from: '#1e40af', to: '#4f7cff' },
+  { from: '#7c3aed', to: '#ec4899' },
+  { from: '#334155', to: '#6366f1' },
+  { from: '#3b82f6', to: '#c084fc' },
+  { from: '#4338ca', to: '#7e22ce' },
 ];
 
 // 根据名称生成一个稳定的哈希值

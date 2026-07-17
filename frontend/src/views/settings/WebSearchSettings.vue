@@ -852,8 +852,8 @@ onMounted(async () => {
   color: #464646;
 }
 .provider-card--keenable .provider-card__badge {
-  background: rgba(20, 158, 130, 0.12);
-  color: #149E82;
+  background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
+  color: color-mix(in srgb, var(--td-brand-color) 72%, #3b82f6);
 }
 .provider-card--ark .provider-card__badge {
   background: rgba(36, 99, 235, 0.12);
@@ -1134,8 +1134,8 @@ onMounted(async () => {
   color: #464646;
 }
 .websearch-drawer--keenable .setting-drawer__header-icon {
-  background: rgba(20, 158, 130, 0.12);
-  color: #149E82;
+  background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
+  color: color-mix(in srgb, var(--td-brand-color) 72%, #3b82f6);
 }
 .websearch-drawer--ark .setting-drawer__header-icon {
   background: rgba(36, 99, 235, 0.12);

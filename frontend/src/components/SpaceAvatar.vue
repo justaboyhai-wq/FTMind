@@ -45,20 +45,20 @@ const emojiChar = computed(() => {
   return v.slice(6).trim() || '';
 });
 
-// 预定义渐变色（与项目绿色主色协调，偏空间/协作感）
+// Keystone 空间头像色谱：蓝紫知识网络色，不再沿用旧绿色品牌色。
 const gradients = [
-  { from: '#07c05f', to: '#059669' },  // 主绿
-  { from: '#11998e', to: '#38ef7d' },  // 深绿渐变
-  { from: '#43e97b', to: '#38f9d7' },  // 绿青
-  { from: '#02aab0', to: '#00cdac' },  // 青绿
-  { from: '#36d1dc', to: '#5b86e5' }, // 青蓝
-  { from: '#4facfe', to: '#00f2fe' },  // 蓝青
-  { from: '#667eea', to: '#764ba2' },  // 紫蓝
-  { from: '#4776e6', to: '#8e54e9' },  // 蓝紫
-  { from: '#56ab2f', to: '#a8e063' },  // 草绿
-  { from: '#00b09b', to: '#96c93d' },  // 青绿
-  { from: '#5ee7df', to: '#b490ca' },  // 青紫
-  { from: '#614385', to: '#516395' },  // 深紫蓝
+  { from: '#5b5bd6', to: '#3b82f6' },
+  { from: '#4f46e5', to: '#8b5cf6' },
+  { from: '#2563eb', to: '#60a5fa' },
+  { from: '#3730a3', to: '#6366f1' },
+  { from: '#1d4ed8', to: '#7c3aed' },
+  { from: '#0f4c81', to: '#4f46e5' },
+  { from: '#6366f1', to: '#a855f7' },
+  { from: '#1e40af', to: '#4f7cff' },
+  { from: '#7c3aed', to: '#ec4899' },
+  { from: '#334155', to: '#6366f1' },
+  { from: '#3b82f6', to: '#c084fc' },
+  { from: '#4338ca', to: '#7e22ce' },
 ];
 
 const hashCode = (str: string): number => {

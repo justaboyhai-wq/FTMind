@@ -955,8 +955,8 @@ onMounted(async () => {
   color: #0089FF;
 }
 .store-card--weaviate .store-card__badge {
-  background: rgba(7, 192, 95, 0.12);
-  color: #07A050;
+  background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
+  color: var(--td-brand-color);
 }
 .store-card--elasticsearch .store-card__badge,
 .store-card--elasticfaiss .store-card__badge {
@@ -1301,8 +1301,8 @@ onMounted(async () => {
   color: #0089FF;
 }
 .vectorstore-drawer--weaviate .setting-drawer__header-icon {
-  background: rgba(7, 192, 95, 0.12);
-  color: #07A050;
+  background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
+  color: var(--td-brand-color);
 }
 .vectorstore-drawer--elasticsearch .setting-drawer__header-icon,
 .vectorstore-drawer--elasticfaiss .setting-drawer__header-icon {

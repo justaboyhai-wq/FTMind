@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import KeystoneEmptyStateArt from '@/components/KeystoneEmptyStateArt.vue'
 const { t } = useI18n()
 </script>
 <template>
     <div class="mask">
-        <img class="upload-mask-img" src="@/assets/img/upload-mask.svg" alt="">
+        <KeystoneEmptyStateArt class="upload-mask-art" variant="knowledge" />
         <span class="drag-txt">{{ $t('file.upload') }}</span>
         <span class="drag-type-txt">{{ $t('knowledgeBase.pdfDocFormat') }}</span>
         <span class="drag-type-txt">{{ $t('knowledgeBase.textMarkdownFormat') }}</span>
@@ -35,8 +36,7 @@ const { t } = useI18n()
     font-size: 12px;
     font-weight: 400;
 }
-.upload-img{
-    width: 162px;
-    height: 162px;
+.upload-mask-art {
+    width: 210px;
 }
 </style>

@@ -5080,7 +5080,7 @@ const handleSave = async () => {
 }
 
 .tool-group--wiki_read .tool-group-bar {
-  background: var(--td-success-color, #2ba471);
+  background: var(--td-purple-color-5, #8e56dd);
 }
 
 .tool-group--wiki_edit .tool-group-bar {
@@ -5120,7 +5120,7 @@ const handleSave = async () => {
 
   &:hover:not(.tool-card--disabled) {
     border-color: var(--td-brand-color);
-    background: var(--td-brand-color-1, rgba(7, 192, 95, 0.06));
+    background: color-mix(in srgb, var(--td-brand-color) 6%, var(--td-bg-color-container));
   }
 
   // checkbox 的勾选框 + label 改造
@@ -5137,7 +5137,7 @@ const handleSave = async () => {
 
   &.t-is-checked {
     border-color: var(--td-brand-color);
-    background: var(--td-brand-color-1, rgba(7, 192, 95, 0.08));
+    background: color-mix(in srgb, var(--td-brand-color) 8%, var(--td-bg-color-container));
   }
 
   &--disabled {
@@ -5393,14 +5393,14 @@ const handleSave = async () => {
 }
 
 .intent-toggle-group :deep(.intent-toggle-btn--active) {
-  background-color: rgba(7, 192, 95, 0.1);
+  background-color: color-mix(in srgb, var(--td-brand-color) 10%, transparent);
   border-color: var(--td-brand-color);
   color: var(--td-brand-color);
   font-weight: 500;
 
   &:hover,
   &:focus-visible {
-    background-color: rgba(7, 192, 95, 0.14);
+    background-color: color-mix(in srgb, var(--td-brand-color) 14%, transparent);
     border-color: var(--td-brand-color);
     color: var(--td-brand-color);
   }
@@ -5586,7 +5586,11 @@ const handleSave = async () => {
   flex-shrink: 0;
 
   &.normal {
-    background: linear-gradient(135deg, rgba(7, 192, 95, 0.15) 0%, rgba(7, 192, 95, 0.08) 100%);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--td-brand-color) 15%, transparent) 0%,
+      color-mix(in srgb, var(--td-brand-color) 8%, transparent) 100%
+    );
     color: var(--td-brand-color-active);
   }
 
@@ -5650,8 +5654,8 @@ const handleSave = async () => {
 
   // Document KB
   &.doc-icon {
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--td-success-color);
+    background: color-mix(in srgb, var(--td-brand-color) 10%, transparent);
+    color: color-mix(in srgb, var(--td-brand-color) 68%, #3b82f6);
   }
 
   // FAQ KB
@@ -5733,8 +5737,8 @@ const handleSave = async () => {
 }
 
 .tag-wiki {
-  color: #00b42a;
-  background: rgba(0, 180, 42, 0.1);
+  color: var(--td-purple-color-7, #7046b8);
+  background: color-mix(in srgb, var(--td-purple-color-5, #8e56dd) 10%, transparent);
 }
 
 </style>

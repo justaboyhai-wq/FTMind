@@ -1340,8 +1340,8 @@ const handleClose = () => {
 -->
 <style lang="less">
 .mcp-drawer--sse .setting-drawer__header-icon {
-  background: rgba(17, 128, 83, 0.12);
-  color: #118053;
+  background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
+  color: var(--td-brand-color);
 }
 
 .mcp-drawer--http-streamable .setting-drawer__header-icon {

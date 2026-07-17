@@ -19,10 +19,7 @@
               <div class="settings-nav">
                 <div v-for="item in navItems" :key="item.key"
                   :class="['nav-item', { 'active': currentSection === item.key }]" @click="currentSection = item.key">
-                  <img v-if="item.key === 'sharedAgents'"
-                    :src="currentSection === 'sharedAgents' ? agentIconActiveSrc : agentIconSrc"
-                    class="nav-icon nav-icon-img" alt="" aria-hidden="true" />
-                  <t-icon v-else :name="item.icon" class="nav-icon" />
+                  <t-icon :name="item.key === 'sharedAgents' ? 'control-platform' : item.icon" class="nav-icon" />
                   <span class="nav-label">{{ item.label }}</span>
                   <span
                     v-if="item.badge != null && (item.key === 'sharedKb' || item.key === 'sharedAgents' ? true : item.badge > 0)"
@@ -698,8 +695,6 @@ import { useOrganizationStore } from '@/stores/organization'
 import { useAuthStore } from '@/stores/auth'
 import SpaceAvatar from '@/components/SpaceAvatar.vue'
 import AgentAvatar from '@/components/AgentAvatar.vue'
-import agentIconSrc from '@/assets/img/agent.svg'
-import agentIconActiveSrc from '@/assets/img/agent-green.svg'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -1932,12 +1927,12 @@ watch(currentSection, (section) => {
 
 .avatar-popover-content .avatar-emoji-btn:hover {
   border-color: var(--td-brand-color);
-  background: rgba(7, 192, 95, 0.06);
+  background: color-mix(in srgb, var(--td-brand-color) 6%, transparent);
 }
 
 .avatar-popover-content .avatar-emoji-btn.is-selected {
   border-color: var(--td-brand-color);
-  background: rgba(7, 192, 95, 0.12);
+  background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
 }
 
 .avatar-popover-content .avatar-clear-btn {
@@ -2125,7 +2120,7 @@ watch(currentSection, (section) => {
 
     &.is-me {
       border-left: 3px solid @primary-color;
-      background: rgba(7, 192, 95, 0.04);
+      background: color-mix(in srgb, var(--td-brand-color) 4%, transparent);
     }
 
     .perm-role-tag {
@@ -2231,7 +2226,7 @@ watch(currentSection, (section) => {
 
     &.is-me {
       border: 1px solid @primary-color;
-      background: rgba(7, 192, 95, 0.04);
+      background: color-mix(in srgb, var(--td-brand-color) 4%, transparent);
     }
 
     .member-avatar {
@@ -2246,7 +2241,7 @@ watch(currentSection, (section) => {
       color: var(--td-text-color-secondary);
 
       &.is-me {
-        background: rgba(7, 192, 95, 0.15);
+        background: color-mix(in srgb, var(--td-brand-color) 15%, transparent);
         color: @primary-color;
         box-shadow: 0 0 0 2px @primary-color;
       }
@@ -2536,7 +2531,7 @@ watch(currentSection, (section) => {
       gap: 4px;
 
       &.type-document {
-        background: rgba(7, 192, 95, 0.08);
+        background: color-mix(in srgb, var(--td-brand-color) 8%, transparent);
         color: var(--td-brand-color-active);
       }
 
@@ -2546,7 +2541,7 @@ watch(currentSection, (section) => {
       }
 
       & .shared-icon-org {
-        background: rgba(7, 192, 95, 0.08);
+        background: color-mix(in srgb, var(--td-brand-color) 8%, transparent);
         color: var(--td-brand-color-active);
       }
 
@@ -2557,7 +2552,7 @@ watch(currentSection, (section) => {
       }
 
       &.shared-icon-kb {
-        background: rgba(7, 192, 95, 0.08);
+        background: color-mix(in srgb, var(--td-brand-color) 8%, transparent);
         color: var(--td-brand-color-active);
       }
 

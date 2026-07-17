@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import KeystoneEmptyStateArt from '@/components/KeystoneEmptyStateArt.vue'
 const { t } = useI18n()
 </script>
 <template>
     <div class="empty">
-        <img class="empty-img" src="@/assets/img/upload.svg" alt="">
+        <KeystoneEmptyStateArt class="empty-art" variant="knowledge" />
         <span class="empty-txt">{{ $t('knowledgeBase.emptyKnowledgeDragDrop') }}</span>
         <span class="empty-type-txt">{{ $t('knowledgeBase.pdfDocFormat') }}</span>
         <span class="empty-type-txt">{{ $t('knowledgeBase.textMarkdownFormat') }}</span>
@@ -37,8 +38,7 @@ const { t } = useI18n()
     width: 217px;
 }
 
-.empty-img {
-    width: 162px;
-    height: 162px;
+.empty-art {
+    width: 190px;
 }
 </style>

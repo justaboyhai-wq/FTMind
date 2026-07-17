@@ -56,7 +56,7 @@
             </div>
             <div class="legend-item clickable" :class="{ disabled: !graphFilterTypes.has('entity') }"
               @click="toggleGraphFilterType('entity')">
-              <span class="legend-dot" style="background: #2ba471"></span>
+              <span class="legend-dot" style="background: #8e56dd"></span>
               {{ $t('knowledgeEditor.wikiBrowser.filterEntity') }}
             </div>
             <div class="legend-item clickable" :class="{ disabled: !graphFilterTypes.has('concept') }"
@@ -1822,7 +1822,7 @@ watch([activeTreeRows, treeListRef], () => {
 
 function getTypeTheme(type: string): string {
   const map: Record<string, string> = {
-    summary: 'primary', entity: 'success', concept: 'warning',
+    summary: 'primary', entity: 'default', concept: 'warning',
     synthesis: 'primary', comparison: 'danger', index: 'default', log: 'default',
   }
   return map[type] || 'default'
@@ -3372,7 +3372,7 @@ const graphSelectedSlug = ref<string | null>(null)
 
 // Color map for node types
 const nodeColorMap: Record<string, string> = {
-  summary: '#0052d9', entity: '#2ba471', concept: '#e37318',
+  summary: '#0052d9', entity: '#8e56dd', concept: '#e37318',
   synthesis: '#0594fa', comparison: '#d54941', index: '#8c8c8c', log: '#8c8c8c',
 }
 
@@ -5150,12 +5150,12 @@ onUnmounted(() => {
   font-family: var(--app-font-family-mono);
   font-size: 12px;
   padding: 2px 8px;
-  background: rgba(7, 192, 95, 0.06);
+  background: color-mix(in srgb, var(--td-brand-color) 6%, transparent);
   border-radius: 4px;
   transition: background 0.15s;
 
   &:hover {
-    background: rgba(7, 192, 95, 0.12);
+    background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
   }
 }
 

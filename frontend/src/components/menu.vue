@@ -20,7 +20,7 @@
                     </template>
                     <div class="header-icon-btn" @click="commandPaletteStore.openPalette('')"
                         :aria-label="t('menu.search')">
-                        <img class="header-icon-img" :src="getImgSrc('search.svg')" alt="">
+                        <t-icon class="header-icon-img" name="search" />
                     </div>
                 </t-tooltip>
                 <div class="sidebar-toggle" @click="uiStore.toggleSidebar" :title="t('menu.collapseSidebar')">
@@ -74,7 +74,7 @@
                     <div class="menu_item menu_item--cmdk" @click="commandPaletteStore.openPalette('')">
                         <div class="menu_item-box">
                             <div class="menu_icon">
-                                <img class="icon" :src="getImgSrc('search.svg')" alt="">
+                                <t-icon class="icon" name="search" />
                             </div>
                         </div>
                     </div>
@@ -88,9 +88,7 @@
                         :class="['menu_item', item.childrenPath && item.childrenPath == currentpath ? 'menu_item_c_active' : isMenuItemActive(item.path) ? 'menu_item_active' : '']">
                         <div class="menu_item-box">
                             <div class="menu_icon">
-                                <img class="icon"
-                                    :src="getImgSrc(item.icon == 'zhishiku' ? knowledgeIcon : item.icon == 'agent' ? agentIcon : item.icon == 'organization' ? organizationIcon : item.icon == 'logout' ? logoutIcon : item.icon == 'setting' ? settingIcon : prefixIcon)"
-                                    alt="">
+                                <t-icon class="icon" :name="getMenuIconName(item)" />
                             </div>
                             <template v-if="!uiStore.sidebarCollapsed">
                                 <span class="menu_title" :title="item.title">{{ item.title }}</span>
@@ -410,21 +408,19 @@ const isMenuItemActive = (itemPath: string): boolean => {
     }
 };
 
-// 统一的图标激活状态判断
-const getIconActiveState = (itemPath: string) => {
-    const currentRoute = route.name;
-
-    return {
-        isKbActive: itemPath === 'knowledge-bases' && (
-            currentRoute === 'knowledgeBaseList' ||
-            currentRoute === 'knowledgeBaseDetail' ||
-            currentRoute === 'knowledgeBaseSettings'
-        ),
-        isCreatChatActive: itemPath === 'creatChat' && (currentRoute === 'kbCreatChat' || currentRoute === 'globalCreatChat'),
-        isSettingsActive: itemPath === 'settings' && currentRoute === 'settings',
-        isChatActive: itemPath === 'chat' && currentRoute === 'chat'
-    };
-};
+// Keystone 使用同一套 currentColor 线性图标；激活态只改变颜色和表面，
+// 不再切换成套的位图状态资源。
+const getMenuIconName = (item: MenuItem): string => {
+    const iconByPath: Record<string, string> = {
+        'creatChat': 'chat-add',
+        'knowledge-bases': 'folder',
+        agents: 'control-platform',
+        organizations: 'usergroup',
+        settings: 'setting',
+        logout: 'logout',
+    }
+    return iconByPath[item.path] || 'app'
+}
 
 // 分离上下两部分菜单（使用 visibleMenuArr 以便 lite 模式过滤 logout）
 const topMenuItems = computed<MenuItem[]>(() => {
@@ -1025,48 +1021,12 @@ watch([() => route.name, () => route.params], (newvalue, oldvalue) => {
         void syncActiveBucketFromChat(newChatId);
     }
 
-    // 路由变化时更新图标状态和知识库信息（不涉及对话列表）
-    getIcon(nameStr);
-
     // 如果切换了知识库，更新知识库名称但不重新加载对话列表
     if (newvalue[1].kbId !== oldvalue?.[1]?.kbId) {
         loadCurrentKbInfo((newvalue[1] as any)?.kbId as string);
     }
 });
-let knowledgeIcon = ref('zhishiku-green.svg');
-let prefixIcon = ref('prefixIcon.svg');
-let logoutIcon = ref('logout.svg');
-let settingIcon = ref('setting.svg');
-let agentIcon = ref('agent.svg');
-let organizationIcon = ref('organization.svg');
 let pathPrefix = ref(route.name)
-const getIcon = (path: string) => {
-    // 根据当前路由状态更新所有图标
-    const kbActiveState = getIconActiveState('knowledge-bases');
-    const creatChatActiveState = getIconActiveState('creatChat');
-    const settingsActiveState = getIconActiveState('settings');
-    const agentsActiveState = route.name === 'agentList';
-    const organizationsActiveState = route.name === 'organizationList';
-
-    // 知识库图标：只在知识库页面显示绿色
-    knowledgeIcon.value = kbActiveState.isKbActive ? 'zhishiku-green.svg' : 'zhishiku.svg';
-
-    // 智能体图标：只在智能体页面显示绿色
-    agentIcon.value = agentsActiveState ? 'agent-green.svg' : 'agent.svg';
-
-    // 组织图标：只在组织页面显示绿色
-    organizationIcon.value = organizationsActiveState ? 'organization-green.svg' : 'organization.svg';
-
-    // 对话图标：只在对话创建页面显示绿色，其他情况显示默认
-    prefixIcon.value = creatChatActiveState.isCreatChatActive ? 'prefixIcon-green.svg' : 'prefixIcon.svg';
-
-    // 设置图标：只在设置页面显示绿色
-    settingIcon.value = settingsActiveState.isSettingsActive ? 'setting-green.svg' : 'setting.svg';
-
-    // 退出图标：始终显示默认
-    logoutIcon.value = 'logout.svg';
-}
-getIcon(typeof route.name === 'string' ? route.name as string : (route.name ? String(route.name) : ''))
 const handleMenuClick = async (path: string) => {
     if (path === 'knowledge-bases') {
         // 知识库菜单项：如果在知识库内部，跳转到当前知识库文件页；否则跳转到知识库列表
@@ -1132,11 +1092,6 @@ const gotopage = async (path: string) => {
             router.push(`/platform/${path}`);
         }
     }
-    getIcon(path)
-}
-
-const getImgSrc = (url: string) => {
-    return new URL(`/src/assets/img/${url}`, import.meta.url).href;
 }
 
 const mouseenteMenu = (path: string) => {
@@ -1304,7 +1259,7 @@ const onDragHandleMouseDown = (e: MouseEvent) => {
     .logo_txt {
         transform: rotate(0.049deg);
         color: var(--td-text-color-primary);
-        font-family: "TencentSans";
+        font-family: var(--app-font-family);
         font-size: 24.12px;
         font-style: normal;
         font-weight: W7;
@@ -1656,7 +1611,7 @@ const onDragHandleMouseDown = (e: MouseEvent) => {
         }
 
         &.session-chat-row--selected .session-list-row {
-            background: rgba(7, 192, 95, 0.05);
+            background: color-mix(in srgb, var(--td-brand-color) 7%, transparent);
         }
     }
 
@@ -1929,34 +1884,33 @@ html[theme-mode="dark"] .aside_box .menu_top::-webkit-scrollbar-thumb:hover {
     background-color: rgba(255, 255, 255, 0.38);
 }
 
-// Dark mode: invert the top search icon button image to match text color
+// currentColor icons follow the surrounding text in dark mode.
 html[theme-mode="dark"] .aside_box .header-icon-img {
-    filter: invert(1);
-    opacity: 0.55;
+    filter: none;
+    opacity: 0.7;
 }
 
 html[theme-mode="dark"] .aside_box .header-icon-btn:hover .header-icon-img {
     opacity: 0.9;
 }
 
-// Dark mode: make SVG icons match text color (loaded via <img>, currentColor won't work)
-html[theme-mode="dark"] .aside_box .menu_icon img.icon {
-    filter: invert(1);
-    opacity: 0.55;
+html[theme-mode="dark"] .aside_box .menu_icon .icon {
+    filter: none;
+    opacity: 0.7;
 }
 
 // Hover state: brighter icon like text
-html[theme-mode="dark"] .aside_box .menu_item:hover .menu_icon img.icon {
+html[theme-mode="dark"] .aside_box .menu_item:hover .menu_icon .icon {
     opacity: 0.9;
 }
 
 // menu_item_c_active: text is primary, so icon should match
-html[theme-mode="dark"] .aside_box .menu_item_c_active .menu_icon img.icon {
+html[theme-mode="dark"] .aside_box .menu_item_c_active .menu_icon .icon {
     opacity: 0.9;
 }
 
-// Active (green) icons should not be inverted
-html[theme-mode="dark"] .aside_box .menu_item_active .menu_icon img.icon {
+// Active icons use the Keystone brand color inherited from the menu item.
+html[theme-mode="dark"] .aside_box .menu_item_active .menu_icon .icon {
     filter: none;
     opacity: 1;
 }

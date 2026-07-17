@@ -45,7 +45,17 @@ ENV GO_VERSION=${GO_VERSION_ARG}
 
 # Build the application with version info
 RUN --mount=type=cache,target=/go/pkg/mod make build-prod
-RUN --mount=type=cache,target=/go/pkg/mod cp -r /go/pkg/mod/github.com/yanyiwu/ /app/yanyiwu/
+# The Go module cache is mounted only while building, so copy Jieba's runtime
+# dictionaries into the image explicitly.  The application initializes Jieba
+# during startup and cannot use the zero-byte cache placeholders otherwise.
+RUN go mod download github.com/yanyiwu/gojieba@v1.4.7 && \
+    mkdir -p /app/jieba-dict && \
+    cp /go/pkg/mod/github.com/yanyiwu/gojieba@v1.4.7/deps/cppjieba/dict/jieba.dict.utf8 \
+       /go/pkg/mod/github.com/yanyiwu/gojieba@v1.4.7/deps/cppjieba/dict/hmm_model.utf8 \
+       /go/pkg/mod/github.com/yanyiwu/gojieba@v1.4.7/deps/cppjieba/dict/user.dict.utf8 \
+       /go/pkg/mod/github.com/yanyiwu/gojieba@v1.4.7/deps/cppjieba/dict/idf.utf8 \
+       /go/pkg/mod/github.com/yanyiwu/gojieba@v1.4.7/deps/cppjieba/dict/stop_words.utf8 \
+       /app/jieba-dict/
 
 # Final stage
 FROM debian:12.12-slim
@@ -89,7 +99,7 @@ RUN mkdir -p /data/files && \
 
 # Copy migrate tool from builder stage
 COPY --from=builder /go/bin/migrate /usr/local/bin/
-COPY --from=builder /app/yanyiwu/ /go/pkg/mod/github.com/yanyiwu/
+COPY --from=builder /app/jieba-dict ./jieba-dict
 
 # Copy the binary from the builder stage
 COPY --from=builder /app/config ./config
@@ -110,6 +120,8 @@ RUN chmod +x ./scripts/*.sh
 
 # Expose ports
 EXPOSE 8080
+
+ENV JIEBA_DICT_DIR=/app/jieba-dict
 
 
 ENTRYPOINT ["./scripts/docker-entrypoint.sh"]

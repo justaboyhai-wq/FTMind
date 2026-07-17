@@ -85,8 +85,8 @@ const displayName = computed(() => {
 }
 
 .vs-badge-user {
-  background: var(--td-success-color-1, #e8f8f2);
-  color: var(--td-success-color-7, #00754a);
+  background: var(--td-brand-color-1, #f5f5ff);
+  color: var(--td-brand-color, #5b5bd6);
 }
 
 .vs-badge-shared {
