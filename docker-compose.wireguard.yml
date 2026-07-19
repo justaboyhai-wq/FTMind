@@ -1,0 +1,25 @@
+services:
+  # Start with: docker compose -f docker-compose.yml -f docker-compose.wireguard.yml
+  # --profile minio --profile qdrant up -d
+  #
+  # All ports bind only to the local WireGuard interface. The cloud peer must
+  # use these dedicated ports, rather than any other project sharing this host.
+  docreader:
+    ports:
+      - "${VPN_BIND_ADDRESS:-10.76.0.2}:${VPN_DOCREADER_PORT:-15051}:50051"
+
+  postgres:
+    ports:
+      - "${VPN_BIND_ADDRESS:-10.76.0.2}:${VPN_POSTGRES_PORT:-15432}:5432"
+
+  redis:
+    ports:
+      - "${VPN_BIND_ADDRESS:-10.76.0.2}:${VPN_REDIS_PORT:-16379}:6379"
+
+  minio:
+    ports: !override
+      - "${VPN_BIND_ADDRESS:-10.76.0.2}:${VPN_MINIO_PORT:-19000}:9000"
+
+  qdrant:
+    ports:
+      - "${VPN_BIND_ADDRESS:-10.76.0.2}:${VPN_QDRANT_PORT:-16334}:6334"
