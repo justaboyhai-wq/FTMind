@@ -22,6 +22,9 @@ services:
     build:
       context: ../..
       dockerfile: docker/Dockerfile.app
+      args:
+        GOPROXY_ARG: "${GOPROXY_ARG:-https://goproxy.cn,direct}"
+        APK_MIRROR_ARG: "${APK_MIRROR_ARG:-}"
     image: keystone-app:${KEYSTONE_IMAGE_TAG:-local}
     restart: unless-stopped
     env_file:
