@@ -1,0 +1,87 @@
+services:
+  frontend:
+    build:
+      context: ../../frontend
+      dockerfile: Dockerfile
+    image: keystone-frontend:${KEYSTONE_IMAGE_TAG:-local}
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    environment:
+      APP_HOST: app
+      APP_PORT: "8080"
+      APP_SCHEME: http
+      MAX_FILE_SIZE_MB: "${MAX_FILE_SIZE_MB:-50}"
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - cloud_app
+
+  app:
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile.app
+    image: keystone-app:${KEYSTONE_IMAGE_TAG:-local}
+    restart: unless-stopped
+    env_file:
+      - ${ENV_FILE:-.env}
+    environment:
+      GIN_MODE: release
+      DB_DRIVER: postgres
+      DB_HOST: "${DB_HOST}"
+      DB_PORT: "${DB_PORT:-5432}"
+      DB_USER: "${DB_USER}"
+      DB_PASSWORD: "${DB_PASSWORD}"
+      DB_NAME: "${DB_NAME}"
+      REDIS_ADDR: "${REDIS_ADDR}"
+      REDIS_USERNAME: "${REDIS_USERNAME:-}"
+      REDIS_PASSWORD: "${REDIS_PASSWORD}"
+      REDIS_DB: "${REDIS_DB:-0}"
+      STORAGE_TYPE: minio
+      MINIO_ENDPOINT: "${MINIO_ENDPOINT}"
+      MINIO_ACCESS_KEY_ID: "${MINIO_ACCESS_KEY_ID}"
+      MINIO_SECRET_ACCESS_KEY: "${MINIO_SECRET_ACCESS_KEY}"
+      MINIO_BUCKET_NAME: "${MINIO_BUCKET_NAME}"
+      RETRIEVE_DRIVER: qdrant
+      QDRANT_HOST: "${QDRANT_HOST}"
+      QDRANT_PORT: "${QDRANT_PORT:-6334}"
+      QDRANT_COLLECTION: "${QDRANT_COLLECTION:-keystone_embeddings}"
+      QDRANT_API_KEY: "${QDRANT_API_KEY:-}"
+      QDRANT_USE_TLS: "${QDRANT_USE_TLS:-false}"
+      DOCREADER_ADDR: "${DOCREADER_ADDR}"
+      DOCREADER_TRANSPORT: grpc
+      OLLAMA_BASE_URL: "${OLLAMA_BASE_URL}"
+      APP_EXTERNAL_URL: "${APP_EXTERNAL_URL}"
+      SSRF_WHITELIST: "${SSRF_WHITELIST}"
+      SSRF_WHITELIST_EXTRA: "${SSRF_WHITELIST_EXTRA}"
+      JWT_SECRET: "${JWT_SECRET}"
+      TENANT_AES_KEY: "${TENANT_AES_KEY}"
+      SYSTEM_AES_KEY: "${SYSTEM_AES_KEY}"
+      CRYPTO_MASTER_KEY: "${CRYPTO_MASTER_KEY}"
+      CRYPTO_SALT: "${CRYPTO_SALT}"
+      KEYSTONE_MODEL_MAX_CONCURRENCY: "${KEYSTONE_MODEL_MAX_CONCURRENCY:-4}"
+      KEYSTONE_ASYNQ_CORE_CONCURRENCY: "${KEYSTONE_ASYNQ_CORE_CONCURRENCY:-2}"
+      KEYSTONE_ASYNQ_ENRICHMENT_CONCURRENCY: "${KEYSTONE_ASYNQ_ENRICHMENT_CONCURRENCY:-2}"
+      KEYSTONE_ASYNQ_MAINTENANCE_CONCURRENCY: "${KEYSTONE_ASYNQ_MAINTENANCE_CONCURRENCY:-1}"
+      KEYSTONE_ASYNQ_SHARED_CONCURRENCY: "${KEYSTONE_ASYNQ_SHARED_CONCURRENCY:-1}"
+      KEYSTONE_WIKI_ASYNQ_CONCURRENCY: "${KEYSTONE_WIKI_ASYNQ_CONCURRENCY:-1}"
+    volumes:
+      - app_state:/data/files
+    expose:
+      - "8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    networks:
+      - cloud_app
+
+networks:
+  cloud_app:
+    driver: bridge
+
+volumes:
+  app_state:
