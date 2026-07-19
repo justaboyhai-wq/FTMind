@@ -88,6 +88,7 @@ Existing deployments can keep their current data and service configuration when 
 | Built-in models | [docs/BUILTIN_MODELS.md](./docs/BUILTIN_MODELS.md) |
 | Agent skills | [docs/agent-skills.md](./docs/agent-skills.md) |
 | Architecture and deployment | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
+| Production deployment runbook | [docs/DEPLOYMENT_RUNBOOK.md](./docs/DEPLOYMENT_RUNBOOK.md) |
 
 ## Development and verification
 

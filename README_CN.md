@@ -88,6 +88,7 @@ docker compose --profile minio --profile neo4j up -d
 | 内置模型 | [docs/BUILTIN_MODELS.md](./docs/BUILTIN_MODELS.md) |
 | Agent Skills | [docs/agent-skills.md](./docs/agent-skills.md) |
 | 架构与部署说明 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
+| 生产部署与运维手册 | [docs/DEPLOYMENT_RUNBOOK.md](./docs/DEPLOYMENT_RUNBOOK.md) |
 
 ## 本地开发与验证
 
