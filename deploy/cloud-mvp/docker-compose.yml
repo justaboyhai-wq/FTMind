@@ -50,12 +50,17 @@ services:
       KEYSTONE_ASYNQ_MAINTENANCE_CONCURRENCY: "${KEYSTONE_ASYNQ_MAINTENANCE_CONCURRENCY:-1}"
       KEYSTONE_ASYNQ_SHARED_CONCURRENCY: "${KEYSTONE_ASYNQ_SHARED_CONCURRENCY:-1}"
       KEYSTONE_WIKI_ASYNQ_CONCURRENCY: "${KEYSTONE_WIKI_ASYNQ_CONCURRENCY:-1}"
-      DOCREADER_ADDR: ""
+      # Complex document parsing stays inside the Compose network. Do not
+      # publish the gRPC port on the ECS host.
+      DOCREADER_ADDR: docreader:50051
+      DOCREADER_TRANSPORT: grpc
     depends_on:
       postgres:
         condition: service_healthy
       qdrant:
         condition: service_started
+      docreader:
+        condition: service_healthy
     expose: ["8080"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
@@ -97,6 +102,36 @@ services:
     networks: [keystone_mvp]
     mem_limit: 1000m
 
+  # CPU-only document parser for PDF, Office and other complex formats.
+  # Keep it private: the application is its only client.
+  docreader:
+    image: "wechatopenai/keystone-docreader:${KEYSTONE_DOCREADER_TAG:-latest}"
+    restart: unless-stopped
+    expose: ["50051"]
+    environment:
+      TZ: Asia/Shanghai
+      DOCREADER_IMAGE_OUTPUT_DIR: /tmp/docreader
+      MAX_FILE_SIZE_MB: "${MAX_FILE_SIZE_MB:-20}"
+      # Conservative limits for the current 2C4G MVP host.
+      DOCREADER_MARKITDOWN_MAX_WORKERS: "${DOCREADER_MARKITDOWN_MAX_WORKERS:-1}"
+      DOCREADER_PDF_RENDER_MAX_WORKERS: "${DOCREADER_PDF_RENDER_MAX_WORKERS:-1}"
+      DOCREADER_PDF_RENDER_PARALLELISM: "${DOCREADER_PDF_RENDER_PARALLELISM:-1}"
+      DOCREADER_PDF_RENDER_DPI: "${DOCREADER_PDF_RENDER_DPI:-160}"
+      DOCREADER_PDF_JPEG_QUALITY: "${DOCREADER_PDF_JPEG_QUALITY:-80}"
+      DOCREADER_PDF_RENDER_MAX_EDGE: "${DOCREADER_PDF_RENDER_MAX_EDGE:-1600}"
+      DOCREADER_ODL_HYBRID: "off"
+      GRPC_TLS_ENABLED: "false"
+    volumes:
+      - docreader_tmp:/tmp/docreader
+    healthcheck:
+      test: ["CMD", "grpc_health_probe", "-addr=localhost:50051"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+    networks: [keystone_mvp]
+    mem_limit: 750m
+
 networks:
   keystone_mvp:
     driver: bridge
@@ -105,3 +140,4 @@ volumes:
   app_state:
   postgres_data:
   qdrant_data:
+  docreader_tmp:

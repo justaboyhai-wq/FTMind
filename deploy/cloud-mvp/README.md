@@ -1,12 +1,12 @@
 # 云端 MVP 部署
 
-此部署栈只包含 Keystone 前端、应用、ParadeDB PostgreSQL 和 Qdrant。
+此部署栈包含 Keystone 前端、应用、ParadeDB PostgreSQL、Qdrant 和基础 DocReader。
 
 - Redis 使用阿里云 Tair。
 - 文件对象存储使用阿里云 OSS。
 - 新建知识库仅允许使用 OSS；旧的 MinIO/本地存储配置不会在此栈中启用。
 - 向量模型在首次登录后通过 Keystone 管理界面配置为火山 AgentPlan。
-- 不启动 MinIO、Redis、DocReader 或本地模型。
+- 不启动 MinIO、Redis、MinerU/ODL 混合解析器或本地模型。
 - 所有数据库和向量端口仅在 Compose 网络内可见；前端仅绑定到宿主机 `127.0.0.1`，由宿主机 Nginx 反向代理。
 
 ## 首次部署
@@ -49,6 +49,8 @@ docker compose --env-file .env up -d --force-recreate app
 
 该脚本只交互式更新 `.env` 中的 `REDIS_PASSWORD`，并保持该文件权限为仅所有者可读写。
 
-## 明确限制
+## 文档解析能力与限制
 
-本阶段不运行 DocReader/MinerU。因此 PDF、Office 文档的解析与重新解析不可用；仅用于验证应用、模型配置、文本/Markdown 知识和检索问答流程。
+DocReader 在同一 Compose 网络中以 gRPC 提供基础解析，端口不映射到 ECS 公网。它支持 PDF、Office 等复杂格式的常规解析；当前按 2C4G MVP 规格限制为单任务、单页渲染进程，并使用 160 DPI。
+
+不部署 MinerU 或 OpenDataLoader 混合服务。因此扫描版、高精度版面恢复和 OCR 不是此阶段目标；这类文件后续需要单独部署 MinerU 或升级解析节点。DocReader 负责提取文本，嵌入模型负责向量化，二者需分别配置。
