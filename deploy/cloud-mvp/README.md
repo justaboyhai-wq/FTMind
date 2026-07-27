@@ -32,11 +32,34 @@
 
 1. 先对云端 PostgreSQL 执行 `pg_dump -Fc` 备份，并保留在 ECS 的受限目录中。
 2. 使用同一 ParadeDB 主版本从本地 PostgreSQL 导出 `pg_dump -Fc`，校验 SHA-256 后恢复到云端；恢复期间停止 `app` 与 `frontend`。
-3. 使用 MinIO API 枚举源对象后再复制到 OSS。不要根据数据库中的 `minio://` 文件路径推断对象一定存在。
+3. 使用 **MinIO API** 枚举和导出源对象后再复制到 OSS。不要直接复制 Docker 数据卷：MinIO 文件系统后端包含 `xl.meta`、`part.*` 等内部对象片段，并不是可供 Keystone 读取的原始附件。
 4. 恢复后将租户和知识库的存储后端切换为 `oss`，并保留 `STORAGE_ALLOW_LIST=oss`；以云端 `.env` 的 OSS 凭据作为唯一有效配置。
 5. Qdrant 不直接复制。配置云端嵌入模型后，按当前模型维度重新建立索引。
 
 如果源 MinIO 没有对象，数据库的历史文件引用不能凭空恢复；知识库元数据和已保存的分块仍可迁移，原始附件需重新上传。
+
+### MinIO 到 OSS 的安全上传工具
+
+`tools/oss-upload-tree` 用于将已经通过 MinIO API 导出的**逻辑文件目录**上传至 OSS。它只从环境变量读取 OSS 凭据，默认先执行 `HeadObject` 并跳过已存在对象；只有在使用全新、隔离的目标前缀时才可显式加 `-overwrite`。它不会删除源数据或 OSS 对象。
+
+在有 Go 开发环境的机器上构建 Linux 静态二进制：
+
+```bash
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+  -o oss-upload-tree ./deploy/cloud-mvp/tools/oss-upload-tree
+```
+
+在 ECS 上执行前，加载该部署目录的 `.env`；不要将 AccessKey 写入命令行或日志：
+
+```bash
+set -a && . ./.env && set +a
+./oss-upload-tree \
+  -source /restricted/export/blexwiki \
+  -prefix "${OSS_PATH_PREFIX}legacy-import-YYYYMMDD/blexwiki" \
+  -dry-run
+```
+
+确认预演对象数和总大小正确后，去掉 `-dry-run`。若 RAM 策略不允许 `HeadObject`，请先授予该用户对 `keystore001/keystone-mvp/*` 的 `GetObject`、`PutObject` 和 `ListObjects` 权限；不要通过盲目重试或改用主账号密钥绕过权限控制。
 
 ## 凭据轮换
 
