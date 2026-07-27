@@ -63,6 +63,8 @@ set -a && . ./.env && set +a
 
 对象数、大小和抽样下载都验证通过后，再使用 `tools/migrate-legacy-minio-refs.sql` 将数据库中的历史 `minio://blexwiki/` 引用改为新的 `oss://` 前缀。该 SQL 包含事务但默认**不提交**，并会列出剩余旧链接；必须先完成 PostgreSQL 备份、确认所有统计值为零，才允许提交。之后再在 Keystone 中重建知识库索引。
 
+如果历史知识库的规则仍将 PDF、DOC 指向 `mineru_cloud`，重建不会实际使用 DocReader。使用 `tools/switch-parser-rules-to-docreader.sql` 预演并提交规则切换：PDF/DOC 走 DocReader `builtin`，原先指向 MinerU 的 PPT/XLS 走 DocReader `markitdown`；其余规则保持原样。完成切换后再触发重新解析。
+
 ## 凭据轮换
 
 Tair 密码轮换后，不要把密码粘贴到 Shell 历史或 Git 中。在部署目录执行：
