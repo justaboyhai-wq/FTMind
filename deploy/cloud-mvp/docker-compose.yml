@@ -113,6 +113,7 @@ services:
       dockerfile: docker/Dockerfile.docreader
       args:
         APT_MIRROR: "${DOCREADER_APT_MIRROR:-}"
+        UV_INDEX_URL: "${DOCREADER_PYPI_INDEX_URL:-}"
     restart: unless-stopped
     expose: ["50051"]
     environment:
@@ -131,7 +132,7 @@ services:
     volumes:
       - docreader_tmp:/tmp/docreader
     healthcheck:
-      test: ["CMD", "grpc_health_probe", "-addr=localhost:50051"]
+      test: ["CMD-SHELL", "python -c \"import grpc; from grpc_health.v1 import health_pb2, health_pb2_grpc; response = health_pb2_grpc.HealthStub(grpc.insecure_channel('localhost:50051')).Check(health_pb2.HealthCheckRequest(), timeout=5); raise SystemExit(0 if response.status == health_pb2.HealthCheckResponse.SERVING else 1)\""]
       interval: 30s
       timeout: 10s
       retries: 3

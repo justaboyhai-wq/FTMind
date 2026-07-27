@@ -55,4 +55,6 @@ DocReader 在同一 Compose 网络中以 gRPC 提供基础解析，端口不映�
 
 部署栈同时保留源码构建定义：若 ECS 的镜像加速器无法获取上游 `keystone-docreader` 预构建镜像，Compose 会使用本项目的 `docker/Dockerfile.docreader` 构建同一版本。可通过 `DOCREADER_APT_MIRROR` 指定 Debian 镜像根地址，例如 `https://mirrors.aliyun.com`。
 
+为控制构建体积和外部下载风险，MVP 构建不下载 GitHub 上的健康检查二进制，也不安装 Playwright 浏览器运行时；健康检查由已安装的 Python gRPC 组件执行。网页解析不属于当前能力范围，Python 依赖可通过 `DOCREADER_PYPI_INDEX_URL` 指定镜像。
+
 不部署 MinerU 或 OpenDataLoader 混合服务。因此扫描版、高精度版面恢复和 OCR 不是此阶段目标；这类文件后续需要单独部署 MinerU 或升级解析节点。DocReader 负责提取文本，嵌入模型负责向量化，二者需分别配置。
