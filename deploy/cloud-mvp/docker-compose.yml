@@ -106,6 +106,13 @@ services:
   # Keep it private: the application is its only client.
   docreader:
     image: "wechatopenai/keystone-docreader:${KEYSTONE_DOCREADER_TAG:-latest}"
+    # Build from this checked-out source when an upstream prebuilt image is not
+    # available through the ECS registry mirror.
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile.docreader
+      args:
+        APT_MIRROR: "${DOCREADER_APT_MIRROR:-}"
     restart: unless-stopped
     expose: ["50051"]
     environment:

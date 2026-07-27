@@ -53,4 +53,6 @@ docker compose --env-file .env up -d --force-recreate app
 
 DocReader 在同一 Compose 网络中以 gRPC 提供基础解析，端口不映射到 ECS 公网。它支持 PDF、Office 等复杂格式的常规解析；当前按 2C4G MVP 规格限制为单任务、单页渲染进程，并使用 160 DPI。
 
+部署栈同时保留源码构建定义：若 ECS 的镜像加速器无法获取上游 `keystone-docreader` 预构建镜像，Compose 会使用本项目的 `docker/Dockerfile.docreader` 构建同一版本。可通过 `DOCREADER_APT_MIRROR` 指定 Debian 软件源镜像。
+
 不部署 MinerU 或 OpenDataLoader 混合服务。因此扫描版、高精度版面恢复和 OCR 不是此阶段目标；这类文件后续需要单独部署 MinerU 或升级解析节点。DocReader 负责提取文本，嵌入模型负责向量化，二者需分别配置。
