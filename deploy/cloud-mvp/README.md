@@ -61,6 +61,8 @@ set -a && . ./.env && set +a
 
 确认预演对象数和总大小正确后，去掉 `-dry-run`。若 RAM 策略不允许 `HeadObject`，请先授予该用户对 `keystore001/keystone-mvp/*` 的 `GetObject`、`PutObject` 和 `ListObjects` 权限；不要通过盲目重试或改用主账号密钥绕过权限控制。
 
+对象数、大小和抽样下载都验证通过后，再使用 `tools/migrate-legacy-minio-refs.sql` 将数据库中的历史 `minio://blexwiki/` 引用改为新的 `oss://` 前缀。该 SQL 包含事务但默认**不提交**，并会列出剩余旧链接；必须先完成 PostgreSQL 备份、确认所有统计值为零，才允许提交。之后再在 Keystone 中重建知识库索引。
+
 ## 凭据轮换
 
 Tair 密码轮换后，不要把密码粘贴到 Shell 历史或 Git 中。在部署目录执行：
