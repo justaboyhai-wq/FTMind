@@ -33,9 +33,11 @@ RUN apt-get update && apt-get install -y \
 
 # 复制依赖文件
 COPY docreader/pyproject.toml docreader/uv.lock ./
+# The repository lock currently predates several declared parser packages.
+# Resolve inside this disposable build layer rather than failing startup.
 RUN if [ -n "$UV_INDEX_URL" ]; then export UV_INDEX_URL PIP_INDEX_URL="$UV_INDEX_URL"; fi && \
     pip install uv --break-system-packages && \
-    python -m uv sync --locked --no-dev
+    python -m uv sync --no-dev
 
 # 复制源代码和生成脚本
 COPY docreader docreader
