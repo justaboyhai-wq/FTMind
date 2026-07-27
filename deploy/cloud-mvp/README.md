@@ -4,6 +4,7 @@
 
 - Redis 使用阿里云 Tair。
 - 文件对象存储使用阿里云 OSS。
+- 新建知识库仅允许使用 OSS；旧的 MinIO/本地存储配置不会在此栈中启用。
 - 向量模型在首次登录后通过 Keystone 管理界面配置为火山 AgentPlan。
 - 不启动 MinIO、Redis、DocReader 或本地模型。
 - 所有数据库和向量端口仅在 Compose 网络内可见；前端仅绑定到宿主机 `127.0.0.1`，由宿主机 Nginx 反向代理。
@@ -26,6 +27,16 @@
    ```
 
 5. 通过前端完成首次管理员、OSS 连通性与火山 AgentPlan 模型配置。验证无误后，再将 Nginx 的 `keystone.boliboliworld.cn` upstream 从旧前端切换到 `127.0.0.1:18081`。
+
+## 从本地 Docker 迁移
+
+1. 先对云端 PostgreSQL 执行 `pg_dump -Fc` 备份，并保留在 ECS 的受限目录中。
+2. 使用同一 ParadeDB 主版本从本地 PostgreSQL 导出 `pg_dump -Fc`，校验 SHA-256 后恢复到云端；恢复期间停止 `app` 与 `frontend`。
+3. 使用 MinIO API 枚举源对象后再复制到 OSS。不要根据数据库中的 `minio://` 文件路径推断对象一定存在。
+4. 恢复后将租户和知识库的存储后端切换为 `oss`，并保留 `STORAGE_ALLOW_LIST=oss`；以云端 `.env` 的 OSS 凭据作为唯一有效配置。
+5. Qdrant 不直接复制。配置云端嵌入模型后，按当前模型维度重新建立索引。
+
+如果源 MinIO 没有对象，数据库的历史文件引用不能凭空恢复；知识库元数据和已保存的分块仍可迁移，原始附件需重新上传。
 
 ## 凭据轮换
 

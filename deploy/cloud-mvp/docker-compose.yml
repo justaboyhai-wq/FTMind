@@ -41,6 +41,8 @@ services:
       QDRANT_PORT: "6334"
       QDRANT_COLLECTION: "${QDRANT_COLLECTION:-keystone_embeddings}"
       STORAGE_TYPE: oss
+      # The cloud MVP has one approved object store: the OSS bucket from .env.
+      STORAGE_ALLOW_LIST: oss
       APP_EXTERNAL_URL: "${APP_EXTERNAL_URL}"
       KEYSTONE_MODEL_MAX_CONCURRENCY: "${KEYSTONE_MODEL_MAX_CONCURRENCY:-1}"
       KEYSTONE_ASYNQ_CORE_CONCURRENCY: "${KEYSTONE_ASYNQ_CORE_CONCURRENCY:-1}"
