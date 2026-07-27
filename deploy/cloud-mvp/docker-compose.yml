@@ -1,0 +1,105 @@
+name: keystone-mvp
+
+services:
+  frontend:
+    build:
+      context: ../../frontend
+      dockerfile: Dockerfile
+    image: keystone-mvp-frontend:${KEYSTONE_IMAGE_TAG:-local}
+    restart: unless-stopped
+    ports:
+      # Keep the MVP behind the host Nginx; do not expose a second public HTTP port.
+      - "127.0.0.1:${FRONTEND_PORT:-18081}:80"
+    environment:
+      APP_HOST: app
+      APP_PORT: "8080"
+      APP_SCHEME: http
+      MAX_FILE_SIZE_MB: "${MAX_FILE_SIZE_MB:-20}"
+    depends_on:
+      app:
+        condition: service_healthy
+    networks: [keystone_mvp]
+    mem_limit: 160m
+
+  app:
+    build:
+      context: ../..
+      dockerfile: docker/Dockerfile.app
+      args:
+        GOPROXY_ARG: "${GOPROXY_ARG:-https://goproxy.cn,direct}"
+        APK_MIRROR_ARG: "${APK_MIRROR_ARG:-mirrors.aliyun.com}"
+    image: keystone-mvp-app:${KEYSTONE_IMAGE_TAG:-local}
+    restart: unless-stopped
+    env_file: ${ENV_FILE:-.env}
+    environment:
+      GIN_MODE: release
+      DB_DRIVER: postgres
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      RETRIEVE_DRIVER: qdrant
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: "6334"
+      QDRANT_COLLECTION: "${QDRANT_COLLECTION:-keystone_embeddings}"
+      STORAGE_TYPE: oss
+      APP_EXTERNAL_URL: "${APP_EXTERNAL_URL}"
+      KEYSTONE_MODEL_MAX_CONCURRENCY: "${KEYSTONE_MODEL_MAX_CONCURRENCY:-1}"
+      KEYSTONE_ASYNQ_CORE_CONCURRENCY: "${KEYSTONE_ASYNQ_CORE_CONCURRENCY:-1}"
+      KEYSTONE_ASYNQ_ENRICHMENT_CONCURRENCY: "${KEYSTONE_ASYNQ_ENRICHMENT_CONCURRENCY:-1}"
+      KEYSTONE_ASYNQ_MAINTENANCE_CONCURRENCY: "${KEYSTONE_ASYNQ_MAINTENANCE_CONCURRENCY:-1}"
+      KEYSTONE_ASYNQ_SHARED_CONCURRENCY: "${KEYSTONE_ASYNQ_SHARED_CONCURRENCY:-1}"
+      KEYSTONE_WIKI_ASYNQ_CONCURRENCY: "${KEYSTONE_WIKI_ASYNQ_CONCURRENCY:-1}"
+      DOCREADER_ADDR: ""
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    expose: ["8080"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    volumes:
+      - app_state:/data/files
+    networks: [keystone_mvp]
+    mem_limit: 1200m
+
+  postgres:
+    image: paradedb/paradedb:v0.22.2-pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      POSTGRES_DB: "${DB_NAME}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    expose: ["5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    stop_grace_period: 1m
+    networks: [keystone_mvp]
+    mem_limit: 1100m
+
+  qdrant:
+    image: qdrant/qdrant:v1.18.1
+    restart: unless-stopped
+    volumes:
+      - qdrant_data:/qdrant/storage
+    expose: ["6333", "6334"]
+    networks: [keystone_mvp]
+    mem_limit: 1000m
+
+networks:
+  keystone_mvp:
+    driver: bridge
+
+volumes:
+  app_state:
+  postgres_data:
+  qdrant_data:
