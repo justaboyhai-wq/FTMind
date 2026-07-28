@@ -29,14 +29,27 @@ templates:
       - Each question must be self-contained: NO pronouns or references (e.g., "it", "this", "that document"); use specific names
       - Questions should be at a level where someone would genuinely search for the answer, not quiz-style trivia
       - Each question should be concise and clear, within 30 words
+      - Write fully natural, grammatical questions in {{language}}. Do not mechanically concatenate columns, dates, weekdays, holidays, numbers, or labels from a table
+      - Prefer the user's real information need over the literal wording or position of a table cell
 
       ## What NOT to Generate
       - Do NOT generate questions about minor details that are only briefly mentioned
       - Do NOT generate questions that can be answered with a single word or number extracted from the text
       - Do NOT generate questions that are too broad to be meaningfully answered by this specific content
+      - Do NOT generate questions from an isolated calendar row, table fragment, identifier list, date/weekday mapping, or other low-context data unless it provides a complete and meaningful answer on its own
+
+      ## When to Skip
+      - If <main_content> is only a fragmented table row, a calendar/date listing, or otherwise has no meaningful standalone user question, output exactly `SKIP` and nothing else
+      - It is better to output `SKIP` than to invent, combine, or force a question
+
+      ## Mandatory Chinese Quality Gate
+      Before writing any question, classify the main content as either `MEANINGFUL` or `SKIP`.
+      - Classify it as `SKIP` when it is primarily a spreadsheet row or calendar feature data: date, year/month/day, week number, weekday, holiday, solar term, seasonal period, numeric flag, or a label-to-value mapping
+      - For `SKIP`, output exactly `SKIP`; never turn those fields into a question and never infer a business question from them
+      - In Chinese output, every question must be a complete and natural question that a business user would genuinely ask. Reject any draft that begins with incomplete time fragments such as "年", "月", "第...周", or "星期..."
 
       ## Output
-      Generate {{question_count}} questions, one per line, no numbering or prefixes.
+      Generate up to {{question_count}} high-quality questions, one per line, no numbering or prefixes. Fewer questions are allowed when the content supports fewer meaningful questions.
 
       ## CRITICAL: Language Rule
       - Generate questions in {{language}}

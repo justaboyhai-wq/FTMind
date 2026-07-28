@@ -22,6 +22,8 @@ This is a controlled application repository for private deployment and internal 
 
 ## Quick start
 
+The current production profile is a cloud MVP on the Hangzhou ECS: the application, PostgreSQL, Qdrant and DocReader run in Docker Compose; Alibaba Cloud Tair provides Redis/Asynq; Alibaba Cloud OSS stores files; and models are accessed through managed APIs. New engineers and operators should read the [production runbook](./docs/DEPLOYMENT_RUNBOOK.md) first. This section is for local development.
+
 ### Requirements
 
 - Docker Desktop with Docker Compose
@@ -89,6 +91,8 @@ Existing deployments can keep their current data and service configuration when 
 | Agent skills | [docs/agent-skills.md](./docs/agent-skills.md) |
 | Architecture and deployment | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
 | Production deployment runbook | [docs/DEPLOYMENT_RUNBOOK.md](./docs/DEPLOYMENT_RUNBOOK.md) |
+| Cloud MVP Compose | [deploy/cloud-mvp/README.md](./deploy/cloud-mvp/README.md) |
+| Business capability map | [docs/diagrams/keystone-business-architecture.png](./docs/diagrams/keystone-business-architecture.png) |
 
 ## Development and verification
 

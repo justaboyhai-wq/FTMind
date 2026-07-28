@@ -22,6 +22,8 @@ Keystone 将文件、网页和 Markdown 沉淀为可私有部署、可持续演�
 
 ## 快速开始
 
+当前生产环境是杭州 ECS 上的云端 MVP：应用、PostgreSQL、Qdrant 与 DocReader 使用 Docker Compose，队列使用阿里云 Tair，文件使用阿里云 OSS，模型通过受管 API 调用。新员工和运维人员应先阅读[部署与运维手册](./docs/DEPLOYMENT_RUNBOOK.md)；本节仅用于本地开发。
+
 ### 环境要求
 
 - Docker Desktop（含 Docker Compose）
@@ -89,6 +91,8 @@ docker compose --profile minio --profile neo4j up -d
 | Agent Skills | [docs/agent-skills.md](./docs/agent-skills.md) |
 | 架构与部署说明 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
 | 生产部署与运维手册 | [docs/DEPLOYMENT_RUNBOOK.md](./docs/DEPLOYMENT_RUNBOOK.md) |
+| 云端 MVP Compose | [deploy/cloud-mvp/README.md](./deploy/cloud-mvp/README.md) |
+| 业务功能架构图 | [docs/diagrams/keystone-business-architecture.png](./docs/diagrams/keystone-business-architecture.png) |
 
 ## 本地开发与验证
 

@@ -1,240 +1,271 @@
 # Keystone 部署与运维手册（新员工必读）
 
-> 适用范围：当前生产部署、日常值守、故障排查和后续迁移。本文描述的是已验证的实际架构，不包含密码、私钥、令牌或模型 API Key。任何人在修改 DNS、WireGuard、反向代理、模型、向量库或 Compose 文件前，必须先阅读本文和 [系统架构](./ARCHITECTURE.md)。
+> 本文是当前生产实例的事实基线，校准日期为 2026-07-28。它用于部署、值守、排障、备份和回滚，不记录任何密码、私钥、AccessKey 或模型 API Key。通用代码与组件边界见[开发与系统架构](./ARCHITECTURE.md)。
 
-## 1. 先理解当前部署：应用入口在云端，业务状态在本机
+## 1. 当前生产结论
 
-当前生产访问地址是：<https://keystone.boliboliworld.cn>。
+Keystone 已采用“杭州 ECS 单机应用栈 + 阿里云托管 Tair/OSS + 远程模型 API”的纯云 MVP 架构。历史上的 WireGuard、本机 Docker、MinIO 和本地模型不再是生产请求链路的一部分。
 
-系统不是把所有容器都放在 ECS 上，而是采用“云端公网入口 + 本机受控运行环境”的混合部署。原因是本机保存了现有 Keystone 的数据库、对象文件、向量索引、模型连接和加密状态；直接在云端复制 App 并同时运行后台 worker，会造成凭据复制、队列重复消费和数据不一致风险。
+| 项目 | 当前值 |
+| --- | --- |
+| 访问地址 | `https://keystone.boliboliworld.cn` |
+| ECS | 华东 1（杭州），`2 vCPU / 4 GiB`，公网 `8.136.98.84`，私网 `172.19.172.202` |
+| 系统盘 | 100 GiB 文件系统；2026-07-28 实测约 41 GiB 已用、54 GiB 可用 |
+| 部署目录 | `/opt/keystone/deploy/cloud-mvp` |
+| Compose 项目 | `keystone-mvp` |
+| 公网入口 | 宿主机 Nginx：80/443；前端只绑定 `127.0.0.1:18081` |
+| 应用容器 | Frontend、App、ParadeDB/PostgreSQL、Qdrant、DocReader |
+| 托管服务 | 阿里云 Tair（Redis 兼容）、阿里云 OSS |
+| 当前 Embedding | 硅基流动 `BAAI/bge-m3`，1024 维 |
+| 当前问答/问题生成 | 火山引擎 AgentPlan `doubao-seed-2.0-pro` |
+
+2C4G 是单用户/小团队 MVP 下限，不是高并发生产规格。当前所有模型和 Asynq worker 并发均从 1 起步；批量导入期间应观察内存、Swap、队列和模型限流。
+
+## 2. 部署架构
 
 ```mermaid
 flowchart LR
-    U[员工浏览器] -->|HTTPS 443| DNS[keystone.boliboliworld.cn]
-    DNS --> ECS[ECS 公网 IP]
-    ECS --> NG[Nginx<br/>TLS 终止与反向代理]
-    NG --> FE[Cloud Frontend 容器<br/>127.0.0.1:18080]
-    FE -->|WireGuard| APP[本机 Keystone App<br/>10.76.0.2:8080]
-    APP --> PG[(PostgreSQL)]
-    APP --> R[(Redis / Asynq)]
-    APP --> S3[(MinIO)]
+    U[浏览器] -->|HTTPS 443| DNS[keystone.boliboliworld.cn]
+    DNS --> NG[杭州 ECS<br/>Nginx / TLS]
+    NG -->|127.0.0.1:18081| FE[Frontend 容器]
+    FE -->|Compose 私网 :8080| APP[Keystone App<br/>API + Asynq Workers]
+    APP --> PG[(ParadeDB / PostgreSQL)]
     APP --> Q[(Qdrant)]
-    APP --> DR[DocReader]
-    APP --> M[本地 / 受控模型服务]
+    APP --> DR[DocReader gRPC]
+    APP -->|VPC :6379| R[(阿里云 Tair)]
+    APP -->|HTTPS| OSS[(阿里云 OSS)]
+    APP -->|HTTPS API| SF[硅基流动<br/>Embedding]
+    APP -->|HTTPS API| VOLC[火山 AgentPlan<br/>Chat / Question]
 ```
 
-### 1.1 组件归属
+### 2.1 组件职责与数据边界
 
-| 位置 | 组件 | 职责 | 是否公网开放 |
-| --- | --- | --- | --- |
-| 阿里云 ECS | Nginx | 域名、HTTPS、将请求代理到云端前端容器 | 仅 80/443 |
-| 阿里云 ECS | `keystone-cloud-frontend` | 前端静态资源与 `/api` 代理 | 仅 `127.0.0.1:18080` |
-| 本机 | WireGuard | 云端与本机的私有加密网络 | 仅 VPN 对等端 |
-| 本机 | `Keystone-app` | API、登录、业务、任务生产和 Asynq worker | 通过 VPN 提供给云端前端 |
-| 本机 | PostgreSQL / Redis / MinIO / Qdrant / DocReader | 业务数据、队列、文件、检索、解析 | 不对公网开放 |
-| 本机或受控网络 | 模型服务 | Chat、Embedding、Rerank、VLM、ASR 等 | 仅 App 可访问 |
+| 组件 | 部署位置 | 职责 | 数据性质 | 公网暴露 |
+| --- | --- | --- | --- | --- |
+| Nginx | ECS 宿主机 | TLS、域名、HTTP→HTTPS、反向代理 | 配置和访问日志 | 80/443 |
+| Frontend | Docker | Vue 静态资源与 `/api` 代理 | 无业务事实数据 | 仅 127.0.0.1:18081 |
+| App | Docker | REST API、鉴权、业务编排、模型路由、Asynq worker | 本地状态卷仅作应用辅助 | 否 |
+| PostgreSQL | Docker volume | 用户、空间、知识库、模型配置、会话、任务与审计事实源 | 核心数据 | 否 |
+| Qdrant | Docker volume | 1024 维向量索引与检索 | 可重建但重建成本高 | 否 |
+| DocReader | Docker | PDF/Office 等基础文本解析 | 临时结果 | 否 |
+| Tair | 阿里云 VPC | Redis/Asynq 队列、流式事件与运行态 | 非唯一事实源 | 否 |
+| OSS | 阿里云 | 原始文件、解析附件与生成文件 | 核心文件资产 | 仅服务 API |
+| 模型服务 | 硅基流动/火山 | Embedding、问答、摘要、问题生成 | 外部计算能力 | 仅 App 出站访问 |
 
-**最重要的边界**：浏览器从不直接访问 PostgreSQL、Redis、MinIO、Qdrant、DocReader 或模型服务。它们只能由 App 在内网或 WireGuard 网络中访问。
+浏览器不得直接访问 PostgreSQL、Qdrant、DocReader、Tair 或 OSS 凭据接口。数据库与向量端口只存在于 Compose 网络，Tair 只允许 ECS 私网 IP。
 
-## 2. 网络、DNS 与端口
+## 3. 代码、配置和密钥位置
 
-### 2.1 已固定的网络关系
-
-| 项目 | 当前值 / 约束 |
-| --- | --- |
-| 公网域名 | `keystone.boliboliworld.cn` |
-| ECS 公网 IP | `8.136.98.84` |
-| DNS | A 记录：`keystone` → `8.136.98.84` |
-| 云端 WireGuard 地址 | `10.76.0.1/24` |
-| 本机 WireGuard 地址 | `10.76.0.2/24` |
-| WireGuard UDP 端口 | `51820`，安全组仅允许本机当前公网出口地址 |
-| ECS 前端容器绑定 | `127.0.0.1:18080`，由 Nginx 转发 |
-| 本机 Keystone App | `10.76.0.2:8080`，只由 ECS 前端经 VPN 使用 |
-
-### 2.2 本机专用服务端口
-
-下列端口通过 [`docker-compose.wireguard.yml`](../docker-compose.wireguard.yml) 绑定到 `10.76.0.2`，用于“将来把 App 放到云端”的模式或受控诊断；它们不应加入公网安全组。
-
-| 服务 | 本机 WireGuard 地址 | 容器端口 |
+| 内容 | 位置 | 是否进入 Git |
 | --- | --- | --- |
-| PostgreSQL | `10.76.0.2:15432` | `5432` |
-| Redis | `10.76.0.2:16379` | `6379` |
-| MinIO S3 API | `10.76.0.2:19000` | `9000` |
-| Qdrant gRPC | `10.76.0.2:16334` | `6334` |
-| DocReader gRPC | `10.76.0.2:15051` | `50051` |
+| 云端 Compose | `deploy/cloud-mvp/docker-compose.yml` | 是 |
+| 配置模板 | `deploy/cloud-mvp/.env.example` | 是，仅占位符 |
+| 生产配置 | `/opt/keystone/deploy/cloud-mvp/.env` | 否，权限必须为 `600` |
+| Nginx 站点 | `/etc/nginx/conf.d/keystone.boliboliworld.cn.conf` | 服务器受控配置 |
+| TLS 证书 | `/etc/letsencrypt/live/keystone.boliboliworld.cn/` | 否 |
+| 数据卷 | Docker volumes：PostgreSQL、Qdrant、App、DocReader 临时卷 | 否 |
+| 备份目录 | `/opt/keystone/backups/` | 否 |
 
-这些端口必须只允许 WireGuard 云端地址 `10.76.0.1` 访问。不要因为排障方便而映射到 `0.0.0.0`，也不要把它们写入 ECS 安全组的公网规则。
+生产 `.env` 必须包含随机数据库、JWT、AES、主密钥与盐，以及 Tair/OSS 凭据。不要通过命令参数、Git、截图、聊天或工单传播密钥。火山 AgentPlan 同一 Provider 下的模型共用一份加密凭据；只需在一个相关模型录入/更新 Key，不应复制多份。
 
-## 3. HTTPS 与域名证书
+当前 OSS RAM 用户仍使用账号级 `AliyunOSSFullAccess`，这是待收敛风险。应改为仅允许 `keystore001/keystone-mvp/*` 的 `List/Get/Put/Delete` 自定义策略，验证后撤销全量权限。
 
-ECS Nginx 为 `keystone.boliboliworld.cn` 提供 TLS，Let’s Encrypt 证书由 Certbot 管理。证书文件位于：
-
-```text
-/etc/letsencrypt/live/keystone.boliboliworld.cn/
-```
-
-Nginx 站点配置位于：
-
-```text
-/etc/nginx/conf.d/keystone.boliboliworld.cn.conf
-```
-
-该站点将 HTTPS 请求转发给 `127.0.0.1:18080`，并已启用 HTTP → HTTPS 跳转和 HSTS。不要手工删除 Certbot 管理的 `listen 443`、`ssl_certificate` 或 `ssl_certificate_key` 行。
-
-证书检查：
-
-```bash
-sudo certbot certificates
-sudo systemctl status certbot-renew.timer
-curl -I https://keystone.boliboliworld.cn/
-```
-
-如果浏览器刚访问过旧的 HTTP 或旧证书页面，使用强制刷新后再判断；不要仅依据浏览器缓存提示修改证书。
-
-## 4. 本机服务启动与重启
+## 4. 首次部署
 
 ### 4.1 前置条件
 
-1. Windows 已安装 Docker Desktop，并处于运行状态。
-2. WireGuard 隧道 `hangzhou` 已连接，地址为 `10.76.0.2/24`。
-3. 本机仓库位于受控目录，`.env` 存在且未提交。
-4. 不得把 `.env`、WireGuard 私钥、数据库导出文件或模型密钥复制到 Git、聊天或工单正文。
+1. ECS 文件系统已扩到 100 GiB，Docker、Compose、Git 和 Nginx 可用。
+2. DNS A 记录 `keystone` 指向 `8.136.98.84`，安全组只开放必要的 22、80、443。
+3. Tair 与 ECS 在可达的 VPC 网络中，白名单包含 `172.19.172.202`。
+4. OSS bucket、RAM 用户和限定前缀已创建。
+5. `/opt/keystone` 是经确认的 Git commit，工作目录没有未解释的生产手改。
 
-### 4.2 启动完整本机后端
-
-在仓库根目录执行：
-
-```powershell
-docker compose -f docker-compose.yml -f docker-compose.wireguard.yml `
-  --profile minio --profile qdrant up -d
-```
-
-检查状态：
-
-```powershell
-docker compose -f docker-compose.yml -f docker-compose.wireguard.yml ps
-docker inspect --format '{{.Name}} {{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' `
-  Keystone-app Keystone-postgres Keystone-docreader
-```
-
-预期结果：`Keystone-app`、`Keystone-postgres`、`Keystone-docreader` 为 `healthy`；Redis 与 Qdrant 处于 `running`；MinIO 健康检查通过。
-
-### 4.3 为什么不能同时启动第二个云端 App
-
-当前本机 `Keystone-app` 已运行 API 与后台 worker。若另一个云端 App 使用同一个 PostgreSQL、Redis、对象存储和 Qdrant：
-
-- 两个 worker 会共同消费队列，吞吐和副作用变得难以预期；
-- 加密密钥不一致会导致既有敏感配置无法解密；
-- 本机与云端的配置、模型和文件状态容易漂移；
-- 排障时无法判断请求或任务由哪个 App 执行。
-
-因此当前生产模式只在 ECS 运行前端代理。要迁移为“云端 App + 本机组件”，必须先完成密钥托管、worker 拆分/停用本机 worker、回滚方案和预发布验证；具体模板见 [`deploy/cloud-app/`](../deploy/cloud-app/)。
-
-## 5. ECS 服务操作
-
-通过受控 SSH 登录 ECS 后执行。不要在共享终端粘贴 `.env` 内容。
-
-### 5.1 查看云端入口容器与 Nginx
+### 4.2 部署命令
 
 ```bash
-docker ps --filter name=keystone-cloud-frontend
-curl -I http://127.0.0.1:18080/
-sudo nginx -t
-sudo systemctl status nginx
+cd /opt/keystone
+git fetch origin main
+git checkout main
+git pull --ff-only origin main
+
+cd deploy/cloud-mvp
+test -f .env || cp .env.example .env
+chmod 600 .env
+# 交互式填写/轮换凭据；不要把值写进命令历史
+./update-env-secrets.py
+
+docker compose config --quiet
+docker compose up -d --build
+docker compose ps
+curl -f http://127.0.0.1:18081/health
+nginx -t && systemctl reload nginx
 curl -I https://keystone.boliboliworld.cn/
 ```
 
-### 5.2 重启顺序
+首次启动后在管理界面完成：
 
-正常情况下只重启故障组件，不要无差别重启整台服务器：
+1. 创建管理员和空间。
+2. 测试 OSS、Qdrant、Embedding 和 Chat 模型连接。
+3. 配置 `BAAI/bge-m3` 为 1024 维 Embedding。
+4. 配置 `doubao-seed-2.0-pro` 为问答/摘要模型。
+5. 上传一个小型 PDF，验证“上传→解析→向量化→检索→引用回答”。
+
+## 5. 日常发布
+
+发布前必须知道旧 commit，并确保 `/opt/keystone/backups/` 中存在可用 PostgreSQL 备份。
 
 ```bash
-# 仅刷新云端前端容器
-docker restart keystone-cloud-frontend
+cd /opt/keystone
+old_commit="$(git rev-parse HEAD)"
+git fetch origin main
+git pull --ff-only origin main
 
-# 仅重新加载 Nginx 配置
-sudo nginx -t && sudo systemctl reload nginx
-
-# 检查 WireGuard
-sudo wg show wg0
-ip addr show wg0
+cd deploy/cloud-mvp
+docker compose config --quiet
+docker compose up -d --build
+docker compose ps
+curl -f http://127.0.0.1:18081/health
+curl -fsS https://keystone.boliboliworld.cn/ >/dev/null
+echo "previous commit: ${old_commit}"
 ```
 
-如果重启 Docker，容器配置了 `--restart unless-stopped`，应会自动恢复；仍须执行 `docker ps` 和公网 `curl` 验证。
+仅调整问题生成提示词时，App 通过只读挂载读取 `config/prompt_templates/generate_questions.yaml`，无需重建 App 镜像，但需要重建/重启 App 容器：
 
-## 6. 日常健康检查与故障定位
+```bash
+cd /opt/keystone/deploy/cloud-mvp
+docker compose up -d --force-recreate app
+docker compose ps app
+```
 
-按“入口 → VPN → App → 依赖”的顺序检查，不要从数据库开始盲目重启。
+## 6. 健康检查
 
-| 现象 | 首先检查 | 常见原因 | 处理方向 |
+```bash
+systemctl is-active nginx docker sshd
+nginx -t
+df -h /
+free -h
+
+cd /opt/keystone/deploy/cloud-mvp
+docker compose ps
+docker compose logs --tail 100 app
+docker compose logs --tail 100 docreader
+curl -f http://127.0.0.1:18081/health
+curl -I https://keystone.boliboliworld.cn/
+```
+
+预期状态：
+
+- `nginx`、`docker`、`sshd` 为 `active`；
+- App、PostgreSQL、DocReader 为 `healthy`；
+- Frontend、Qdrant 为 `Up`；
+- 本机 health 和公网 HTTPS 均返回 200；
+- PostgreSQL、Qdrant、DocReader 端口不出现在宿主机公网监听列表。
+
+## 7. 故障定位
+
+按“DNS/TLS → Nginx → Frontend → App → 数据/模型依赖”顺序排查。
+
+| 现象 | 首查 | 常见原因 | 处理 |
 | --- | --- | --- | --- |
-| 域名无法访问 | DNS A 记录、ECS 80/443、安全组 | DNS 未生效、网关未运行 | `Resolve-DnsName`、`nginx -t`、检查安全组 |
-| HTTPS 报错 | 证书、域名、浏览器缓存 | 域名不匹配、证书续期失败、旧缓存 | `certbot certificates`，确认访问完整 HTTPS 域名 |
-| 页面能打开但登录/API失败 | ECS 前端 → VPN → 本机 App | WireGuard 断开、本机 Docker 未启动 | `wg show`，检查 `Keystone-app` 健康状态 |
-| 上传/解析失败 | DocReader、MinIO、Redis、模型服务 | 组件未启动、对象存储或模型不可达 | 检查本机容器、App 日志与任务失败原因 |
-| 检索无结果 | Embedding、Qdrant、知识库状态 | 模型维度/collection 不一致，入库未完成 | 核对模型配置、collection 与任务状态 |
-| 队列积压 | Redis 与 App worker | 模型限流、DocReader CPU 不足、上游 429 | 降低并发，先恢复上游依赖 |
+| 域名不可达 | DNS、80/443、安全组、Nginx | 解析错误或 Nginx 未启动 | 校验 A 记录、`nginx -t` |
+| 显示不安全 | 证书和域名 | 证书过期、域名不匹配、缓存 | `certbot certificates`，只访问完整 HTTPS 域名 |
+| 页面正常但 API 失败 | Frontend/App | App 不健康、配置错误 | `docker compose logs app` |
+| 登录后任务不动 | Tair/Asynq | 白名单、密码、队列积压 | 测试 VPC 连接，查看 worker 日志 |
+| 上传失败 | OSS、文件大小 | RAM 权限、前缀或 CORS/大小限制 | 用受限凭据测试对象读写 |
+| 解析失败 | DocReader | 格式不支持、内存不足 | 查看 DocReader/App 日志；扫描件需另行 OCR |
+| 检索为空 | Embedding/Qdrant | 维度不一致或回填未完成 | 确认 1024 维 collection 并重建 |
+| 推荐问题不通顺 | 问题生成模型/Prompt | 表格碎片被误当语义文本 | 使用最新 Prompt，重新处理对应文件 |
 
-常用命令：
+日志外发前必须去除 Authorization、Cookie、AccessKey、模型 Key、文件内容和个人信息。
 
-```powershell
-# 本机
-docker compose -f docker-compose.yml -f docker-compose.wireguard.yml logs --tail 200 app
-docker compose -f docker-compose.yml -f docker-compose.wireguard.yml logs --tail 200 docreader
-```
+## 8. 模型与向量化规则
+
+- `BAAI/bge-m3` 只负责 Embedding，不是 Chat 模型；当前输出 1024 维。
+- `doubao-seed-2.0-pro` 负责问答、摘要和推荐问题生成。
+- Rerank 是可选候选重排，不替代 Embedding。
+- DocReader 负责文本提取，不负责向量化。
+- 问题生成保持启用。最新 Prompt 会拒绝孤立日期、周次、节气、表格字段等低语义片段；模型返回 `SKIP` 时 App 不持久化、不向量化该控制词。
+- Embedding 模型、维度、距离度量或分块策略变化时，必须新建/清空目标 collection 并完整重建，不得混用旧向量。
+- 当前生产 collection 使用 1024 维、Cosine；点数量随重建任务变化，不作为固定配置。
+
+## 9. 备份与恢复
+
+### 9.1 最小备份集合
+
+1. PostgreSQL `pg_dump -Fc`；
+2. OSS bucket/prefix 的版本或清单；
+3. Qdrant collection 快照，或保留可重建所需的 PostgreSQL + OSS + 模型/维度记录；
+4. 加密保存的 `.env` 和密钥恢复材料；
+5. Git commit、Compose 文件、镜像标签、模型名、向量维度。
+
+Redis/Tair 是运行态，不是唯一事实源。DocReader 临时卷不作为备份对象。
+
+示例数据库备份：
 
 ```bash
-# ECS
-docker logs --tail 200 keystone-cloud-frontend
-sudo journalctl -u nginx -n 100 --no-pager
-sudo wg show wg0
+cd /opt/keystone/deploy/cloud-mvp
+mkdir -p /opt/keystone/backups
+stamp="$(date +%Y%m%d-%H%M%S)"
+docker compose exec -T postgres pg_dump \
+  -U "${DB_USER:-keystone}" -d "${DB_NAME:-keystone}" -Fc \
+  > "/opt/keystone/backups/keystone-${stamp}.dump"
+sha256sum "/opt/keystone/backups/keystone-${stamp}.dump"
 ```
 
-日志可能包含文件名、业务错误或网络地址；对外分享前必须脱敏，不能复制 `.env`、Authorization、Cookie 或模型 Key。
+执行前应从受限环境加载正确的数据库名和用户；不要把密码写进命令。备份完成不等于可恢复，必须定期在隔离环境做恢复演练。
 
-## 7. 模型、向量库与数据边界
+### 9.2 恢复顺序
 
-新员工需要区分三类数据：
+1. 恢复密钥与 `.env`；
+2. 启动 PostgreSQL、Qdrant，确认 Tair/OSS 可达；
+3. 恢复 PostgreSQL 和 OSS 原始文件；
+4. 恢复 Qdrant 快照，或按固定模型完整重建向量；
+5. 启动 DocReader、App、Frontend；
+6. 验证登录、历史文件预览、检索、引用回答和新上传。
 
-1. **PostgreSQL**：用户、空间、知识库元数据、消息、模型配置和审计事实源。
-2. **MinIO / 对象存储**：原始文件与解析附件；数据库备份不包含这些原文件。
-3. **Qdrant / 向量库**：可由原始文件重建但成本较高的检索索引。
+## 10. 回滚
 
-Embedding 模型的维度、距离度量、分块策略和 collection 命名共同决定索引兼容性。更换 embedding 模型或维度时，必须新建/重建索引，不得直接复用旧 collection。Rerank 只负责候选重排；Chat 模型负责回答与 Agent 推理；VLM/ASR 只在图像或音频流程启用。详细实现边界见 [系统架构的模型与向量章节](./ARCHITECTURE.md#6-模型组件与调度原则)。
+代码回滚使用明确 commit，不使用 `reset --hard` 清理未知工作：
 
-## 8. 备份、变更与回滚
+```bash
+cd /opt/keystone
+git status --short
+git checkout <last-known-good-commit>
+cd deploy/cloud-mvp
+docker compose up -d --build
+docker compose ps
+curl -f http://127.0.0.1:18081/health
+```
 
-### 8.1 最小备份集合
+若数据库结构已迁移，代码回滚不等于数据回滚。先停 App，按该版本的迁移兼容说明恢复数据库，再启动服务。禁止使用 `docker compose down -v`、`docker system prune -a` 或直接删除卷排障。
 
-- PostgreSQL 逻辑备份或受控快照；
-- MinIO bucket 与版本策略；
-- Qdrant collection 快照；
-- 加密保存的部署配置与密钥恢复材料；
-- 记录当前 Git commit、容器镜像标签、模型名和 embedding 维度。
+## 11. 共享 ECS 注意事项
 
-Redis 不应作为唯一事实源。恢复时优先恢复密钥/配置、PostgreSQL、对象存储和向量库，再启动 DocReader、App 和前端。
+该 ECS 还承载其他历史应用和 Nginx 站点。Keystone 变更必须限定在：
 
-### 8.2 变更规则
+- `/opt/keystone`；
+- Compose 项目 `keystone-mvp`；
+- `127.0.0.1:18081`；
+- Keystone 自己的 Nginx vhost。
 
-- 修改 DNS、Nginx、WireGuard、安全组或端口前，先写出回滚命令并在变更后立刻验证。
-- 修改模型、向量 collection、存储桶或 worker 并发前，先确认影响范围和回填计划。
-- 不使用 `latest` 作为长期生产升级策略；升级使用已验证的 Git commit 或固定镜像标签。
-- 不用 `docker compose down -v`、`docker system prune -a` 或删除卷作为常规排障手段。
+不要停止整机 Nginx、删除不明容器/镜像/目录或改写其他域名配置。需要清理 Docker 缓存时，先列出占用与引用关系，确认不会影响其他应用。
 
-## 9. 新员工首日交接清单
+## 12. 新员工交接检查表
 
-- [ ] 能说明“ECS 只负责公网入口，本机 App 负责业务与数据”的原因。
-- [ ] 能在不查看密钥的前提下确认 DNS、HTTPS、Nginx、WireGuard、Docker 容器健康状态。
-- [ ] 知道 PostgreSQL、对象存储、Qdrant 的数据职责和备份方式。
-- [ ] 知道模型变更可能导致向量维度和索引不兼容。
-- [ ] 知道不得暴露数据库、Redis、DocReader、Qdrant 或模型端口到公网。
-- [ ] 能完成一次只读验证：打开域名、检查 HTTPS、查看本机与 ECS 容器状态。
-- [ ] 能在变更前找到回滚版本、负责人和备份验证记录。
+- [ ] 能画出 Nginx、Compose、Tair、OSS 和模型 API 的调用关系。
+- [ ] 知道 PostgreSQL、OSS、Qdrant、Tair 分别保存什么。
+- [ ] 能只读检查域名、HTTPS、系统服务、容器和磁盘。
+- [ ] 知道 2C4G 是 MVP 下限，批量任务应保持低并发。
+- [ ] 知道 Embedding 维度变化必须重建索引。
+- [ ] 知道 AgentPlan Key 由 Provider 共享且不得重复写入 Git。
+- [ ] 能完成备份、发布、健康检查和明确 commit 回滚。
+- [ ] 知道共享 ECS 上不能误停或删除其他应用。
 
-## 10. 关联文档
+## 13. 关联文档
 
-- [系统、组件、模型与向量架构](./ARCHITECTURE.md)
-- [云端 App 部署模板与迁移模式](../deploy/cloud-app/README.md)
-- [WireGuard 本机端口覆盖](../docker-compose.wireguard.yml)
-- [环境变量样例](../.env.example)
-- [内置模型样例](../config/builtin_models.yaml.example)
+- [开发必读：系统、基础设施与模型架构](./ARCHITECTURE.md)
+- [云端 MVP Compose 说明](../deploy/cloud-mvp/README.md)
+- [云端环境变量模板](../deploy/cloud-mvp/.env.example)
+- [主 Compose 拓扑](../docker-compose.yml)
+- [内置模型说明](./BUILTIN_MODELS.md)
+- [迁移排障](./migration-troubleshooting.md)

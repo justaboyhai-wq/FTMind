@@ -1943,25 +1943,7 @@ func (s *knowledgeService) generateQuestionsWithContext(ctx context.Context,
 		return nil, fmt.Errorf("failed to generate questions: %w", err)
 	}
 
-	// Parse response
-	lines := strings.Split(response.Content, "\n")
-	questions := make([]string, 0, questionCount)
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if line == "" {
-			continue
-		}
-		line = strings.TrimLeft(line, "0123456789.-*) ")
-		line = strings.TrimSpace(line)
-		if line != "" && len(line) > 5 {
-			questions = append(questions, line)
-			if len(questions) >= questionCount {
-				break
-			}
-		}
-	}
-
-	return questions, nil
+	return parseGeneratedQuestionLines(response.Content, questionCount), nil
 }
 
 // ReparseKnowledge deletes existing document content and re-parses the knowledge asynchronously.

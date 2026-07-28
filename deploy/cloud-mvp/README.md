@@ -5,7 +5,8 @@
 - Redis 使用阿里云 Tair。
 - 文件对象存储使用阿里云 OSS。
 - 新建知识库仅允许使用 OSS；旧的 MinIO/本地存储配置不会在此栈中启用。
-- 向量模型在首次登录后通过 Keystone 管理界面配置为火山 AgentPlan。
+- 当前向量模型通过 Keystone 管理界面配置为硅基流动 `BAAI/bge-m3`（1024 维）。
+- 当前问答、摘要与推荐问题模型使用火山 AgentPlan `doubao-seed-2.0-pro`；同一 AgentPlan Provider 下的模型共享一份加密 Key。
 - 不启动 MinIO、Redis、MinerU/ODL 混合解析器或本地模型。
 - 所有数据库和向量端口仅在 Compose 网络内可见；前端仅绑定到宿主机 `127.0.0.1`，由宿主机 Nginx 反向代理。
 
@@ -26,7 +27,7 @@
    curl -f http://127.0.0.1:18081/health
    ```
 
-5. 通过前端完成首次管理员、OSS 连通性与火山 AgentPlan 模型配置。验证无误后，再将 Nginx 的 `keystone.boliboliworld.cn` upstream 从旧前端切换到 `127.0.0.1:18081`。
+5. 通过前端完成首次管理员、OSS、Qdrant、硅基流动 Embedding 与火山 AgentPlan Chat 模型配置。验证无误后，再将 Nginx 的 `keystone.boliboliworld.cn` upstream 切换到 `127.0.0.1:18081`。
 
 ## 从本地 Docker 迁移
 
@@ -87,3 +88,7 @@ DocReader 在同一 Compose 网络中以 gRPC 提供基础解析，端口不映�
 当前仓库的 `docreader/uv.lock` 与 `pyproject.toml` 声明并非完全同步，因此云端构建会在一次性的构建层内按 `pyproject.toml` 重新解析运行时依赖，而不会修改工作区的锁文件；后续应在开发环境统一更新锁文件后再恢复严格锁定构建。
 
 不部署 MinerU 或 OpenDataLoader 混合服务。因此扫描版、高精度版面恢复和 OCR 不是此阶段目标；这类文件后续需要单独部署 MinerU 或升级解析节点。DocReader 负责提取文本，嵌入模型负责向量化，二者需分别配置。
+
+## 当前生产基线
+
+当前实例、端口、模型、备份、发布、回滚和共享 ECS 注意事项统一以[部署与运维手册](../../docs/DEPLOYMENT_RUNBOOK.md)为准。历史 WireGuard/本机全栈不再是生产依赖。
