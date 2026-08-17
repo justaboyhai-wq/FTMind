@@ -277,6 +277,7 @@ func RegisterAgentBindingRoutes(r *gin.RouterGroup, h *handler.AgentBindingHandl
 
 func RegisterBindingIntrospectionRoutes(r *gin.Engine, h *handler.BindingIntrospectionHandler) {
 	r.POST("/internal/v1/agent-bindings/introspect", middleware.PublicAuthRateLimit(), h.Introspect)
+	r.POST("/internal/v1/agent-bindings/verify", middleware.PublicAuthRateLimit(), h.Verify)
 }
 
 // RegisterChunkerDebugRoutes wires the read-only chunker preview endpoint

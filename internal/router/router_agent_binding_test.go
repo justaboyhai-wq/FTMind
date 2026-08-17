@@ -32,7 +32,7 @@ func (*routerBindingServiceStub) Introspect(context.Context, string) (*types.Bin
 	return nil, nil
 }
 func (*routerBindingServiceStub) VerifyBindingToken(context.Context, string) (*types.BindingContext, error) {
-	return nil, nil
+	return &types.BindingContext{BindingID: "binding-1"}, nil
 }
 
 func TestAgentBindingManagementRoutesRequireAdmin(t *testing.T) {
@@ -69,11 +69,20 @@ func TestBindingIntrospectionRouteIsRegisteredBeforeUserAuth(t *testing.T) {
 	// Gin snapshots middleware at route registration. A global user-auth
 	// middleware installed afterward must not be attached to introspection.
 	r.Use(func(c *gin.Context) { c.AbortWithStatus(http.StatusTeapot) })
-	req := httptest.NewRequest(http.MethodPost, "/internal/v1/agent-bindings/introspect", nil)
-	req.Header.Set("X-FMind-Connector-Secret", "connector-only")
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	if w.Code != http.StatusOK {
-		t.Fatalf("introspection inherited later user auth: status=%d body=%s", w.Code, w.Body.String())
+	for _, tc := range []struct {
+		path   string
+		header string
+		value  string
+	}{
+		{path: "/internal/v1/agent-bindings/introspect", header: "X-FMind-Connector-Secret", value: "connector-only"},
+		{path: "/internal/v1/agent-bindings/verify", header: "X-FMind-Binding-Token", value: "signed-token"},
+	} {
+		req := httptest.NewRequest(http.MethodPost, tc.path, nil)
+		req.Header.Set(tc.header, tc.value)
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, req)
+		if w.Code != http.StatusOK {
+			t.Fatalf("%s inherited later user auth: status=%d body=%s", tc.path, w.Code, w.Body.String())
+		}
 	}
 }

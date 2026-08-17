@@ -95,6 +95,7 @@ func TestSanitizeBindingEndpointsExcludeBodiesFromLogs(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	tests := []string{
 		"/internal/v1/agent-bindings/introspect",
+		"/internal/v1/agent-bindings/verify",
 		"/api/v1/agent-bindings",
 		"/api/v1/agent-bindings/binding-1/rotate-key",
 	}

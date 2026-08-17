@@ -20,7 +20,7 @@ const (
 
 // loggerResponseBodyWriter 自定义ResponseWriter用于捕获响应内容（用于logger中间件）
 func isSensitiveBodyLoggingPath(path string) bool {
-	return path == "/internal/v1/agent-bindings/introspect" ||
+	return strings.HasPrefix(path, "/internal/v1/agent-bindings/") ||
 		path == "/api/v1/agent-bindings" ||
 		strings.HasPrefix(path, "/api/v1/agent-bindings/")
 }

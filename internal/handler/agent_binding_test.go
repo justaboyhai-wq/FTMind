@@ -24,6 +24,9 @@ type agentBindingServiceStub struct {
 	getErr          error
 	revokeErr       error
 	rotateErr       error
+	verifyToken     string
+	verifyValue     *types.BindingContext
+	verifyErr       error
 }
 
 func (s *agentBindingServiceStub) Create(_ context.Context, req interfaces.AgentBindingCreateRequest) (*interfaces.AgentBindingCreateResult, error) {
@@ -70,8 +73,9 @@ func TestAgentBindingRotatePropagatesAuthenticatedActor(t *testing.T) {
 		t.Fatalf("authenticated rotation actor was not propagated: %q", svc.rotateCreatedBy)
 	}
 }
-func (*agentBindingServiceStub) VerifyBindingToken(context.Context, string) (*types.BindingContext, error) {
-	return nil, nil
+func (s *agentBindingServiceStub) VerifyBindingToken(_ context.Context, token string) (*types.BindingContext, error) {
+	s.verifyToken = token
+	return s.verifyValue, s.verifyErr
 }
 
 func TestAgentBindingCreateBindsOrganizationPolicyAndUsesSnakeCaseSecret(t *testing.T) {
@@ -134,6 +138,72 @@ func TestBindingIntrospectionUsesUniformUnauthorizedResponse(t *testing.T) {
 	r.ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
 		t.Fatalf("valid connector secret status=%d body=%s", w.Code, w.Body.String())
+	}
+}
+
+func TestBindingVerificationUsesBearerOrDedicatedTokenAndRejectsConflicts(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	contextValue := &types.BindingContext{TokenID: "jti-1", BindingID: "binding-1", TenantID: 7, TeamID: "team-1", UserID: "user-1", AgentID: "agent-1"}
+	tests := []struct {
+		name          string
+		authorization string
+		dedicated     string
+		wantStatus    int
+		wantToken     string
+	}{
+		{name: "bearer", authorization: "Bearer signed-token", wantStatus: http.StatusOK, wantToken: "signed-token"},
+		{name: "dedicated", dedicated: "signed-token", wantStatus: http.StatusOK, wantToken: "signed-token"},
+		{name: "matching", authorization: "Bearer signed-token", dedicated: "signed-token", wantStatus: http.StatusOK, wantToken: "signed-token"},
+		{name: "missing", wantStatus: http.StatusUnauthorized},
+		{name: "wrong scheme", authorization: "Basic signed-token", wantStatus: http.StatusUnauthorized},
+		{name: "conflicting", authorization: "Bearer signed-a", dedicated: "signed-b", wantStatus: http.StatusUnauthorized},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := &agentBindingServiceStub{verifyValue: contextValue}
+			r := gin.New()
+			RegisterBindingIntrospectionRoutes(r, NewBindingIntrospectionHandler(svc))
+			req := httptest.NewRequest(http.MethodPost, "/internal/v1/agent-bindings/verify", nil)
+			if tt.authorization != "" {
+				req.Header.Set("Authorization", tt.authorization)
+			}
+			if tt.dedicated != "" {
+				req.Header.Set("X-FMind-Binding-Token", tt.dedicated)
+			}
+			w := httptest.NewRecorder()
+			r.ServeHTTP(w, req)
+			if w.Code != tt.wantStatus {
+				t.Fatalf("status=%d body=%s", w.Code, w.Body.String())
+			}
+			if svc.verifyToken != tt.wantToken {
+				t.Fatalf("verified token=%q want=%q", svc.verifyToken, tt.wantToken)
+			}
+			if tt.wantStatus == http.StatusOK {
+				var response struct {
+					Context types.BindingContext `json:"context"`
+				}
+				if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
+					t.Fatal(err)
+				}
+				if response.Context.BindingID != contextValue.BindingID {
+					t.Fatalf("unexpected context: %#v", response.Context)
+				}
+			}
+		})
+	}
+}
+
+func TestBindingVerificationFailureIsUniformUnauthorized(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	svc := &agentBindingServiceStub{verifyErr: errors.New("database detail")}
+	r := gin.New()
+	RegisterBindingIntrospectionRoutes(r, NewBindingIntrospectionHandler(svc))
+	req := httptest.NewRequest(http.MethodPost, "/internal/v1/agent-bindings/verify", nil)
+	req.Header.Set("X-FMind-Binding-Token", "signed-token")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	if w.Code != http.StatusUnauthorized || bytes.Contains(w.Body.Bytes(), []byte("database detail")) {
+		t.Fatalf("status=%d body=%s", w.Code, w.Body.String())
 	}
 }
 
