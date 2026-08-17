@@ -18,6 +18,12 @@ func (h *MemoryWikiHandler) Submit(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
 		return
 	}
+	tenantID := c.GetUint64(types.TenantIDContextKey.String())
+	if p.TenantID != 0 && p.TenantID != tenantID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "tenant_id cannot cross the authenticated tenant"})
+		return
+	}
+	p.TenantID = tenantID
 	if err := h.service.Submit(c, &p); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
