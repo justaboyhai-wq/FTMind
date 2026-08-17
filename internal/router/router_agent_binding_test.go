@@ -1,6 +1,7 @@
 package router
 
 import (
+	"bytes"
 	"context"
 	"net/http"
 	"net/http/httptest"
@@ -9,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/justaboyhai-wq/fmind/internal/config"
 	"github.com/justaboyhai-wq/fmind/internal/handler"
+	"github.com/justaboyhai-wq/fmind/internal/mcpserver/cognition"
 	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
@@ -17,6 +19,12 @@ type routerBindingServiceStub struct{}
 
 func (*routerBindingServiceStub) Create(context.Context, interfaces.AgentBindingCreateRequest) (*interfaces.AgentBindingCreateResult, error) {
 	return nil, nil
+}
+
+type routerCognitionExecutorStub struct{}
+
+func (*routerCognitionExecutorStub) ExecuteCognitionTool(context.Context, cognition.Invocation) (any, error) {
+	return map[string]any{"ok": true}, nil
 }
 func (*routerBindingServiceStub) List(context.Context) ([]*types.AgentBinding, error) {
 	return []*types.AgentBinding{}, nil
@@ -84,5 +92,25 @@ func TestBindingIntrospectionRouteIsRegisteredBeforeUserAuth(t *testing.T) {
 		if w.Code != http.StatusOK {
 			t.Fatalf("%s inherited later user auth: status=%d body=%s", tc.path, w.Code, w.Body.String())
 		}
+	}
+}
+
+func TestCognitionMCPRouteIsRegisteredBeforeUserAuth(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	verifier := &routerBindingServiceStub{}
+	server := cognition.NewServer(verifier, &routerCognitionExecutorStub{})
+	r := gin.New()
+	RegisterCognitionMCPRoutes(r, server)
+	// Like connector verification, Cognition MCP authenticates with the
+	// short-lived Binding Token and must not inherit the browser/API-key auth.
+	r.Use(func(c *gin.Context) { c.AbortWithStatus(http.StatusTeapot) })
+	body := []byte(`{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"test","version":"1"}}}`)
+	req := httptest.NewRequest(http.MethodPost, "/mcp/cognition", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-FMind-Binding-Token", "signed-token")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	if w.Code == http.StatusTeapot || w.Code == http.StatusNotFound {
+		t.Fatalf("cognition MCP inherited later user auth or was not registered: status=%d body=%s", w.Code, w.Body.String())
 	}
 }

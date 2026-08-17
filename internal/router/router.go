@@ -22,6 +22,7 @@ import (
 	"github.com/justaboyhai-wq/fmind/internal/handler"
 	"github.com/justaboyhai-wq/fmind/internal/handler/session"
 	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/mcpserver/cognition"
 	"github.com/justaboyhai-wq/fmind/internal/middleware"
 	"github.com/justaboyhai-wq/fmind/internal/tracing/langfuse"
 	"github.com/justaboyhai-wq/fmind/internal/types"
@@ -91,6 +92,7 @@ type RouterParams struct {
 	DataSourceCredentialsHandler *handler.DataSourceCredentialsHandler
 	FMindCloudHandler            *handler.FMindCloudHandler
 	WikiPageHandler              *handler.WikiPageHandler
+	CognitionServer              *cognition.Server
 }
 
 // NewRouter 创建新的路由
@@ -112,7 +114,7 @@ func NewRouter(params RouterParams) *gin.Engine {
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-API-Key", "X-Request-ID", "X-Tenant-ID", "X-Embed-Session", "X-External-User-ID", "X-External-User-Token"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-API-Key", "X-Request-ID", "X-Tenant-ID", "X-Embed-Session", "X-External-User-ID", "X-External-User-Token", "X-FMind-Binding-Token"},
 		ExposeHeaders:    []string{"Content-Length", "Access-Control-Allow-Origin"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
@@ -164,6 +166,7 @@ func NewRouter(params RouterParams) *gin.Engine {
 	// Connector introspection is intentionally registered before user Auth. Its
 	// sole credential is the connector secret and it has a narrow IP limiter.
 	RegisterBindingIntrospectionRoutes(r, params.BindingIntrospectionHandler)
+	RegisterCognitionMCPRoutes(r, params.CognitionServer)
 
 	// 认证中间件
 	r.Use(middleware.Auth(params.TenantService, params.UserService, params.TenantMemberService, params.TenantAPIKeyService, params.Config))
@@ -278,6 +281,19 @@ func RegisterAgentBindingRoutes(r *gin.RouterGroup, h *handler.AgentBindingHandl
 func RegisterBindingIntrospectionRoutes(r *gin.Engine, h *handler.BindingIntrospectionHandler) {
 	r.POST("/internal/v1/agent-bindings/introspect", middleware.PublicAuthRateLimit(), h.Introspect)
 	r.POST("/internal/v1/agent-bindings/verify", middleware.PublicAuthRateLimit(), h.Verify)
+}
+
+// RegisterCognitionMCPRoutes exposes the external-agent cognition surface
+// before browser/API-key authentication. The MCP transport itself requires a
+// short-lived Binding Token and every tool invocation verifies it against the
+// current binding policy.
+func RegisterCognitionMCPRoutes(r *gin.Engine, server *cognition.Server) {
+	if server == nil {
+		return
+	}
+	handler := gin.WrapH(server.HTTPHandler())
+	r.Any("/mcp/cognition", middleware.PublicAuthRateLimit(), handler)
+	r.Any("/mcp/cognition/*path", middleware.PublicAuthRateLimit(), handler)
 }
 
 // RegisterChunkerDebugRoutes wires the read-only chunker preview endpoint

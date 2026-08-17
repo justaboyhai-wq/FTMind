@@ -5,21 +5,23 @@ package cognition
 
 import (
 	"errors"
-	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 const (
-	ToolMemoryGetContext      = "memory_get_context"
-	ToolMemorySearch          = "memory_search"
-	ToolMemoryCaptureTurn     = "memory_capture_turn"
-	ToolMemorySubmitCandidate = "memory_submit_candidate"
-	ToolKnowledgeSearch       = "knowledge_search"
+	ToolMemoryGetContext       = "memory_get_context"
+	ToolMemorySearch           = "memory_search"
+	ToolMemoryCaptureTurn      = "memory_capture_turn"
+	ToolMemoryConfirmCandidate = "memory_confirm_candidate"
+	ToolKnowledgeSearch        = "knowledge_search"
+	ToolWikiGetPage            = "wiki_get_page"
+	ToolDocumentRead           = "document_read"
+	ToolContextAssemble        = "context_assemble"
 )
 
 type Request struct {
-	Tool      string               `json:"tool"`
-	Binding   types.BindingContext `json:"binding"`
-	Arguments map[string]any       `json:"arguments"`
+	Tool      string         `json:"tool"`
+	Arguments map[string]any `json:"arguments"`
+	TraceID   string         `json:"trace_id,omitempty"`
 }
 type Response struct {
 	Data    any    `json:"data,omitempty"`
@@ -28,14 +30,8 @@ type Response struct {
 }
 
 func ValidateRequest(r Request) error {
-	if r.Tool == "" {
-		return errors.New("cognition tool is required")
-	}
-	if r.Binding.TenantID == 0 || r.Binding.BindingID == "" {
-		return errors.New("valid binding context is required")
-	}
-	if r.Binding.ExpiresAt.IsZero() {
-		return errors.New("binding context expiry is required")
+	if _, ok := toolPolicies[r.Tool]; !ok {
+		return errors.New("unsupported cognition tool")
 	}
 	return nil
 }

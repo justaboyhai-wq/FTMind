@@ -78,6 +78,7 @@ import (
 	infra_web_search "github.com/justaboyhai-wq/fmind/internal/infrastructure/web_search"
 	"github.com/justaboyhai-wq/fmind/internal/logger"
 	"github.com/justaboyhai-wq/fmind/internal/mcp"
+	"github.com/justaboyhai-wq/fmind/internal/mcpserver/cognition"
 	"github.com/justaboyhai-wq/fmind/internal/models/chat"
 	"github.com/justaboyhai-wq/fmind/internal/models/embedding"
 	"github.com/justaboyhai-wq/fmind/internal/models/limiter"
@@ -269,6 +270,19 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	// SessionService is created after AgentService and passes itself to AgentService.CreateAgentEngine when needed
 	logger.Debugf(ctx, "[Container] Registering session service...")
 	must(container.Provide(service.NewSessionService))
+
+	// External-agent Cognition MCP uses the same tenant-scoped FMind services
+	// through narrow read interfaces. MemoryCore is optional; when configured,
+	// its client fails startup on partial credentials or unsafe transport.
+	must(container.Provide(cognition.NewMemoryGatewayFromEnvironment))
+	must(container.Provide(cognition.NewBindingTokenVerifier))
+	must(container.Provide(cognition.NewKnowledgeSearcher))
+	must(container.Provide(cognition.NewWikiReader))
+	must(container.Provide(cognition.NewDocumentReader))
+	must(container.Provide(cognition.NewDocumentChunkReader))
+	must(container.Provide(cognition.NewDefaultExecutor))
+	must(container.Provide(cognition.NewToolExecutor))
+	must(container.Provide(cognition.NewServer))
 
 	logger.Debugf(ctx, "[Container] Registering task enqueuer...")
 	redisAvailable := os.Getenv("REDIS_ADDR") != ""

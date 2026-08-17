@@ -98,6 +98,8 @@ func TestSanitizeBindingEndpointsExcludeBodiesFromLogs(t *testing.T) {
 		"/internal/v1/agent-bindings/verify",
 		"/api/v1/agent-bindings",
 		"/api/v1/agent-bindings/binding-1/rotate-key",
+		"/mcp/cognition",
+		"/mcp/cognition/session-1",
 	}
 
 	for _, path := range tests {
