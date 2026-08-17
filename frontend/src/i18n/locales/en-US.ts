@@ -6783,7 +6783,7 @@ export default {
     },
   },
   externalMemory: {
-    eyebrow: 'Memory governance', title: 'External memory', subtitle: 'Connect approved external agents and govern reviewed L3 memories without changing FMind knowledge retrieval.', refresh: 'Refresh', scopeNote: 'This page is limited to tenant administrators. Connector secrets are displayed only when created or rotated.', memoryWikiBadge: 'Memory Wiki',
+    eyebrow: 'Memory governance', title: 'External memory', subtitle: 'Connect approved external agents and govern reviewed L3 memories without changing FMind knowledge retrieval.', refresh: 'Refresh', scopeNote: 'This page is limited to workspace administrators. Connector secrets are displayed only when created or rotated.', memoryWikiBadge: 'Memory Wiki',
     tabs: { bindings: 'Agent access', reviews: 'L3 review & publish' },
     bindings: { title: 'Agent access', desc: 'Each binding scopes a single external agent to a team and explicit capabilities.', create: 'Create binding', createTitle: 'Create external agent binding', empty: 'No external agent bindings yet.', rotate: 'Rotate key', revoke: 'Revoke', revokeTitle: 'Revoke binding?', revokeHint: 'This immediately blocks {name} from obtaining new memory access tokens.', revoked: 'Binding revoked', rotated: 'Connector key rotated' },
     fields: { teamId: 'Team ID', userId: 'User ID', agentId: 'FMind agent ID', externalAgent: 'External agent ID', connector: 'Connector type', capabilities: 'Capabilities', assetScopes: 'Asset scopes', assetScopesHelp: 'One scope per line or comma-separated, e.g. team:engineering.' }, policy: { capture: 'Capture memory', recall: 'Recall memory', l3: 'Enable reviewed L3 Wiki publishing' },

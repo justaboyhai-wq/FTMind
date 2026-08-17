@@ -52,9 +52,18 @@ const publicDocumentationRoots = [
 ]
 const documentationExtensions = new Set(['.go', '.json', '.md', '.yaml', '.yml'])
 
+// docs/superpowers holds internal planning documents for the FMind-Agent Memory
+// integration project. In that architectural context "tenant" is a precise technical
+// term (the design explicitly distinguishes FMind tenant_id from workspace_id), so
+// it is excluded from the user-facing public documentation scan.
+const internalDocumentationDirectories = new Set(['superpowers'])
+
 function collectDocumentationFiles(path: string): string[] {
   const entries = readdirSync(path, { withFileTypes: true })
   return entries.flatMap((entry) => {
+    if (entry.isDirectory() && internalDocumentationDirectories.has(entry.name)) {
+      return []
+    }
     const child = resolve(path, entry.name)
     if (entry.isDirectory()) return collectDocumentationFiles(child)
     return documentationExtensions.has(extname(entry.name)) ? [child] : []
