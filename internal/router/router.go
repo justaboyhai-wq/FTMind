@@ -79,6 +79,7 @@ type RouterParams struct {
 	CustomAgentHandler           *handler.CustomAgentHandler
 	AgentBindingHandler          *handler.AgentBindingHandler
 	BindingIntrospectionHandler  *handler.BindingIntrospectionHandler
+	MemoryWikiHandler            *handler.MemoryWikiHandler
 	UserFavoriteHandler          *handler.UserResourceFavoriteHandler
 	SkillHandler                 *handler.SkillHandler
 	OrganizationHandler          *handler.OrganizationHandler
@@ -239,6 +240,7 @@ func NewRouter(params RouterParams) *gin.Engine {
 		RegisterVectorStoreRoutes(v1, params.VectorStoreHandler, rbacGuards)
 		RegisterCustomAgentRoutes(v1, params.CustomAgentHandler, rbacGuards)
 		handler.RegisterAgentBindingRoutes(v1, params.AgentBindingHandler)
+		handler.RegisterMemoryWikiRoutes(v1, params.MemoryWikiHandler)
 		RegisterUserFavoriteRoutes(v1, params.UserFavoriteHandler, rbacGuards)
 		RegisterSkillRoutes(v1, params.SkillHandler, rbacGuards)
 		RegisterOrganizationRoutes(v1, params.OrganizationHandler, rbacGuards)

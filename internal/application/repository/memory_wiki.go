@@ -47,3 +47,14 @@ func (r *memoryWikiPublicationRepository) ReviewMemoryWikiPublication(ctx contex
 	}
 	return nil
 }
+
+func (r *memoryWikiPublicationRepository) MarkMemoryWikiPublished(ctx context.Context, tenantID uint64, id, pageID string) error {
+	res := r.db.WithContext(ctx).Model(&types.MemoryWikiPublication{}).Where("tenant_id = ? AND id = ? AND status = ?", tenantID, id, types.MemoryWikiApproved).Updates(map[string]any{"published_page_id": pageID, "updated_at": time.Now()})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return ErrMemoryWikiPublicationNotFound
+	}
+	return nil
+}

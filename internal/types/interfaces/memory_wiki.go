@@ -10,4 +10,5 @@ type MemoryWikiPublicationRepository interface {
 	GetMemoryWikiPublication(context.Context, uint64, string) (*types.MemoryWikiPublication, error)
 	ListMemoryWikiPublications(context.Context, uint64, string) ([]*types.MemoryWikiPublication, error)
 	ReviewMemoryWikiPublication(context.Context, uint64, string, string, string) error
+	MarkMemoryWikiPublished(context.Context, uint64, string, string) error
 }
