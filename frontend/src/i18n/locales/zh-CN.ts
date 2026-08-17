@@ -6802,4 +6802,13 @@ export default {
       generic: "操作失败，请稍后重试。",
     },
   },
+  externalMemory: {
+    eyebrow: '记忆治理', title: '外部记忆', subtitle: '管理外部 Agent 接入与已审核的 L3 记忆，不改变 FMind 原有知识检索路径。', refresh: '刷新', scopeNote: '仅当前空间管理员可用。接入密钥仅在创建或轮换时展示一次。', memoryWikiBadge: '记忆 Wiki',
+    tabs: { bindings: 'Agent 接入', reviews: 'L3 审核与发布' },
+    bindings: { title: 'Agent 接入', desc: '每个绑定仅允许一个外部 Agent 在指定团队及明确能力范围内使用记忆。', create: '创建绑定', createTitle: '创建外部 Agent 绑定', empty: '还没有外部 Agent 绑定。', rotate: '轮换密钥', revoke: '撤销', revokeTitle: '撤销绑定？', revokeHint: '撤销后，{name} 将立即被禁止获取新的记忆访问 Token。', revoked: '绑定已撤销', rotated: '接入密钥已轮换' },
+    fields: { teamId: '团队 ID', userId: '用户 ID', agentId: 'FMind Agent ID', externalAgent: '外部 Agent ID', connector: '接入类型', capabilities: '能力范围', assetScopes: '资产范围', assetScopesHelp: '每行一个或以逗号分隔，如 team:engineering。' }, policy: { capture: '采集记忆', recall: '召回记忆', l3: '启用 L3 审核后发布 Wiki' },
+    secret: { title: '保存接入密钥', warning: '请立即复制密钥，关闭此对话框后将不能再次查看。', copy: '复制', copied: '密钥已复制', copyFailed: '复制失败，请手动选中密钥复制。', confirm: '已安全保存' },
+    reviews: { title: 'L3 审核与发布', desc: '只有审核通过的 L3 记忆才能发布到专用的“零 RAG”记忆 Wiki。', allStatuses: '所有状态', empty: '暂无 L3 记忆待处理。', open: '审核', detailTitle: 'L3 记忆审核', markdown: 'Markdown', evidence: '证据', noEvidence: '当前没有记录证据。', reviewComment: '审核评论', comment: '评论', commentRequired: '要求修改时必须填写说明。', commentOptional: '可选评论' },
+    actions: { approve: '通过', reject: '拒绝', requestChanges: '要求修改', publish: '发布到记忆 Wiki', saved: '审核已保存', published: '已发布到记忆 Wiki' }, columns: { externalAgent: '外部 Agent', connector: '接入', team: '团队', policy: '策略', status: '状态', actions: '操作', title: 'L3 标题', agent: 'Agent' }, status: { pending_review: '待审核', changes_requested: '需修改', approved: '已通过', publishing: '正在发布', published: '已发布', rejected: '已拒绝', revoked: '已撤销', active: '已启用' }, validation: { required: '该字段为必填项。' }, error: { load: '加载外部记忆数据失败。', save: '保存失败，请稍后再试。' },
+  },
 };

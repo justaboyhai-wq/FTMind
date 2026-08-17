@@ -2,6 +2,7 @@ export default {
   menu: {
     knowledgeBase: 'Knowledge Base',
     agents: 'Agents',
+    externalMemory: 'External Memory',
     integrations: 'Publish & Integrations',
     organizations: 'Shared Spaces',
     chat: 'Chat',
@@ -6780,5 +6781,14 @@ export default {
       notFound: 'Invitation not found or already withdrawn.',
       generic: 'Something went wrong. Please try again.',
     },
+  },
+  externalMemory: {
+    eyebrow: 'Memory governance', title: 'External memory', subtitle: 'Connect approved external agents and govern reviewed L3 memories without changing FMind knowledge retrieval.', refresh: 'Refresh', scopeNote: 'This page is limited to tenant administrators. Connector secrets are displayed only when created or rotated.', memoryWikiBadge: 'Memory Wiki',
+    tabs: { bindings: 'Agent access', reviews: 'L3 review & publish' },
+    bindings: { title: 'Agent access', desc: 'Each binding scopes a single external agent to a team and explicit capabilities.', create: 'Create binding', createTitle: 'Create external agent binding', empty: 'No external agent bindings yet.', rotate: 'Rotate key', revoke: 'Revoke', revokeTitle: 'Revoke binding?', revokeHint: 'This immediately blocks {name} from obtaining new memory access tokens.', revoked: 'Binding revoked', rotated: 'Connector key rotated' },
+    fields: { teamId: 'Team ID', userId: 'User ID', agentId: 'FMind agent ID', externalAgent: 'External agent ID', connector: 'Connector type', capabilities: 'Capabilities', assetScopes: 'Asset scopes', assetScopesHelp: 'One scope per line or comma-separated, e.g. team:engineering.' }, policy: { capture: 'Capture memory', recall: 'Recall memory', l3: 'Enable reviewed L3 Wiki publishing' },
+    secret: { title: 'Save connector secret', warning: 'Copy this secret now. It cannot be shown again after this dialog is closed.', copy: 'Copy', copied: 'Secret copied', copyFailed: 'Copy failed. Select and copy the secret manually.', confirm: 'I saved it' },
+    reviews: { title: 'L3 review & publish', desc: 'Only approved L3 memory is eligible for the dedicated zero-RAG Memory Wiki.', allStatuses: 'All statuses', empty: 'No L3 memory reviews.', open: 'Review', detailTitle: 'L3 memory review', markdown: 'Markdown', evidence: 'Evidence', noEvidence: 'No evidence is recorded.', reviewComment: 'Review comment', comment: 'Comment', commentRequired: 'A comment is required when requesting changes.', commentOptional: 'Optional comment' },
+    actions: { approve: 'Approve', reject: 'Reject', requestChanges: 'Request changes', publish: 'Publish to Memory Wiki', saved: 'Review saved', published: 'Published to Memory Wiki' }, columns: { externalAgent: 'External agent', connector: 'Connector', team: 'Team', policy: 'Policy', status: 'Status', actions: 'Actions', title: 'L3 title', agent: 'Agent' }, status: { pending_review: 'Pending review', changes_requested: 'Changes requested', approved: 'Approved', publishing: 'Publishing', published: 'Published', rejected: 'Rejected', revoked: 'Revoked', active: 'Active' }, validation: { required: 'This field is required.' }, error: { load: 'Unable to load external memory data.', save: 'Unable to save this change.' },
   },
 }

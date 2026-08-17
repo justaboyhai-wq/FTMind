@@ -201,7 +201,7 @@
               <!-- 卡片头部 -->
               <div class="card-header">
                 <span class="card-title" :title="kb.name">
-                  <KbWikiBadge v-if="isWikiKb(kb)" />
+                  <KbWikiBadge v-if="isWikiKb(kb)" :memory="isMemoryWiki(kb)" />
                   <span class="card-title-text">{{ kb.name }}</span>
                 </span>
                 <!-- The card menu always exists when the card is visible: pin
@@ -305,7 +305,7 @@
               <!-- 卡片头部 -->
               <div class="card-header">
                 <span class="card-title" :title="kb.name">
-                  <KbWikiBadge v-if="isWikiKb(kb)" />
+                  <KbWikiBadge v-if="isWikiKb(kb)" :memory="isMemoryWiki(kb)" />
                   <span class="card-title-text">{{ kb.name }}</span>
                 </span>
                 <t-tooltip :content="$t('knowledgeList.menu.viewDetails')" placement="top">
@@ -435,7 +435,7 @@
               <!-- 卡片头部 -->
               <div class="card-header">
                 <span class="card-title" :title="kb.name">
-                  <KbWikiBadge v-if="isWikiKb(kb)" />
+                  <KbWikiBadge v-if="isWikiKb(kb)" :memory="isMemoryWiki(kb)" />
                   <span class="card-title-text">{{ kb.name }}</span>
                 </span>
                 <!-- See the matching block in the "all" tab template for why
@@ -588,7 +588,7 @@
               <!-- 卡片头部 -->
               <div class="card-header">
                 <span class="card-title" :title="shared.knowledge_base.name">
-                  <KbWikiBadge v-if="isWikiKb(shared.knowledge_base)" />
+                  <KbWikiBadge v-if="isWikiKb(shared.knowledge_base)" :memory="isMemoryWiki(shared.knowledge_base)" />
                   <span class="card-title-text">{{ shared.knowledge_base.name }}</span>
                 </span>
                 <t-tooltip v-if="!shared.is_mine" :content="$t('knowledgeList.menu.viewDetails')" placement="top">
@@ -860,6 +860,7 @@ interface KB {
   processing_count?: number;
   share_count?: number;
   is_pinned?: boolean;
+  is_memory_wiki?: boolean;
   // creator_id is the owner-id matched against authStore.user.id when
   // gating the per-card more-menu (Settings / Delete). Empty for legacy
   // KBs created before PR 5; those fall back to the role gate.
@@ -1560,6 +1561,8 @@ const isInitialized = (kb: KB) => {
 
 const isWikiKb = (kb: unknown) =>
   !!(kb as { indexing_strategy?: { wiki_enabled?: boolean } } | null | undefined)?.indexing_strategy?.wiki_enabled
+const isMemoryWiki = (kb: unknown) =>
+  (kb as { is_memory_wiki?: boolean } | null | undefined)?.is_memory_wiki === true
 
 // 计算是否有未初始化的知识库
 const hasUninitializedKbs = computed(() => {

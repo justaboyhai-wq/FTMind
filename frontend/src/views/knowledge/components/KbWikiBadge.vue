@@ -1,6 +1,6 @@
 <template>
-  <t-tooltip :content="t('knowledgeList.features.wiki')" placement="top">
-    <span class="kb-wiki-badge" role="img" :aria-label="t('knowledgeList.features.wiki')">
+  <t-tooltip :content="label" placement="top">
+    <span class="kb-wiki-badge" :class="{ 'kb-wiki-badge--memory': memory }" role="img" :aria-label="label">
       <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path d="M12 7v14" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
         <path d="M16 12h2" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />
@@ -21,9 +21,12 @@
 
 <script setup lang="ts">
 // Icon: Lucide "book-open-text" (ISC) — https://lucide.dev/icons/book-open-text
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
+const props = defineProps<{ memory?: boolean }>()
+const label = computed(() => props.memory ? t('externalMemory.memoryWikiBadge') : t('knowledgeList.features.wiki'))
 </script>
 
 <style scoped lang="less">
@@ -33,6 +36,8 @@ const { t } = useI18n()
   justify-content: center;
   flex-shrink: 0;
   color: var(--td-text-color-secondary);
+
+  &--memory { color: var(--td-brand-color); }
 
   svg {
     width: 15px;

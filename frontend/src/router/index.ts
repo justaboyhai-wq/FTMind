@@ -135,6 +135,12 @@ const router = createRouter({
           meta: { requiresInit: true, requiresAuth: true }
         },
         {
+          path: "external-memory",
+          name: "externalMemoryAdmin",
+          component: () => import("../views/memory/ExternalMemoryAdmin.vue"),
+          meta: { requiresInit: true, requiresAuth: true, requiresTenantAdmin: true }
+        },
+        {
           path: "integrations",
           redirect: (to) => ({
             path: "/platform/settings",
@@ -392,6 +398,13 @@ router.beforeEach(async (to, from, next) => {
       next('/platform/knowledge-bases')
       return
     }
+  }
+
+  // This is a convenience gate only; the API applies the authoritative
+  // tenant-admin requirement before it returns bindings or L3 evidence.
+  if (to.meta.requiresTenantAdmin === true && !authStore.hasRole('admin')) {
+    next('/platform/knowledge-bases')
+    return
   }
 
   next()
