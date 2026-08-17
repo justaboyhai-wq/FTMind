@@ -2,29 +2,25 @@ package types
 
 import (
 	"encoding/json"
-	"os"
-	"path/filepath"
+	"strings"
 	"time"
-
-	"github.com/yanyiwu/gojieba"
 )
 
-// Jieba is a global instance of Chinese text segmentation tool
-var Jieba *gojieba.Jieba = newJieba()
+// Segmenter is the small text-segmentation contract used by retrieval and
+// evaluation. Keeping this contract in FMind avoids making the whole server
+// depend on CGO just to compile; deployments may provide a richer segmenter.
+type Segmenter struct{}
 
-func newJieba() *gojieba.Jieba {
-	dictDir := os.Getenv("JIEBA_DICT_DIR")
-	if dictDir == "" {
-		return gojieba.NewJieba()
+var Jieba = Segmenter{}
+
+func (Segmenter) Cut(text string, _ bool) []string          { return segmentFallback(text) }
+func (Segmenter) CutForSearch(text string, _ bool) []string { return segmentFallback(text) }
+
+func segmentFallback(text string) []string {
+	if strings.TrimSpace(text) == "" {
+		return nil
 	}
-
-	return gojieba.NewJieba(
-		filepath.Join(dictDir, "jieba.dict.utf8"),
-		filepath.Join(dictDir, "hmm_model.utf8"),
-		filepath.Join(dictDir, "user.dict.utf8"),
-		filepath.Join(dictDir, "idf.utf8"),
-		filepath.Join(dictDir, "stop_words.utf8"),
-	)
+	return strings.Fields(text)
 }
 
 // EvaluationStatue represents the status of an evaluation task
