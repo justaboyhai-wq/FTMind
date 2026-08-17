@@ -208,6 +208,19 @@ services:
       - FMIND_MODEL_MAX_CONCURRENCY=${FMIND_MODEL_MAX_CONCURRENCY:-32}
       - APK_MIRROR_ARG=${APK_MIRROR_ARG:-}
       - FMIND_BOOTSTRAP_SYSTEM_ADMIN_EMAIL=${FMIND_BOOTSTRAP_SYSTEM_ADMIN_EMAIL:-}
+      # Optional Agent Memory integration. Keep these empty for the normal
+      # FMind-only profile; set them when starting `--profile memory`.
+      - FMIND_BINDING_KEY_PEPPER=${FMIND_BINDING_KEY_PEPPER:-}
+      - FMIND_BINDING_TOKEN_SECRET=${FMIND_BINDING_TOKEN_SECRET:-}
+      - FMIND_MEMORY_CORE_URL=${FMIND_MEMORY_CORE_URL:-}
+      - FMIND_MEMORY_CORE_API_KEY=${FMIND_MEMORY_CORE_API_KEY:-}
+      - FMIND_MEMORY_CORE_SERVICE_ID=${FMIND_MEMORY_CORE_SERVICE_ID:-fmind}
+      - FMIND_MEMORY_CORE_ALLOW_INSECURE_HTTP=${FMIND_MEMORY_CORE_ALLOW_INSECURE_HTTP:-false}
+      - FMIND_MEMORY_CORE_INSECURE_HOSTS=${FMIND_MEMORY_CORE_INSECURE_HOSTS:-}
+      - FMIND_MEMORY_CORE_TIMEOUT=${FMIND_MEMORY_CORE_TIMEOUT:-5s}
+      - FMIND_MEMORY_EVENTS_ENABLED=${FMIND_MEMORY_EVENTS_ENABLED:-false}
+      - FMIND_MEMORY_EVENT_SECRET=${FMIND_MEMORY_EVENT_SECRET:-}
+      - FMIND_MEMORY_EVENT_SERVICE_ID=${FMIND_MEMORY_EVENT_SERVICE_ID:-memory-core}
     depends_on:
       redis:
         condition: service_started
@@ -222,6 +235,140 @@ services:
       - "host.docker.internal:host-gateway"
 
   # Sandbox 镜像：仅用于 build/pull，非常驻服务；app 执行 Skills 时按需 docker run 该镜像，用毕即释
+  # Optional TencentDB Agent Memory stack. Startup order is deliberately
+  # one-way: FMind app -> MemoryCore -> MemoryProxy. The base FMind profile
+  # remains independent when `--profile memory` is not selected.
+  memory-core:
+    build:
+      context: ${MEMORY_SOURCE_ROOT:-../TencentDB-Agent-Memory}/MemoryCore
+      dockerfile: Dockerfile
+    container_name: FMind-memory-core
+    profiles:
+      - memory
+    expose:
+      - "8420"
+    volumes:
+      - memory-core-data:/data/tdai-memory
+      - ./docker/memory-core.config.yaml:/data/config/tdai-gateway.yaml:ro
+    environment:
+      - NODE_ENV=${MEMORY_NODE_ENV:-production}
+      - TDAI_GATEWAY_CONFIG=/data/config/tdai-gateway.yaml
+      - TDAI_GATEWAY_HOST=0.0.0.0
+      - TDAI_GATEWAY_PORT=8420
+      - TDAI_GATEWAY_API_KEY=${FMIND_MEMORY_CORE_API_KEY:-}
+      - TDAI_DATA_DIR=/data/tdai-memory
+      - TDAI_LLM_BASE_URL=${MEMORY_CORE_LLM_BASE_URL:-https://api.openai.com/v1}
+      - TDAI_LLM_API_KEY=${MEMORY_CORE_LLM_API_KEY:-}
+      - TDAI_LLM_MODEL=${MEMORY_CORE_LLM_MODEL:-gpt-4o-mini}
+      - TDAI_LLM_MAX_TOKENS=${MEMORY_CORE_LLM_MAX_TOKENS:-4096}
+      - TDAI_LLM_TIMEOUT_MS=${MEMORY_CORE_LLM_TIMEOUT_MS:-120000}
+      - FMIND_ENABLED=true
+      - FMIND_ENDPOINT=${FMIND_SECURE_INTERNAL_URL:-https://app:8080}
+      - FMIND_BASE_URL=${FMIND_SECURE_INTERNAL_URL:-https://app:8080}
+      - FMIND_ALLOW_INSECURE_HTTP=${MEMORY_ALLOW_INSECURE_HTTP:-false}
+      - FMIND_INSECURE_HTTP_ALLOWLIST=${MEMORY_INSECURE_HTTP_ALLOWLIST:-}
+      - FMIND_L3_EVENTS_ENABLED=true
+      - FMIND_MEMORY_EVENT_SECRET=${FMIND_MEMORY_EVENT_SECRET:-}
+      - FMIND_MEMORY_EVENT_SERVICE_ID=${FMIND_MEMORY_EVENT_SERVICE_ID:-memory-core}
+      - FMIND_L3_OUTBOX_PATH=/data/tdai-memory/fmind-l3-outbox.sqlite
+    entrypoint:
+      - /usr/bin/tini
+      - --
+      - /bin/sh
+      - -ec
+      - |
+        [ "$${#TDAI_GATEWAY_API_KEY}" -ge 32 ] || { echo "FMIND_MEMORY_CORE_API_KEY must contain at least 32 bytes" >&2; exit 1; }
+        [ -n "$$TDAI_LLM_API_KEY" ] || { echo "MEMORY_CORE_LLM_API_KEY is required" >&2; exit 1; }
+        [ "$${#FMIND_MEMORY_EVENT_SECRET}" -ge 32 ] || { echo "FMIND_MEMORY_EVENT_SECRET must contain at least 32 bytes" >&2; exit 1; }
+        exec node --import tsx src/gateway/server.ts
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8420/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - FMind-network
+    restart: unless-stopped
+
+  memory-proxy:
+    build:
+      context: ${MEMORY_SOURCE_ROOT:-../TencentDB-Agent-Memory}/MemoryProxy
+      dockerfile: Dockerfile
+    container_name: FMind-memory-proxy
+    profiles:
+      - memory
+    ports:
+      - "${MEMORY_PROXY_BIND:-127.0.0.1}:${MEMORY_PROXY_PORT:-8096}:8096"
+    volumes:
+      - memory-proxy-data:/data/tdai-memory-proxy
+      - ./docker/memory-proxy.config.yaml:/data/config.template.yaml:ro
+    environment:
+      - NODE_ENV=${MEMORY_NODE_ENV:-production}
+      - FMIND_ENDPOINT=${FMIND_SECURE_INTERNAL_URL:-https://app:8080}
+      - MEMORY_CORE_ENDPOINT=${MEMORY_CORE_SECURE_INTERNAL_URL:-https://memory-core:8420}
+      - MEMORY_CORE_API_KEY=${FMIND_MEMORY_CORE_API_KEY:-}
+      - MEMORY_PROXY_UPSTREAM_URL=${MEMORY_PROXY_UPSTREAM_URL:-https://api.openai.com/v1}
+      - MEMORY_PROXY_UPSTREAM_API_KEY=${MEMORY_PROXY_UPSTREAM_API_KEY:-}
+      - MEMORY_ALLOW_INSECURE_HTTP=${MEMORY_ALLOW_INSECURE_HTTP:-false}
+      - MEMORY_INSECURE_HTTP_ALLOWLIST=${MEMORY_INSECURE_HTTP_ALLOWLIST:-}
+      - FMIND_ALLOW_INSECURE_HTTP=${MEMORY_ALLOW_INSECURE_HTTP:-false}
+      - FMIND_INSECURE_HTTP_ALLOWLIST=${MEMORY_INSECURE_HTTP_ALLOWLIST:-}
+      - FMIND_BRIDGE_SIGNING_SECRET=${FMIND_BRIDGE_SIGNING_SECRET:-}
+      - TDAI_PROXY_ADMIN_API_KEY=${MEMORY_PROXY_ADMIN_API_KEY:-}
+      - PROXY_DB_PATH=/data/tdai-memory-proxy/proxy.db
+    entrypoint:
+      - /usr/bin/tini
+      - --
+      - /bin/sh
+      - -ec
+      - |
+        [ "$${#MEMORY_CORE_API_KEY}" -ge 32 ] || { echo "FMIND_MEMORY_CORE_API_KEY must contain at least 32 bytes" >&2; exit 1; }
+        [ -n "$$MEMORY_PROXY_UPSTREAM_API_KEY" ] || { echo "MEMORY_PROXY_UPSTREAM_API_KEY is required" >&2; exit 1; }
+        [ "$${#FMIND_BRIDGE_SIGNING_SECRET}" -ge 32 ] || { echo "FMIND_BRIDGE_SIGNING_SECRET must contain at least 32 bytes" >&2; exit 1; }
+        [ "$${#TDAI_PROXY_ADMIN_API_KEY}" -ge 32 ] || { echo "MEMORY_PROXY_ADMIN_API_KEY must contain at least 32 bytes" >&2; exit 1; }
+        node -e '
+          const fs = require("fs");
+          const required = {
+            __FMIND_ENDPOINT__: "FMIND_ENDPOINT",
+            __MEMORY_CORE_ENDPOINT__: "MEMORY_CORE_ENDPOINT",
+            __MEMORY_CORE_API_KEY__: "MEMORY_CORE_API_KEY",
+            __MEMORY_PROXY_UPSTREAM_URL__: "MEMORY_PROXY_UPSTREAM_URL",
+            __MEMORY_PROXY_UPSTREAM_API_KEY__: "MEMORY_PROXY_UPSTREAM_API_KEY",
+          };
+          const allow = new Set((process.env.MEMORY_INSECURE_HTTP_ALLOWLIST || "").split(",").map(v => v.trim().toLowerCase()).filter(Boolean));
+          for (const name of ["FMIND_ENDPOINT", "MEMORY_CORE_ENDPOINT"]) {
+            const value = process.env[name] || "";
+            const url = new URL(value);
+            const devHttp = url.protocol === "http:" && process.env.NODE_ENV === "development" && process.env.MEMORY_ALLOW_INSECURE_HTTP === "true" && allow.has(url.host.toLowerCase());
+            if (url.protocol !== "https:" && !devHttp) throw new Error(name + " must use HTTPS; development HTTP requires an exact allowlist entry");
+          }
+          let body = fs.readFileSync("/data/config.template.yaml", "utf8");
+          for (const [token, name] of Object.entries(required)) {
+            const escaped = JSON.stringify(process.env[name] || "").slice(1, -1);
+            body = body.split(token).join(escaped);
+          }
+          fs.writeFileSync("/tmp/memory-proxy.config.yaml", body, { mode: 0o600 });
+        '
+        exec node --import tsx/esm src/index.ts --config /tmp/memory-proxy.config.yaml
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8096/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
+    depends_on:
+      app:
+        condition: service_healthy
+      memory-core:
+        condition: service_healthy
+    networks:
+      - FMind-network
+    restart: unless-stopped
+
   sandbox:
     image: wechatopenai/fmind-sandbox:${FMIND_VERSION:-latest}
     container_name: FMind-sandbox
@@ -830,3 +977,7 @@ volumes:
   langfuse_clickhouse_logs:
   langfuse_minio_data:
   searxng_config:
+  memory-core-data:
+    name: fmind_memory_core_data
+  memory-proxy-data:
+    name: fmind_memory_proxy_data

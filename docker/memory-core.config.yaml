@@ -1,0 +1,75 @@
+# FMind integration profile for TencentDB Agent Memory / MemoryCore.
+#
+# Secrets are deliberately absent.  The compose services inject the gateway,
+# LLM and FMind event credentials through environment variables at runtime.
+deployMode: standalone
+stateBackend: local
+
+server:
+  host: "0.0.0.0"
+  port: 8420
+  corsOrigins: []
+
+data:
+  baseDir: "/data/tdai-memory"
+
+llm:
+  baseUrl: "https://api.openai.com/v1"
+  model: "gpt-4o-mini"
+  maxTokens: 4096
+  timeoutMs: 120000
+
+memory:
+  capture:
+    enabled: true
+    l0l1RetentionDays: 0
+  extraction:
+    enabled: true
+    enableDedup: true
+    maxMemoriesPerSession: 20
+  persona:
+    triggerEveryN: 50
+    maxScenes: 20
+  pipeline:
+    everyNConversations: 5
+    enableWarmup: true
+    l1IdleTimeoutSeconds: 30
+    l2DelayAfterL1Seconds: 90
+    l2MinIntervalSeconds: 900
+    l2MaxIntervalSeconds: 3600
+    sessionActiveWindowHours: 24
+  recall:
+    enabled: true
+    maxResults: 5
+    scoreThreshold: 0.3
+    strategy: "hybrid"
+    timeoutMs: 5000
+  # MemoryCore owns its own vector space.  This database is intentionally
+  # separate from FMind's RAG vector collections.
+  storeBackend: "sqlite"
+  embedding:
+    provider: "none"
+  bm25:
+    enabled: true
+    language: "zh"
+
+# Environment variables override these transport-only defaults.  Production
+# compose keeps insecure HTTP disabled; docker-compose.dev.yml opts in for the
+# exact local FMind host only.
+fmind:
+  enabled: true
+  endpoint: "https://fmind.invalid"
+  allowInsecureHttp: false
+
+skill:
+  enabled: false
+
+observability:
+  otel:
+    enabled: false
+  clickhouse:
+    enabled: false
+  kafka:
+    enabled: false
+  langfuse:
+    enabled: false

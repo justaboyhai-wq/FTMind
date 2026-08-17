@@ -1,0 +1,96 @@
+# FMind integration profile for TencentDB Agent Memory / MemoryProxy.
+#
+# __...__ values are rendered from environment variables into an ephemeral
+# mode-0600 file by the compose entrypoint.  No credential is stored here.
+server:
+  host: "0.0.0.0"
+  port: 8096
+  forwardTimeoutMs: 600000
+
+upstream:
+  url: "__MEMORY_PROXY_UPSTREAM_URL__"
+  apiKey: "__MEMORY_PROXY_UPSTREAM_API_KEY__"
+  agents: {}
+
+log:
+  file: ""
+  verbose: false
+  level: "info"
+  backend: "console"
+
+redis:
+  enabled: false
+
+storage:
+  enabled: true
+  backend: "sqlite"
+  ttlDays: 7
+  sqlite:
+    dbPath: "/data/tdai-memory-proxy/proxy-storage.db"
+
+rateLimit:
+  tpm: 1000000
+  qpm: 100
+
+# External-agent identity is resolved solely through FMind Connector Secrets
+# supplied on each request.  connectorSecret remains empty on purpose: it is
+# never shared with MemoryCore or persisted in this configuration.
+fmind:
+  enabled: true
+  endpoint: "__FMIND_ENDPOINT__"
+  connectorSecret: ""
+
+injection:
+  enabled: true
+  injectors: ["tdai-memory"]
+  assetReflection:
+    markerOptIn: false
+
+extraction:
+  enabled: true
+  extractors: ["tdai-memory"]
+
+# FMind Binding Context supplies team/agent/task identity, so the legacy
+# interactive selector must stay off in this integration profile.
+sessionInit:
+  enabled: false
+
+tdai:
+  enabled: true
+  endpoint: "__MEMORY_CORE_ENDPOINT__"
+  apiKey: "__MEMORY_CORE_API_KEY__"
+  serviceId: "fmind-memory-proxy"
+  memory:
+    enabled: true
+    inject: true
+    writeL0: true
+    recallL1: true
+    injectL2L3: true
+    l1Limit: 5
+    l2Limit: 3
+    timeoutMs: 5000
+
+skill:
+  endpoint: "__MEMORY_CORE_ENDPOINT__"
+  serviceToken: "__MEMORY_CORE_API_KEY__"
+  serviceId: "fmind-memory-proxy"
+  timeoutMs: 2500
+
+knowledge:
+  enabled: false
+  endpoint: "__MEMORY_CORE_ENDPOINT__"
+  serviceToken: "__MEMORY_CORE_API_KEY__"
+  serviceId: "fmind-memory-proxy"
+  timeoutMs: 2500
+
+skillRuntime:
+  allowLlmWrite: false
+
+admin:
+  # Overridden by TDAI_PROXY_ADMIN_API_KEY.  The compose entrypoint refuses
+  # to start if that environment value is missing or shorter than 32 bytes.
+  apiKey: ""
+
+memCommand:
+  enabled: false
+  allowedCommands: []
