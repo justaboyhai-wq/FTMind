@@ -4,13 +4,13 @@ import (
 	"context"
 	stderrors "errors"
 
+	"github.com/gin-gonic/gin"
 	apprepo "github.com/justaboyhai-wq/fmind/internal/application/repository"
 	"github.com/justaboyhai-wq/fmind/internal/config"
 	apperrors "github.com/justaboyhai-wq/fmind/internal/errors"
 	"github.com/justaboyhai-wq/fmind/internal/logger"
 	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
-	"github.com/gin-gonic/gin"
 )
 
 // kb_access.go centralises the share-fallback that previously lived as
@@ -337,6 +337,15 @@ func resolveKBAccessOnce(
 	}
 	if kb == nil {
 		return nil, errKBAccessNotFound
+	}
+	// A dedicated memory Wiki is tenant/team governance state, not a
+	// shareable knowledge asset. Reject it before evaluating organization or
+	// shared-agent grants so a historical share cannot cross the tenant wall.
+	if kb.HasMemoryWikiMarker() {
+		if kb.TenantID != tenantID || (!types.IsSystemAdminFromContext(ctx) &&
+			!callerTenantRole.HasPermission(types.TenantRoleAdmin)) {
+			return nil, errKBAccessForbidden
+		}
 	}
 
 	// 1. Own KB.

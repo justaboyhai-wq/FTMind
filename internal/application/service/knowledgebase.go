@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/hibiken/asynq"
 	"github.com/justaboyhai-wq/fmind/internal/application/service/retriever"
 	"github.com/justaboyhai-wq/fmind/internal/datasource"
 	apperrors "github.com/justaboyhai-wq/fmind/internal/errors"
@@ -18,12 +20,12 @@ import (
 	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
-	"github.com/google/uuid"
-	"github.com/hibiken/asynq"
 )
 
 // ErrInvalidTenantID represents an error for invalid tenant ID
 var ErrInvalidTenantID = errors.New("invalid tenant ID")
+
+var ErrDedicatedMemoryWikiManagedInternally = errors.New("dedicated memory Wiki is managed by the reviewed L3 lifecycle")
 
 // knowledgeBaseService implements the knowledge base service interface
 type knowledgeBaseService struct {
@@ -99,6 +101,12 @@ func (s *knowledgeBaseService) GetRepository() interfaces.KnowledgeBaseRepositor
 func (s *knowledgeBaseService) CreateKnowledgeBase(ctx context.Context,
 	kb *types.KnowledgeBase,
 ) (*types.KnowledgeBase, error) {
+	if kb == nil {
+		return nil, errors.New("knowledge base is required")
+	}
+	if kb.HasMemoryWikiMarker() && !types.IsMemoryWikiProvisioning(ctx) {
+		return nil, ErrDedicatedMemoryWikiManagedInternally
+	}
 	// Generate UUID and set creation timestamps
 	if kb.ID == "" {
 		kb.ID = uuid.New().String()
@@ -118,6 +126,9 @@ func (s *knowledgeBaseService) CreateKnowledgeBase(ctx context.Context,
 		kb.CreatorID = uid
 	}
 	kb.EnsureDefaults()
+	if types.IsMemoryWikiProvisioning(ctx) && !kb.IsDedicatedMemoryWiki() {
+		return nil, errors.New("internal memory Wiki must satisfy the zero-RAG invariant")
+	}
 	applyTenantDefaultStorageProvider(ctx, kb)
 
 	// Fold empty-string vector_store_id into nil so this path and the
@@ -298,6 +309,7 @@ func (s *knowledgeBaseService) ListKnowledgeBases(ctx context.Context) ([]*types
 		})
 		return nil, err
 	}
+	kbs = filterMemoryWikiVisibility(ctx, kbs)
 
 	// Query knowledge count and chunk count for each knowledge base
 	for _, kb := range kbs {
@@ -356,6 +368,7 @@ func (s *knowledgeBaseService) ListKnowledgeBasesByTenantID(ctx context.Context,
 		})
 		return nil, err
 	}
+	kbs = filterMemoryWikiVisibility(ctx, kbs)
 	for _, kb := range kbs {
 		kb.EnsureDefaults()
 		switch kb.Type {
@@ -383,6 +396,21 @@ func (s *knowledgeBaseService) ListKnowledgeBasesByTenantID(ctx context.Context,
 		s.applyUserKBPins(ctx, tenantID, userID, kbs)
 	}
 	return kbs, nil
+}
+
+func filterMemoryWikiVisibility(ctx context.Context, kbs []*types.KnowledgeBase) []*types.KnowledgeBase {
+	if types.IsMemoryWikiProvisioning(ctx) || types.IsSystemAdminFromContext(ctx) ||
+		types.TenantRoleFromContext(ctx).HasPermission(types.TenantRoleAdmin) {
+		return kbs
+	}
+	visible := make([]*types.KnowledgeBase, 0, len(kbs))
+	for _, kb := range kbs {
+		if kb == nil || kb.HasMemoryWikiMarker() {
+			continue
+		}
+		visible = append(visible, kb)
+	}
+	return visible
 }
 
 // FillKnowledgeBaseCounts fills KnowledgeCount, ChunkCount, IsProcessing, ProcessingCount for the given KB using kb.TenantID.
@@ -446,6 +474,10 @@ func (s *knowledgeBaseService) UpdateKnowledgeBase(ctx context.Context,
 			"knowledge_base_id": id,
 		})
 		return nil, err
+	}
+	if kb.HasMemoryWikiMarker() || (config != nil && config.WikiConfig != nil &&
+		(config.WikiConfig.IsMemoryWiki || config.WikiConfig.MemoryTeamID != "")) {
+		return nil, ErrDedicatedMemoryWikiManagedInternally
 	}
 
 	// Update the knowledge base properties
@@ -639,6 +671,9 @@ func (s *knowledgeBaseService) DeleteKnowledgeBase(ctx context.Context, id strin
 			"knowledge_base_id": id,
 		})
 		return err
+	}
+	if kb != nil && kb.HasMemoryWikiMarker() && !types.IsMemoryWikiProvisioning(ctx) {
+		return ErrDedicatedMemoryWikiManagedInternally
 	}
 	var vectorStoreIDSnapshot *string
 	if kb != nil {
@@ -953,12 +988,18 @@ func (s *knowledgeBaseService) CopyKnowledgeBase(ctx context.Context,
 		return nil, nil, err
 	}
 	sourceKB.EnsureDefaults()
+	if sourceKB.HasMemoryWikiMarker() {
+		return nil, nil, ErrDedicatedMemoryWikiManagedInternally
+	}
 	var targetKB *types.KnowledgeBase
 	if dstKB != "" {
 		// Load target KB with tenant scope so we only clone into the caller's tenant
 		targetKB, err = s.repo.GetKnowledgeBaseByIDAndTenant(ctx, dstKB, tenantID)
 		if err != nil {
 			return nil, nil, err
+		}
+		if targetKB.HasMemoryWikiMarker() {
+			return nil, nil, ErrDedicatedMemoryWikiManagedInternally
 		}
 
 		// Defense 1: embedding model must match. Mixing incompatible
@@ -1054,6 +1095,9 @@ func (s *knowledgeBaseService) DuplicateKnowledgeBase(
 		return nil, err
 	}
 	sourceKB.EnsureDefaults()
+	if sourceKB.HasMemoryWikiMarker() {
+		return nil, ErrDedicatedMemoryWikiManagedInternally
+	}
 
 	targetKB, err := cloneKnowledgeBaseConfiguration(sourceKB)
 	if err != nil {

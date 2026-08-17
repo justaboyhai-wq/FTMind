@@ -3,8 +3,8 @@ package repository
 import (
 	"testing"
 
-	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/google/uuid"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/sqlite"
@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS knowledge_bases (
     asr_config TEXT,
     vector_store_id VARCHAR(36),
     wiki_config TEXT,
+    is_memory_wiki BOOLEAN NOT NULL DEFAULT 0,
+    memory_team_id TEXT,
     indexing_strategy TEXT,
     creator_id VARCHAR(36),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

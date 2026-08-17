@@ -10,6 +10,7 @@ import (
 	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // ErrWikiPageNotFound is returned when a wiki page is not found
@@ -17,6 +18,10 @@ var ErrWikiPageNotFound = errors.New("wiki page not found")
 
 // ErrWikiPageConflict is returned when an optimistic lock conflict is detected
 var ErrWikiPageConflict = errors.New("wiki page version conflict")
+
+// ErrWikiPageIssueNotFound is returned when an issue does not exist in the
+// caller's exact tenant/knowledge-base scope.
+var ErrWikiPageIssueNotFound = errors.New("wiki page issue not found")
 
 // wikiPageRepository implements the WikiPageRepository interface
 type wikiPageRepository struct {
@@ -37,7 +42,9 @@ func (r *wikiPageRepository) wikiCategoryRankOrder() string {
 
 // Create inserts a new wiki page record
 func (r *wikiPageRepository) Create(ctx context.Context, page *types.WikiPage) error {
-	return r.db.WithContext(ctx).Create(page).Error
+	return r.withMemoryWikiPublicationGuard(ctx, func(tx *gorm.DB) error {
+		return tx.Create(page).Error
+	})
 }
 
 // Update updates an existing wiki page record with optimistic locking.
@@ -45,25 +52,66 @@ func (r *wikiPageRepository) Create(ctx context.Context, page *types.WikiPage) e
 // The caller must set page.Version to the expected current version.
 func (r *wikiPageRepository) Update(ctx context.Context, page *types.WikiPage) error {
 	expectedVersion := page.Version
-	page.Version = expectedVersion + 1
+	err := r.withMemoryWikiPublicationGuard(ctx, func(tx *gorm.DB) error {
+		return r.updateWithDB(tx, page)
+	})
+	if err == nil {
+		page.Version = expectedVersion + 1
+	}
+	return err
+}
 
-	result := r.db.WithContext(ctx).
-		Model(page).
+func (r *wikiPageRepository) updateWithDB(db *gorm.DB, page *types.WikiPage) error {
+	expectedVersion := page.Version
+	result := db.
+		Model(&types.WikiPage{}).
 		Where("id = ? AND version = ?", page.ID, expectedVersion).
-		Updates(page)
+		Updates(map[string]interface{}{
+			"title": page.Title, "content": page.Content, "summary": page.Summary,
+			"page_type": page.PageType, "status": page.Status,
+			"source_refs": page.SourceRefs, "chunk_refs": page.ChunkRefs,
+			"page_metadata": page.PageMetadata, "in_links": page.InLinks, "out_links": page.OutLinks,
+			"parent_slug": page.ParentSlug, "folder_id": page.FolderID,
+			"category_path": page.CategoryPath, "wiki_path": page.WikiPath,
+			"depth": page.Depth, "sort_order": page.SortOrder,
+			"updated_at": page.UpdatedAt, "version": gorm.Expr("version + 1"),
+		})
 	if result.Error != nil {
 		return result.Error
 	}
 	if result.RowsAffected == 0 {
 		// Could be not found or version conflict — check which
 		var count int64
-		r.db.WithContext(ctx).Model(&types.WikiPage{}).Where("id = ?", page.ID).Count(&count)
+		if countErr := db.Model(&types.WikiPage{}).Where("id = ?", page.ID).Count(&count).Error; countErr != nil {
+			return countErr
+		}
 		if count == 0 {
 			return ErrWikiPageNotFound
 		}
 		return ErrWikiPageConflict
 	}
 	return nil
+}
+
+func (r *wikiPageRepository) withMemoryWikiPublicationGuard(ctx context.Context, mutate func(*gorm.DB) error) error {
+	db := r.db.WithContext(ctx)
+	guard, guarded := types.MemoryWikiPublicationGuardFromContext(ctx)
+	if !guarded {
+		return mutate(db)
+	}
+	return db.Transaction(func(tx *gorm.DB) error {
+		var publication types.MemoryWikiPublication
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Select("id", "tenant_id", "status").
+			Where("id = ? AND tenant_id = ?", guard.PublicationID, guard.TenantID).
+			First(&publication).Error; err != nil {
+			return ErrWikiPageConflict
+		}
+		if publication.Status != types.MemoryReviewStatusPublishing {
+			return ErrWikiPageConflict
+		}
+		return mutate(tx)
+	})
 }
 
 // UpdateAutoLinkedContent persists content changes produced by the automatic
@@ -1063,8 +1111,26 @@ func (r *wikiPageRepository) ListIssues(ctx context.Context, kbID string, slug s
 	return issues, nil
 }
 
-func (r *wikiPageRepository) UpdateIssueStatus(ctx context.Context, issueID string, status string) error {
-	return r.db.WithContext(ctx).Model(&types.WikiPageIssue{}).
-		Where("id = ?", issueID).
-		Update("status", status).Error
+func (r *wikiPageRepository) GetIssueByID(ctx context.Context, issueID string) (*types.WikiPageIssue, error) {
+	var issue types.WikiPageIssue
+	if err := r.db.WithContext(ctx).Where("id = ?", issueID).First(&issue).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrWikiPageIssueNotFound
+		}
+		return nil, err
+	}
+	return &issue, nil
+}
+
+func (r *wikiPageRepository) UpdateIssueStatus(ctx context.Context, tenantID uint64, kbID string, issueID string, status string) error {
+	result := r.db.WithContext(ctx).Model(&types.WikiPageIssue{}).
+		Where("id = ? AND tenant_id = ? AND knowledge_base_id = ?", issueID, tenantID, kbID).
+		Update("status", status)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected != 1 {
+		return ErrWikiPageIssueNotFound
+	}
+	return nil
 }

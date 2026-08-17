@@ -88,6 +88,11 @@ type KnowledgeBase struct {
 	QuestionGenerationConfig *QuestionGenerationConfig `yaml:"question_generation_config" json:"question_generation_config" gorm:"column:question_generation_config;type:json"`
 	// WikiConfig stores wiki-specific configuration (only for wiki type knowledge bases)
 	WikiConfig *WikiConfig `yaml:"wiki_config"             json:"wiki_config"             gorm:"column:wiki_config;type:json"`
+	// IsMemoryWiki and MemoryTeamID are scalar enforcement columns. WikiConfig
+	// mirrors them for API compatibility, while the columns support a durable
+	// tenant/team uniqueness constraint and database ingest guard.
+	IsMemoryWiki bool   `yaml:"is_memory_wiki" json:"is_memory_wiki" gorm:"column:is_memory_wiki;not null;default:false;index"`
+	MemoryTeamID string `yaml:"memory_team_id" json:"memory_team_id,omitempty" gorm:"column:memory_team_id;type:varchar(128);index"`
 	// IndexingStrategy controls which indexing pipelines are active for this knowledge base.
 	// Pipelines: vector search, keyword search, wiki generation, knowledge graph extraction.
 	IndexingStrategy IndexingStrategy `yaml:"indexing_strategy"       json:"indexing_strategy"       gorm:"column:indexing_strategy;type:json"`
@@ -559,6 +564,17 @@ func (kb *KnowledgeBase) EnsureDefaults() {
 	if kb.Type == "" {
 		kb.Type = KnowledgeBaseTypeDocument
 	}
+	if kb.IsMemoryWiki {
+		kb.Type = KnowledgeBaseTypeWiki
+		if kb.WikiConfig == nil {
+			kb.WikiConfig = &WikiConfig{}
+		}
+		kb.WikiConfig.IsMemoryWiki = true
+		kb.WikiConfig.MemoryTeamID = kb.MemoryTeamID
+		kb.IndexingStrategy = IndexingStrategy{WikiEnabled: true}
+		kb.ExtractConfig = nil
+		kb.EmbeddingModelID = ""
+	}
 	// Clear type-specific configs that don't belong
 	if kb.Type != KnowledgeBaseTypeFAQ {
 		kb.FAQConfig = nil
@@ -591,6 +607,21 @@ func (kb *KnowledgeBase) EnsureDefaults() {
 	if kb.ExtractConfig != nil && kb.ExtractConfig.Enabled && !kb.IndexingStrategy.GraphEnabled {
 		kb.IndexingStrategy.GraphEnabled = true
 	}
+}
+
+// IsDedicatedMemoryWiki verifies both the durable marker and its zero-RAG
+// indexing invariant. A partially marked or vector-enabled row is never a
+// valid L3 publication target.
+func (kb *KnowledgeBase) IsDedicatedMemoryWiki() bool {
+	return kb != nil && kb.IsMemoryWiki && strings.TrimSpace(kb.MemoryTeamID) != "" &&
+		kb.Type == KnowledgeBaseTypeWiki && kb.WikiConfig != nil && kb.WikiConfig.IsMemoryWiki &&
+		kb.WikiConfig.MemoryTeamID == kb.MemoryTeamID && kb.IndexingStrategy.WikiEnabled &&
+		!kb.IndexingStrategy.VectorEnabled && !kb.IndexingStrategy.KeywordEnabled && !kb.IndexingStrategy.GraphEnabled
+}
+
+func (kb *KnowledgeBase) HasMemoryWikiMarker() bool {
+	return kb != nil && (kb.IsMemoryWiki || kb.MemoryTeamID != "" ||
+		(kb.WikiConfig != nil && (kb.WikiConfig.IsMemoryWiki || kb.WikiConfig.MemoryTeamID != "")))
 }
 
 // KBCapabilities describes the functional features a knowledge base exposes.

@@ -24,7 +24,10 @@ func isSensitiveBodyLoggingPath(path string) bool {
 		path == "/api/v1/agent-bindings" ||
 		strings.HasPrefix(path, "/api/v1/agent-bindings/") ||
 		path == "/mcp/cognition" ||
-		strings.HasPrefix(path, "/mcp/cognition/")
+		strings.HasPrefix(path, "/mcp/cognition/") ||
+		path == "/internal/v1/memory/events" ||
+		path == "/api/v1/external-memory" ||
+		strings.HasPrefix(path, "/api/v1/external-memory/")
 }
 
 type loggerResponseBodyWriter struct {

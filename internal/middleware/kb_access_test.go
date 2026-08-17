@@ -6,10 +6,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	apprepo "github.com/justaboyhai-wq/fmind/internal/application/repository"
 	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
-	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )
 
@@ -235,6 +235,35 @@ func TestRequireKBAccess_OwnKB(t *testing.T) {
 	got, ok := types.TenantIDFromContext(c.Request.Context())
 	require.True(t, ok)
 	require.Equal(t, uint64(100), got)
+}
+
+func TestRequireKBAccess_OwnMemoryWikiDeniesNonAdmin(t *testing.T) {
+	_, c := runGuard(t, 100, "memory-kb", types.OrgRoleViewer, &types.KnowledgeBase{
+		ID: "memory-kb", TenantID: 100, Type: types.KnowledgeBaseTypeWiki,
+		IsMemoryWiki: true, MemoryTeamID: "team-a",
+		WikiConfig:       &types.WikiConfig{IsMemoryWiki: true, MemoryTeamID: "team-a"},
+		IndexingStrategy: types.IndexingStrategy{WikiEnabled: true},
+	}, nil, guardOpts{})
+	require.True(t, c.IsAborted())
+	require.NotEmpty(t, c.Errors)
+}
+
+func TestRequireKBAccess_SharedMemoryWikiAlwaysDenied(t *testing.T) {
+	share := &stubKBShareForGuard{
+		permission: map[string]types.OrgMemberRole{"memory-kb": types.OrgRoleAdmin},
+		shared:     map[string]bool{"memory-kb": true},
+		source:     map[string]uint64{"memory-kb": 200},
+	}
+	_, c := runGuard(t, 100, "memory-kb", types.OrgRoleViewer, &types.KnowledgeBase{
+		ID: "memory-kb", TenantID: 200, Type: types.KnowledgeBaseTypeWiki,
+		IsMemoryWiki: true, MemoryTeamID: "team-a",
+		WikiConfig:       &types.WikiConfig{IsMemoryWiki: true, MemoryTeamID: "team-a"},
+		IndexingStrategy: types.IndexingStrategy{WikiEnabled: true},
+	}, share, guardOpts{})
+	require.True(t, c.IsAborted())
+	require.NotEmpty(t, c.Errors)
+	_, ok := KBAccessFromContext(c)
+	require.False(t, ok)
 }
 
 // TestIsResourceNotFound_RecognisesKnowledgeSentinel pins that a missing

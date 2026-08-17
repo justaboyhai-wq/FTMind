@@ -51,6 +51,16 @@ const (
 	// the agent emits a one-shot authorization notice and continues instead of
 	// blocking until the OAuth wait times out. See IsMCPOAuthNonInteractive.
 	MCPOAuthNonInteractiveContextKey ContextKey = "MCPOAuthNonInteractive"
+	// MemoryWikiProvisioningContextKey marks the internal team-KB provisioning path.
+	MemoryWikiProvisioningContextKey ContextKey = "MemoryWikiProvisioning"
+	// MemoryWikiMutationContextKey marks the reviewed L3 publisher/revoker write path.
+	MemoryWikiMutationContextKey ContextKey = "MemoryWikiMutation"
+	// MemoryWikiPublicationGuardContextKey binds a Wiki write to a durable
+	// publication that is still in the publishing state.
+	MemoryWikiPublicationGuardContextKey ContextKey = "MemoryWikiPublicationGuard"
+	// VerifiedBindingContextKey carries claims reconstructed from a verified
+	// binding token. It never contains the raw token or connector secret.
+	VerifiedBindingContextKey ContextKey = "VerifiedBindingContext"
 )
 
 // String returns the string representation of the context key

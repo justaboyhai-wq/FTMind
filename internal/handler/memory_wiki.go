@@ -1,80 +1,137 @@
 package handler
 
 import (
+	"context"
+	"errors"
+	"net/http"
+	"strings"
+
 	"github.com/gin-gonic/gin"
+	"github.com/justaboyhai-wq/fmind/internal/application/repository"
 	"github.com/justaboyhai-wq/fmind/internal/application/service/memorywiki"
 	"github.com/justaboyhai-wq/fmind/internal/types"
-	"net/http"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
-type MemoryWikiHandler struct{ service *memorywiki.Service }
+const maxMemoryReviewCommentBytes = 8 << 10
+
+type memoryWikiReviewService interface {
+	List(context.Context, uint64, string) ([]*types.MemoryWikiPublication, error)
+	GetReview(context.Context, uint64, string) (*interfaces.ExternalMemoryProjection, error)
+	ApprovePublication(context.Context, uint64, string, string, string) (*types.MemoryReviewTask, error)
+	RejectPublication(context.Context, uint64, string, string, string) (*types.MemoryReviewTask, error)
+	RequestPublicationChanges(context.Context, uint64, string, string, string) (*types.MemoryReviewTask, error)
+	PublishApproved(context.Context, uint64, string, string) (*types.WikiPage, error)
+}
+
+type MemoryWikiHandler struct{ service memoryWikiReviewService }
 
 func NewMemoryWikiHandler(service *memorywiki.Service) *MemoryWikiHandler {
 	return &MemoryWikiHandler{service: service}
 }
-func (h *MemoryWikiHandler) Submit(c *gin.Context) {
-	var p types.MemoryWikiPublication
-	if c.ShouldBindJSON(&p) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
-		return
-	}
-	tenantID := c.GetUint64(types.TenantIDContextKey.String())
-	if p.TenantID != 0 && p.TenantID != tenantID {
-		c.JSON(http.StatusForbidden, gin.H{"error": "tenant_id cannot cross the authenticated tenant"})
-		return
-	}
-	p.TenantID = tenantID
-	if err := h.service.Submit(c, &p); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusCreated, p)
+
+func newMemoryWikiHandler(service memoryWikiReviewService) *MemoryWikiHandler {
+	return &MemoryWikiHandler{service: service}
 }
-func (h *MemoryWikiHandler) List(c *gin.Context) {
-	tenantID := c.GetUint64(types.TenantIDContextKey.String())
-	pages, err := h.service.List(c, tenantID, c.Query("status"))
+
+func (h *MemoryWikiHandler) ListReviews(c *gin.Context) {
+	publications, err := h.service.List(c.Request.Context(), c.GetUint64(types.TenantIDContextKey.String()), c.Query("status"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		writeMemoryWikiError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, pages)
+	c.JSON(http.StatusOK, publications)
 }
-func (h *MemoryWikiHandler) Review(c *gin.Context) {
+
+func (h *MemoryWikiHandler) GetReview(c *gin.Context) {
+	projection, err := h.service.GetReview(c.Request.Context(), c.GetUint64(types.TenantIDContextKey.String()), c.Param("id"))
+	if err != nil {
+		writeMemoryWikiError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, projection)
+}
+
+type memoryReviewDecisionRequest struct {
+	Comment string `json:"comment"`
+}
+
+func (h *MemoryWikiHandler) Approve(c *gin.Context)        { h.review(c, "approve") }
+func (h *MemoryWikiHandler) Reject(c *gin.Context)         { h.review(c, "reject") }
+func (h *MemoryWikiHandler) RequestChanges(c *gin.Context) { h.review(c, "request_changes") }
+
+func (h *MemoryWikiHandler) review(c *gin.Context, decision string) {
+	var request memoryReviewDecisionRequest
+	if c.Request.ContentLength != 0 {
+		if err := c.ShouldBindJSON(&request); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+			return
+		}
+	}
+	request.Comment = strings.TrimSpace(request.Comment)
+	if len(request.Comment) > maxMemoryReviewCommentBytes || (decision == "request_changes" && request.Comment == "") {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid review comment"})
+		return
+	}
+	reviewer, ok := types.UserIDFromContext(c.Request.Context())
+	if !ok || strings.TrimSpace(reviewer) == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "reviewer identity is required"})
+		return
+	}
 	tenantID := c.GetUint64(types.TenantIDContextKey.String())
-	reviewer, _ := types.UserIDFromContext(c.Request.Context())
-	var req struct {
-		Approve bool `json:"approve"`
+	var (
+		review *types.MemoryReviewTask
+		err    error
+	)
+	switch decision {
+	case "approve":
+		review, err = h.service.ApprovePublication(c.Request.Context(), tenantID, c.Param("id"), reviewer, request.Comment)
+	case "reject":
+		review, err = h.service.RejectPublication(c.Request.Context(), tenantID, c.Param("id"), reviewer, request.Comment)
+	case "request_changes":
+		review, err = h.service.RequestPublicationChanges(c.Request.Context(), tenantID, c.Param("id"), reviewer, request.Comment)
+	default:
+		err = errors.New("unsupported review decision")
 	}
-	if c.ShouldBindJSON(&req) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+	if err != nil {
+		writeMemoryWikiError(c, err)
 		return
 	}
-	if err := h.service.Review(c, tenantID, c.Param("id"), reviewer, req.Approve); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	c.Status(http.StatusNoContent)
+	c.JSON(http.StatusOK, review)
 }
+
 func (h *MemoryWikiHandler) Publish(c *gin.Context) {
-	tenantID := c.GetUint64(types.TenantIDContextKey.String())
-	var req struct {
+	var request struct {
 		KnowledgeBaseID string `json:"knowledge_base_id"`
 	}
-	if c.ShouldBindJSON(&req) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
-		return
+	if c.Request.ContentLength != 0 {
+		if err := c.ShouldBindJSON(&request); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+			return
+		}
 	}
-	page, err := h.service.PublishApproved(c, tenantID, c.Param("id"), req.KnowledgeBaseID)
+	page, err := h.service.PublishApproved(
+		c.Request.Context(), c.GetUint64(types.TenantIDContextKey.String()), c.Param("id"), strings.TrimSpace(request.KnowledgeBaseID),
+	)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		writeMemoryWikiError(c, err)
 		return
 	}
-	c.JSON(http.StatusCreated, page)
+	c.JSON(http.StatusOK, page)
 }
-func RegisterMemoryWikiRoutes(r *gin.RouterGroup, h *MemoryWikiHandler) {
-	g := r.Group("/memory-wiki")
-	g.POST("", h.Submit)
-	g.GET("", h.List)
-	g.POST("/:id/review", h.Review)
-	g.POST("/:id/publish", h.Publish)
+
+func writeMemoryWikiError(c *gin.Context, err error) {
+	switch {
+	case errors.Is(err, memorywiki.ErrMemoryWikiReviewerRequired):
+		c.JSON(http.StatusForbidden, gin.H{"error": "memory Wiki review permission denied"})
+	case errors.Is(err, repository.ErrMemoryWikiPublicationNotFound):
+		c.JSON(http.StatusNotFound, gin.H{"error": "memory review not found"})
+	case errors.Is(err, repository.ErrExternalMemoryStateConflict), errors.Is(err, repository.ErrWikiPageConflict), errors.Is(err, memorywiki.ErrStaleMemoryWikiVersion):
+		c.JSON(http.StatusConflict, gin.H{"error": "memory review state conflict"})
+	case errors.Is(err, memorywiki.ErrInvalidMemoryWikiTarget), errors.Is(err, memorywiki.ErrMemoryReviewNotApproved),
+		errors.Is(err, memorywiki.ErrMemoryClaimEvidenceRequired), errors.Is(err, memorywiki.ErrMemoryClaimSourceMismatch):
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": "memory review cannot be published"})
+	default:
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "memory review operation failed"})
+	}
 }

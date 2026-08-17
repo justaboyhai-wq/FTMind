@@ -1,0 +1,10 @@
+DROP TRIGGER IF EXISTS trg_reject_memory_wiki_share_update;
+DROP TRIGGER IF EXISTS trg_reject_memory_wiki_share_insert;
+DROP TRIGGER IF EXISTS trg_reject_populated_memory_wiki_marker;
+DROP TRIGGER IF EXISTS trg_reject_memory_wiki_chunk_update;
+DROP TRIGGER IF EXISTS trg_reject_memory_wiki_chunk_insert;
+DROP TRIGGER IF EXISTS trg_reject_memory_wiki_knowledge_update;
+DROP TRIGGER IF EXISTS trg_reject_memory_wiki_knowledge_insert;
+DROP INDEX IF EXISTS ux_knowledge_bases_memory_team;
+ALTER TABLE knowledge_bases DROP COLUMN memory_team_id;
+ALTER TABLE knowledge_bases DROP COLUMN is_memory_wiki;

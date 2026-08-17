@@ -413,6 +413,7 @@ func cloneArguments(arguments map[string]any) map[string]any {
 }
 
 func contextForBinding(ctx context.Context, binding types.BindingContext, traceID string) context.Context {
+	ctx = types.WithVerifiedBindingContext(ctx, binding)
 	ctx = context.WithValue(ctx, types.TenantIDContextKey, binding.TenantID)
 	ctx = context.WithValue(ctx, types.SessionTenantIDContextKey, binding.TenantID)
 	ctx = context.WithValue(ctx, types.UserIDContextKey, binding.UserID)

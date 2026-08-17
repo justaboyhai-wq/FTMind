@@ -81,6 +81,7 @@ type RouterParams struct {
 	AgentBindingHandler          *handler.AgentBindingHandler
 	BindingIntrospectionHandler  *handler.BindingIntrospectionHandler
 	MemoryWikiHandler            *handler.MemoryWikiHandler
+	InternalMemoryEventHandler   *handler.InternalMemoryEventHandler
 	UserFavoriteHandler          *handler.UserResourceFavoriteHandler
 	SkillHandler                 *handler.SkillHandler
 	OrganizationHandler          *handler.OrganizationHandler
@@ -166,6 +167,7 @@ func NewRouter(params RouterParams) *gin.Engine {
 	// Connector introspection is intentionally registered before user Auth. Its
 	// sole credential is the connector secret and it has a narrow IP limiter.
 	RegisterBindingIntrospectionRoutes(r, params.BindingIntrospectionHandler)
+	RegisterInternalMemoryEventRoutes(r, params.InternalMemoryEventHandler)
 	RegisterCognitionMCPRoutes(r, params.CognitionServer)
 
 	// 认证中间件
@@ -246,7 +248,7 @@ func NewRouter(params RouterParams) *gin.Engine {
 		RegisterVectorStoreRoutes(v1, params.VectorStoreHandler, rbacGuards)
 		RegisterCustomAgentRoutes(v1, params.CustomAgentHandler, rbacGuards)
 		RegisterAgentBindingRoutes(v1, params.AgentBindingHandler, rbacGuards)
-		handler.RegisterMemoryWikiRoutes(v1, params.MemoryWikiHandler)
+		RegisterMemoryWikiReviewRoutes(v1, params.MemoryWikiHandler, rbacGuards)
 		RegisterUserFavoriteRoutes(v1, params.UserFavoriteHandler, rbacGuards)
 		RegisterSkillRoutes(v1, params.SkillHandler, rbacGuards)
 		RegisterOrganizationRoutes(v1, params.OrganizationHandler, rbacGuards)
@@ -278,9 +280,29 @@ func RegisterAgentBindingRoutes(r *gin.RouterGroup, h *handler.AgentBindingHandl
 	bindings.POST("/:id/keys/rotate", g.Admin(), h.Rotate)
 }
 
+// Memory L3 payloads and evidence are tenant-sensitive governance data. Until
+// a dedicated Reviewer role exists, Admin+ is the explicit reviewer floor;
+// the service repeats this check so disabling router RBAC cannot bypass it.
+func RegisterMemoryWikiReviewRoutes(r *gin.RouterGroup, h *handler.MemoryWikiHandler, g *rbacGuards) {
+	reviews := r.Group("/external-memory/l3/reviews")
+	reviews.GET("", g.Admin(), h.ListReviews)
+	reviews.GET("/:id", g.Admin(), h.GetReview)
+	reviews.POST("/:id/approve", g.Admin(), h.Approve)
+	reviews.POST("/:id/reject", g.Admin(), h.Reject)
+	reviews.POST("/:id/request-changes", g.Admin(), h.RequestChanges)
+	reviews.POST("/:id/publish", g.Admin(), h.Publish)
+}
+
 func RegisterBindingIntrospectionRoutes(r *gin.Engine, h *handler.BindingIntrospectionHandler) {
 	r.POST("/internal/v1/agent-bindings/introspect", middleware.PublicAuthRateLimit(), h.Introspect)
 	r.POST("/internal/v1/agent-bindings/verify", middleware.PublicAuthRateLimit(), h.Verify)
+}
+
+func RegisterInternalMemoryEventRoutes(r *gin.Engine, h *handler.InternalMemoryEventHandler) {
+	if h == nil {
+		return
+	}
+	r.POST("/internal/v1/memory/events", middleware.PublicAuthRateLimit(), h.Receive)
 }
 
 // RegisterCognitionMCPRoutes exposes the external-agent cognition surface

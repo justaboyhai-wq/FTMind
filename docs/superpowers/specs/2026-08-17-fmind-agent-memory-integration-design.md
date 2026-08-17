@@ -246,6 +246,7 @@ Binding Key 是安装阶段的 Connector Secret，只在创建时显示一次，
   "task_id": "task_uuid",
   "user_id": "user_uuid",
   "agent_id": "agent_uuid",
+  "external_agent": "openclaw",
   "role_ids": ["role_uuid"],
   "capability_scopes": ["memory:recall", "memory:capture"],
   "asset_scopes": ["team:team_uuid"],
@@ -496,7 +497,7 @@ content_checksum: sha256:...
 ### 10.4 更新规则
 
 - L3 新版本创建待审核 Wiki 修订，审核前不影响当前已发布版本；
-- checksum 未变化时跳过重复发布；
+- 同一事件/同一 `memory_version` 重放且 checksum 未变化时跳过重复发布；新的 `memory_version` 即使知识投影相同，也只在原页面推进一次生命周期 Revision（不创建重复页面），用于版本审计与撤销 CAS fencing；
 - L3 冲突时，新修订进入 `review_required`，已发布旧版保留并显示风险提示；
 - L3 撤销时，页面转为 `deprecated`，不物理删除；
 - 团队停用时，记忆 Wiki 转为只读并停止接收新投影；

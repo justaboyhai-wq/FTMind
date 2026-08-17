@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/google/uuid"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/sqlite"
@@ -107,6 +107,47 @@ func makeCategorizedWikiPage(kbID, slug, pageType, status string, categoryPath .
 		page.Depth = len(categoryPath)
 	}
 	return page
+}
+
+func TestWikiPagePublicationGuardRequiresPublishingLifecycle(t *testing.T) {
+	db := setupWikiPagesTestDB(t)
+	require.NoError(t, db.AutoMigrate(&types.MemoryWikiPublication{}))
+	repo := NewWikiPageRepository(db)
+	ctx := context.Background()
+
+	publication := &types.MemoryWikiPublication{
+		ID: "publication-guard-1", SnapshotID: "snapshot-guard-1", ReviewTaskID: "review-guard-1",
+		EventID: "event-guard-1", TenantID: 1, TeamID: "team-1", BindingID: "binding-1",
+		UserID: "user-1", AgentID: "agent-1", MemoryID: "memory-1", MemoryVersion: 1,
+		Title: "guarded publication", Markdown: "audited body", ContentChecksum: "sha256:guard",
+		Status: types.MemoryReviewStatusPublishing, LockVersion: 1,
+	}
+	require.NoError(t, db.Create(publication).Error)
+
+	page := makeWikiPage("kb-memory", "memory/guarded", types.WikiPageTypeSummary, types.WikiPageStatusPublished)
+	require.NoError(t, repo.Create(ctx, page))
+	guarded := types.WithMemoryWikiPublicationGuard(ctx, 1, publication.ID)
+
+	page.Content = "published v1"
+	require.NoError(t, repo.Update(guarded, page))
+	require.Equal(t, 2, page.Version)
+
+	require.NoError(t, db.Model(&types.MemoryWikiPublication{}).
+		Where("id = ?", publication.ID).
+		Update("status", types.MemoryReviewStatusRevoked).Error)
+	page.Content = "stale publisher must not become visible"
+	require.ErrorIs(t, repo.Update(guarded, page), ErrWikiPageConflict)
+
+	var stored types.WikiPage
+	require.NoError(t, db.First(&stored, "id = ?", page.ID).Error)
+	require.Equal(t, "published v1", stored.Content)
+	require.Equal(t, 2, stored.Version)
+
+	lateCreate := makeWikiPage("kb-memory", "memory/late-create", types.WikiPageTypeSummary, types.WikiPageStatusPublished)
+	require.ErrorIs(t, repo.Create(guarded, lateCreate), ErrWikiPageConflict)
+	var count int64
+	require.NoError(t, db.Model(&types.WikiPage{}).Where("id = ?", lateCreate.ID).Count(&count).Error)
+	require.Zero(t, count)
 }
 
 // TestList_WikiPathSortReturnsCategorizedPagesFirst protects the sidebar's

@@ -70,6 +70,34 @@ func TestAgentBindingManagementRoutesRequireAdmin(t *testing.T) {
 	}
 }
 
+func TestMemoryWikiReviewRoutesRequireAdmin(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	enabled := true
+	g := &rbacGuards{cfg: &config.Config{Tenant: &config.TenantConfig{EnableRBAC: &enabled}}}
+	r := gin.New()
+	r.Use(func(c *gin.Context) {
+		ctx := context.WithValue(c.Request.Context(), types.TenantRoleContextKey, types.TenantRoleViewer)
+		c.Request = c.Request.WithContext(ctx)
+		c.Next()
+	})
+	RegisterMemoryWikiReviewRoutes(r.Group("/api/v1"), &handler.MemoryWikiHandler{}, g)
+	for _, tc := range []struct{ method, path string }{
+		{http.MethodGet, "/api/v1/external-memory/l3/reviews"},
+		{http.MethodGet, "/api/v1/external-memory/l3/reviews/review-1"},
+		{http.MethodPost, "/api/v1/external-memory/l3/reviews/review-1/approve"},
+		{http.MethodPost, "/api/v1/external-memory/l3/reviews/review-1/reject"},
+		{http.MethodPost, "/api/v1/external-memory/l3/reviews/review-1/request-changes"},
+		{http.MethodPost, "/api/v1/external-memory/l3/reviews/review-1/publish"},
+	} {
+		req := httptest.NewRequest(tc.method, tc.path, nil)
+		w := httptest.NewRecorder()
+		r.ServeHTTP(w, req)
+		if w.Code != http.StatusForbidden {
+			t.Fatalf("%s %s: viewer status=%d", tc.method, tc.path, w.Code)
+		}
+	}
+}
+
 func TestBindingIntrospectionRouteIsRegisteredBeforeUserAuth(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
@@ -112,5 +140,18 @@ func TestCognitionMCPRouteIsRegisteredBeforeUserAuth(t *testing.T) {
 	r.ServeHTTP(w, req)
 	if w.Code == http.StatusTeapot || w.Code == http.StatusNotFound {
 		t.Fatalf("cognition MCP inherited later user auth or was not registered: status=%d body=%s", w.Code, w.Body.String())
+	}
+}
+
+func TestInternalMemoryEventRouteIsRegisteredBeforeUserAuth(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	RegisterInternalMemoryEventRoutes(r, &handler.InternalMemoryEventHandler{})
+	r.Use(func(c *gin.Context) { c.AbortWithStatus(http.StatusTeapot) })
+	req := httptest.NewRequest(http.MethodPost, "/internal/v1/memory/events", bytes.NewReader([]byte(`{}`)))
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	if w.Code == http.StatusTeapot || w.Code == http.StatusNotFound {
+		t.Fatalf("internal memory route inherited user auth or is missing: status=%d body=%s", w.Code, w.Body.String())
 	}
 }

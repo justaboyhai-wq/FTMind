@@ -844,6 +844,8 @@ CREATE TABLE IF NOT EXISTS knowledge_bases (
     asr_config TEXT,
     vector_store_id VARCHAR(36),
     wiki_config TEXT,
+    is_memory_wiki BOOLEAN NOT NULL DEFAULT 0,
+    memory_team_id VARCHAR(128) NOT NULL DEFAULT '',
     indexing_strategy TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,

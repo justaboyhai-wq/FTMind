@@ -113,7 +113,7 @@ func (r *kbShareRepository) ListByKnowledgeBase(ctx context.Context, kbID string
 func (r *kbShareRepository) ListByOrganization(ctx context.Context, orgID string) ([]*types.KnowledgeBaseShare, error) {
 	var shares []*types.KnowledgeBaseShare
 	err := r.db.WithContext(ctx).
-		Joins("JOIN knowledge_bases ON knowledge_bases.id = kb_shares.knowledge_base_id AND knowledge_bases.deleted_at IS NULL").
+		Joins("JOIN knowledge_bases ON knowledge_bases.id = kb_shares.knowledge_base_id AND knowledge_bases.deleted_at IS NULL AND knowledge_bases.is_memory_wiki = ?", false).
 		Preload("KnowledgeBase").
 		Preload("Organization").
 		Where("kb_shares.organization_id = ? AND kb_shares.deleted_at IS NULL", orgID).
@@ -133,7 +133,7 @@ func (r *kbShareRepository) ListByOrganizations(ctx context.Context, orgIDs []st
 	}
 	var shares []*types.KnowledgeBaseShare
 	err := r.db.WithContext(ctx).
-		Joins("JOIN knowledge_bases ON knowledge_bases.id = kb_shares.knowledge_base_id AND knowledge_bases.deleted_at IS NULL").
+		Joins("JOIN knowledge_bases ON knowledge_bases.id = kb_shares.knowledge_base_id AND knowledge_bases.deleted_at IS NULL AND knowledge_bases.is_memory_wiki = ?", false).
 		Preload("KnowledgeBase").
 		Preload("Organization").
 		Where("kb_shares.organization_id IN ? AND kb_shares.deleted_at IS NULL", orgIDs).
@@ -152,7 +152,7 @@ func (r *kbShareRepository) ListSharedKBsForTenant(ctx context.Context, tenantID
 
 	// Get shares for organizations the tenant is a member of; exclude deleted orgs and deleted KBs.
 	err := r.db.WithContext(ctx).
-		Joins("JOIN knowledge_bases ON knowledge_bases.id = kb_shares.knowledge_base_id AND knowledge_bases.deleted_at IS NULL").
+		Joins("JOIN knowledge_bases ON knowledge_bases.id = kb_shares.knowledge_base_id AND knowledge_bases.deleted_at IS NULL AND knowledge_bases.is_memory_wiki = ?", false).
 		Preload("KnowledgeBase").
 		Preload("Organization").
 		Joins("JOIN organization_tenant_members otm ON otm.organization_id = kb_shares.organization_id").
@@ -172,6 +172,7 @@ func (r *kbShareRepository) ListSharedKBsForTenant(ctx context.Context, tenantID
 func (r *kbShareRepository) CountSharesByKnowledgeBaseID(ctx context.Context, kbID string) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).Model(&types.KnowledgeBaseShare{}).
+		Joins("JOIN knowledge_bases ON knowledge_bases.id = kb_shares.knowledge_base_id AND knowledge_bases.deleted_at IS NULL AND knowledge_bases.is_memory_wiki = ?", false).
 		Where("knowledge_base_id = ? AND deleted_at IS NULL", kbID).
 		Count(&count).Error
 	if err != nil {
@@ -220,7 +221,7 @@ func (r *kbShareRepository) CountByOrganizations(ctx context.Context, orgIDs []s
 	}
 	var rows []row
 	err := r.db.WithContext(ctx).Model(&types.KnowledgeBaseShare{}).
-		Joins("JOIN knowledge_bases ON knowledge_bases.id = kb_shares.knowledge_base_id AND knowledge_bases.deleted_at IS NULL").
+		Joins("JOIN knowledge_bases ON knowledge_bases.id = kb_shares.knowledge_base_id AND knowledge_bases.deleted_at IS NULL AND knowledge_bases.is_memory_wiki = ?", false).
 		Select("kb_shares.organization_id as organization_id, COUNT(*) as count").
 		Where("kb_shares.organization_id IN ? AND kb_shares.deleted_at IS NULL", orgIDs).
 		Group("kb_shares.organization_id").

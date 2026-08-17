@@ -10,11 +10,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/justaboyhai-wq/fmind/internal/application/repository"
 	"github.com/justaboyhai-wq/fmind/internal/logger"
 	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
-	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -43,9 +43,14 @@ func stripWikiPageInlineChunkCitations(page *types.WikiPage) {
 type wikiPageService struct {
 	repo            interfaces.WikiPageRepository
 	chunkRepo       interfaces.ChunkRepository
-	kbService       interfaces.KnowledgeBaseService
+	kbService       wikiPageKnowledgeBaseReader
 	taskPendingRepo interfaces.TaskPendingOpsRepository
 	redisClient     *redis.Client
+}
+
+type wikiPageKnowledgeBaseReader interface {
+	GetKnowledgeBaseByID(context.Context, string) (*types.KnowledgeBase, error)
+	GetKnowledgeBaseByIDOnly(context.Context, string) (*types.KnowledgeBase, error)
 }
 
 // NewWikiPageService creates a new wiki page service
@@ -75,6 +80,9 @@ func (s *wikiPageService) CreatePage(ctx context.Context, page *types.WikiPage) 
 	}
 	if page.KnowledgeBaseID == "" {
 		return nil, errors.New("knowledge_base_id is required")
+	}
+	if err := s.requireMemoryWikiMutationAuthority(ctx, page.KnowledgeBaseID); err != nil {
+		return nil, err
 	}
 	if page.Status == "" {
 		page.Status = types.WikiPageStatusPublished
@@ -116,9 +124,18 @@ func (s *wikiPageService) CreatePage(ctx context.Context, page *types.WikiPage) 
 // nothing, etc.) still persist through `UpdateMeta` but leave `version`
 // untouched so consumers can treat a bump as a real edit signal.
 func (s *wikiPageService) UpdatePage(ctx context.Context, page *types.WikiPage) (*types.WikiPage, error) {
+	if page == nil || page.KnowledgeBaseID == "" {
+		return nil, errors.New("knowledge_base_id is required")
+	}
+	if err := s.requireMemoryWikiMutationAuthority(ctx, page.KnowledgeBaseID); err != nil {
+		return nil, err
+	}
 	existing, err := s.repo.GetBySlug(ctx, page.KnowledgeBaseID, page.Slug)
 	if err != nil {
 		return nil, fmt.Errorf("get existing page: %w", err)
+	}
+	if err := validateWikiPageExpectedVersion(existing, page); err != nil {
+		return nil, err
 	}
 	stripWikiPageInlineChunkCitations(page)
 
@@ -131,6 +148,13 @@ func (s *wikiPageService) UpdatePage(ctx context.Context, page *types.WikiPage) 
 		existing.Summary != page.Summary ||
 		existing.PageType != page.PageType ||
 		existing.Status != page.Status
+	// Reviewed-memory lifecycle metadata is also a concurrency fence. A
+	// revoker may need to invalidate an already-read publisher without
+	// changing the Markdown body, so trusted metadata changes must advance
+	// the same optimistic version used by content writes.
+	if types.IsMemoryWikiMutation(ctx) && string(existing.PageMetadata) != string(page.PageMetadata) {
+		contentChanged = true
+	}
 
 	existing.Title = page.Title
 	existing.Content = page.Content
@@ -161,12 +185,6 @@ func (s *wikiPageService) UpdatePage(ctx context.Context, page *types.WikiPage) 
 		if err := s.repo.Update(ctx, existing); err != nil {
 			return nil, fmt.Errorf("update wiki page: %w", err)
 		}
-		// GORM's struct Updates path skips zero values, so persist hierarchy
-		// metadata through the explicit map path as well. This keeps clearing
-		// parent/category fields deterministic without changing version again.
-		if err := s.repo.UpdateMeta(ctx, existing); err != nil {
-			return nil, fmt.Errorf("update wiki page hierarchy meta: %w", err)
-		}
 	} else {
 		// No user-visible change — persist bookkeeping fields but preserve
 		// the version so downstream consumers can rely on it.
@@ -183,8 +201,27 @@ func (s *wikiPageService) UpdatePage(ctx context.Context, page *types.WikiPage) 
 	return existing, nil
 }
 
+func validateWikiPageExpectedVersion(existing, requested *types.WikiPage) error {
+	if existing == nil || requested == nil || (requested.ID != "" && requested.ID != existing.ID) {
+		return repository.ErrWikiPageConflict
+	}
+	// Version zero remains the legacy "unspecified" sentinel. Internal
+	// publishers that require compare-and-swap always pass the version they
+	// previously read, so a newer write cannot be overwritten by stale input.
+	if requested.Version != 0 && requested.Version != existing.Version {
+		return repository.ErrWikiPageConflict
+	}
+	return nil
+}
+
 // UpdatePageMeta updates only metadata (status, source_refs) without version bump or link re-parse.
 func (s *wikiPageService) UpdatePageMeta(ctx context.Context, page *types.WikiPage) error {
+	if page == nil || page.KnowledgeBaseID == "" {
+		return errors.New("knowledge_base_id is required")
+	}
+	if err := s.requireMemoryWikiMutationAuthority(ctx, page.KnowledgeBaseID); err != nil {
+		return err
+	}
 	normalizeWikiHierarchy(page)
 	page.UpdatedAt = time.Now()
 	return s.repo.UpdateMeta(ctx, page)
@@ -196,6 +233,12 @@ func (s *wikiPageService) UpdatePageMeta(ctx context.Context, page *types.WikiPa
 // in-link references on target pages are refreshed so link navigation stays
 // consistent — only the user-facing revision counter is preserved.
 func (s *wikiPageService) UpdateAutoLinkedContent(ctx context.Context, page *types.WikiPage) error {
+	if page == nil || page.KnowledgeBaseID == "" {
+		return errors.New("knowledge_base_id is required")
+	}
+	if err := s.requireMemoryWikiMutationAuthority(ctx, page.KnowledgeBaseID); err != nil {
+		return err
+	}
 	existing, err := s.repo.GetBySlug(ctx, page.KnowledgeBaseID, page.Slug)
 	if err != nil {
 		return fmt.Errorf("get existing page: %w", err)
@@ -223,6 +266,9 @@ func (s *wikiPageService) GetPageBySlug(ctx context.Context, kbID string, slug s
 	if err != nil {
 		return nil, err
 	}
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, page.ID); err != nil {
+		return nil, err
+	}
 	stripWikiPageInlineChunkCitations(page)
 	return page, nil
 }
@@ -233,12 +279,21 @@ func (s *wikiPageService) GetPageByID(ctx context.Context, id string) (*types.Wi
 	if err != nil {
 		return nil, err
 	}
+	if err := s.requireMemoryWikiReadAuthority(ctx, page.KnowledgeBaseID, page.ID); err != nil {
+		return nil, err
+	}
 	stripWikiPageInlineChunkCitations(page)
 	return page, nil
 }
 
 // ListPages lists wiki pages with optional filtering and pagination
 func (s *wikiPageService) ListPages(ctx context.Context, req *types.WikiPageListRequest) (*types.WikiPageListResponse, error) {
+	if req == nil {
+		return nil, errors.New("wiki page list request is required")
+	}
+	if err := s.requireMemoryWikiReadAuthority(ctx, req.KnowledgeBaseID, ""); err != nil {
+		return nil, err
+	}
 	pages, total, err := s.repo.List(ctx, req)
 	if err != nil {
 		return nil, err
@@ -272,6 +327,9 @@ func (s *wikiPageService) ListPages(ctx context.Context, req *types.WikiPageList
 
 // DeletePage soft-deletes a wiki page
 func (s *wikiPageService) DeletePage(ctx context.Context, kbID string, slug string) error {
+	if err := s.requireMemoryWikiMutationAuthority(ctx, kbID); err != nil {
+		return err
+	}
 	page, err := s.repo.GetBySlug(ctx, kbID, slug)
 	if err != nil {
 		return err
@@ -291,8 +349,61 @@ func (s *wikiPageService) DeletePage(ctx context.Context, kbID string, slug stri
 	return nil
 }
 
+func (s *wikiPageService) requireMemoryWikiMutationAuthority(ctx context.Context, kbID string) error {
+	if s.kbService == nil || strings.TrimSpace(kbID) == "" {
+		return errors.New("knowledge base is required")
+	}
+	kb, err := s.kbService.GetKnowledgeBaseByID(ctx, kbID)
+	if err != nil {
+		return err
+	}
+	if kb == nil || !kb.HasMemoryWikiMarker() {
+		return nil
+	}
+	if !kb.IsDedicatedMemoryWiki() || !types.IsMemoryWikiMutation(ctx) {
+		return ErrDedicatedMemoryWikiManagedInternally
+	}
+	return nil
+}
+
+func (s *wikiPageService) requireMemoryWikiReadAuthority(ctx context.Context, kbID, pageID string) error {
+	if s.kbService == nil || strings.TrimSpace(kbID) == "" {
+		return errors.New("knowledge base is required")
+	}
+	kb, err := s.kbService.GetKnowledgeBaseByIDOnly(ctx, kbID)
+	if err != nil {
+		return err
+	}
+	if kb == nil || !kb.HasMemoryWikiMarker() {
+		return nil
+	}
+	if !kb.IsDedicatedMemoryWiki() {
+		return ErrDedicatedMemoryWikiManagedInternally
+	}
+	if types.IsMemoryWikiMutation(ctx) || types.IsMemoryWikiProvisioning(ctx) {
+		return nil
+	}
+	tenantID, _ := types.TenantIDFromContext(ctx)
+	if tenantID == kb.TenantID && (types.IsSystemAdminFromContext(ctx) ||
+		types.TenantRoleFromContext(ctx).HasPermission(types.TenantRoleAdmin)) {
+		return nil
+	}
+	if binding, ok := types.VerifiedBindingContextFromContext(ctx); ok &&
+		binding.TenantID == kb.TenantID && binding.TeamID == kb.MemoryTeamID {
+		for _, scope := range binding.AssetScopes {
+			if scope == "knowledge_base:"+kb.ID || (pageID != "" && scope == "wiki_page:"+pageID) {
+				return nil
+			}
+		}
+	}
+	return ErrDedicatedMemoryWikiManagedInternally
+}
+
 // GetIndex returns the index page for a knowledge base
 func (s *wikiPageService) GetIndex(ctx context.Context, kbID string) (*types.WikiPage, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	page, err := s.repo.GetBySlug(ctx, kbID, "index")
 	if err != nil {
 		if errors.Is(err, repository.ErrWikiPageNotFound) {
@@ -423,6 +534,9 @@ func (s *wikiPageService) GetIndexView(
 // no longer auto-creates the placeholder page on miss; a missing row is a
 // normal state and the helper returns `nil, nil`.
 func (s *wikiPageService) GetLog(ctx context.Context, kbID string) (*types.WikiPage, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	page, err := s.repo.GetBySlug(ctx, kbID, "log")
 	if err != nil {
 		if errors.Is(err, repository.ErrWikiPageNotFound) {
@@ -465,6 +579,9 @@ func (s *wikiPageService) GetLog(ctx context.Context, kbID string) (*types.WikiP
 func (s *wikiPageService) GetGraph(ctx context.Context, req *types.WikiGraphRequest) (*types.WikiGraphData, error) {
 	if req == nil {
 		return nil, errors.New("wiki graph request is required")
+	}
+	if err := s.requireMemoryWikiReadAuthority(ctx, req.KnowledgeBaseID, ""); err != nil {
+		return nil, err
 	}
 
 	pages, err := s.repo.ListAll(ctx, req.KnowledgeBaseID)
@@ -687,6 +804,9 @@ func bfsEgoSlugs(
 
 // GetStats returns aggregate statistics about the wiki
 func (s *wikiPageService) GetStats(ctx context.Context, kbID string) (*types.WikiStats, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	counts, err := s.repo.CountByType(ctx, kbID)
 	if err != nil {
 		return nil, err
@@ -758,6 +878,9 @@ func (s *wikiPageService) GetStats(ctx context.Context, kbID string) (*types.Wik
 
 // RebuildLinks re-parses all pages and rebuilds bidirectional link references
 func (s *wikiPageService) RebuildLinks(ctx context.Context, kbID string) error {
+	if err := s.requireMemoryWikiMutationAuthority(ctx, kbID); err != nil {
+		return err
+	}
 	pages, err := s.repo.ListAll(ctx, kbID)
 	if err != nil {
 		return err
@@ -797,6 +920,9 @@ func (s *wikiPageService) RebuildLinks(ctx context.Context, kbID string) error {
 
 // ListAllPages retrieves all wiki pages without pagination.
 func (s *wikiPageService) ListAllPages(ctx context.Context, kbID string) ([]*types.WikiPage, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	return s.repo.ListAll(ctx, kbID)
 }
 
@@ -804,6 +930,9 @@ func (s *wikiPageService) ListAllPages(ctx context.Context, kbID string) ([]*typ
 // callers like intro regeneration can load only the page type they need
 // (summaries) instead of paying for the full ListAll scan.
 func (s *wikiPageService) ListByType(ctx context.Context, kbID string, pageType string) ([]*types.WikiPage, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	return s.repo.ListByType(ctx, kbID, pageType)
 }
 
@@ -811,6 +940,9 @@ func (s *wikiPageService) ListByType(ctx context.Context, kbID string, pageType 
 // layers (delete flow, retract reconciliation) can re-query the current wiki
 // state without depending on a stale caller-captured slug list.
 func (s *wikiPageService) ListPagesBySourceRef(ctx context.Context, kbID string, knowledgeID string) ([]*types.WikiPage, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	return s.repo.ListBySourceRef(ctx, kbID, knowledgeID)
 }
 
@@ -819,6 +951,9 @@ func (s *wikiPageService) ListPagesBySourceRef(ctx context.Context, kbID string,
 // 000041 — the wiki ingest pipeline uses it as a cheap "before" snapshot
 // when reconciling old vs new extraction sets.
 func (s *wikiPageService) ListSlugsBySourceRef(ctx context.Context, kbID string, knowledgeID string) ([]string, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	return s.repo.ListSlugsBySourceRef(ctx, kbID, knowledgeID)
 }
 
@@ -828,6 +963,9 @@ func (s *wikiPageService) ListSlugsBySourceRef(ctx context.Context, kbID string,
 // pre-batch ListAllPages dump that historically pulled hundreds of MB
 // for KBs in the tens of thousands of pages.
 func (s *wikiPageService) ListBySlugs(ctx context.Context, kbID string, slugs []string) (map[string]*types.WikiPageLite, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	return s.repo.ListBySlugs(ctx, kbID, slugs)
 }
 
@@ -835,6 +973,9 @@ func (s *wikiPageService) ListBySlugs(ctx context.Context, kbID string, slugs []
 // reparse branches of reduceSlugUpdates. Returns the content of each
 // surviving summary page keyed by its source knowledge id.
 func (s *wikiPageService) ListSummariesByKnowledgeIDs(ctx context.Context, kbID string, kids []string) (map[string]string, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	return s.repo.ListSummariesByKnowledgeIDs(ctx, kbID, kids)
 }
 
@@ -842,6 +983,9 @@ func (s *wikiPageService) ListSummariesByKnowledgeIDs(ctx context.Context, kbID 
 // non-deleted) in the KB. Used by cleanDeadLinks to validate out-link
 // targets before stripping them.
 func (s *wikiPageService) ExistsSlugs(ctx context.Context, kbID string, slugs []string) (map[string]bool, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	return s.repo.ExistsSlugs(ctx, kbID, slugs)
 }
 
@@ -849,40 +993,61 @@ func (s *wikiPageService) ExistsSlugs(ctx context.Context, kbID string, slugs []
 // to compute the live-slug set without paying for ListAll's full row
 // materialization.
 func (s *wikiPageService) ListAllSlugs(ctx context.Context, kbID string) ([]string, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	return s.repo.ListAllSlugs(ctx, kbID)
 }
 
 // ListPagesCursor is the lint-side cursor pagination over wiki_pages.
 func (s *wikiPageService) ListPagesCursor(ctx context.Context, kbID string, cursor string, limit int) ([]*types.WikiPage, string, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, "", err
+	}
 	return s.repo.ListPagesCursor(ctx, kbID, cursor, limit)
 }
 
 // ListByTypeRecent caps the page count for first-time index intro
 // generation so the LLM prompt stays bounded on large KBs.
 func (s *wikiPageService) ListByTypeRecent(ctx context.Context, kbID string, pageType string, limit int) ([]types.WikiIndexEntry, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	return s.repo.ListByTypeRecent(ctx, kbID, pageType, limit)
 }
 
 // FindSimilarPages performs a pg_trgm similarity search; used by the
 // dedup pre-filter to surface candidate merge targets.
 func (s *wikiPageService) FindSimilarPages(ctx context.Context, kbID string, query string, pageTypes []string, limit int) ([]*types.WikiPageLite, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	return s.repo.FindSimilarPages(ctx, kbID, query, pageTypes, limit)
 }
 
 // ListDistinctCategoryPaths returns the existing wiki folder paths. Used by
 // wiki ingest's taxonomy planner to ground folder reuse.
 func (s *wikiPageService) ListDistinctCategoryPaths(ctx context.Context, kbID string, maxPaths int) ([][]string, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	return s.repo.ListDistinctCategoryPaths(ctx, kbID, maxPaths)
 }
 
 // CountByType is a service-layer pass-through over the repo. Used by
 // the index intro path to frame the LLM prompt's "showing N of M" hint.
 func (s *wikiPageService) CountByType(ctx context.Context, kbID string) (map[string]int64, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	return s.repo.CountByType(ctx, kbID)
 }
 
 // SearchPages performs full-text search over wiki pages
 func (s *wikiPageService) SearchPages(ctx context.Context, kbID string, query string, limit int) ([]*types.WikiPage, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	return s.repo.Search(ctx, kbID, query, limit)
 }
 
@@ -963,6 +1128,9 @@ func (s *wikiPageService) deleteChunkForPage(ctx context.Context, page *types.Wi
 
 // createDefaultPage creates a default system page (index, log)
 func (s *wikiPageService) createDefaultPage(ctx context.Context, kbID string, slug string, title string, pageType string, content string) (*types.WikiPage, error) {
+	if err := s.requireMemoryWikiMutationAuthority(ctx, kbID); err != nil {
+		return nil, err
+	}
 	// Get KB to get tenant ID
 	kb, err := s.kbService.GetKnowledgeBaseByIDOnly(ctx, kbID)
 	if err != nil {
@@ -1059,6 +1227,12 @@ func removeString(slice []string, s string) types.StringArray {
 
 // CreateIssue logs a new issue for a wiki page
 func (s *wikiPageService) CreateIssue(ctx context.Context, issue *types.WikiPageIssue) (*types.WikiPageIssue, error) {
+	if issue == nil || issue.KnowledgeBaseID == "" {
+		return nil, errors.New("knowledge_base_id is required")
+	}
+	if err := s.requireMemoryWikiMutationAuthority(ctx, issue.KnowledgeBaseID); err != nil {
+		return nil, err
+	}
 	if issue.ID == "" {
 		issue.ID = uuid.New().String()
 	}
@@ -1070,12 +1244,28 @@ func (s *wikiPageService) CreateIssue(ctx context.Context, issue *types.WikiPage
 
 // ListIssues retrieves issues for a knowledge base
 func (s *wikiPageService) ListIssues(ctx context.Context, kbID string, slug string, status string) ([]*types.WikiPageIssue, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	return s.repo.ListIssues(ctx, kbID, slug, status)
 }
 
 // UpdateIssueStatus updates an issue's status
-func (s *wikiPageService) UpdateIssueStatus(ctx context.Context, issueID string, status string) error {
-	return s.repo.UpdateIssueStatus(ctx, issueID, status)
+func (s *wikiPageService) UpdateIssueStatus(ctx context.Context, kbID string, issueID string, status string) error {
+	if strings.TrimSpace(kbID) == "" || strings.TrimSpace(issueID) == "" {
+		return errors.New("knowledge_base_id and issue_id are required")
+	}
+	issue, err := s.repo.GetIssueByID(ctx, issueID)
+	if err != nil {
+		return err
+	}
+	if issue == nil || issue.KnowledgeBaseID != kbID || issue.TenantID == 0 {
+		return repository.ErrWikiPageIssueNotFound
+	}
+	if err := s.requireMemoryWikiMutationAuthority(ctx, issue.KnowledgeBaseID); err != nil {
+		return err
+	}
+	return s.repo.UpdateIssueStatus(ctx, issue.TenantID, issue.KnowledgeBaseID, issue.ID, status)
 }
 
 // --- Folder tree (wiki_folders) ---
@@ -1114,6 +1304,9 @@ func (s *wikiPageService) applyFolderToPage(ctx context.Context, page *types.Wik
 
 // GetFolder retrieves a single folder by id.
 func (s *wikiPageService) GetFolder(ctx context.Context, kbID string, id string) (*types.WikiFolder, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	return s.repo.GetFolderByID(ctx, kbID, id)
 }
 
@@ -1127,6 +1320,9 @@ func (s *wikiPageService) GetFolder(ctx context.Context, kbID string, id string)
 func (s *wikiPageService) ListChildFolders(
 	ctx context.Context, kbID string, parentID string, pageTypes []string,
 ) ([]types.WikiFolderNode, error) {
+	if err := s.requireMemoryWikiReadAuthority(ctx, kbID, ""); err != nil {
+		return nil, err
+	}
 	all, err := s.repo.ListAllFolders(ctx, kbID)
 	if err != nil {
 		return nil, err
@@ -1214,6 +1410,9 @@ func validateFolderName(name string) (string, error) {
 func (s *wikiPageService) CreateFolder(
 	ctx context.Context, kbID string, tenantID uint64, parentID string, name string,
 ) (*types.WikiFolder, error) {
+	if err := s.requireMemoryWikiMutationAuthority(ctx, kbID); err != nil {
+		return nil, err
+	}
 	name, err := validateFolderName(name)
 	if err != nil {
 		return nil, err
@@ -1264,6 +1463,9 @@ func (s *wikiPageService) CreateFolder(
 func (s *wikiPageService) FindOrCreateFolderPath(
 	ctx context.Context, kbID string, tenantID uint64, path []string,
 ) (string, []string, error) {
+	if err := s.requireMemoryWikiMutationAuthority(ctx, kbID); err != nil {
+		return "", nil, err
+	}
 	clean := types.CleanWikiCategoryPath(path)
 	if len(clean) == 0 {
 		return types.WikiFolderRootID, nil, nil
@@ -1312,6 +1514,9 @@ func (s *wikiPageService) FindOrCreateFolderPath(
 func (s *wikiPageService) MovePage(
 	ctx context.Context, kbID string, slug string, folderID string,
 ) (*types.WikiPage, error) {
+	if err := s.requireMemoryWikiMutationAuthority(ctx, kbID); err != nil {
+		return nil, err
+	}
 	page, err := s.repo.GetBySlug(ctx, kbID, slug)
 	if err != nil {
 		return nil, err
@@ -1335,6 +1540,9 @@ func (s *wikiPageService) MovePage(
 func (s *wikiPageService) RenameOrMoveFolder(
 	ctx context.Context, kbID string, id string, newName string, newParentID string, moveParent bool,
 ) (*types.WikiFolder, error) {
+	if err := s.requireMemoryWikiMutationAuthority(ctx, kbID); err != nil {
+		return nil, err
+	}
 	folder, err := s.repo.GetFolderByID(ctx, kbID, id)
 	if err != nil {
 		return nil, err
@@ -1452,6 +1660,9 @@ func (s *wikiPageService) recomputePagesForFolders(ctx context.Context, kbID str
 // DeleteFolder removes a folder that has no pages and no child folders. The UI
 // must relocate contents first; this keeps deletion non-destructive.
 func (s *wikiPageService) DeleteFolder(ctx context.Context, kbID string, id string) error {
+	if err := s.requireMemoryWikiMutationAuthority(ctx, kbID); err != nil {
+		return err
+	}
 	if _, err := s.repo.GetFolderByID(ctx, kbID, id); err != nil {
 		return err
 	}
@@ -1477,6 +1688,9 @@ func (s *wikiPageService) DeleteFolder(ctx context.Context, kbID string, id stri
 // Shares the linkifyContent helper with the ingest pipeline so both paths honor
 // the same code-block / existing-link / word-boundary rules.
 func (s *wikiPageService) InjectCrossLinks(ctx context.Context, kbID string, affectedSlugs []string) {
+	if err := s.requireMemoryWikiMutationAuthority(ctx, kbID); err != nil {
+		return
+	}
 	allPages, err := s.ListAllPages(ctx, kbID)
 	if err != nil || len(allPages) < 2 {
 		return

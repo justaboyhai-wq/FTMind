@@ -346,9 +346,7 @@ func (t *wikiReadPageTool) Execute(ctx context.Context, args json.RawMessage) (*
 			}
 		}
 		if len(filtered) == 0 {
-			// Not in the agent's scope list — still allow direct addressing
-			// but without any pin (scopes were the source of the pin).
-			filtered = append(filtered, WikiScope{KnowledgeBaseID: params.KnowledgeBaseID})
+			return &types.ToolResult{Success: false, Error: "knowledge_base_id is outside the server-authorized Wiki scope"}, nil
 		}
 		effectiveScopes = filtered
 	}
@@ -645,7 +643,7 @@ func (t *wikiSearchTool) Execute(ctx context.Context, args json.RawMessage) (*ty
 			}
 		}
 		if len(filtered) == 0 {
-			filtered = append(filtered, WikiScope{KnowledgeBaseID: params.KnowledgeBaseID})
+			return &types.ToolResult{Success: false, Error: "knowledge_base_id is outside the server-authorized Wiki scope"}, nil
 		}
 		effectiveScopes = filtered
 	}

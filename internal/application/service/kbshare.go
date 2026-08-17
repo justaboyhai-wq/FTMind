@@ -5,11 +5,11 @@ import (
 	"errors"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/justaboyhai-wq/fmind/internal/application/repository"
 	"github.com/justaboyhai-wq/fmind/internal/logger"
 	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
-	"github.com/google/uuid"
 )
 
 var (
@@ -27,7 +27,7 @@ var (
 // in this org, with what role" rather than "is this user". The 3-D cap
 // inside CheckTenantKBPermission encodes:
 //
-//   effective = min(share.Permission, tenant_org_role, tenant_role_cap)
+//	effective = min(share.Permission, tenant_org_role, tenant_role_cap)
 //
 // where tenant_role_cap pins tenant Viewers to OrgRoleViewer regardless
 // of what the org-level grant said. That keeps the tenant RBAC promise
@@ -81,6 +81,9 @@ func (s *kbShareService) ShareKnowledgeBase(ctx context.Context, kbID string, or
 	}
 	if kb.TenantID != tenantID {
 		return nil, ErrNotKBOwner
+	}
+	if kb.HasMemoryWikiMarker() {
+		return nil, ErrDedicatedMemoryWikiManagedInternally
 	}
 
 	_, err = s.orgRepo.GetByID(ctx, orgID)
@@ -157,6 +160,13 @@ func (s *kbShareService) UpdateSharePermission(ctx context.Context, shareID stri
 		}
 		return err
 	}
+	blocked, err := s.shareReferencesMemoryWiki(ctx, share)
+	if err != nil {
+		return err
+	}
+	if blocked {
+		return ErrDedicatedMemoryWikiManagedInternally
+	}
 
 	if !s.callerCanManageShare(ctx, share.SharedByUserID, share.SourceTenantID, share.OrganizationID, userID, tenantID) {
 		return ErrSharePermissionDenied
@@ -230,12 +240,19 @@ func (s *kbShareService) ListSharesByKnowledgeBase(ctx context.Context, kbID str
 	if kb.TenantID != tenantID {
 		return nil, ErrNotKBOwner
 	}
+	if kb.HasMemoryWikiMarker() {
+		return []*types.KnowledgeBaseShare{}, nil
+	}
 	return s.shareRepo.ListByKnowledgeBase(ctx, kbID)
 }
 
 // ListSharesByOrganization lists all shares for an organization
 func (s *kbShareService) ListSharesByOrganization(ctx context.Context, orgID string) ([]*types.KnowledgeBaseShare, error) {
-	return s.shareRepo.ListByOrganization(ctx, orgID)
+	shares, err := s.shareRepo.ListByOrganization(ctx, orgID)
+	if err != nil {
+		return nil, err
+	}
+	return s.filterMemoryWikiShares(ctx, shares)
 }
 
 // ListSharedKnowledgeBases lists all knowledge bases reachable from the
@@ -254,6 +271,9 @@ func (s *kbShareService) ListSharedKnowledgeBases(ctx context.Context, tenantID 
 			continue
 		}
 		if share.KnowledgeBase == nil {
+			continue
+		}
+		if share.KnowledgeBase.HasMemoryWikiMarker() {
 			continue
 		}
 
@@ -340,6 +360,9 @@ func (s *kbShareService) ListSharedKnowledgeBasesInOrganization(ctx context.Cont
 		if share.KnowledgeBase == nil {
 			continue
 		}
+		if share.KnowledgeBase.HasMemoryWikiMarker() {
+			continue
+		}
 
 		effective := types.MinOrgRole(share.Permission, tm.Role)
 		effective = applyTenantRoleCap(effective, callerTenantRole)
@@ -396,6 +419,10 @@ func (s *kbShareService) ListSharedKnowledgeBaseIDsByOrganizations(ctx context.C
 		if share == nil || members[share.OrganizationID] == nil {
 			continue
 		}
+		blocked, resolveErr := s.shareReferencesMemoryWiki(ctx, share)
+		if resolveErr != nil || blocked {
+			continue
+		}
 		kbID := share.KnowledgeBaseID
 		if kbID == "" && share.KnowledgeBase != nil {
 			kbID = share.KnowledgeBase.ID
@@ -416,6 +443,13 @@ func (s *kbShareService) GetShare(ctx context.Context, shareID string) (*types.K
 		}
 		return nil, err
 	}
+	blocked, err := s.shareReferencesMemoryWiki(ctx, share)
+	if err != nil {
+		return nil, err
+	}
+	if blocked {
+		return nil, ErrShareNotFound
+	}
 	return share, nil
 }
 
@@ -428,6 +462,13 @@ func (s *kbShareService) GetShareByKBAndOrg(ctx context.Context, kbID string, or
 		}
 		return nil, err
 	}
+	blocked, err := s.shareReferencesMemoryWiki(ctx, share)
+	if err != nil {
+		return nil, err
+	}
+	if blocked {
+		return nil, ErrShareNotFound
+	}
 	return share, nil
 }
 
@@ -438,6 +479,13 @@ func (s *kbShareService) GetShareByKBAndOrg(ctx context.Context, kbID string, or
 // where the caller's tenant is a member, capped by the 3-D rule. Empty
 // when isShared is false.
 func (s *kbShareService) CheckTenantKBPermission(ctx context.Context, kbID string, callerTenantID uint64, callerTenantRole types.TenantRole) (types.OrgMemberRole, bool, error) {
+	kb, err := s.kbRepo.GetKnowledgeBaseByID(ctx, kbID)
+	if err != nil {
+		return "", false, err
+	}
+	if kb.HasMemoryWikiMarker() {
+		return "", false, nil
+	}
 	shares, err := s.shareRepo.ListByKnowledgeBase(ctx, kbID)
 	if err != nil {
 		return "", false, err
@@ -480,6 +528,13 @@ func (s *kbShareService) HasTenantKBPermission(ctx context.Context, kbID string,
 
 // GetKBSourceTenant gets the source tenant ID for a shared knowledge base
 func (s *kbShareService) GetKBSourceTenant(ctx context.Context, kbID string) (uint64, error) {
+	kb, err := s.kbRepo.GetKnowledgeBaseByID(ctx, kbID)
+	if err != nil {
+		return 0, ErrKBNotFound
+	}
+	if kb.HasMemoryWikiMarker() {
+		return 0, ErrKBNotFound
+	}
 	shares, err := s.shareRepo.ListByKnowledgeBase(ctx, kbID)
 	if err != nil {
 		return 0, err
@@ -489,12 +544,39 @@ func (s *kbShareService) GetKBSourceTenant(ctx context.Context, kbID string) (ui
 		return shares[0].SourceTenantID, nil
 	}
 
-	kb, err := s.kbRepo.GetKnowledgeBaseByID(ctx, kbID)
-	if err != nil {
-		return 0, ErrKBNotFound
-	}
-
 	return kb.TenantID, nil
+}
+
+// shareReferencesMemoryWiki resolves the durable KB marker even when a
+// repository call did not preload the association. Resolution errors are
+// returned so callers fail closed rather than accidentally exposing a share.
+func (s *kbShareService) shareReferencesMemoryWiki(ctx context.Context, share *types.KnowledgeBaseShare) (bool, error) {
+	if share == nil {
+		return true, nil
+	}
+	kb := share.KnowledgeBase
+	if kb == nil {
+		var err error
+		kb, err = s.kbRepo.GetKnowledgeBaseByID(ctx, share.KnowledgeBaseID)
+		if err != nil {
+			return true, err
+		}
+	}
+	return kb.HasMemoryWikiMarker(), nil
+}
+
+func (s *kbShareService) filterMemoryWikiShares(ctx context.Context, shares []*types.KnowledgeBaseShare) ([]*types.KnowledgeBaseShare, error) {
+	filtered := make([]*types.KnowledgeBaseShare, 0, len(shares))
+	for _, share := range shares {
+		blocked, err := s.shareReferencesMemoryWiki(ctx, share)
+		if err != nil {
+			return nil, err
+		}
+		if !blocked {
+			filtered = append(filtered, share)
+		}
+	}
+	return filtered, nil
 }
 
 // CountSharesByKnowledgeBaseIDs counts the number of shares for multiple knowledge bases

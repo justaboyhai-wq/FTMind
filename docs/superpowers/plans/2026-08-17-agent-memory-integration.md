@@ -452,7 +452,7 @@ Run focused Go and Vitest suites. Expected: PASS.
 
 - [ ] **Step 1: Write state and Wiki invariant tests**
 
-Test no publication before approval, approve/reject/request-changes, one memory Wiki per team, one page per memory, revision per version, duplicate checksum no-op, revoke to deprecated, claim-level evidence coverage of 100%, and zero Raw/document/chunk creation.
+Test no publication before approval, approve/reject/request-changes, one memory Wiki per team, one page per memory, revision per version, exact event/version replay as a zero-write no-op, same-projection new versions as lifecycle-head CAS updates, revoke to deprecated, claim-level evidence coverage of 100%, and zero Raw/document/chunk creation.
 
 - [ ] **Step 2: Implement review API**
 

@@ -150,6 +150,61 @@ func IsBackgroundTask(ctx context.Context) bool {
 	return v
 }
 
+func WithMemoryWikiProvisioning(ctx context.Context) context.Context {
+	return context.WithValue(ctx, MemoryWikiProvisioningContextKey, true)
+}
+
+func IsMemoryWikiProvisioning(ctx context.Context) bool {
+	if ctx == nil {
+		return false
+	}
+	value, _ := ctx.Value(MemoryWikiProvisioningContextKey).(bool)
+	return value
+}
+
+func WithMemoryWikiMutation(ctx context.Context) context.Context {
+	return context.WithValue(ctx, MemoryWikiMutationContextKey, true)
+}
+
+func IsMemoryWikiMutation(ctx context.Context) bool {
+	if ctx == nil {
+		return false
+	}
+	value, _ := ctx.Value(MemoryWikiMutationContextKey).(bool)
+	return value
+}
+
+type MemoryWikiPublicationGuard struct {
+	TenantID      uint64
+	PublicationID string
+}
+
+func WithMemoryWikiPublicationGuard(ctx context.Context, tenantID uint64, publicationID string) context.Context {
+	return context.WithValue(ctx, MemoryWikiPublicationGuardContextKey, MemoryWikiPublicationGuard{
+		TenantID: tenantID, PublicationID: publicationID,
+	})
+}
+
+func MemoryWikiPublicationGuardFromContext(ctx context.Context) (MemoryWikiPublicationGuard, bool) {
+	if ctx == nil {
+		return MemoryWikiPublicationGuard{}, false
+	}
+	guard, ok := ctx.Value(MemoryWikiPublicationGuardContextKey).(MemoryWikiPublicationGuard)
+	return guard, ok && guard.TenantID != 0 && guard.PublicationID != ""
+}
+
+func WithVerifiedBindingContext(ctx context.Context, binding BindingContext) context.Context {
+	return context.WithValue(ctx, VerifiedBindingContextKey, binding)
+}
+
+func VerifiedBindingContextFromContext(ctx context.Context) (BindingContext, bool) {
+	if ctx == nil {
+		return BindingContext{}, false
+	}
+	binding, ok := ctx.Value(VerifiedBindingContextKey).(BindingContext)
+	return binding, ok && binding.BindingID != "" && binding.TenantID != 0
+}
+
 // LanguageFromContext extracts the language locale string from ctx (e.g. "zh-CN", "en-US").
 // Returns ("zh-CN", false) when the key is absent.
 func LanguageFromContext(ctx context.Context) (string, bool) {

@@ -1,10 +1,181 @@
 package service
 
 import (
+	"context"
+	"errors"
 	"testing"
 
+	"github.com/justaboyhai-wq/fmind/internal/application/repository"
 	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
+
+type memoryWikiGuardKBStub struct{ kb *types.KnowledgeBase }
+
+type wikiAtomicUpdateRepoStub struct {
+	interfaces.WikiPageRepository
+	existing        *types.WikiPage
+	updateCalls     int
+	updateMetaCalls int
+}
+
+type wikiIssueRepoStub struct {
+	interfaces.WikiPageRepository
+	issue        *types.WikiPageIssue
+	updateCalls  int
+	updateTenant uint64
+	updateKB     string
+}
+
+func (r *wikiIssueRepoStub) GetIssueByID(context.Context, string) (*types.WikiPageIssue, error) {
+	copy := *r.issue
+	return &copy, nil
+}
+
+func (r *wikiIssueRepoStub) UpdateIssueStatus(_ context.Context, tenantID uint64, kbID, _ string, _ string) error {
+	r.updateCalls++
+	r.updateTenant = tenantID
+	r.updateKB = kbID
+	return nil
+}
+
+func (r *wikiAtomicUpdateRepoStub) GetBySlug(context.Context, string, string) (*types.WikiPage, error) {
+	copy := *r.existing
+	return &copy, nil
+}
+
+func (r *wikiAtomicUpdateRepoStub) Update(_ context.Context, page *types.WikiPage) error {
+	r.updateCalls++
+	page.Version++
+	return nil
+}
+
+func (r *wikiAtomicUpdateRepoStub) UpdateMeta(context.Context, *types.WikiPage) error {
+	r.updateMetaCalls++
+	return nil
+}
+
+func (s memoryWikiGuardKBStub) GetKnowledgeBaseByID(context.Context, string) (*types.KnowledgeBase, error) {
+	return s.kb, nil
+}
+
+func (s memoryWikiGuardKBStub) GetKnowledgeBaseByIDOnly(context.Context, string) (*types.KnowledgeBase, error) {
+	return s.kb, nil
+}
+
+func TestMemoryWikiMutationGuardRejectsGenericWritesAndInvalidInvariant(t *testing.T) {
+	memoryKB := &types.KnowledgeBase{
+		ID: "memory-kb", TenantID: 7, Type: types.KnowledgeBaseTypeWiki,
+		IsMemoryWiki: true, MemoryTeamID: "team-a",
+		WikiConfig:       &types.WikiConfig{IsMemoryWiki: true, MemoryTeamID: "team-a"},
+		IndexingStrategy: types.IndexingStrategy{WikiEnabled: true},
+	}
+	service := &wikiPageService{kbService: memoryWikiGuardKBStub{kb: memoryKB}}
+	if err := service.requireMemoryWikiMutationAuthority(context.Background(), memoryKB.ID); !errors.Is(err, ErrDedicatedMemoryWikiManagedInternally) {
+		t.Fatalf("generic write error=%v", err)
+	}
+	if err := service.requireMemoryWikiMutationAuthority(types.WithMemoryWikiMutation(context.Background()), memoryKB.ID); err != nil {
+		t.Fatalf("trusted publisher error=%v", err)
+	}
+
+	invalid := *memoryKB
+	invalid.IndexingStrategy.VectorEnabled = true
+	service.kbService = memoryWikiGuardKBStub{kb: &invalid}
+	if err := service.requireMemoryWikiMutationAuthority(types.WithMemoryWikiMutation(context.Background()), invalid.ID); !errors.Is(err, ErrDedicatedMemoryWikiManagedInternally) {
+		t.Fatalf("invalid zero-RAG invariant error=%v", err)
+	}
+}
+
+func TestMemoryWikiReadGuardRequiresAdminOrVerifiedExactBindingScope(t *testing.T) {
+	memoryKB := &types.KnowledgeBase{
+		ID: "memory-kb", TenantID: 7, Type: types.KnowledgeBaseTypeWiki,
+		IsMemoryWiki: true, MemoryTeamID: "team-a",
+		WikiConfig:       &types.WikiConfig{IsMemoryWiki: true, MemoryTeamID: "team-a"},
+		IndexingStrategy: types.IndexingStrategy{WikiEnabled: true},
+	}
+	service := &wikiPageService{kbService: memoryWikiGuardKBStub{kb: memoryKB}}
+	if err := service.requireMemoryWikiReadAuthority(context.Background(), memoryKB.ID, "page-a"); !errors.Is(err, ErrDedicatedMemoryWikiManagedInternally) {
+		t.Fatalf("generic read error=%v", err)
+	}
+
+	admin := context.WithValue(context.Background(), types.TenantIDContextKey, uint64(7))
+	admin = context.WithValue(admin, types.TenantRoleContextKey, types.TenantRoleAdmin)
+	if err := service.requireMemoryWikiReadAuthority(admin, memoryKB.ID, "page-a"); err != nil {
+		t.Fatalf("tenant admin read error=%v", err)
+	}
+
+	binding := types.BindingContext{
+		BindingID: "binding-a", TenantID: 7, TeamID: "team-a",
+		AssetScopes: types.StringArray{"wiki_page:page-a"},
+	}
+	bound := types.WithVerifiedBindingContext(context.Background(), binding)
+	if err := service.requireMemoryWikiReadAuthority(bound, memoryKB.ID, "page-a"); err != nil {
+		t.Fatalf("verified exact binding read error=%v", err)
+	}
+	if err := service.requireMemoryWikiReadAuthority(bound, memoryKB.ID, "page-b"); !errors.Is(err, ErrDedicatedMemoryWikiManagedInternally) {
+		t.Fatalf("out-of-scope binding read error=%v", err)
+	}
+}
+
+func TestValidateWikiPageExpectedVersionRejectsStalePublisher(t *testing.T) {
+	existing := &types.WikiPage{ID: "page-1", Version: 3}
+	if err := validateWikiPageExpectedVersion(existing, &types.WikiPage{ID: "page-1", Version: 2}); !errors.Is(err, repository.ErrWikiPageConflict) {
+		t.Fatalf("stale expected version error=%v", err)
+	}
+	if err := validateWikiPageExpectedVersion(existing, &types.WikiPage{ID: "page-1", Version: 3}); err != nil {
+		t.Fatalf("current expected version error=%v", err)
+	}
+	if err := validateWikiPageExpectedVersion(existing, &types.WikiPage{ID: "page-1"}); err != nil {
+		t.Fatalf("legacy unspecified expected version error=%v", err)
+	}
+}
+
+func TestWikiPageContentUpdateUsesSingleAtomicRepositoryWrite(t *testing.T) {
+	existing := &types.WikiPage{
+		ID: "page-1", KnowledgeBaseID: "kb-1", Slug: "page", Title: "v1",
+		Content: "old", Summary: "old", PageType: types.WikiPageTypeConcept,
+		Status: types.WikiPageStatusPublished, Version: 1,
+	}
+	repo := &wikiAtomicUpdateRepoStub{existing: existing}
+	normalKB := &types.KnowledgeBase{ID: "kb-1", TenantID: 7, Type: types.KnowledgeBaseTypeWiki}
+	service := &wikiPageService{repo: repo, kbService: memoryWikiGuardKBStub{kb: normalKB}}
+	requested := *existing
+	requested.Title = "v2"
+	requested.Content = "new"
+	_, err := service.UpdatePage(context.Background(), &requested)
+	if err != nil {
+		t.Fatalf("UpdatePage error=%v", err)
+	}
+	if repo.updateCalls != 1 || repo.updateMetaCalls != 0 {
+		t.Fatalf("repository writes update=%d updateMeta=%d, want one atomic update", repo.updateCalls, repo.updateMetaCalls)
+	}
+}
+
+func TestWikiIssueStatusUsesAuthoritativeTenantAndKnowledgeBase(t *testing.T) {
+	memoryKB := &types.KnowledgeBase{
+		ID: "memory-kb", TenantID: 8, Type: types.KnowledgeBaseTypeWiki,
+		IsMemoryWiki: true, MemoryTeamID: "team-b",
+		WikiConfig:       &types.WikiConfig{IsMemoryWiki: true, MemoryTeamID: "team-b"},
+		IndexingStrategy: types.IndexingStrategy{WikiEnabled: true},
+	}
+	repo := &wikiIssueRepoStub{issue: &types.WikiPageIssue{
+		ID: "issue-secret", TenantID: 8, KnowledgeBaseID: memoryKB.ID, Status: "pending",
+	}}
+	service := &wikiPageService{repo: repo, kbService: memoryWikiGuardKBStub{kb: memoryKB}}
+
+	err := service.UpdateIssueStatus(context.Background(), "attacker-normal-kb", repo.issue.ID, "resolved")
+	if !errors.Is(err, repository.ErrWikiPageIssueNotFound) || repo.updateCalls != 0 {
+		t.Fatalf("cross-KB update error=%v calls=%d", err, repo.updateCalls)
+	}
+	err = service.UpdateIssueStatus(context.Background(), memoryKB.ID, repo.issue.ID, "resolved")
+	if !errors.Is(err, ErrDedicatedMemoryWikiManagedInternally) || repo.updateCalls != 0 {
+		t.Fatalf("generic memory Wiki update error=%v calls=%d", err, repo.updateCalls)
+	}
+	err = service.UpdateIssueStatus(types.WithMemoryWikiMutation(context.Background()), memoryKB.ID, repo.issue.ID, "resolved")
+	if err != nil || repo.updateCalls != 1 || repo.updateTenant != 8 || repo.updateKB != memoryKB.ID {
+		t.Fatalf("trusted update error=%v calls=%d tenant=%d kb=%s", err, repo.updateCalls, repo.updateTenant, repo.updateKB)
+	}
+}
 
 func TestStripWikiInlineChunkCitations(t *testing.T) {
 	input := "[**橡皮障夹**](#)**钳**\n\n夹钳是用于夹持橡皮障夹的专用器械[c003]。手柄便于操作 [c003]。多个来源[c003, c1000]。"

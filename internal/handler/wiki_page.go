@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/justaboyhai-wq/fmind/internal/application/repository"
 	"github.com/justaboyhai-wq/fmind/internal/application/service"
 	"github.com/justaboyhai-wq/fmind/internal/errors"
@@ -14,7 +15,6 @@ import (
 	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
-	"github.com/gin-gonic/gin"
 )
 
 // WikiPageHandler handles HTTP requests for wiki page operations
@@ -755,7 +755,7 @@ func (h *WikiPageHandler) ListIssues(c *gin.Context) {
 // @Security     Bearer
 // @Router       /knowledgebase/{kb_id}/wiki/issues/{issue_id}/status [put]
 func (h *WikiPageHandler) UpdateIssueStatus(c *gin.Context) {
-	_, _, err := h.validateWikiKB(c)
+	kbID, _, err := h.validateWikiKB(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -781,7 +781,7 @@ func (h *WikiPageHandler) UpdateIssueStatus(c *gin.Context) {
 		return
 	}
 
-	if err := h.wikiService.UpdateIssueStatus(c.Request.Context(), issueID, req.Status); err != nil {
+	if err := h.wikiService.UpdateIssueStatus(c.Request.Context(), kbID, issueID, req.Status); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

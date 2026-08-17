@@ -343,6 +343,9 @@ type WikiConfig struct {
 	// IsMemoryWiki marks a Wiki knowledge base as the dedicated L3 memory
 	// publication surface. Memory Wiki pages never enter document/RAG ingest.
 	IsMemoryWiki bool `yaml:"is_memory_wiki" json:"is_memory_wiki,omitempty"`
+	// MemoryTeamID binds a dedicated memory Wiki to exactly one team. Tenant
+	// scope remains on KnowledgeBase.TenantID; both must match at publication.
+	MemoryTeamID string `yaml:"memory_team_id" json:"memory_team_id,omitempty"`
 	// SynthesisModelID is the LLM model ID used for wiki page generation and updates
 	SynthesisModelID string `yaml:"synthesis_model_id" json:"synthesis_model_id"`
 	// MaxPagesPerIngest limits pages created/updated per ingest operation (0 = no limit)

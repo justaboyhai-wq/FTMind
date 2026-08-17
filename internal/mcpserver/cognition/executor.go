@@ -159,7 +159,7 @@ func (e *DefaultExecutor) readWikiPage(ctx context.Context, invocation Invocatio
 	if err != nil {
 		return WikiPageResult{}, err
 	}
-	if page == nil || page.ID != id || page.TenantID != invocation.Binding.TenantID {
+	if page == nil || page.ID != id || page.TenantID != invocation.Binding.TenantID || page.Status != types.WikiPageStatusPublished {
 		return WikiPageResult{}, ErrForbidden
 	}
 	content, _ := truncateRunes(page.Content, maxWikiReadChars)

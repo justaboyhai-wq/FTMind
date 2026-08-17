@@ -96,7 +96,7 @@ func TestDefaultExecutorKnowledgeSearchIsExactAndDefenseInDepthFiltered(t *testi
 
 func TestDefaultExecutorReadsExactWikiPageAndDocumentChunks(t *testing.T) {
 	wiki := &wikiReaderStub{pages: map[string]*types.WikiPage{
-		"page-1": {ID: "page-1", TenantID: 7, KnowledgeBaseID: "kb-1", Title: "Page", Content: "Wiki body", Version: 4},
+		"page-1": {ID: "page-1", TenantID: 7, KnowledgeBaseID: "kb-1", Title: "Page", Status: types.WikiPageStatusPublished, Content: "Wiki body", Version: 4},
 	}}
 	documents := &documentReaderStub{documents: map[string]*types.Knowledge{
 		"doc-1": {ID: "doc-1", TenantID: 7, KnowledgeBaseID: "kb-1", Title: "Document", FilePath: "secret/internal/path"},
@@ -126,10 +126,45 @@ func TestDefaultExecutorReadsExactWikiPageAndDocumentChunks(t *testing.T) {
 	}
 }
 
+func TestDefaultExecutorRejectsArchivedWikiPagesFromExactReadAndContext(t *testing.T) {
+	wiki := &wikiReaderStub{pages: map[string]*types.WikiPage{
+		"page-archived": {
+			ID: "page-archived", TenantID: 7, KnowledgeBaseID: "kb-1",
+			Title: "Revoked memory", Status: types.WikiPageStatusArchived,
+			Content: "content that must no longer reach an external agent", Version: 5,
+		},
+	}}
+	executor := NewDefaultExecutor(&memoryGatewayStub{}, &knowledgeSearcherStub{}, wiki, &documentReaderStub{}, &chunkReaderStub{})
+	binding := *scopedBinding(
+		[]string{"wiki.get", "context.assemble"},
+		[]string{"wiki_page:page-archived"},
+	)
+
+	_, err := executor.ExecuteCognitionTool(context.Background(), Invocation{
+		Tool: ToolWikiGetPage, Binding: binding,
+		Arguments: map[string]any{"wiki_page_id": "page-archived"},
+	})
+	if !errors.Is(err, ErrForbidden) {
+		t.Fatalf("archived page exact-read must fail closed, got %v", err)
+	}
+
+	result, err := executor.ExecuteCognitionTool(context.Background(), Invocation{
+		Tool: ToolContextAssemble, Binding: binding,
+		Arguments: map[string]any{"asset_scopes": []any{"wiki_page:page-archived"}},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	assembled := result.(types.ContextPackage)
+	if len(assembled.Wiki.Items) != 0 || !assembled.Partial {
+		t.Fatalf("archived page leaked into assembled context: %#v", assembled)
+	}
+}
+
 func TestDefaultExecutorAssemblesSeparatedContextWithProvenanceAndPartialWarnings(t *testing.T) {
 	memory := &memoryGatewayStub{result: []types.ContextItem{{ID: "mem-1", Type: "l1", Content: "Remember this"}}}
 	searcher := &knowledgeSearcherStub{results: []*types.SearchResult{{ID: "chunk-1", KnowledgeID: "doc-1", KnowledgeBaseID: "kb-1", Content: "RAG body", Score: 0.9}}}
-	wiki := &wikiReaderStub{pages: map[string]*types.WikiPage{"page-1": {ID: "page-1", TenantID: 7, KnowledgeBaseID: "kb-1", Title: "Wiki", Content: "Wiki body", Version: 2}}}
+	wiki := &wikiReaderStub{pages: map[string]*types.WikiPage{"page-1": {ID: "page-1", TenantID: 7, KnowledgeBaseID: "kb-1", Title: "Wiki", Status: types.WikiPageStatusPublished, Content: "Wiki body", Version: 2}}}
 	documents := &documentReaderStub{documents: map[string]*types.Knowledge{"doc-1": {ID: "doc-1", TenantID: 7, KnowledgeBaseID: "kb-1", Title: "Doc"}}}
 	chunks := &chunkReaderStub{chunks: map[string][]*types.Chunk{"doc-1": {{ID: "raw-1", TenantID: 7, KnowledgeID: "doc-1", Content: "Raw body", IsEnabled: true}}}}
 	executor := NewDefaultExecutor(memory, searcher, wiki, documents, chunks)

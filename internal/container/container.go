@@ -384,6 +384,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(handler.NewAgentBindingHandler))
 	must(container.Provide(handler.NewBindingIntrospectionHandler))
 	must(container.Provide(handler.NewMemoryWikiHandler))
+	must(container.Provide(handler.NewInternalMemoryEventHandler))
 	must(container.Provide(handler.NewUserResourceFavoriteHandler))
 	must(container.Provide(service.NewSkillService))
 	must(container.Provide(handler.NewSkillHandler))
