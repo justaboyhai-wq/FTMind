@@ -78,6 +78,7 @@ type RouterParams struct {
 	TagHandler                   *handler.TagHandler
 	CustomAgentHandler           *handler.CustomAgentHandler
 	AgentBindingHandler          *handler.AgentBindingHandler
+	BindingIntrospectionHandler  *handler.BindingIntrospectionHandler
 	UserFavoriteHandler          *handler.UserResourceFavoriteHandler
 	SkillHandler                 *handler.SkillHandler
 	OrganizationHandler          *handler.OrganizationHandler
@@ -183,6 +184,7 @@ func NewRouter(params RouterParams) *gin.Engine {
 	r.Use(middleware.AuditServiceProvider(params.AuditLogService))
 
 	// 需要认证的API路由
+	handler.RegisterBindingIntrospectionRoutes(r, params.BindingIntrospectionHandler)
 	v1 := r.Group("/api/v1")
 	{
 		// rbacGuards bundles the role-gating middleware factories so each

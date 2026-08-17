@@ -2,11 +2,15 @@ package agentbinding
 
 import (
 	"context"
+	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"os"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/justaboyhai-wq/fmind/internal/types"
@@ -87,6 +91,31 @@ func (s *Service) RotateKey(ctx context.Context, id, createdBy string) (string, 
 		return "", err
 	}
 	return secret, nil
+}
+
+func (s *Service) Introspect(ctx context.Context, secret string) (*types.BindingIntrospectionResult, error) {
+	h := sha256.Sum256([]byte(secret))
+	key, err := s.keys.GetActiveAgentBindingKeyByHash(ctx, hex.EncodeToString(h[:]))
+	if err != nil {
+		return nil, err
+	}
+	b, err := s.bindings.GetAgentBinding(ctx, key.TenantID, key.BindingID)
+	if err != nil || b.Status != types.AgentBindingStatusActive {
+		return nil, errors.New("agent binding is not active")
+	}
+	exp := time.Now().UTC().Add(5 * time.Minute)
+	c := types.BindingContext{TokenID: uuid.NewString(), BindingID: b.ID, TenantID: b.TenantID, DepartmentID: b.DepartmentID, WorkspaceID: b.WorkspaceID, ProjectID: b.ProjectID, AgentID: b.AgentID, CapabilityScopes: b.CapabilityScopes, AssetScopes: b.AssetScopes, CaptureEnabled: true, RecallEnabled: true, L3ReviewRequired: true, PolicyVersion: 1, ExpiresAt: exp}
+	body := fmt.Sprintf("%s|%d|%s|%s", c.TokenID, c.TenantID, c.BindingID, exp.Format(time.RFC3339Nano))
+	mac := hmac.New(sha256.New, []byte(bindingTokenSecret()))
+	_, _ = mac.Write([]byte(body))
+	token := base64.RawURLEncoding.EncodeToString([]byte(body + "|" + hex.EncodeToString(mac.Sum(nil))))
+	return &types.BindingIntrospectionResult{BindingToken: token, Context: c}, nil
+}
+func bindingTokenSecret() string {
+	if s := os.Getenv("FMIND_BINDING_TOKEN_SECRET"); s != "" {
+		return s
+	}
+	return "change-me-binding-token-secret"
 }
 
 func (s *Service) persistKey(ctx context.Context, b *types.AgentBinding, secret string) error {

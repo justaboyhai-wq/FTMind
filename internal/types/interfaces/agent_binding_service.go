@@ -27,4 +27,5 @@ type AgentBindingService interface {
 	Get(context.Context, string) (*types.AgentBinding, error)
 	Revoke(context.Context, string) error
 	RotateKey(context.Context, string, string) (string, error)
+	Introspect(context.Context, string) (*types.BindingIntrospectionResult, error)
 }
