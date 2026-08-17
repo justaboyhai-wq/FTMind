@@ -16,9 +16,9 @@ func TestParseCosObjectName_RejectsLocalScheme(t *testing.T) {
 
 func TestParseCosObjectName_CosScheme(t *testing.T) {
 	svc := &cosFileService{bucketURL: "https://b.cos.ap-shanghai.myqcloud.com/"}
-	key, err := svc.parseCosObjectName("cos://bucket/ap-shanghai/keystone/10000/exports/a.png")
+	key, err := svc.parseCosObjectName("cos://bucket/ap-shanghai/fmind/10000/exports/a.png")
 	require.NoError(t, err)
-	assert.Equal(t, "keystone/10000/exports/a.png", key)
+	assert.Equal(t, "fmind/10000/exports/a.png", key)
 }
 
 func TestParseCosObjectName_RejectsMinioScheme(t *testing.T) {

@@ -10,9 +10,9 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/justaboyhai-wq/keystone/internal/datasource"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/datasource"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // Connector implements the datasource.Connector interface for Feishu.
@@ -53,7 +53,7 @@ func (c *Connector) Validate(ctx context.Context, config *types.DataSourceConfig
 //   - parentID == "spaceID:nodeToken" → list the direct children of that node.
 //
 // Eagerly recursing the whole tree here used to time out for large wikis
-// (justaboyhai-wq/keystone#1672); the recursive walk now happens only at sync time.
+// (justaboyhai-wq/fmind#1672); the recursive walk now happens only at sync time.
 func (c *Connector) ListResources(
 	ctx context.Context, config *types.DataSourceConfig, parentID string,
 ) ([]types.Resource, error) {

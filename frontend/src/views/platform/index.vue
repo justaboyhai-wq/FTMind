@@ -2,13 +2,13 @@
     <div class="main" ref="dropzone">
         <Menu></Menu>
         <div class="platform-column">
-            <header class="keystone-workspace-topbar">
-                <div class="keystone-workspace-crumb">
-                    <span class="keystone-workspace-crumb__dot" aria-hidden="true"></span>
-                    <span>Keystone</span>
+            <header class="fmind-workspace-topbar">
+                <div class="fmind-workspace-crumb">
+                    <span class="fmind-workspace-crumb__dot" aria-hidden="true"></span>
+                    <span>FMind</span>
                     <small>/ {{ currentSection }}</small>
                 </div>
-                <div class="keystone-workspace-status" title="Keystone"><span></span></div>
+                <div class="fmind-workspace-status" title="FMind"><span></span></div>
             </header>
             <div v-if="isRouterAlive" class="platform-route-outlet">
                 <RouterView />
@@ -207,7 +207,7 @@ const handleGlobalDrop = async (event: DragEvent) => {
 
     if (isChatDropRoute()) {
         event.stopPropagation();
-        window.dispatchEvent(new CustomEvent('keystone:chat-file-drop', {
+        window.dispatchEvent(new CustomEvent('fmind:chat-file-drop', {
             detail: { files: droppedFiles }
         }));
         return;
@@ -293,7 +293,7 @@ onUnmounted(() => {
     flex-direction: column;
 }
 
-.keystone-workspace-topbar {
+.fmind-workspace-topbar {
     display: flex;
     height: 50px;
     flex: 0 0 50px;
@@ -307,32 +307,32 @@ onUnmounted(() => {
     font-weight: 620;
 }
 
-.keystone-workspace-crumb, .keystone-workspace-status {
+.fmind-workspace-crumb, .fmind-workspace-status {
     display: inline-flex;
     align-items: center;
     gap: 8px;
 }
 
-.keystone-workspace-crumb small { color: var(--td-text-color-placeholder); font-size: 11px; font-weight: 500; }
-.keystone-workspace-crumb__dot { width: 7px; height: 7px; background: var(--td-brand-color); border-radius: 50%; box-shadow: 0 0 0 3px var(--td-brand-color-light); }
-.keystone-workspace-status { color: var(--td-text-color-placeholder); font-size: 11px; }
-.keystone-workspace-status > span {
+.fmind-workspace-crumb small { color: var(--td-text-color-placeholder); font-size: 11px; font-weight: 500; }
+.fmind-workspace-crumb__dot { width: 7px; height: 7px; background: var(--td-brand-color); border-radius: 50%; box-shadow: 0 0 0 3px var(--td-brand-color-light); }
+.fmind-workspace-status { color: var(--td-text-color-placeholder); font-size: 11px; }
+.fmind-workspace-status > span {
     width: 7px;
     height: 7px;
     border-radius: 2px;
     background: linear-gradient(135deg, var(--td-brand-color), #3b82f6);
     box-shadow: 0 0 0 3px var(--td-brand-color-light), 0 0 14px rgb(91 91 214 / 32%);
     transform: rotate(45deg);
-    animation: keystone-signal 2.8s ease-in-out infinite;
+    animation: fmind-signal 2.8s ease-in-out infinite;
 }
 
-@keyframes keystone-signal {
+@keyframes fmind-signal {
     0%, 100% { opacity: .62; box-shadow: 0 0 0 3px var(--td-brand-color-light), 0 0 8px rgb(91 91 214 / 18%); }
     50% { opacity: 1; box-shadow: 0 0 0 4px var(--td-brand-color-light), 0 0 17px rgb(59 130 246 / 34%); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .keystone-workspace-status > span { animation: none; }
+    .fmind-workspace-status > span { animation: none; }
 }
 
 /* 右侧路由区：占满剩余宽度与整列高度，并把 min-height:0 传给子页面以便内部 flex 滚动 */

@@ -7,7 +7,7 @@ import (
 	"sync"
 	"unicode"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // runQueryExpansion performs query expansion when initial recall is low.

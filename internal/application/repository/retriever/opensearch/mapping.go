@@ -8,7 +8,7 @@ import (
 
 	osapi "github.com/opensearch-project/opensearch-go/v4/opensearchapi"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
 )
 
 // createIndexAndAlias creates "<alias>_v1" with the full k-NN mapping

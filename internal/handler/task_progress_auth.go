@@ -3,9 +3,9 @@ package handler
 import (
 	"context"
 
-	apperrors "github.com/justaboyhai-wq/keystone/internal/errors"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/utils"
+	apperrors "github.com/justaboyhai-wq/fmind/internal/errors"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // requireTaskProgressTenant ensures async task progress endpoints only

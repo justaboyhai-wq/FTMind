@@ -1,16 +1,16 @@
 ---
-name: keystone-rag-search
-description: Use when retrieving from or asking questions against a Keystone knowledge base via the `keystone` CLI — and especially when unsure whether to use `chat`, `session ask`, or `search chunks` for a given goal.
+name: fmind-rag-search
+description: Use when retrieving from or asking questions against a FMind knowledge base via the `fmind` CLI — and especially when unsure whether to use `chat`, `session ask`, or `search chunks` for a given goal.
 metadata:
   tested_against: v0.10
 ---
 
-# Keystone — retrieval & RAG queries
+# FMind — retrieval & RAG queries
 
-**REQUIRED BACKGROUND:** read the `keystone-shared` skill first (auth, `--kb`
+**REQUIRED BACKGROUND:** read the `fmind-shared` skill first (auth, `--kb`
 resolution, the JSON envelope, exit codes, streaming/NDJSON output).
 
-Keystone gives you several ways to "ask about a knowledge base." Picking the wrong
+FMind gives you several ways to "ask about a knowledge base." Picking the wrong
 one wastes turns or returns the wrong shape. Use the decision table.
 
 ## Pick the command by your goal
@@ -32,7 +32,7 @@ one wastes turns or returns the wrong shape. Use the decision table.
 2. **`chat` vs `session ask`.** `chat` = plain KB RAG Q&A. `session ask --agent
    <id>` = invoke a *configured custom agent* (it may scope its own KBs, call
    tools, do web search). If the user set up an agent for this, prefer it
-   (`keystone agent list` to find ids); otherwise `chat`.
+   (`fmind agent list` to find ids); otherwise `chat`.
 3. **One-shot vs multi-turn.** Both `chat` and `session ask` return a
    `data.session_id` in default JSON output. Pass `--session <id>` on the next
    call to continue the conversation. In NDJSON mode, read it from `init`.
@@ -40,9 +40,9 @@ one wastes turns or returns the wrong shape. Use the decision table.
 ## Safety / Gotchas
 
 - `chat`, `search chunks`, `search docs` need a KB: pass `--kb <id-or-name>`, or
-  set `KEYSTONE_KB_ID`, or `keystone link` the directory (resolved in that order).
+  set `FMIND_KB_ID`, or `fmind link` the directory (resolved in that order).
   If none resolves it's exit 1 (`local.kb_id_required`); a bad name is exit 1
-  (`local.kb_not_found`). Resolve names with `keystone kb list` / `search kb`.
+  (`local.kb_not_found`). Resolve names with `fmind kb list` / `search kb`.
   (`search kb` / `search sessions` are tenant-wide and take no `--kb`.)
 - `chat` / `session ask` return one buffered JSON envelope with answer
   events by default. Add `--reference` for indexed citations and `--verbose`
@@ -50,9 +50,9 @@ one wastes turns or returns the wrong shape. Use the decision table.
   text` for the live human-readable projection.
 - A stalled stream is not stopped by Ctrl-C (that just drops your local
   connection; the server keeps generating + billing). Stop it server-side:
-  `keystone session stop <session-id> --message <message-id>` (session_id from
+  `fmind session stop <session-id> --message <message-id>` (session_id from
   `data.session_id`, or from `init` under `--format ndjson`).
-  Re-attach to a stream with `keystone session resume <session-id>
+  Re-attach to a stream with `fmind session resume <session-id>
   --message <message-id>`.
 - `search chunks --limit` defaults to **8** (tuned for an LLM context window);
   the `search docs/kb/sessions` lists default to 30. Tune retrieval with
@@ -63,14 +63,14 @@ one wastes turns or returns the wrong shape. Use the decision table.
 
 ```bash
 # raw retrieval to reason over
-keystone search chunks "retry backoff policy" --kb engineering --limit 12
+fmind search chunks "retry backoff policy" --kb engineering --limit 12
 
 # grounded answer (human transcript)
-keystone chat "How do we handle retries?" --kb engineering --format text
+fmind chat "How do we handle retries?" --kb engineering --format text
 
 # continue the conversation (session id from data.session_id above)
-keystone chat "And the max attempts?" --kb engineering --session sess_abc
+fmind chat "And the max attempts?" --kb engineering --session sess_abc
 
 # answer via a custom agent
-keystone session ask --agent ag_123 "Summarize this quarter's incidents"
+fmind session ask --agent ag_123 "Summarize this quarter's incidents"
 ```

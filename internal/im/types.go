@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -202,7 +202,7 @@ func (ch *IMChannel) computeBotIdentity() string {
 	return ""
 }
 
-// ChannelSession maps an IM channel (user+chat combination) to a Keystone session.
+// ChannelSession maps an IM channel (user+chat combination) to a FMind session.
 // This allows the IM integration to maintain conversation continuity.
 type ChannelSession struct {
 	ID          string         `json:"id"            gorm:"type:varchar(36);primaryKey;default:uuid_generate_v4()"`

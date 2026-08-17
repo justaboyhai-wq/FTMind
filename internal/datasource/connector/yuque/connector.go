@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/datasource"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/datasource"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // Compile-time proof that *Connector satisfies the datasource.Connector interface.

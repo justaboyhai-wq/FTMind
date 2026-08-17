@@ -6,9 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/prompt"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/prompt"
 )
 
 // agentDeleteFields enumerates the JSON discovery fields for `agent delete`.
@@ -51,11 +51,11 @@ and writes input.confirmation_required to stderr. NEVER auto-pass -y
 without the user's explicit go-ahead — the exit-10 protocol exists
 exactly to guard against unintended deletes.`
 
-const agentDeleteExample = `  keystone agent delete ag_abc           # interactive confirm
-  keystone agent delete ag_abc -y        # no prompt
-  keystone agent delete ag_abc -y --format json # bare {id, deleted:true} JSON`
+const agentDeleteExample = `  fmind agent delete ag_abc           # interactive confirm
+  fmind agent delete ag_abc -y        # no prompt
+  fmind agent delete ag_abc -y --format json # bare {id, deleted:true} JSON`
 
-// NewCmdDelete builds `keystone agent delete <agent-id>`.
+// NewCmdDelete builds `fmind agent delete <agent-id>`.
 func NewCmdDelete(f *cmdutil.Factory) *cobra.Command {
 	opts := &DeleteOptions{}
 	cmd := &cobra.Command{
@@ -95,8 +95,8 @@ func NewCmdDelete(f *cmdutil.Factory) *cobra.Command {
 		RequiredFlags: []string{"<agent-id> (positional)"},
 		Output:        "envelope.data is {id, deleted:true}",
 		Examples: []string{
-			"keystone agent delete ag_abc -y",
-			"keystone agent delete ag_abc -y --format json",
+			"fmind agent delete ag_abc -y",
+			"fmind agent delete ag_abc -y --format json",
 		},
 		Warnings: []string{
 			"Requires explicit user approval (exit 10 / input.confirmation_required); never auto-add -y.",
@@ -107,7 +107,7 @@ func NewCmdDelete(f *cmdutil.Factory) *cobra.Command {
 }
 
 func runDelete(ctx context.Context, opts *DeleteOptions, fopts *cmdutil.FormatOptions, svc DeleteService, p prompt.Prompter) error {
-	if err := cmdutil.ConfirmDestructive(p, opts.Yes, fopts.WantsJSON(), "delete", "agent", opts.AgentID, "agent.delete", []string{"keystone", "agent", "delete", opts.AgentID, "-y"}); err != nil {
+	if err := cmdutil.ConfirmDestructive(p, opts.Yes, fopts.WantsJSON(), "delete", "agent", opts.AgentID, "agent.delete", []string{"fmind", "agent", "delete", opts.AgentID, "-y"}); err != nil {
 		return err
 	}
 	if err := svc.DeleteAgent(ctx, opts.AgentID); err != nil {

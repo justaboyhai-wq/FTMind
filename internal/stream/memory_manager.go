@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // memoryStreamData holds stream events in memory

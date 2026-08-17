@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // InfoCommand implements /info.

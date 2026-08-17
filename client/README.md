@@ -1,6 +1,6 @@
-# Keystone HTTP 客户端
+# FMind HTTP 客户端
 
-这个包提供了与Keystone服务进行交互的客户端库，支持所有基于HTTP的接口调用，使其他模块更方便地集成Keystone服务，无需直接编写HTTP请求代码。
+这个包提供了与FMind服务进行交互的客户端库，支持所有基于HTTP的接口调用，使其他模块更方便地集成FMind服务，无需直接编写HTTP请求代码。
 
 ## 主要功能
 
@@ -23,7 +23,7 @@
 ```go
 import (
     "context"
-    "github.com/justaboyhai-wq/keystone/client"
+    "github.com/justaboyhai-wq/fmind/client"
     "time"
 )
 

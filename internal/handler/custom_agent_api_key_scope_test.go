@@ -6,10 +6,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	apperrors "github.com/justaboyhai-wq/keystone/internal/errors"
-	"github.com/justaboyhai-wq/keystone/internal/middleware"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	apperrors "github.com/justaboyhai-wq/fmind/internal/errors"
+	"github.com/justaboyhai-wq/fmind/internal/middleware"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	"github.com/gin-gonic/gin"
 )
 

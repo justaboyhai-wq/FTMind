@@ -13,11 +13,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/config"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/projectlink"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/config"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/projectlink"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 func chdir(t *testing.T, dir string) {
@@ -67,7 +67,7 @@ func TestLink_ByID(t *testing.T) {
 	opts := &Options{KB: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"}
 	require.NoError(t, runLink(context.Background(), opts, &cmdutil.FormatOptions{Mode: cmdutil.FormatText}, f))
 
-	linkPath := filepath.Join(dir, ".keystone", "project.yaml")
+	linkPath := filepath.Join(dir, ".fmind", "project.yaml")
 	p, err := projectlink.Load(linkPath)
 	require.NoError(t, err)
 	assert.Equal(t, "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", p.KBID)
@@ -89,7 +89,7 @@ func TestLink_ByName(t *testing.T) {
 	opts := &Options{KB: "foo"}
 	require.NoError(t, runLink(context.Background(), opts, &cmdutil.FormatOptions{Mode: cmdutil.FormatText}, f))
 
-	p, err := projectlink.Load(filepath.Join(dir, ".keystone", "project.yaml"))
+	p, err := projectlink.Load(filepath.Join(dir, ".fmind", "project.yaml"))
 	require.NoError(t, err)
 	assert.Equal(t, "kb_a", p.KBID)
 }
@@ -116,7 +116,7 @@ func TestLink_OverwritesExisting(t *testing.T) {
 	_, _ = iostreams.SetForTest(t)
 
 	// Pre-existing link.
-	linkPath := filepath.Join(dir, ".keystone", "project.yaml")
+	linkPath := filepath.Join(dir, ".fmind", "project.yaml")
 	require.NoError(t, projectlink.Save(linkPath, &projectlink.Project{
 		Profile: "default", KBID: "11111111-1111-4111-8111-111111111111",
 	}))

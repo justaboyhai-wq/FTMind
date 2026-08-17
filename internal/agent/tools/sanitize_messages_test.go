@@ -3,7 +3,7 @@ package tools
 import (
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/models/chat"
+	"github.com/justaboyhai-wq/fmind/internal/models/chat"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

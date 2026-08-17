@@ -7,10 +7,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/prompt"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/prompt"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 var resolveFields = []string{"pending_id", "decision", "resolved"}
@@ -45,11 +45,11 @@ type resolveResult struct {
 
 const resolveLong = `Resolve a pending tool approval raised during an agent run.
 
-When a server-side agent run (keystone session ask) needs to call a tool
+When a server-side agent run (fmind session ask) needs to call a tool
 that requires approval, the stream emits a tool-approval event carrying a
 pending id and the run blocks. This command unblocks it: approve (default)
 lets the tool call execute, --reject cancels it. After resolving, resume
-the answer with keystone session resume.
+the answer with fmind session resume.
 
 --modified-args replaces the tool call arguments on approve (JSON object).
 It conflicts with --reject (rejected calls never execute).
@@ -76,9 +76,9 @@ func newCmdResolve(f *cmdutil.Factory) *cobra.Command {
 		Use:   "resolve <pending-id>",
 		Short: "Approve or reject a pending tool call (high-risk write)",
 		Long:  resolveLong,
-		Example: `  keystone session tool-approval resolve pend_abc -y                  # approve
-  keystone session tool-approval resolve pend_abc --reject --reason "wrong target" -y
-  keystone session tool-approval resolve pend_abc -y --format json`,
+		Example: `  fmind session tool-approval resolve pend_abc -y                  # approve
+  fmind session tool-approval resolve pend_abc --reject --reason "wrong target" -y
+  fmind session tool-approval resolve pend_abc -y --format json`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			fopts, err := cmdutil.CheckFormatFlag(c)
@@ -125,8 +125,8 @@ func newCmdResolve(f *cmdutil.Factory) *cobra.Command {
 		UsedFor:       "approve or reject a pending tool call from an agent run; then resume with session resume",
 		RequiredFlags: []string{"<pending-id> (positional)"},
 		Examples: []string{
-			"keystone session tool-approval resolve pend_abc -y",
-			"keystone session tool-approval resolve pend_abc --reject -y",
+			"fmind session tool-approval resolve pend_abc -y",
+			"fmind session tool-approval resolve pend_abc --reject -y",
 		},
 		Output: "envelope.data is {pending_id, decision (approve|reject), resolved:true}",
 		Warnings: []string{
@@ -199,7 +199,7 @@ func runResolve(ctx context.Context, opts *ResolveOptions, fopts *cmdutil.Format
 		return err
 	}
 	decision := decisionOf(opts.Reject)
-	retryCmd := append([]string{"keystone", "session", "tool-approval", "resolve", opts.PendingID}, retryArgOf(opts.Reject)...)
+	retryCmd := append([]string{"fmind", "session", "tool-approval", "resolve", opts.PendingID}, retryArgOf(opts.Reject)...)
 	retryCmd = append(retryCmd, "-y")
 	if err := cmdutil.ConfirmDestructive(p, opts.Yes, fopts.WantsJSON(), decision, "tool call", opts.PendingID, "session.tool_approval.resolve", retryCmd); err != nil {
 		return err

@@ -9,14 +9,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/application/repository"
-	"github.com/justaboyhai-wq/keystone/internal/application/service/retriever"
-	"github.com/justaboyhai-wq/keystone/internal/config"
-	werrors "github.com/justaboyhai-wq/keystone/internal/errors"
-	"github.com/justaboyhai-wq/keystone/internal/infrastructure/docparser"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/application/repository"
+	"github.com/justaboyhai-wq/fmind/internal/application/service/retriever"
+	"github.com/justaboyhai-wq/fmind/internal/config"
+	werrors "github.com/justaboyhai-wq/fmind/internal/errors"
+	"github.com/justaboyhai-wq/fmind/internal/infrastructure/docparser"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	"github.com/redis/go-redis/v9"
 )
 

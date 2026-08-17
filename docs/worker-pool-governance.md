@@ -1,6 +1,6 @@
 # Worker Pool Governance
 
-Keystone uses guaranteed per-stage worker pools plus an elastic pool for the
+FMind uses guaranteed per-stage worker pools plus an elastic pool for the
 document ingestion pipeline. Worker concurrency is a scheduling budget, not a
 replacement for model quotas, DocReader capacity, vector-store limits, or
 database connection limits.
@@ -31,14 +31,14 @@ the same core/enrichment queues; one task is still processed by one worker.
 
 All settings are available under System settings and require a service restart:
 
-- `asynq.core_concurrency` / `KEYSTONE_ASYNQ_CORE_CONCURRENCY`
-- `asynq.postprocess_concurrency` / `KEYSTONE_ASYNQ_POSTPROCESS_CONCURRENCY`
-- `asynq.enrichment_concurrency` / `KEYSTONE_ASYNQ_ENRICHMENT_CONCURRENCY`
-- `asynq.maintenance_concurrency` / `KEYSTONE_ASYNQ_MAINTENANCE_CONCURRENCY`
-- `asynq.shared_concurrency` / `KEYSTONE_ASYNQ_SHARED_CONCURRENCY`
-- `asynq.wiki_concurrency` / `KEYSTONE_WIKI_ASYNQ_CONCURRENCY`
+- `asynq.core_concurrency` / `FMIND_ASYNQ_CORE_CONCURRENCY`
+- `asynq.postprocess_concurrency` / `FMIND_ASYNQ_POSTPROCESS_CONCURRENCY`
+- `asynq.enrichment_concurrency` / `FMIND_ASYNQ_ENRICHMENT_CONCURRENCY`
+- `asynq.maintenance_concurrency` / `FMIND_ASYNQ_MAINTENANCE_CONCURRENCY`
+- `asynq.shared_concurrency` / `FMIND_ASYNQ_SHARED_CONCURRENCY`
+- `asynq.wiki_concurrency` / `FMIND_WIKI_ASYNQ_CONCURRENCY`
 
-The old aggregate `asynq.concurrency` / `KEYSTONE_ASYNQ_CONCURRENCY` setting is
+The old aggregate `asynq.concurrency` / `FMIND_ASYNQ_CONCURRENCY` setting is
 retired. Deployments that set it must migrate to the explicit pool settings.
 Persisted old rows are ignored and hidden from the System settings page so they
 cannot be mistaken for an effective runtime control.

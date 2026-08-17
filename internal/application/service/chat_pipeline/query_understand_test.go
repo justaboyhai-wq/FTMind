@@ -3,7 +3,7 @@ package chatpipeline
 import (
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 func TestApplyIntentPromptOverride_AgentOverrideWins(t *testing.T) {

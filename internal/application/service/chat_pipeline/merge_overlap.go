@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"sort"
 
-	"github.com/justaboyhai-wq/keystone/internal/searchutil"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/searchutil"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // mergeOverlappingChunks merges chunks with overlapping or adjacent StartAt/EndAt

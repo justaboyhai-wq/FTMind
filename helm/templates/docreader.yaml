@@ -2,21 +2,21 @@
 Copyright 2025 Tencent
 SPDX-License-Identifier: MIT
 
-Keystone Document Reader (gRPC) Deployment and Service.
+FMind Document Reader (gRPC) Deployment and Service.
 */}}
 {{- if .Values.docreader.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "keystone.fullname" . }}-docreader
+  name: {{ include "fmind.fullname" . }}-docreader
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "keystone.componentLabels" (dict "component" "docreader" "context" .) | nindent 4 }}
+    {{- include "fmind.componentLabels" (dict "component" "docreader" "context" .) | nindent 4 }}
 spec:
   replicas: {{ .Values.docreader.replicaCount }}
   selector:
     matchLabels:
-      {{- include "keystone.componentSelectorLabels" (dict "component" "docreader" "context" .) | nindent 6 }}
+      {{- include "fmind.componentSelectorLabels" (dict "component" "docreader" "context" .) | nindent 6 }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -25,17 +25,17 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "keystone.componentSelectorLabels" (dict "component" "docreader" "context" .) | nindent 8 }}
+        {{- include "fmind.componentSelectorLabels" (dict "component" "docreader" "context" .) | nindent 8 }}
     spec:
-      {{- include "keystone.imagePullSecrets" . | nindent 6 }}
-      serviceAccountName: {{ include "keystone.serviceAccountName" . }}
+      {{- include "fmind.imagePullSecrets" . | nindent 6 }}
+      serviceAccountName: {{ include "fmind.serviceAccountName" . }}
       {{- with .Values.global.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: docreader
-          image: {{ include "keystone.docreader.image" . }}
+          image: {{ include "fmind.docreader.image" . }}
           imagePullPolicy: {{ .Values.docreader.image.pullPolicy }}
           {{- with .Values.docreader.securityContext }}
           securityContext:
@@ -89,11 +89,11 @@ metadata:
   name: docreader
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "keystone.componentLabels" (dict "component" "docreader" "context" .) | nindent 4 }}
+    {{- include "fmind.componentLabels" (dict "component" "docreader" "context" .) | nindent 4 }}
 spec:
   type: {{ .Values.docreader.service.type }}
   selector:
-    {{- include "keystone.componentSelectorLabels" (dict "component" "docreader" "context" .) | nindent 4 }}
+    {{- include "fmind.componentSelectorLabels" (dict "component" "docreader" "context" .) | nindent 4 }}
   ports:
     - name: grpc
       port: {{ .Values.docreader.service.port }}

@@ -10,15 +10,15 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/models/utils"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/models/utils"
 	"github.com/google/uuid"
 )
 
-const keystoneCloudVLMPath = "/api/v1/chat/completions"
+const fmindCloudVLMPath = "/api/v1/chat/completions"
 
-// KeystoneCloudVLM implements VLM via the KeystoneCloud API.
-type KeystoneCloudVLM struct {
+// FMindCloudVLM implements VLM via the FMindCloud API.
+type FMindCloudVLM struct {
 	modelName       string
 	remoteModelName string
 	modelID         string
@@ -28,13 +28,13 @@ type KeystoneCloudVLM struct {
 	client          *http.Client
 }
 
-// NewKeystoneCloudVLM creates a KeystoneCloud-backed VLM instance.
-func NewKeystoneCloudVLM(config *Config) (*KeystoneCloudVLM, error) {
+// NewFMindCloudVLM creates a FMindCloud-backed VLM instance.
+func NewFMindCloudVLM(config *Config) (*FMindCloudVLM, error) {
 	if config.AppID == "" {
-		return nil, fmt.Errorf("KeystoneCloud VLM: AppID is required")
+		return nil, fmt.Errorf("FMindCloud VLM: AppID is required")
 	}
 	if config.AppSecret == "" {
-		return nil, fmt.Errorf("KeystoneCloud VLM: AppSecret is required")
+		return nil, fmt.Errorf("FMindCloud VLM: AppSecret is required")
 	}
 	baseURL := strings.TrimRight(config.BaseURL, "/")
 	if err := validateVLMBaseURL(baseURL); err != nil {
@@ -48,7 +48,7 @@ func NewKeystoneCloudVLM(config *Config) (*KeystoneCloudVLM, error) {
 			}
 		}
 	}
-	return &KeystoneCloudVLM{
+	return &FMindCloudVLM{
 		modelName:       config.ModelName,
 		remoteModelName: remoteModelName,
 		modelID:         config.ModelID,
@@ -59,30 +59,30 @@ func NewKeystoneCloudVLM(config *Config) (*KeystoneCloudVLM, error) {
 	}, nil
 }
 
-type keystoneCloudVLMContentPart struct {
+type fmindCloudVLMContentPart struct {
 	Type     string                   `json:"type"`
 	Text     string                   `json:"text,omitempty"`
-	ImageURL *keystoneCloudVLMImageURL `json:"image_url,omitempty"`
+	ImageURL *fmindCloudVLMImageURL `json:"image_url,omitempty"`
 }
 
-type keystoneCloudVLMImageURL struct {
+type fmindCloudVLMImageURL struct {
 	URL string `json:"url"`
 }
 
-type keystoneCloudVLMMessage struct {
+type fmindCloudVLMMessage struct {
 	Role    string      `json:"role"`
 	Content interface{} `json:"content"`
 }
 
-type keystoneCloudVLMRequest struct {
+type fmindCloudVLMRequest struct {
 	Model       string                   `json:"model"`
-	Messages    []keystoneCloudVLMMessage `json:"messages"`
+	Messages    []fmindCloudVLMMessage `json:"messages"`
 	MaxTokens   int                      `json:"max_tokens,omitempty"`
 	Temperature float64                  `json:"temperature,omitempty"`
 	Stream      bool                     `json:"stream"`
 }
 
-type keystoneCloudVLMResponse struct {
+type fmindCloudVLMResponse struct {
 	Choices []struct {
 		Message struct {
 			Content string `json:"content"`
@@ -90,11 +90,11 @@ type keystoneCloudVLMResponse struct {
 	} `json:"choices"`
 }
 
-// Predict sends images with a text prompt to the KeystoneCloud API.
-func (v *KeystoneCloudVLM) Predict(ctx context.Context, imgBytesList [][]byte, prompt string) (string, error) {
-	var parts []keystoneCloudVLMContentPart
+// Predict sends images with a text prompt to the FMindCloud API.
+func (v *FMindCloudVLM) Predict(ctx context.Context, imgBytesList [][]byte, prompt string) (string, error) {
+	var parts []fmindCloudVLMContentPart
 
-	parts = append(parts, keystoneCloudVLMContentPart{
+	parts = append(parts, fmindCloudVLMContentPart{
 		Type: "text",
 		Text: prompt,
 	})
@@ -104,18 +104,18 @@ func (v *KeystoneCloudVLM) Predict(ctx context.Context, imgBytesList [][]byte, p
 			mimeType := detectImageMIME(imgBytes)
 			b64 := base64.StdEncoding.EncodeToString(imgBytes)
 			dataURI := fmt.Sprintf("data:%s;base64,%s", mimeType, b64)
-			parts = append(parts, keystoneCloudVLMContentPart{
+			parts = append(parts, fmindCloudVLMContentPart{
 				Type: "image_url",
-				ImageURL: &keystoneCloudVLMImageURL{
+				ImageURL: &fmindCloudVLMImageURL{
 					URL: dataURI,
 				},
 			})
 		}
 	}
 
-	reqBody := keystoneCloudVLMRequest{
+	reqBody := fmindCloudVLMRequest{
 		Model: v.effectiveModelName(),
-		Messages: []keystoneCloudVLMMessage{
+		Messages: []fmindCloudVLMMessage{
 			{
 				Role:    "user",
 				Content: parts,
@@ -128,15 +128,15 @@ func (v *KeystoneCloudVLM) Predict(ctx context.Context, imgBytesList [][]byte, p
 
 	bodyBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		return "", fmt.Errorf("keystonecloud VLM: marshal: %w", err)
+		return "", fmt.Errorf("fmindcloud VLM: marshal: %w", err)
 	}
 
 	requestID := uuid.New().String()
 	headers := utils.Sign(v.appID, v.apiKey, requestID, string(bodyBytes))
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, v.baseURL+keystoneCloudVLMPath, bytes.NewReader(bodyBytes))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, v.baseURL+fmindCloudVLMPath, bytes.NewReader(bodyBytes))
 	if err != nil {
-		return "", fmt.Errorf("keystonecloud VLM: create request: %w", err)
+		return "", fmt.Errorf("fmindcloud VLM: create request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	for k, hv := range headers {
@@ -147,42 +147,42 @@ func (v *KeystoneCloudVLM) Predict(ctx context.Context, imgBytesList [][]byte, p
 	for _, img := range imgBytesList {
 		totalImageSize += len(img)
 	}
-	logger.Infof(ctx, "[VLM] Calling KeystoneCloud API, model=%s, baseURL=%s, numImages=%d, totalImageSize=%d",
+	logger.Infof(ctx, "[VLM] Calling FMindCloud API, model=%s, baseURL=%s, numImages=%d, totalImageSize=%d",
 		v.effectiveModelName(), v.baseURL, len(imgBytesList), totalImageSize)
 
 	resp, err := v.client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("keystonecloud VLM: do request: %w", err)
+		return "", fmt.Errorf("fmindcloud VLM: do request: %w", err)
 	}
 	defer resp.Body.Close()
 
 	respBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", fmt.Errorf("keystonecloud VLM: read response: %w", err)
+		return "", fmt.Errorf("fmindcloud VLM: read response: %w", err)
 	}
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("keystonecloud VLM: status %d: %s", resp.StatusCode, string(respBytes))
+		return "", fmt.Errorf("fmindcloud VLM: status %d: %s", resp.StatusCode, string(respBytes))
 	}
 
-	var vlmResp keystoneCloudVLMResponse
+	var vlmResp fmindCloudVLMResponse
 	if err := json.Unmarshal(respBytes, &vlmResp); err != nil {
-		return "", fmt.Errorf("keystonecloud VLM: unmarshal: %w", err)
+		return "", fmt.Errorf("fmindcloud VLM: unmarshal: %w", err)
 	}
 	if len(vlmResp.Choices) == 0 {
-		return "", fmt.Errorf("keystonecloud VLM: no choices in response")
+		return "", fmt.Errorf("fmindcloud VLM: no choices in response")
 	}
 
 	content := vlmResp.Choices[0].Message.Content
-	logger.Infof(ctx, "[VLM] KeystoneCloud response received, len=%d", len(content))
+	logger.Infof(ctx, "[VLM] FMindCloud response received, len=%d", len(content))
 	return content, nil
 }
 
-func (v *KeystoneCloudVLM) effectiveModelName() string {
+func (v *FMindCloudVLM) effectiveModelName() string {
 	if v.remoteModelName != "" {
 		return v.remoteModelName
 	}
 	return v.modelName
 }
 
-func (v *KeystoneCloudVLM) GetModelName() string { return v.modelName }
-func (v *KeystoneCloudVLM) GetModelID() string   { return v.modelID }
+func (v *FMindCloudVLM) GetModelName() string { return v.modelName }
+func (v *FMindCloudVLM) GetModelID() string   { return v.modelID }

@@ -112,7 +112,7 @@ COPY --from=builder /app/skills/preloaded ./skills/preloaded
 # Keep a read-only backup so bind-mount cannot erase built-in skills
 COPY --from=builder /app/skills/preloaded ./skills/_builtin
 COPY --from=builder /root/.duckdb /home/appuser/.duckdb
-COPY --from=builder /app/Keystone .
+COPY --from=builder /app/FMind .
 
 # Copy and make entrypoint script executable
 COPY --from=builder /app/scripts/docker-entrypoint.sh ./scripts/docker-entrypoint.sh
@@ -127,4 +127,4 @@ ENV JIEBA_DICT_DIR=/app/jieba-dict
 
 
 ENTRYPOINT ["./scripts/docker-entrypoint.sh"]
-CMD ["./Keystone"]
+CMD ["./FMind"]

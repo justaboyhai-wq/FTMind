@@ -3,8 +3,8 @@ package interfaces
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/models/embedding"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/models/embedding"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // RetrieveEngine defines the retrieve engine interface

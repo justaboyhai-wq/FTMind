@@ -2,12 +2,12 @@
 Copyright 2025 Tencent
 SPDX-License-Identifier: MIT
 
-Post-installation notes for Keystone Helm chart.
+Post-installation notes for FMind Helm chart.
 Ref: https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/templates/NOTES.txt
 */}}
 
 ================================================================================
-  Keystone has been installed successfully!
+  FMind has been installed successfully!
 ================================================================================
 
 Release: {{ .Release.Name }}
@@ -15,17 +15,17 @@ Namespace: {{ .Release.Namespace }}
 Version: {{ .Chart.AppVersion }}
 
 --------------------------------------------------------------------------------
-  ACCESSING KEYSTONE
+  ACCESSING FMIND
 --------------------------------------------------------------------------------
 
 {{- if .Values.ingress.enabled }}
-Keystone is accessible via Ingress:
+FMind is accessible via Ingress:
 
   URL: {{ if .Values.ingress.tls.enabled }}https{{ else }}http{{ end }}://{{ .Values.ingress.host }}
 
 {{- else }}
 
-To access Keystone, use port-forwarding:
+To access FMind, use port-forwarding:
 
   # Frontend (Web UI)
   kubectl port-forward svc/frontend -n {{ .Release.Namespace }} 8080:80
@@ -36,11 +36,11 @@ To access Keystone, use port-forwarding:
 
 {{- if not .Values.ingress.enabled }}
 
-To expose Keystone externally, enable Ingress:
+To expose FMind externally, enable Ingress:
 
   helm upgrade {{ .Release.Name }} ./helm \
     --set ingress.enabled=true \
-    --set ingress.host=keystone.example.com
+    --set ingress.host=fmind.example.com
 
 {{- end }}
 
@@ -50,19 +50,19 @@ To expose Keystone externally, enable Ingress:
 
 Components deployed:
 {{- if .Values.app.enabled }}
-  - Backend API ({{ include "keystone.app.image" . }})
+  - Backend API ({{ include "fmind.app.image" . }})
 {{- end }}
 {{- if .Values.frontend.enabled }}
-  - Frontend UI ({{ include "keystone.frontend.image" . }})
+  - Frontend UI ({{ include "fmind.frontend.image" . }})
 {{- end }}
 {{- if .Values.docreader.enabled }}
-  - Document Reader ({{ include "keystone.docreader.image" . }})
+  - Document Reader ({{ include "fmind.docreader.image" . }})
 {{- end }}
 {{- if .Values.postgresql.enabled }}
-  - PostgreSQL/ParadeDB ({{ include "keystone.postgresql.image" . }})
+  - PostgreSQL/ParadeDB ({{ include "fmind.postgresql.image" . }})
 {{- end }}
 {{- if .Values.redis.enabled }}
-  - Redis ({{ include "keystone.redis.image" . }})
+  - Redis ({{ include "fmind.redis.image" . }})
 {{- end }}
 
 {{- if or .Values.minio.enabled .Values.neo4j.enabled .Values.qdrant.enabled }}
@@ -83,7 +83,7 @@ Optional components enabled:
   CONNECTING TO LLM
 --------------------------------------------------------------------------------
 
-Keystone requires an LLM backend. Configure via environment variables:
+FMind requires an LLM backend. Configure via environment variables:
 
   helm upgrade {{ .Release.Name }} ./helm \
     --set app.extraEnv[0].name=OLLAMA_BASE_URL \
@@ -121,9 +121,9 @@ Access Neo4j Browser:
   DOCUMENTATION
 --------------------------------------------------------------------------------
 
-  GitHub:  https://github.com/justaboyhai-wq/keystone
-  API Docs: https://github.com/justaboyhai-wq/keystone/blob/main/docs/api/README.md
-  FAQ:     https://github.com/justaboyhai-wq/keystone/blob/main/docs/QA.md
+  GitHub:  https://github.com/justaboyhai-wq/fmind
+  API Docs: https://github.com/justaboyhai-wq/fmind/blob/main/docs/api/README.md
+  FAQ:     https://github.com/justaboyhai-wq/fmind/blob/main/docs/QA.md
 
 --------------------------------------------------------------------------------
   TROUBLESHOOTING

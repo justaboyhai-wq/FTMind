@@ -2,21 +2,21 @@
 Copyright 2025 Tencent
 SPDX-License-Identifier: MIT
 
-Keystone Frontend Web UI Deployment and Service.
+FMind Frontend Web UI Deployment and Service.
 */}}
 {{- if .Values.frontend.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "keystone.fullname" . }}-frontend
+  name: {{ include "fmind.fullname" . }}-frontend
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "keystone.componentLabels" (dict "component" "frontend" "context" .) | nindent 4 }}
+    {{- include "fmind.componentLabels" (dict "component" "frontend" "context" .) | nindent 4 }}
 spec:
   replicas: {{ .Values.frontend.replicaCount }}
   selector:
     matchLabels:
-      {{- include "keystone.componentSelectorLabels" (dict "component" "frontend" "context" .) | nindent 6 }}
+      {{- include "fmind.componentSelectorLabels" (dict "component" "frontend" "context" .) | nindent 6 }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -25,17 +25,17 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "keystone.componentSelectorLabels" (dict "component" "frontend" "context" .) | nindent 8 }}
+        {{- include "fmind.componentSelectorLabels" (dict "component" "frontend" "context" .) | nindent 8 }}
     spec:
-      {{- include "keystone.imagePullSecrets" . | nindent 6 }}
-      serviceAccountName: {{ include "keystone.serviceAccountName" . }}
+      {{- include "fmind.imagePullSecrets" . | nindent 6 }}
+      serviceAccountName: {{ include "fmind.serviceAccountName" . }}
       {{- with .Values.global.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: frontend
-          image: {{ include "keystone.frontend.image" . }}
+          image: {{ include "fmind.frontend.image" . }}
           imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
           {{- with .Values.frontend.securityContext }}
           securityContext:
@@ -99,11 +99,11 @@ metadata:
   name: frontend
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "keystone.componentLabels" (dict "component" "frontend" "context" .) | nindent 4 }}
+    {{- include "fmind.componentLabels" (dict "component" "frontend" "context" .) | nindent 4 }}
 spec:
   type: {{ .Values.frontend.service.type }}
   selector:
-    {{- include "keystone.componentSelectorLabels" (dict "component" "frontend" "context" .) | nindent 4 }}
+    {{- include "fmind.componentSelectorLabels" (dict "component" "frontend" "context" .) | nindent 4 }}
   ports:
     - name: http
       port: {{ .Values.frontend.service.port }}

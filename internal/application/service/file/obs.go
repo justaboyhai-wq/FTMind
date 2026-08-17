@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"

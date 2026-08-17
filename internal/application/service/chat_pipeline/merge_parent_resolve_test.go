@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/searchutil"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/searchutil"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 func TestCollectScopedTextChildIDs(t *testing.T) {

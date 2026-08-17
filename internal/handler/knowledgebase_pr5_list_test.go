@@ -10,9 +10,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/justaboyhai-wq/keystone/internal/middleware"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/middleware"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // ListKnowledgeBases store-enrichment — every KB in the list response

@@ -1,4 +1,4 @@
-module github.com/justaboyhai-wq/keystone
+module github.com/justaboyhai-wq/fmind
 
 go 1.26.0
 

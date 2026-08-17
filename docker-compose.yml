@@ -1,10 +1,10 @@
 services:
   frontend:
-    image: wechatopenai/keystone-ui:${KEYSTONE_VERSION:-latest}
+    image: wechatopenai/fmind-ui:${FMIND_VERSION:-latest}
     # Requires frontend/dist — run ./scripts/build_frontend_dist.sh before --build
     build:
       context: ./frontend
-    container_name: Keystone-frontend
+    container_name: FMind-frontend
     ports:
       - "${FRONTEND_PORT:-80}:80"
     environment:
@@ -21,17 +21,17 @@ services:
       app:
         condition: service_healthy
     networks:
-      - Keystone-network
+      - FMind-network
     restart: unless-stopped
 
   app:
-    image: wechatopenai/keystone-app:${KEYSTONE_VERSION:-latest}
+    image: wechatopenai/fmind-app:${FMIND_VERSION:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile.app
       args:
         - APK_MIRROR_ARG=${APK_MIRROR_ARG:-}
-    container_name: Keystone-app
+    container_name: FMind-app
     ports:
       - "${APP_PORT:-8080}:8080"
     volumes:
@@ -73,8 +73,8 @@ services:
       - COS_ENABLE_OLD_DOMAIN=${COS_ENABLE_OLD_DOMAIN:-}
       - GIN_MODE=${GIN_MODE:-release}
       - DISABLE_REGISTRATION=${DISABLE_REGISTRATION:-false}
-      - KEYSTONE_AUTH_DEFAULT_TENANT_MODE=${KEYSTONE_AUTH_DEFAULT_TENANT_MODE:-}
-      - KEYSTONE_TENANT_SELF_SERVICE_CREATION_ENABLED=${KEYSTONE_TENANT_SELF_SERVICE_CREATION_ENABLED:-}
+      - FMIND_AUTH_DEFAULT_TENANT_MODE=${FMIND_AUTH_DEFAULT_TENANT_MODE:-}
+      - FMIND_TENANT_SELF_SERVICE_CREATION_ENABLED=${FMIND_TENANT_SELF_SERVICE_CREATION_ENABLED:-}
       - DB_DRIVER=${DB_DRIVER:-postgres}
       - DB_HOST=${DB_HOST:-postgres}
       - DB_PORT=${DB_PORT:-5432}
@@ -82,7 +82,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-}
       - DB_NAME=${DB_NAME:-}
       - TZ=${TZ:-Asia/Shanghai}
-      - KEYSTONE_LANGUAGE=${KEYSTONE_LANGUAGE:-zh-CN}
+      - FMIND_LANGUAGE=${FMIND_LANGUAGE:-zh-CN}
       # ========== Langfuse (optional observability) ==========
       # Enabled automatically when LANGFUSE_PUBLIC_KEY + LANGFUSE_SECRET_KEY are set.
       # See docs/Langfuse集成.md for the full list of tuning knobs.
@@ -105,11 +105,11 @@ services:
       - ELASTICSEARCH_INDEX=${ELASTICSEARCH_INDEX:-}
       - QDRANT_HOST=${QDRANT_HOST:-qdrant}
       - QDRANT_PORT=${QDRANT_PORT:-6334}
-      - QDRANT_COLLECTION=${QDRANT_COLLECTION:-keystone_embeddings}
+      - QDRANT_COLLECTION=${QDRANT_COLLECTION:-fmind_embeddings}
       - QDRANT_API_KEY=${QDRANT_API_KEY:-}
       - QDRANT_USE_TLS=${QDRANT_USE_TLS:-false}
       - MILVUS_ADDRESS=${MILVUS_ADDRESS:-milvus:19530}
-      - MILVUS_COLLECTION=${MILVUS_COLLECTION:-keystone_embeddings}
+      - MILVUS_COLLECTION=${MILVUS_COLLECTION:-fmind_embeddings}
       - MILVUS_METRIC_TYPE=${MILVUS_METRIC_TYPE:-IP}
       - DOCREADER_ADDR=${DOCREADER_ADDR:-docreader:50051}
       - DOCREADER_TRANSPORT=${DOCREADER_TRANSPORT:-grpc}
@@ -127,10 +127,10 @@ services:
       - WEAVIATE_API_KEY=${WEAVIATE_API_KEY:-}
       - DORIS_ADDR=${DORIS_ADDR:-doris-fe:9030}
       - DORIS_HTTP_PORT=${DORIS_HTTP_PORT:-8030}
-      - DORIS_DATABASE=${DORIS_DATABASE:-keystone}
+      - DORIS_DATABASE=${DORIS_DATABASE:-fmind}
       - DORIS_USERNAME=${DORIS_USERNAME:-root}
       - DORIS_PASSWORD=${DORIS_PASSWORD:-}
-      - DORIS_TABLE_PREFIX=${DORIS_TABLE_PREFIX:-keystone_embeddings}
+      - DORIS_TABLE_PREFIX=${DORIS_TABLE_PREFIX:-fmind_embeddings}
       - DORIS_COMPAT_MODE=${DORIS_COMPAT_MODE:-auto}
       - STORAGE_TYPE=${STORAGE_TYPE:-}
       - LOCAL_STORAGE_BASE_DIR=${LOCAL_STORAGE_BASE_DIR:-}
@@ -182,30 +182,30 @@ services:
       # File size limit (in MB)
       - MAX_FILE_SIZE_MB=${MAX_FILE_SIZE_MB:-50}
       # Agent Skills Sandbox
-      - KEYSTONE_SANDBOX_MODE=${KEYSTONE_SANDBOX_MODE:-docker}
-      - KEYSTONE_SANDBOX_TIMEOUT=${KEYSTONE_SANDBOX_TIMEOUT:-60}
-      - KEYSTONE_SANDBOX_DOCKER_IMAGE=${KEYSTONE_SANDBOX_DOCKER_IMAGE:-wechatopenai/keystone-sandbox:${KEYSTONE_VERSION:-latest}}
+      - FMIND_SANDBOX_MODE=${FMIND_SANDBOX_MODE:-docker}
+      - FMIND_SANDBOX_TIMEOUT=${FMIND_SANDBOX_TIMEOUT:-60}
+      - FMIND_SANDBOX_DOCKER_IMAGE=${FMIND_SANDBOX_DOCKER_IMAGE:-wechatopenai/fmind-sandbox:${FMIND_VERSION:-latest}}
       # Agent LLM call timeout
-      - KEYSTONE_AGENT_LLM_TIMEOUT=${KEYSTONE_AGENT_LLM_TIMEOUT:-}
-      - KEYSTONE_AGENT_TOOL_APPROVAL_TIMEOUT=${KEYSTONE_AGENT_TOOL_APPROVAL_TIMEOUT:-}
+      - FMIND_AGENT_LLM_TIMEOUT=${FMIND_AGENT_LLM_TIMEOUT:-}
+      - FMIND_AGENT_TOOL_APPROVAL_TIMEOUT=${FMIND_AGENT_TOOL_APPROVAL_TIMEOUT:-}
       # Tenant / RBAC（详见 docs/RBAC说明.md 与 .env.example 注释）
-      # - KEYSTONE_TENANT_ENABLE_RBAC: 是否启用空间角色强制鉴权（true / false），默认 true
-      # - KEYSTONE_TENANT_MAX_OWNED_PER_USER: 单个非超管自助创建空间的上限
+      # - FMIND_TENANT_ENABLE_RBAC: 是否启用空间角色强制鉴权（true / false），默认 true
+      # - FMIND_TENANT_MAX_OWNED_PER_USER: 单个非超管自助创建空间的上限
       #   >0 强制限额；=0 走 handler 默认；<0 关闭限额（不建议共享部署使用）
-      # - KEYSTONE_TENANT_AUTO_CREATE_API_KEY: 创建空间时自动生成 full_access API Key 并在响应中返回 token
+      # - FMIND_TENANT_AUTO_CREATE_API_KEY: 创建空间时自动生成 full_access API Key 并在响应中返回 token
       #   （兼容旧版默认下发 API Key 行为，破坏性变更回退开关；true / false，默认 false）
-      - KEYSTONE_TENANT_ENABLE_RBAC=${KEYSTONE_TENANT_ENABLE_RBAC:-}
-      - KEYSTONE_TENANT_MAX_OWNED_PER_USER=${KEYSTONE_TENANT_MAX_OWNED_PER_USER:-}
-      - KEYSTONE_TENANT_AUTO_CREATE_API_KEY=${KEYSTONE_TENANT_AUTO_CREATE_API_KEY:-}
-      - KEYSTONE_ASYNQ_CORE_CONCURRENCY=${KEYSTONE_ASYNQ_CORE_CONCURRENCY:-8}
-      - KEYSTONE_ASYNQ_POSTPROCESS_CONCURRENCY=${KEYSTONE_ASYNQ_POSTPROCESS_CONCURRENCY:-2}
-      - KEYSTONE_ASYNQ_ENRICHMENT_CONCURRENCY=${KEYSTONE_ASYNQ_ENRICHMENT_CONCURRENCY:-12}
-      - KEYSTONE_ASYNQ_MAINTENANCE_CONCURRENCY=${KEYSTONE_ASYNQ_MAINTENANCE_CONCURRENCY:-4}
-      - KEYSTONE_ASYNQ_SHARED_CONCURRENCY=${KEYSTONE_ASYNQ_SHARED_CONCURRENCY:-6}
-      - KEYSTONE_WIKI_ASYNQ_CONCURRENCY=${KEYSTONE_WIKI_ASYNQ_CONCURRENCY:-8}
-      - KEYSTONE_MODEL_MAX_CONCURRENCY=${KEYSTONE_MODEL_MAX_CONCURRENCY:-32}
+      - FMIND_TENANT_ENABLE_RBAC=${FMIND_TENANT_ENABLE_RBAC:-}
+      - FMIND_TENANT_MAX_OWNED_PER_USER=${FMIND_TENANT_MAX_OWNED_PER_USER:-}
+      - FMIND_TENANT_AUTO_CREATE_API_KEY=${FMIND_TENANT_AUTO_CREATE_API_KEY:-}
+      - FMIND_ASYNQ_CORE_CONCURRENCY=${FMIND_ASYNQ_CORE_CONCURRENCY:-8}
+      - FMIND_ASYNQ_POSTPROCESS_CONCURRENCY=${FMIND_ASYNQ_POSTPROCESS_CONCURRENCY:-2}
+      - FMIND_ASYNQ_ENRICHMENT_CONCURRENCY=${FMIND_ASYNQ_ENRICHMENT_CONCURRENCY:-12}
+      - FMIND_ASYNQ_MAINTENANCE_CONCURRENCY=${FMIND_ASYNQ_MAINTENANCE_CONCURRENCY:-4}
+      - FMIND_ASYNQ_SHARED_CONCURRENCY=${FMIND_ASYNQ_SHARED_CONCURRENCY:-6}
+      - FMIND_WIKI_ASYNQ_CONCURRENCY=${FMIND_WIKI_ASYNQ_CONCURRENCY:-8}
+      - FMIND_MODEL_MAX_CONCURRENCY=${FMIND_MODEL_MAX_CONCURRENCY:-32}
       - APK_MIRROR_ARG=${APK_MIRROR_ARG:-}
-      - KEYSTONE_BOOTSTRAP_SYSTEM_ADMIN_EMAIL=${KEYSTONE_BOOTSTRAP_SYSTEM_ADMIN_EMAIL:-}
+      - FMIND_BOOTSTRAP_SYSTEM_ADMIN_EMAIL=${FMIND_BOOTSTRAP_SYSTEM_ADMIN_EMAIL:-}
     depends_on:
       redis:
         condition: service_started
@@ -214,15 +214,15 @@ services:
       docreader:
         condition: service_healthy
     networks:
-      - Keystone-network
+      - FMind-network
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   # Sandbox 镜像：仅用于 build/pull，非常驻服务；app 执行 Skills 时按需 docker run 该镜像，用毕即释
   sandbox:
-    image: wechatopenai/keystone-sandbox:${KEYSTONE_VERSION:-latest}
-    container_name: Keystone-sandbox
+    image: wechatopenai/fmind-sandbox:${FMIND_VERSION:-latest}
+    container_name: FMind-sandbox
     build:
       context: .
       dockerfile: docker/Dockerfile.sandbox
@@ -232,15 +232,15 @@ services:
     restart: "no"
 
   docreader:
-    image: wechatopenai/keystone-docreader:${KEYSTONE_VERSION:-latest}
+    image: wechatopenai/fmind-docreader:${FMIND_VERSION:-latest}
     build:
       context: .
       dockerfile: docker/Dockerfile.docreader
       args:
         - APT_MIRROR=${APT_MIRROR:-}
-    container_name: Keystone-docreader
+    container_name: FMind-docreader
     # docreader gRPC ships without auth/TLS and is only consumed by the app
-    # container over the Keystone-network (DOCREADER_ADDR defaults to
+    # container over the FMind-network (DOCREADER_ADDR defaults to
     # docreader:50051), so we don't publish 50051 to the host. `expose` keeps
     # the port reachable inside the compose network for documentation only.
     # If you need to call docreader from outside the host (e.g. for debugging),
@@ -276,7 +276,7 @@ services:
       retries: 3
       start_period: 60s
     networks:
-      - Keystone-network
+      - FMind-network
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -287,8 +287,8 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.odl-hybrid
-    image: keystone-odl-hybrid:local
-    container_name: Keystone-odl-hybrid
+    image: fmind-odl-hybrid:local
+    container_name: FMind-odl-hybrid
     profiles:
       - odl-hybrid
     expose:
@@ -296,13 +296,13 @@ services:
     environment:
       - ODL_HYBRID_EXTRA_ARGS=${ODL_HYBRID_EXTRA_ARGS:---no-ocr}
     networks:
-      - Keystone-network
+      - FMind-network
     restart: unless-stopped
 
   # 修改的PostgreSQL配置
   postgres:
     image: paradedb/paradedb:v0.22.2-pg17
-    container_name: Keystone-postgres
+    container_name: FMind-postgres
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -310,7 +310,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
-      - Keystone-network
+      - FMind-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
       interval: 10s # 增加时间间隔
@@ -323,13 +323,13 @@ services:
 
   redis:
     image: redis:7.0-alpine
-    container_name: Keystone-redis
+    container_name: FMind-redis
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis_data:/data
     restart: always
     networks:
-      - Keystone-network
+      - FMind-network
 
   # One-shot init: copy the read-only template settings.yml into a named volume
   # before searxng starts. Necessary because the searxng entrypoint sed-replaces
@@ -338,21 +338,21 @@ services:
   # working tree (and prevent re-templating on subsequent restarts).
   searxng-init:
     image: busybox:1.36
-    container_name: Keystone-searxng-init
+    container_name: FMind-searxng-init
     command: ["sh", "-c", "cp /template/settings.yml /etc/searxng/settings.yml && chmod 0644 /etc/searxng/settings.yml"]
     volumes:
       - ./docker/searxng/settings.yml:/template/settings.yml:ro
       - searxng_config:/etc/searxng
     restart: "no"
     networks:
-      - Keystone-network
+      - FMind-network
     profiles:
       - searxng
       - full
 
   searxng:
     image: searxng/searxng:latest
-    container_name: Keystone-searxng
+    container_name: FMind-searxng
     # Bind to loopback by default; override SEARXNG_BIND=0.0.0.0 only after
     # rotating SEARXNG_SECRET and (optionally) re-enabling limiter in settings.yml.
     ports:
@@ -361,12 +361,12 @@ services:
       - searxng_config:/etc/searxng
     environment:
       - SEARXNG_BASE_URL=http://localhost:${SEARXNG_PORT:-8888}/
-      - INSTANCE_NAME=keystone-searxng
+      - INSTANCE_NAME=fmind-searxng
       # Default value lets `docker compose --profile searxng up` work zero-config.
       # Override via .env (e.g. `openssl rand -hex 32`) before exposing the
       # instance beyond the default 127.0.0.1 bind, since secret_key signs
       # image-proxy URLs and a shared default would be guessable by anyone.
-      - SEARXNG_SECRET=${SEARXNG_SECRET:-keystone-default-searxng-secret-rotate-before-exposing-publicly}
+      - SEARXNG_SECRET=${SEARXNG_SECRET:-fmind-default-searxng-secret-rotate-before-exposing-publicly}
     cap_drop:
       - ALL
     cap_add:
@@ -378,14 +378,14 @@ services:
       searxng-init:
         condition: service_completed_successfully
     networks:
-      - Keystone-network
+      - FMind-network
     profiles:
       - searxng
       - full
 
   minio:
     image: minio/minio:RELEASE.2025-09-07T16-13-09Z
-    container_name: Keystone-minio
+    container_name: FMind-minio
     ports:
       - "${MINIO_PORT:-9000}:9000"
       - "${MINIO_CONSOLE_PORT:-9001}:9001"
@@ -401,14 +401,14 @@ services:
       timeout: 20s
       retries: 3
     networks:
-      - Keystone-network
+      - FMind-network
     profiles:
       - minio
       - full
 
   neo4j:
     image: neo4j:2025.10.1
-    container_name: Keystone-neo4j
+    container_name: FMind-neo4j
     volumes:
       - neo4j-data:/data
     environment:
@@ -422,24 +422,24 @@ services:
       - "7687:7687"
     restart: always
     networks:
-      - Keystone-network
+      - FMind-network
     profiles:
       - neo4j
       - full
 
   qdrant:
     image: qdrant/qdrant:v1.18.1
-    container_name: Keystone-qdrant
+    container_name: FMind-qdrant
     # Qdrant is an internal dependency of the app. Keeping these ports inside
     # the Compose network avoids colliding with an existing host Qdrant while
-    # still making REST/gRPC available to other Keystone services.
+    # still making REST/gRPC available to other FMind services.
     expose:
       - "6333"
       - "6334"
     volumes:
       - qdrant_data:/qdrant/storage
     networks:
-      - Keystone-network
+      - FMind-network
     restart: unless-stopped
     profiles:
       - qdrant
@@ -447,7 +447,7 @@ services:
 
   milvus:
     image: milvusdb/milvus:v2.6.11
-    container_name: Keystone-milvus
+    container_name: FMind-milvus
     security_opt:
       - seccomp:unconfined
     command: ["milvus", "run", "standalone"]
@@ -468,14 +468,14 @@ services:
     volumes:
       - milvus_data:/var/lib/milvus
     networks:
-      - Keystone-network
+      - FMind-network
     restart: unless-stopped
     profiles:
       - milvus
 
   weaviate:
     image: semitechnologies/weaviate:1.28.4
-    container_name: Keystone-weaviate
+    container_name: FMind-weaviate
     environment:
       - PERSISTENCE_DATA_PATH=/var/lib/weaviate
       - CLUSTER_HOSTNAME=node1
@@ -491,7 +491,7 @@ services:
     volumes:
       - weaviate_data:/var/lib/weaviate
     networks:
-      - Keystone-network
+      - FMind-network
     restart: unless-stopped
     profiles:
       - weaviate
@@ -503,7 +503,7 @@ services:
   # Stream Load partial_columns）。本 compose 使用 4.1 官方稳定 tag。
   #
   # 端口说明：
-  #   - 9030 (FE MySQL)：Keystone 主链路读写、SQL 查询都走此端口。
+  #   - 9030 (FE MySQL)：FMind 主链路读写、SQL 查询都走此端口。
   #   - 8030 (FE HTTP)：Stream Load partial update 入口。
   #   - 8040 (BE)     ：BE 心跳与数据传输；FE 会把 stream load 重定向到 BE。
   #
@@ -514,7 +514,7 @@ services:
   # ---------------------------------------------------------------------------
   doris-fe:
     image: apache/doris:fe-4.1.0
-    container_name: Keystone-doris-fe
+    container_name: FMind-doris-fe
     hostname: doris-fe
     environment:
       - FE_SERVERS=fe1:doris-fe:9010
@@ -526,14 +526,14 @@ services:
       - doris_fe_meta:/opt/apache-doris/fe/doris-meta
       - doris_fe_log:/opt/apache-doris/fe/log
     networks:
-      - Keystone-network
+      - FMind-network
     restart: unless-stopped
     profiles:
       - doris
 
   doris-be:
     image: apache/doris:be-4.1.0
-    container_name: Keystone-doris-be
+    container_name: FMind-doris-be
     hostname: doris-be
     environment:
       - FE_SERVERS=fe1:doris-fe:9010
@@ -546,7 +546,7 @@ services:
       - doris_be_storage:/opt/apache-doris/be/storage
       - doris_be_log:/opt/apache-doris/be/log
     networks:
-      - Keystone-network
+      - FMind-network
     restart: unless-stopped
     profiles:
       - doris
@@ -566,9 +566,9 @@ services:
   # ---------------------------------------------------------------------------
   # Langfuse 自建可观测栈 (opt-in via `--profile langfuse`)
   #
-  # 为了最小化资源占用，Langfuse 会复用 Keystone 已有的 postgres 和 redis：
-  #   - postgres：在 Keystone-postgres 中创建独立的 "langfuse" 数据库
-  #   - redis  ：复用 Keystone-redis 的 DB 1（Keystone 自己用 DB 0）
+  # 为了最小化资源占用，Langfuse 会复用 FMind 已有的 postgres 和 redis：
+  #   - postgres：在 FMind-postgres 中创建独立的 "langfuse" 数据库
+  #   - redis  ：复用 FMind-redis 的 DB 1（FMind 自己用 DB 0）
   # 需要新增的只有 Langfuse 应用自身 + ClickHouse（OLAP）+ 专用 MinIO（事件/媒体 S3）。
   #
   # 启用方式：
@@ -581,11 +581,11 @@ services:
   # 相关默认密码已写成占位符，生产部署务必用 openssl rand 重新生成！
   # ---------------------------------------------------------------------------
 
-  # 一次性初始化脚本：在已有的 Keystone-postgres 里创建 langfuse 数据库（幂等，数据库已存在则跳过）
-  # 复用 Keystone-postgres 的 ParadeDB 镜像，避免多拉一个 postgres 镜像
+  # 一次性初始化脚本：在已有的 FMind-postgres 里创建 langfuse 数据库（幂等，数据库已存在则跳过）
+  # 复用 FMind-postgres 的 ParadeDB 镜像，避免多拉一个 postgres 镜像
   langfuse-db-init:
     image: paradedb/paradedb:v0.22.2-pg17
-    container_name: Keystone-langfuse-db-init
+    container_name: FMind-langfuse-db-init
     depends_on:
       postgres:
         condition: service_healthy
@@ -597,7 +597,7 @@ services:
     command:
       - |
         set -e
-        echo "[langfuse-db-init] ensuring database '${LANGFUSE_DB_NAME:-langfuse}' exists in Keystone-postgres..."
+        echo "[langfuse-db-init] ensuring database '${LANGFUSE_DB_NAME:-langfuse}' exists in FMind-postgres..."
         # 先刷新现有库的 collation（镜像 ICU 2.36 与宿主 2.41 不匹配时必须做），否则 CREATE DATABASE 会失败
         psql -h postgres -U ${DB_USER} -d postgres -v ON_ERROR_STOP=0 -c "ALTER DATABASE template1 REFRESH COLLATION VERSION;" >/dev/null 2>&1 || true
         psql -h postgres -U ${DB_USER} -d postgres -v ON_ERROR_STOP=0 -c "ALTER DATABASE postgres REFRESH COLLATION VERSION;" >/dev/null 2>&1 || true
@@ -610,7 +610,7 @@ services:
         fi
         echo "[langfuse-db-init] done."
     networks:
-      - Keystone-network
+      - FMind-network
     restart: "no"
     profiles:
       - langfuse
@@ -618,7 +618,7 @@ services:
 
   langfuse-clickhouse:
     image: clickhouse/clickhouse-server:24.8
-    container_name: Keystone-langfuse-clickhouse
+    container_name: FMind-langfuse-clickhouse
     restart: unless-stopped
     user: "101:101"
     environment:
@@ -635,14 +635,14 @@ services:
       retries: 10
       start_period: 10s
     networks:
-      - Keystone-network
+      - FMind-network
     profiles:
       - langfuse
       - full
 
   langfuse-minio:
     image: minio/minio:RELEASE.2025-09-07T16-13-09Z
-    container_name: Keystone-langfuse-minio
+    container_name: FMind-langfuse-minio
     restart: unless-stopped
     entrypoint: sh
     # 启动前创建 `langfuse` 桶，Langfuse 开箱即用
@@ -663,17 +663,17 @@ services:
       timeout: 10s
       retries: 5
     networks:
-      - Keystone-network
+      - FMind-network
     profiles:
       - langfuse
       - full
 
   langfuse-worker:
     image: langfuse/langfuse-worker:3
-    container_name: Keystone-langfuse-worker
+    container_name: FMind-langfuse-worker
     restart: unless-stopped
     depends_on: &langfuse-depends-on
-      # 复用 Keystone 已有的 postgres/redis，需要先完成 langfuse 数据库的创建
+      # 复用 FMind 已有的 postgres/redis，需要先完成 langfuse 数据库的创建
       langfuse-db-init:
         condition: service_completed_successfully
       redis:
@@ -708,10 +708,10 @@ services:
       # SALT / ENCRYPTION_KEY 生产环境务必重新生成：
       #   SALT: openssl rand -base64 32
       #   ENCRYPTION_KEY: openssl rand -hex 32
-      SALT: ${LANGFUSE_SALT:-keystone-langfuse-dev-salt-change-me}
+      SALT: ${LANGFUSE_SALT:-fmind-langfuse-dev-salt-change-me}
       ENCRYPTION_KEY: ${LANGFUSE_ENCRYPTION_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
       NEXTAUTH_URL: ${LANGFUSE_NEXTAUTH_URL:-http://localhost:3000}
-      NEXTAUTH_SECRET: ${LANGFUSE_NEXTAUTH_SECRET:-keystone-langfuse-dev-nextauth-secret-change-me}
+      NEXTAUTH_SECRET: ${LANGFUSE_NEXTAUTH_SECRET:-fmind-langfuse-dev-nextauth-secret-change-me}
       TELEMETRY_ENABLED: ${LANGFUSE_TELEMETRY_ENABLED:-false}
       LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES: "false"
       CLICKHOUSE_URL: http://langfuse-clickhouse:8123
@@ -735,14 +735,14 @@ services:
       LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE: "true"
       LANGFUSE_S3_MEDIA_UPLOAD_PREFIX: media/
     networks:
-      - Keystone-network
+      - FMind-network
     profiles:
       - langfuse
       - full
 
   langfuse-web:
     image: langfuse/langfuse:3
-    container_name: Keystone-langfuse-web
+    container_name: FMind-langfuse-web
     restart: unless-stopped
     depends_on: *langfuse-depends-on
     ports:
@@ -777,7 +777,7 @@ services:
       LANGFUSE_INIT_USER_NAME: ${LANGFUSE_INIT_USER_NAME:-}
       LANGFUSE_INIT_USER_PASSWORD: ${LANGFUSE_INIT_USER_PASSWORD:-}
     networks:
-      - Keystone-network
+      - FMind-network
     profiles:
       - langfuse
       - full
@@ -785,39 +785,39 @@ services:
   mcp:
     build:
       context: ./mcp-server
-    container_name: Keystone-mcp
+    container_name: FMind-mcp
     ports:
       - "${MCP_PORT:-8082}:8000"
     environment:
-      - KEYSTONE_BASE_URL=http://app:8080/api/v1
-      - KEYSTONE_API_KEY=${KEYSTONE_API_KEY:-}
+      - FMIND_BASE_URL=http://app:8080/api/v1
+      - FMIND_API_KEY=${FMIND_API_KEY:-}
     depends_on:
       app:
         condition: service_healthy
     networks:
-      - Keystone-network
+      - FMind-network
     restart: unless-stopped
     profiles:
       - full
 
 networks:
-  Keystone-network:
+  FMind-network:
     driver: bridge
 
 volumes:
   postgres-data:
-    name: keystone_postgres_data
+    name: fmind_postgres_data
   data-files:
-    name: keystone_data_files
+    name: fmind_data_files
   docreader-tmp:
-    name: keystone_docreader_tmp
+    name: fmind_docreader_tmp
   minio_data:
-    name: keystone_minio_data
+    name: fmind_minio_data
   neo4j-data:
   qdrant_data:
-    name: keystone_qdrant_data
+    name: fmind_qdrant_data
   redis_data:
-    name: keystone_redis_data
+    name: fmind_redis_data
   milvus_data:
   weaviate_data:
   doris_fe_meta:

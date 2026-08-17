@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Keystone MCP Server
+FMind MCP Server
 
-A Model Context Protocol server that provides access to the Keystone knowledge management API.
+A Model Context Protocol server that provides access to the FMind knowledge management API.
 """
 
 import argparse
@@ -30,14 +30,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configuration - Load from environment variables with defaults
-KEYSTONE_BASE_URL = os.getenv("KEYSTONE_BASE_URL", "http://localhost:8080/api/v1")
-KEYSTONE_API_KEY = os.getenv("KEYSTONE_API_KEY", "")
+FMIND_BASE_URL = os.getenv("FMIND_BASE_URL", "http://localhost:8080/api/v1")
+FMIND_API_KEY = os.getenv("FMIND_API_KEY", "")
 # Chat SSE read timeout in seconds. LLM responses can be slow; default 300s.
 try:
-    KEYSTONE_CHAT_TIMEOUT = int(os.getenv("KEYSTONE_CHAT_TIMEOUT", "300"))
+    FMIND_CHAT_TIMEOUT = int(os.getenv("FMIND_CHAT_TIMEOUT", "300"))
 except ValueError:
-    logger.warning("KEYSTONE_CHAT_TIMEOUT is not a valid integer; falling back to 300s.")
-    KEYSTONE_CHAT_TIMEOUT = 300
+    logger.warning("FMIND_CHAT_TIMEOUT is not a valid integer; falling back to 300s.")
+    FMIND_CHAT_TIMEOUT = 300
 
 
 def network_transport_auth_token() -> str:
@@ -97,19 +97,19 @@ class MCPAuthMiddleware:
         await self.app(scope, receive, send)
 
 
-class KeystoneClient:
-    """Client for interacting with Keystone API"""
+class FMindClient:
+    """Client for interacting with FMind API"""
 
     def __init__(self, base_url: str, api_key: str):
-        """Initialize the Keystone API client with base URL and authentication"""
+        """Initialize the FMind API client with base URL and authentication"""
         self.base_url = base_url
         self.api_key = api_key
-        # SSL verification: enabled by default. Set KEYSTONE_VERIFY_SSL=false to disable
+        # SSL verification: enabled by default. Set FMIND_VERIFY_SSL=false to disable
         # (e.g. for self-signed certs in dev environments — NOT recommended for production).
-        self.verify_ssl = os.getenv("KEYSTONE_VERIFY_SSL", "true").lower() != "false"
+        self.verify_ssl = os.getenv("FMIND_VERIFY_SSL", "true").lower() != "false"
         if not self.verify_ssl:
             logger.warning(
-                "SSL certificate verification is DISABLED (KEYSTONE_VERIFY_SSL=false). "
+                "SSL certificate verification is DISABLED (FMIND_VERIFY_SSL=false). "
                 "This is insecure and should not be used in production."
             )
             urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -125,7 +125,7 @@ class KeystoneClient:
         )
 
     def _request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
-        """Make a request to the Keystone API
+        """Make a request to the FMind API
 
         Args:
             method: HTTP method (GET, POST, PUT, DELETE)
@@ -385,7 +385,7 @@ class KeystoneClient:
         """POST to *url* with *body*, consume the SSE stream, and return the assembled result.
 
         Centralised helper used by both chat() and agent_chat().
-        Timeout: (10s connect, KEYSTONE_CHAT_TIMEOUT read) — configurable via env var.
+        Timeout: (10s connect, FMIND_CHAT_TIMEOUT read) — configurable via env var.
         
         Server-Sent Events (SSE) stream format:
           data: {"response_type": "answer", "content": "..."}
@@ -396,10 +396,10 @@ class KeystoneClient:
         """
         try:
             # POST with stream=True to receive server-sent events incrementally
-            # Timeout: 10s to establish connection, KEYSTONE_CHAT_TIMEOUT for reading response
+            # Timeout: 10s to establish connection, FMIND_CHAT_TIMEOUT for reading response
             response = self.session.post(
                 url, json=body, stream=True,
-                timeout=(10, KEYSTONE_CHAT_TIMEOUT),
+                timeout=(10, FMIND_CHAT_TIMEOUT),
             )
             response.raise_for_status()
 
@@ -547,20 +547,20 @@ class KeystoneClient:
 
 
 # Initialize MCP server instance
-app = Server("keystone-server")
-# Initialize Keystone API client with configuration
-client = KeystoneClient(KEYSTONE_BASE_URL, KEYSTONE_API_KEY)
+app = Server("fmind-server")
+# Initialize FMind API client with configuration
+client = FMindClient(FMIND_BASE_URL, FMIND_API_KEY)
 
 
 # Tool definitions - Register all available tools for the MCP protocol
 @app.list_tools()
 async def handle_list_tools() -> list[types.Tool]:
-    """List all available Keystone tools with their schemas"""
+    """List all available FMind tools with their schemas"""
     return [
         # Tenant Management
         types.Tool(
             name="create_tenant",
-            description="Create a new tenant in Keystone",
+            description="Create a new tenant in FMind",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -1327,7 +1327,7 @@ async def handle_call_tool(
 def _init_options() -> InitializationOptions:
     """Build MCP InitializationOptions (shared across all transports)"""
     return InitializationOptions(
-        server_name="keystone-server",
+        server_name="fmind-server",
         server_version="1.0.0",
         capabilities=app.get_capabilities(
             notification_options=NotificationOptions(),
@@ -1432,7 +1432,7 @@ def main():
       2. MCP_TRANSPORT environment variable
       3. Default: stdio
     """
-    parser = argparse.ArgumentParser(description="Keystone MCP Server")
+    parser = argparse.ArgumentParser(description="FMind MCP Server")
     parser.add_argument(
         "--transport",
         choices=["stdio", "sse", "http"],

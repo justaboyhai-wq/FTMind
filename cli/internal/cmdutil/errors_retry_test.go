@@ -14,13 +14,13 @@ func TestErrorToDetail_NilSafe(t *testing.T) {
 
 func TestError_WithRetryArgv(t *testing.T) {
 	err := NewError(CodeAuthUnauthenticated, "session expired").
-		WithHint("run `keystone auth login`").
-		WithRetryArgv([]string{"keystone", "auth", "login"})
+		WithHint("run `fmind auth login`").
+		WithRetryArgv([]string{"fmind", "auth", "login"})
 
-	if !reflect.DeepEqual(err.RetryArgv, []string{"keystone", "auth", "login"}) {
+	if !reflect.DeepEqual(err.RetryArgv, []string{"fmind", "auth", "login"}) {
 		t.Errorf("RetryArgv not set; got %v", err.RetryArgv)
 	}
-	if err.Hint != "run `keystone auth login`" {
+	if err.Hint != "run `fmind auth login`" {
 		t.Errorf("Hint changed unexpectedly; got %q", err.Hint)
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/output"
+	"github.com/justaboyhai-wq/fmind/cli/internal/output"
 )
 
 func TestWriteBatchEnvelope_AllSuccess(t *testing.T) {

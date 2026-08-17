@@ -7,34 +7,34 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/models/provider"
-	modelsutils "github.com/justaboyhai-wq/keystone/internal/models/utils"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
-	"github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/models/provider"
+	modelsutils "github.com/justaboyhai-wq/fmind/internal/models/utils"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
-type keystoneCloudService struct {
+type fmindCloudService struct {
 	tenantRepo interfaces.TenantRepository
 }
 
-// NewKeystoneCloudService 构造 KeystoneCloudService
-func NewKeystoneCloudService(
+// NewFMindCloudService 构造 FMindCloudService
+func NewFMindCloudService(
 	repo interfaces.ModelRepository,
 	tenantRepo interfaces.TenantRepository,
-) interfaces.KeystoneCloudService {
-	return &keystoneCloudService{
+) interfaces.FMindCloudService {
+	return &fmindCloudService{
 		tenantRepo: tenantRepo,
 	}
 }
 
-func IsKeystoneCloudDocReaderAddr(addr string) bool {
-	return strings.TrimSuffix(strings.TrimSpace(addr), "/") == strings.TrimRight(provider.KeystoneCloudBaseURL, "/")+"/api/v1/doc/reader"
+func IsFMindCloudDocReaderAddr(addr string) bool {
+	return strings.TrimSuffix(strings.TrimSpace(addr), "/") == strings.TrimRight(provider.FMindCloudBaseURL, "/")+"/api/v1/doc/reader"
 }
 
 // SaveCredentials 仅保存 APPID/APPSECRET 凭证，不自动创建模型
-func (s *keystoneCloudService) SaveCredentials(ctx context.Context, appID, appSecret string) error {
+func (s *fmindCloudService) SaveCredentials(ctx context.Context, appID, appSecret string) error {
 	if appID == "" {
 		return fmt.Errorf("app_id is required")
 	}
@@ -50,12 +50,12 @@ func (s *keystoneCloudService) SaveCredentials(ctx context.Context, appID, appSe
 	return s.updateTenantCredentials(ctx, tenantID, appID, appSecret)
 }
 
-// verifyCredentials 向 KeystoneCloud /api/v1/health 发送带签名头的 GET。
+// verifyCredentials 向 FMindCloud /api/v1/health 发送带签名头的 GET。
 //
 // 注意：health 一般为探活接口，远端常不校验 APPID/SECRET 或签名；HTTP 200 通常只表示
 // 「网关/服务可达」，不能严格证明凭证有效。若需强校验，应改为调用必须鉴权的业务接口。
-func (s *keystoneCloudService) verifyCredentials(ctx context.Context, appID, appSecret string) error {
-	baseURL := strings.TrimRight(provider.KeystoneCloudBaseURL, "/")
+func (s *fmindCloudService) verifyCredentials(ctx context.Context, appID, appSecret string) error {
+	baseURL := strings.TrimRight(provider.FMindCloudBaseURL, "/")
 	healthURL := baseURL + "/api/v1/health"
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, healthURL, nil)
@@ -89,35 +89,35 @@ func (s *keystoneCloudService) verifyCredentials(ctx context.Context, appID, app
 	return nil
 }
 
-// CheckStatus 检查 KeystoneCloud 凭证是否可正常解密
-func (s *keystoneCloudService) CheckStatus(ctx context.Context) (*types.KeystoneCloudStatusResult, error) {
+// CheckStatus 检查 FMindCloud 凭证是否可正常解密
+func (s *fmindCloudService) CheckStatus(ctx context.Context) (*types.FMindCloudStatusResult, error) {
 	tenantID := types.MustTenantIDFromContext(ctx)
 
 	tenant, err := s.tenantRepo.GetTenantByID(ctx, tenantID)
 	if err != nil || tenant == nil {
-		return &types.KeystoneCloudStatusResult{HasModels: false, NeedsReinit: false}, nil
+		return &types.FMindCloudStatusResult{HasModels: false, NeedsReinit: false}, nil
 	}
 
-	creds := tenant.Credentials.GetKeystoneCloud()
+	creds := tenant.Credentials.GetFMindCloud()
 	if creds == nil {
-		return &types.KeystoneCloudStatusResult{HasModels: false, NeedsReinit: false}, nil
+		return &types.FMindCloudStatusResult{HasModels: false, NeedsReinit: false}, nil
 	}
 
 	// CredentialsConfig.Scan already attempts decryption.
 	// If the AES key has rotated, Scan silently keeps the enc:v1:... blob.
 	if strings.HasPrefix(creds.AppSecret, utils.EncPrefix) {
-		return &types.KeystoneCloudStatusResult{
+		return &types.FMindCloudStatusResult{
 			HasModels:   true,
 			NeedsReinit: true,
-			Reason:      "KeystoneCloud 凭证解密失败（服务重启后加密密钥已变更），请重新填写 APPID 和 APPSECRET",
+			Reason:      "FMindCloud 凭证解密失败（服务重启后加密密钥已变更），请重新填写 APPID 和 APPSECRET",
 		}, nil
 	}
 
-	return &types.KeystoneCloudStatusResult{HasModels: true, NeedsReinit: false}, nil
+	return &types.FMindCloudStatusResult{HasModels: true, NeedsReinit: false}, nil
 }
 
-// updateTenantCredentials 更新空间的 KeystoneCloud 凭证
-func (s *keystoneCloudService) updateTenantCredentials(ctx context.Context, tenantID uint64, appID, appSecret string) error {
+// updateTenantCredentials 更新空间的 FMindCloud 凭证
+func (s *fmindCloudService) updateTenantCredentials(ctx context.Context, tenantID uint64, appID, appSecret string) error {
 	if s.tenantRepo == nil {
 		return fmt.Errorf("tenant repository is required")
 	}
@@ -129,7 +129,7 @@ func (s *keystoneCloudService) updateTenantCredentials(ctx context.Context, tena
 	if tenant.Credentials == nil {
 		tenant.Credentials = &types.CredentialsConfig{}
 	}
-	tenant.Credentials.KeystoneCloud = &types.KeystoneCloudCredentials{
+	tenant.Credentials.FMindCloud = &types.FMindCloudCredentials{
 		AppID:     appID,
 		AppSecret: appSecret,
 	}

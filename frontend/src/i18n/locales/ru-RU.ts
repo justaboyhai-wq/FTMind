@@ -52,12 +52,12 @@ export default {
     reopen: 'Обучение',
     steps: {
       welcome: {
-        title: 'Добро пожаловать в Keystone',
+        title: 'Добро пожаловать в FMind',
         desc: 'Несколько простых шагов познакомят вас с базами знаний, чатом и агентами. Нажмите «Далее», чтобы начать.',
       },
       knowledge: {
         title: 'Создайте базу знаний',
-        desc: 'С этого всё начинается: загружайте документы, веб-страницы или FAQ, и Keystone автоматически разберёт и проиндексирует их. Нажмите здесь, чтобы открыть базы знаний.',
+        desc: 'С этого всё начинается: загружайте документы, веб-страницы или FAQ, и FMind автоматически разберёт и проиндексирует их. Нажмите здесь, чтобы открыть базы знаний.',
       },
       chat: {
         title: 'Начните чат с ИИ',
@@ -1146,38 +1146,38 @@ export default {
       title: 'Недостаточно прав',
       desc: 'Ваша роль не позволяет открыть этот раздел настроек. Обратитесь к администратору пространства, чтобы запросить нужную роль.',
     },
-    keystoneCloud: {
-      title: 'Keystone Cloud',
-      description: 'Настройте учётные данные APPID и APPSECRET для Keystone Cloud. Данные используются для модельных сервисов и движка парсинга документов.',
+    fmindCloud: {
+      title: 'FMind Cloud',
+      description: 'Настройте учётные данные APPID и APPSECRET для FMind Cloud. Данные используются для модельных сервисов и движка парсинга документов.',
       viewDocs: 'Документация',
       unconfigured: 'Учётные данные не настроены. Заполните APPID и APPSECRET.',
       configured: 'Учётные данные настроены, статус в норме.',
-      expired: 'Учётные данные Keystone Cloud истекли',
+      expired: 'Учётные данные FMind Cloud истекли',
       expiredDefault: 'Ключ шифрования изменился после перезапуска. Сохранённые данные не могут быть расшифрованы. Введите данные заново.',
       reconfigure: 'Перенастроить',
       appIdLabel: 'APPID',
-      appIdDesc: 'ID приложения Keystone Cloud',
+      appIdDesc: 'ID приложения FMind Cloud',
       appIdPlaceholder: 'Введите APPID',
       appSecretLabel: 'APPSECRET',
-      appSecretDesc: 'Секрет приложения Keystone Cloud',
+      appSecretDesc: 'Секрет приложения FMind Cloud',
       appSecretPlaceholder: 'Введите APPSECRET',
       saveHint: 'Данные будут проверены и зашифрованы перед сохранением.',
       saveBtn: 'Сохранить',
       usageTitle: 'Инструкция',
-      usageSteps: '1. Сохраните APPID и APPSECRET\n2. Добавьте chat, embedding, rerank и vlm в разделе «Облачные модели» ниже\n3. Парсинг: Настройки БЗ → Движок парсинга → Keystone Cloud',
+      usageSteps: '1. Сохраните APPID и APPSECRET\n2. Добавьте chat, embedding, rerank и vlm в разделе «Облачные модели» ниже\n3. Парсинг: Настройки БЗ → Движок парсинга → FMind Cloud',
       fillRequired: 'Заполните APPID и APPSECRET',
       saveSuccess: 'Учётные данные сохранены',
       saveFailed: 'Не удалось сохранить данные',
-      credentialConfigured: 'Учётные данные Keystone Cloud настроены.',
+      credentialConfigured: 'Учётные данные FMind Cloud настроены.',
       credentialExpired: 'Данные истекли. Перенастройте.',
-      credentialUnconfigured: 'Учётные данные Keystone Cloud не настроены. Заполните APPID и APPSECRET.',
+      credentialUnconfigured: 'Учётные данные FMind Cloud не настроены. Заполните APPID и APPSECRET.',
       checkingStatus: 'Проверка статуса...',
       goToSettings: 'Перейти в настройки',
-      modelHintConfigured: 'Учётные данные Keystone Cloud настроены. Поддерживаемые модели см. в',
+      modelHintConfigured: 'Учётные данные FMind Cloud настроены. Поддерживаемые модели см. в',
       modelHintDocsLink: 'документации API',
       modelsSection: {
         title: 'Облачные модели',
-        descReady: 'Зарегистрируйте четыре стандартные модели Keystone Cloud для чата, поиска, реранкинга и зрения.',
+        descReady: 'Зарегистрируйте четыре стандартные модели FMind Cloud для чата, поиска, реранкинга и зрения.',
         descPending: 'Сначала сохраните учётные данные выше, затем добавьте модели здесь.',
         statusAdded: 'Добавлена',
         statusPending: 'Нужны учётные данные',
@@ -1193,10 +1193,10 @@ export default {
       addModelsFailed: 'Не удалось добавить модели',
       addModelsEmbeddingFailed: 'Тест подключения Embedding не пройден; не удалось определить размерность вектора',
       addModelsDisplayName: {
-        chat: 'Keystone Cloud Chat',
-        embedding: 'Keystone Cloud Embedding',
-        rerank: 'Keystone Cloud ReRank',
-        vllm: 'Keystone Cloud Vision',
+        chat: 'FMind Cloud Chat',
+        embedding: 'FMind Cloud Embedding',
+        rerank: 'FMind Cloud ReRank',
+        vllm: 'FMind Cloud Vision',
       },
     },
     system: 'Настройки системы',
@@ -1304,8 +1304,8 @@ export default {
       needsConfig: 'Требует настройки',
       configurable: 'Настраиваемое',
       pathPrefix: 'Префикс пути (необязательно)',
-      pathPrefixPlaceholder: 'напр. keystone/images',
-      prefixPlaceholder: 'напр. keystone',
+      pathPrefixPlaceholder: 'напр. fmind/images',
+      prefixPlaceholder: 'напр. fmind',
       bucketName: 'Имя бакета',
       bucketSelectPlaceholder: 'Выберите или введите имя бакета',
       bucketPlaceholder: 'Имя бакета',
@@ -1596,7 +1596,7 @@ export default {
   },
   initialization: {
     title: 'Инициализация',
-    welcome: 'Добро пожаловать в Keystone',
+    welcome: 'Добро пожаловать в FMind',
     description: 'Пожалуйста, настройте систему перед началом работы',
     step1: 'Шаг 1: Настройка LLM модели',
     step2: 'Шаг 2: Настройка модели встраивания',
@@ -1818,11 +1818,11 @@ export default {
     backToLogin: 'Вернуться ко входу',
     registerNow: 'Зарегистрироваться',
     loginHint: 'Войдите, чтобы продолжить, или создайте аккаунт ниже, если вы впервые здесь.',
-    firstTime: 'Впервые в Keystone?',
+    firstTime: 'Впервые в FMind?',
     registerSuccess: 'Регистрация завершена. Войдите в систему',
     registerFailed: 'Ошибка регистрации',
     subtitle: 'RAG, ReAct-агент и Wiki — корпоративный фреймворк знаний на основе больших моделей',
-    registerSubtitle: 'Создайте аккаунт и начните работу с Keystone',
+    registerSubtitle: 'Создайте аккаунт и начните работу с FMind',
     emailPlaceholder: 'Введите адрес электронной почты',
     passwordPlaceholder: 'Введите пароль (8-32 символа, включая буквы и цифры)',
     confirmPasswordPlaceholder: 'Введите пароль ещё раз',
@@ -2134,9 +2134,9 @@ export default {
     loadingInfo: 'Загрузка данных...',
     retry: 'Повторить',
     versionLabel: 'Версия приложения',
-    versionDescription: 'Версия сервиса приложения (keystone-app)',
+    versionDescription: 'Версия сервиса приложения (fmind-app)',
     frontendVersionLabel: 'Версия UI',
-    frontendVersionDescription: 'Версия сборки UI (keystone-ui)',
+    frontendVersionDescription: 'Версия сборки UI (fmind-ui)',
     versionMismatch: 'Не совпадает с версией приложения',
     buildTimeLabel: 'Время сборки',
     buildTimeDescription: 'Время, когда система была собрана',
@@ -2940,7 +2940,7 @@ export default {
     builtinTag: 'Built-in'
   },
   createChat: {
-    title: 'Привет, я Keystone — ваши знания всегда под рукой',
+    title: 'Привет, я FMind — ваши знания всегда под рукой',
     newSessionTitle: 'Новая сессия',
     messages: {
       selectKnowledgeBase: 'Сначала выберите базу знаний',
@@ -4925,9 +4925,9 @@ export default {
           name: 'PaddleOCR-VL Cloud',
           desc: 'PaddleOCR-VL Cloud API',
         },
-        keystoneCloud: {
-          name: 'Keystone Cloud',
-          desc: 'Парсинг документов через Keystone Cloud',
+        fmindCloud: {
+          name: 'FMind Cloud',
+          desc: 'Парсинг документов через FMind Cloud',
         },
         markitdown: {
           name: 'MarkItDown',
@@ -6056,7 +6056,7 @@ export default {
 	      capabilityMessageHistory: 'История сообщений',
 	      capabilityMessageHistoryHint: 'Позволяет искать историю чатов пространства и читать статистику истории. Не даёт доступ к настройкам пространства.',
 	      capabilityManageModels: 'Управление моделями',
-	      capabilityManageModelsHint: 'Управление конфигурациями моделей, учётными данными, проверками подключения и данными Keystone Cloud.',
+	      capabilityManageModelsHint: 'Управление конфигурациями моделей, учётными данными, проверками подключения и данными FMind Cloud.',
 	      capabilityManageMcpServices: 'Управление MCP-сервисами',
 	      capabilityManageMcpServicesHint: 'Управление MCP-сервисами, учётными данными, политиками подтверждения инструментов и OAuth-состоянием этого субъекта.',
 	      capabilityManageDatasources: 'Управление источниками данных',
@@ -6102,7 +6102,7 @@ export default {
         'Любой, у кого есть API key, может подменить заголовок ID пользователя, выдать себя за другого внешнего пользователя и переиспользовать или перехватить его авторизацию MCP OAuth. Не используйте в браузере или ненадёжных клиентах; для пользовательских приложений выбирайте подписанный token.',
       signedRecommended: 'Рекомендуется для пользовательских приложений: ваш backend подписывает краткоживущий HS256 JWT для внешнего пользователя.',
       signedFlowDetail:
-        'HMAC secret храните только в Keystone и на доверенном backend — не передавайте в запросах и не отдавайте браузеру. В заголовке запроса передаётся JWT, подписанный этим secret (меняется при каждой выдаче или после истечения), а не сам secret. JWT должен содержать sub (ID внешнего пользователя), tenant_id, aud=keystone и exp (не более 24 ч).',
+        'HMAC secret храните только в FMind и на доверенном backend — не передавайте в запросах и не отдавайте браузеру. В заголовке запроса передаётся JWT, подписанный этим secret (меняется при каждой выдаче или после истечения), а не сам secret. JWT должен содержать sub (ID внешнего пользователя), tenant_id, aud=fmind и exp (не более 24 ч).',
       directHeader: 'Заголовок ID пользователя',
       requireDirectHeader: 'Требовать заголовок ID пользователя',
       requireDirectHeaderDesc:
@@ -6110,7 +6110,7 @@ export default {
       tokenHeader: 'Заголовок token',
       tokenHeaderDesc: 'Клиент передаёт JWT, подписанный backend, в этом фиксированном заголовке.',
       hmacSecret: 'HMAC secret',
-      hmacSecretDesc: 'Тот же secret, что в Keystone; только для подписи JWT на backend — не отправляйте его в заголовке запроса.',
+      hmacSecretDesc: 'Тот же secret, что в FMind; только для подписи JWT на backend — не отправляйте его в заголовке запроса.',
       secretConfigured: 'Secret настроен (повторно не показывается); введите новое значение для ротации',
       secretSavedCopyHint: 'Secret сохранён. Скопируйте его в backend сейчас — после ухода со страницы просмотреть его будет нельзя.',
       generateSecret: 'Сгенерировать secret',
@@ -6120,7 +6120,7 @@ export default {
       hmacSecretResetConfirmCancel: 'Отмена',
       tokenSignExample: 'Пример подписи JWT на backend (Go)',
       signedRequestStep0:
-        '# 0. Подпишите JWT на backend (HS256, aud=keystone, sub=ID пользователя, tenant_id={tenantId}, exp не более 24 ч)',
+        '# 0. Подпишите JWT на backend (HS256, aud=fmind, sub=ID пользователя, tenant_id={tenantId}, exp не более 24 ч)',
       signedRequestStep0Hint: '#    Передайте JWT в заголовке {headerName}, не отправляйте HMAC secret',
       requestExampleCreateSession: '# 1. Создать session',
       requestExampleAgentChat: '# 2. Agent-чат (SSE; замените <session_id> на id из шага 1)',
@@ -6198,7 +6198,7 @@ export default {
     chrome: {
       title: 'Помощник по знаниям',
       subtitle:
-        'Для self-hosted Keystone: вопросы в боковой панели, клиппинг страниц и Markdown-заметки в базы знаний прямо при просмотре.',
+        'Для self-hosted FMind: вопросы в боковой панели, клиппинг страниц и Markdown-заметки в базы знаний прямо при просмотре.',
       capabilitiesTitle: 'Возможности',
       capabilities: {
         qa: {
@@ -6233,7 +6233,7 @@ export default {
         },
         port: {
           title: 'Десктоп: фиксированный порт',
-          desc: 'В Keystone Desktop задайте фиксированный порт API (например 37841) в API-информации.',
+          desc: 'В FMind Desktop задайте фиксированный порт API (например 37841) в API-информации.',
         },
         install: {
           title: 'Установите расширение',
@@ -6252,9 +6252,9 @@ export default {
       storeMeta: 'Chrome Web Store · v1.0.0',
     },
     claw: {
-      title: 'Keystone Skill',
+      title: 'FMind Skill',
       subtitle:
-        'Импорт документов и гибридный поиск (вектор + ключевые слова) через REST API Keystone — загрузки, URL, Markdown и поиск.',
+        'Импорт документов и гибридный поиск (вектор + ключевые слова) через REST API FMind — загрузки, URL, Markdown и поиск.',
       capabilitiesTitle: 'Возможности Skill',
       capabilities: {
         upload: { title: 'Загрузка файлов', desc: 'PDF, Word, Excel и др. с автоматическим разбором.' },
@@ -6268,7 +6268,7 @@ export default {
         api: { title: 'API-учётные данные', desc: 'Скопируйте API Key и URL в «Настройки → API-информация».' },
         env: {
           title: 'Переменные окружения',
-          desc: 'Задайте KEYSTONE_BASE_URL и KEYSTONE_API_KEY в shell или ~/.zshrc / ~/.bashrc. Пример ниже использует текущий API URL — замените API Key на фактическое значение.',
+          desc: 'Задайте FMIND_BASE_URL и FMIND_API_KEY в shell или ~/.zshrc / ~/.bashrc. Пример ниже использует текущий API URL — замените API Key на фактическое значение.',
         },
         install: {
           title: 'Установка Skill',
@@ -6281,10 +6281,10 @@ export default {
       copyEnvSuccess: 'Пример переменных скопирован',
       copyCmdSuccess: 'Команда установки скопирована',
       ecosystemNote:
-        'Skill размещён на ClawHub ({\'@\'}justaboyhai-wq/keystone). Полная документация API — на странице ClawHub.',
+        'Skill размещён на ClawHub ({\'@\'}justaboyhai-wq/fmind). Полная документация API — на странице ClawHub.',
       installCta: 'Открыть ClawHub',
-      installCtaHint: 'Установка Keystone Skill · откроется в новой вкладке',
-      hubMeta: 'ClawHub · {\'@\'}justaboyhai-wq/keystone · MIT-0',
+      installCtaHint: 'Установка FMind Skill · откроется в новой вкладке',
+      hubMeta: 'ClawHub · {\'@\'}justaboyhai-wq/fmind · MIT-0',
     },
   },
   imOverview: {

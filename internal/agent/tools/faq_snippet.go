@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // faqMaxSimilarQuestionsDisplay caps similar_question rows in tool output.

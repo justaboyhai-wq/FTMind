@@ -8,9 +8,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/output"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/output"
 )
 
 // uploadedFile holds the server-side result for a successful per-file upload.

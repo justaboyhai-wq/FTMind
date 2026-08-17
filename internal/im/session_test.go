@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/event"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/event"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 func TestMakeUserKey_UserMode(t *testing.T) {

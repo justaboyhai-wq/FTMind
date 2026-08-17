@@ -9,12 +9,12 @@ import (
 )
 
 func TestSetAgentHelp_EmitsJSONWhenEnvSet(t *testing.T) {
-	t.Setenv("KEYSTONE_AGENT_HELP", "1")
+	t.Setenv("FMIND_AGENT_HELP", "1")
 	cmd := &cobra.Command{Use: "foo"}
 	ah := AgentHelp{
 		UsedFor:       "frob a bar",
 		RequiredFlags: []string{"--name"},
-		Examples:      []string{"keystone foo --name=x"},
+		Examples:      []string{"fmind foo --name=x"},
 	}
 	SetAgentHelp(cmd, ah)
 
@@ -35,7 +35,7 @@ func TestSetAgentHelp_EmitsJSONWhenEnvSet(t *testing.T) {
 }
 
 func TestSetAgentHelp_FallsThroughToHumanHelp(t *testing.T) {
-	t.Setenv("KEYSTONE_AGENT_HELP", "")
+	t.Setenv("FMIND_AGENT_HELP", "")
 	cmd := &cobra.Command{
 		Use:   "foo",
 		Short: "frob a bar",
@@ -62,7 +62,7 @@ func TestSetAgentHelp_AgentJSON_NoTrailingWarningsProse(t *testing.T) {
 		UsedFor:  "Delete a knowledge base",
 		Warnings: []string{"irreversible"},
 	})
-	t.Setenv("KEYSTONE_AGENT_HELP", "1")
+	t.Setenv("FMIND_AGENT_HELP", "1")
 	var buf bytes.Buffer
 	cmd.SetOut(&buf)
 	cmd.HelpFunc()(cmd, nil)

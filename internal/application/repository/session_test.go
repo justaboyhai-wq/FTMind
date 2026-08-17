@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	apperrors "github.com/justaboyhai-wq/keystone/internal/errors"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	apperrors "github.com/justaboyhai-wq/fmind/internal/errors"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"

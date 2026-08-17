@@ -52,12 +52,12 @@ export default {
     reopen: "사용 가이드",
     steps: {
       welcome: {
-        title: "Keystone에 오신 것을 환영합니다",
+        title: "FMind에 오신 것을 환영합니다",
         desc: "몇 단계만으로 지식 베이스, 대화, 에이전트의 핵심 사용법을 안내합니다. '다음'을 눌러 시작하세요.",
       },
       knowledge: {
         title: "지식 베이스 만들기",
-        desc: "모든 것의 시작점입니다. 문서, 웹페이지, FAQ를 업로드하면 Keystone가 자동으로 분석하고 색인합니다. 여기를 클릭해 지식 베이스로 이동하세요.",
+        desc: "모든 것의 시작점입니다. 문서, 웹페이지, FAQ를 업로드하면 FMind가 자동으로 분석하고 색인합니다. 여기를 클릭해 지식 베이스로 이동하세요.",
       },
       chat: {
         title: "AI 대화 시작하기",
@@ -1092,38 +1092,38 @@ export default {
       title: "권한 없음",
       desc: "현재 역할로는 이 설정 페이지에 접근할 수 없습니다. 이 워크스페이스의 관리자에게 필요한 역할을 요청하세요.",
     },
-    keystoneCloud: {
-      title: 'Keystone Cloud',
-      description: 'Keystone Cloud APPID 및 APPSECRET 자격 증명을 설정합니다. 자격 증명은 모델 서비스와 문서 파싱 엔진에 사용됩니다.',
+    fmindCloud: {
+      title: 'FMind Cloud',
+      description: 'FMind Cloud APPID 및 APPSECRET 자격 증명을 설정합니다. 자격 증명은 모델 서비스와 문서 파싱 엔진에 사용됩니다.',
       viewDocs: '문서 보기',
       unconfigured: '자격 증명이 설정되지 않았습니다. APPID와 APPSECRET을 입력하세요.',
       configured: '자격 증명이 설정되었으며 정상 작동 중입니다.',
-      expired: 'Keystone Cloud 자격 증명 만료',
+      expired: 'FMind Cloud 자격 증명 만료',
       expiredDefault: '서비스 재시작 후 암호화 키가 변경되어 저장된 자격 증명을 복호화할 수 없습니다. 다시 입력하세요.',
       reconfigure: '재설정',
       appIdLabel: 'APPID',
-      appIdDesc: 'Keystone Cloud 애플리케이션 ID',
+      appIdDesc: 'FMind Cloud 애플리케이션 ID',
       appIdPlaceholder: 'APPID 입력',
       appSecretLabel: 'APPSECRET',
-      appSecretDesc: 'Keystone Cloud 애플리케이션 비밀키',
+      appSecretDesc: 'FMind Cloud 애플리케이션 비밀키',
       appSecretPlaceholder: 'APPSECRET 입력',
       saveHint: '저장 전 서비스 연결 가능 여부를 확인하고 암호화하여 저장합니다.',
       saveBtn: '자격 증명 저장',
       usageTitle: '사용 가이드',
-      usageSteps: '1. APPID / APPSECRET 저장\n2. 아래 「클라우드 모델」에서 chat, embedding, rerank, vlm 추가\n3. 문서 파싱: 지식 베이스 설정 → 파싱 엔진 → Keystone Cloud',
+      usageSteps: '1. APPID / APPSECRET 저장\n2. 아래 「클라우드 모델」에서 chat, embedding, rerank, vlm 추가\n3. 문서 파싱: 지식 베이스 설정 → 파싱 엔진 → FMind Cloud',
       fillRequired: 'APPID와 APPSECRET을 입력하세요',
       saveSuccess: '자격 증명 저장 완료',
       saveFailed: '자격 증명 저장 실패',
-      credentialConfigured: 'Keystone Cloud 자격 증명이 설정되었습니다.',
+      credentialConfigured: 'FMind Cloud 자격 증명이 설정되었습니다.',
       credentialExpired: '자격 증명이 만료되었습니다. 재설정하세요.',
-      credentialUnconfigured: 'Keystone Cloud 자격 증명이 설정되지 않았습니다. APPID와 APPSECRET을 먼저 설정하세요.',
+      credentialUnconfigured: 'FMind Cloud 자격 증명이 설정되지 않았습니다. APPID와 APPSECRET을 먼저 설정하세요.',
       checkingStatus: '자격 증명 상태 확인 중...',
       goToSettings: '설정으로 이동',
-      modelHintConfigured: 'Keystone Cloud 자격 증명이 설정되었습니다. 지원 모델은',
+      modelHintConfigured: 'FMind Cloud 자격 증명이 설정되었습니다. 지원 모델은',
       modelHintDocsLink: 'API 문서',
       modelsSection: {
         title: '클라우드 모델',
-        descReady: 'Keystone Cloud의 네 가지 표준 모델을 등록하여 대화, 검색, 재정렬, 비전에 사용합니다.',
+        descReady: 'FMind Cloud의 네 가지 표준 모델을 등록하여 대화, 검색, 재정렬, 비전에 사용합니다.',
         descPending: '위에서 자격 증명을 먼저 저장한 후 여기서 모델을 추가하세요.',
         statusAdded: '추가됨',
         statusPending: '자격 증명 필요',
@@ -1139,10 +1139,10 @@ export default {
       addModelsFailed: '모델 추가 실패',
       addModelsEmbeddingFailed: 'Embedding 연결 테스트 실패, 벡터 차원을 가져올 수 없습니다',
       addModelsDisplayName: {
-        chat: 'Keystone Cloud 대화',
-        embedding: 'Keystone Cloud Embedding',
-        rerank: 'Keystone Cloud ReRank',
-        vllm: 'Keystone Cloud 비전',
+        chat: 'FMind Cloud 대화',
+        embedding: 'FMind Cloud Embedding',
+        rerank: 'FMind Cloud ReRank',
+        vllm: 'FMind Cloud 비전',
       },
     },
     system: "시스템 설정",
@@ -1253,8 +1253,8 @@ export default {
       needsConfig: '구성 필요',
       configurable: '구성 가능',
       pathPrefix: '경로 접두사 (선택)',
-      pathPrefixPlaceholder: '예: keystone/images',
-      prefixPlaceholder: '예: keystone',
+      pathPrefixPlaceholder: '예: fmind/images',
+      prefixPlaceholder: '예: fmind',
       bucketName: 'Bucket 이름',
       bucketSelectPlaceholder: 'Bucket 선택 또는 입력',
       bucketPlaceholder: '버킷 이름',
@@ -1547,7 +1547,7 @@ export default {
   },
   initialization: {
     title: "초기화",
-    welcome: "Keystone에 오신 것을 환영합니다",
+    welcome: "FMind에 오신 것을 환영합니다",
     description: "사용을 시작하려면 먼저 시스템을 구성하세요",
     step1: "1단계: LLM 모델 구성",
     step2: "2단계: 임베딩 모델 구성",
@@ -1800,11 +1800,11 @@ export default {
     backToLogin: "로그인으로 돌아가기",
     registerNow: "지금 가입하기",
     loginHint: "로그인하여 계속하세요. 처음이시라면 아래에서 계정을 만드세요.",
-    firstTime: "Keystone가 처음이신가요?",
+    firstTime: "FMind가 처음이신가요?",
     registerSuccess: "가입이 완료되었습니다. 로그인해주세요",
     registerFailed: "가입 실패",
     subtitle: "RAG Q&A, ReAct 에이전트, Wiki 지식베이스 — 대규모 언어 모델 기반 엔터프라이즈 지식 프레임워크",
-    registerSubtitle: "계정을 만들고 Keystone를 시작하세요",
+    registerSubtitle: "계정을 만들고 FMind를 시작하세요",
     emailPlaceholder: "이메일 주소 입력",
     passwordPlaceholder: "비밀번호 입력 (8-32자, 문자와 숫자 포함)",
     confirmPasswordPlaceholder: "비밀번호 다시 입력",
@@ -2438,9 +2438,9 @@ export default {
     loadingInfo: "정보 로딩 중...",
     retry: "재시도",
     versionLabel: "앱 버전",
-    versionDescription: "애플리케이션 서비스(keystone-app)의 버전 번호",
+    versionDescription: "애플리케이션 서비스(fmind-app)의 버전 번호",
     frontendVersionLabel: "UI 버전",
-    frontendVersionDescription: "UI(keystone-ui) 빌드 버전 번호",
+    frontendVersionDescription: "UI(fmind-ui) 빌드 버전 번호",
     versionMismatch: "앱 버전과 일치하지 않음",
     buildTimeLabel: "빌드 시간",
     buildTimeDescription: "시스템이 빌드된 시간",
@@ -3454,7 +3454,7 @@ export default {
     },
   },
   createChat: {
-    title: "안녕하세요, Keystone입니다 — 당신의 지식을 손끝에",
+    title: "안녕하세요, FMind입니다 — 당신의 지식을 손끝에",
     newSessionTitle: "새 세션",
     messages: {
       selectKnowledgeBase: "먼저 지식베이스를 선택해주세요",
@@ -5425,9 +5425,9 @@ export default {
           name: 'PaddleOCR-VL Cloud',
           desc: 'PaddleOCR-VL Cloud API',
         },
-        keystoneCloud: {
-          name: 'Keystone Cloud',
-          desc: 'Keystone Cloud를 통한 문서 파싱',
+        fmindCloud: {
+          name: 'FMind Cloud',
+          desc: 'FMind Cloud를 통한 문서 파싱',
         },
         markitdown: {
           name: 'MarkItDown',
@@ -6235,7 +6235,7 @@ export default {
 	      capabilityMessageHistory: "메시지 기록",
 	      capabilityMessageHistoryHint: "워크스페이스 채팅 기록 검색과 채팅 기록 통계 조회를 허용합니다. 워크스페이스 설정 권한은 부여하지 않습니다.",
 	      capabilityManageModels: "모델 관리",
-	      capabilityManageModelsHint: "모델 설정, 자격 증명, 연결 테스트 및 Keystone Cloud 자격 증명을 관리합니다.",
+	      capabilityManageModelsHint: "모델 설정, 자격 증명, 연결 테스트 및 FMind Cloud 자격 증명을 관리합니다.",
 	      capabilityManageMcpServices: "MCP 서비스 관리",
 	      capabilityManageMcpServicesHint: "MCP 서비스, 자격 증명, 도구 승인 정책 및 이 주체의 OAuth 상태를 관리합니다.",
 	      capabilityManageDatasources: "데이터 소스 관리",
@@ -6281,7 +6281,7 @@ export default {
         "API Key를 가진 호출자는 사용자 ID 헤더를 바꿔 다른 외부 사용자를 가장하고 해당 사용자의 MCP OAuth 인증을 공유하거나 탈취할 수 있습니다. 브라우저나 신뢰할 수 없는 클라이언트에는 사용하지 마세요. 최종 사용자 앱에는 서명 토큰을 사용하세요.",
       signedRecommended: "사용자 대상 앱에 권장: 비즈니스 백엔드가 외부 사용자용 단기 HS256 JWT를 서명합니다.",
       signedFlowDetail:
-        "HMAC secret은 Keystone와 신뢰할 수 있는 백엔드에만 보관하세요. 요청에 넣거나 브라우저에 배포하지 마세요. 요청 헤더에는 secret이 아니라 해당 secret으로 서명한 JWT 문자열을 넣습니다(발급마다 또는 만료 후 변경). JWT에는 sub(외부 사용자 ID), tenant_id, aud=keystone, exp(최대 24시간)가 필요합니다.",
+        "HMAC secret은 FMind와 신뢰할 수 있는 백엔드에만 보관하세요. 요청에 넣거나 브라우저에 배포하지 마세요. 요청 헤더에는 secret이 아니라 해당 secret으로 서명한 JWT 문자열을 넣습니다(발급마다 또는 만료 후 변경). JWT에는 sub(외부 사용자 ID), tenant_id, aud=fmind, exp(최대 24시간)가 필요합니다.",
       directHeader: "사용자 ID 헤더",
       requireDirectHeader: "사용자 ID 헤더 필수",
       requireDirectHeaderDesc:
@@ -6289,7 +6289,7 @@ export default {
       tokenHeader: "토큰 헤더",
       tokenHeaderDesc: "클라이언트는 이 고정 헤더에 백엔드가 서명한 JWT를 전달합니다.",
       hmacSecret: "HMAC secret",
-      hmacSecretDesc: "Keystone에 저장된 것과 동일한 secret. 백엔드에서 JWT 서명에만 사용하며 요청 헤더로 보내지 않습니다.",
+      hmacSecretDesc: "FMind에 저장된 것과 동일한 secret. 백엔드에서 JWT 서명에만 사용하며 요청 헤더로 보내지 않습니다.",
       secretConfigured: "Secret configured (not shown again); enter a new value to rotate",
       secretSavedCopyHint: "Secret saved. Copy it to your backend now — you will not be able to view it again after leaving this page.",
       generateSecret: "Secret 생성",
@@ -6299,7 +6299,7 @@ export default {
       hmacSecretResetConfirmCancel: "취소",
       tokenSignExample: "백엔드 JWT 서명 예시 (Go)",
       signedRequestStep0:
-        "# 0. 백엔드에서 JWT 서명 (HS256, aud=keystone, sub=사용자 ID, tenant_id={tenantId}, exp 최대 24시간)",
+        "# 0. 백엔드에서 JWT 서명 (HS256, aud=fmind, sub=사용자 ID, tenant_id={tenantId}, exp 최대 24시간)",
       signedRequestStep0Hint: "#    JWT를 {headerName} 헤더에 넣고 HMAC secret은 보내지 마세요",
       requestExampleCreateSession: "# 1. 세션 생성",
       requestExampleAgentChat: "# 2. Agent 대화 (SSE; <session_id>를 1단계 id로 교체)",
@@ -6377,7 +6377,7 @@ export default {
     chrome: {
       title: "지식 관리 어시스턴트",
       subtitle:
-        "자체 호스팅 Keystone와 함께: 사이드바에서 질문하고, 웹 페이지를 클리핑하며, Markdown 메모를 지식베이스에 저장하세요.",
+        "자체 호스팅 FMind와 함께: 사이드바에서 질문하고, 웹 페이지를 클리핑하며, Markdown 메모를 지식베이스에 저장하세요.",
       capabilitiesTitle: "핵심 기능",
       capabilities: {
         qa: {
@@ -6412,7 +6412,7 @@ export default {
         },
         port: {
           title: "데스크톱: 고정 포트(권장)",
-          desc: "Keystone 데스크톱에서는 API 정보에서 고정 포트(예: 37841)를 설정하세요.",
+          desc: "FMind 데스크톱에서는 API 정보에서 고정 포트(예: 37841)를 설정하세요.",
         },
         install: {
           title: "Chrome 확장 설치",
@@ -6431,9 +6431,9 @@ export default {
       storeMeta: "Chrome 웹 스토어 · v1.0.0",
     },
     claw: {
-      title: "Keystone Skill",
+      title: "FMind Skill",
       subtitle:
-        "Keystone REST API로 문서를 가져오고 하이브리드 검색(벡터+키워드)을 수행합니다. 파일/URL/Markdown 업로드 및 검색에 사용.",
+        "FMind REST API로 문서를 가져오고 하이브리드 검색(벡터+키워드)을 수행합니다. 파일/URL/Markdown 업로드 및 검색에 사용.",
       capabilitiesTitle: "Skill 기능",
       capabilities: {
         upload: { title: "파일 업로드", desc: "PDF, Word, Excel 등을 업로드하고 자동 파싱·벡터화." },
@@ -6447,7 +6447,7 @@ export default {
         api: { title: "API 자격 증명", desc: "설정 → API 정보에서 API Key와 주소를 복사하세요." },
         env: {
           title: "환경 변수 설정",
-          desc: "셸 또는 ~/.zshrc, ~/.bashrc에 KEYSTONE_BASE_URL과 KEYSTONE_API_KEY를 설정하세요. 아래 예시는 현재 API 주소를 사용하며, API Key는 실제 값으로 바꾸세요.",
+          desc: "셸 또는 ~/.zshrc, ~/.bashrc에 FMIND_BASE_URL과 FMIND_API_KEY를 설정하세요. 아래 예시는 현재 API 주소를 사용하며, API Key는 실제 값으로 바꾸세요.",
         },
         install: {
           title: "Skill 설치",
@@ -6459,10 +6459,10 @@ export default {
       copy: "복사",
       copyEnvSuccess: "환경 변수 예시가 복사되었습니다",
       copyCmdSuccess: "설치 명령이 복사되었습니다",
-      ecosystemNote: "Skill은 ClawHub({'@'}justaboyhai-wq/keystone)에 호스팅됩니다. 전체 API 문서는 ClawHub 페이지를 참고하세요.",
+      ecosystemNote: "Skill은 ClawHub({'@'}justaboyhai-wq/fmind)에 호스팅됩니다. 전체 API 문서는 ClawHub 페이지를 참고하세요.",
       installCta: "ClawHub 열기",
-      installCtaHint: "Keystone Skill 설치 · 새 탭에서 열림",
-      hubMeta: "ClawHub · {'@'}justaboyhai-wq/keystone · MIT-0",
+      installCtaHint: "FMind Skill 설치 · 새 탭에서 열림",
+      hubMeta: "ClawHub · {'@'}justaboyhai-wq/fmind · MIT-0",
     },
   },
   imOverview: {

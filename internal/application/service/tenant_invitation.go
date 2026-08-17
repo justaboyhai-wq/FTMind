@@ -11,10 +11,10 @@ import (
 	"strings"
 	"time"
 
-	apprepo "github.com/justaboyhai-wq/keystone/internal/application/repository"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	apprepo "github.com/justaboyhai-wq/fmind/internal/application/repository"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // Sentinel errors returned by tenantInvitationService. Callers compare
@@ -58,7 +58,7 @@ var (
 
 // defaultInvitationTTL is the lifetime of a pending invitation before
 // the lazy sweep transitions it to expired. Operator override is via
-// the KEYSTONE_INVITATION_TTL env var (Go duration: "168h", "7d-ish");
+// the FMIND_INVITATION_TTL env var (Go duration: "168h", "7d-ish");
 // keeping this out of TenantConfig avoids a yaml migration for a knob
 // that almost nobody is going to tweak.
 const defaultInvitationTTL = 7 * 24 * time.Hour
@@ -68,7 +68,7 @@ const defaultInvitationTTL = 7 * 24 * time.Hour
 // once per call; cost is negligible and beats a goroutine watching the
 // environment.
 func invitationTTL() time.Duration {
-	raw := os.Getenv("KEYSTONE_INVITATION_TTL")
+	raw := os.Getenv("FMIND_INVITATION_TTL")
 	if raw == "" {
 		return defaultInvitationTTL
 	}

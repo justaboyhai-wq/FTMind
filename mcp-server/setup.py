@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Keystone MCP Server 安装脚本
+FMind MCP Server 安装脚本
 """
 
 from setuptools import setup
@@ -12,7 +12,7 @@ def read_readme():
         with open("README.md", "r", encoding="utf-8") as f:
             return f.read()
     except FileNotFoundError:
-        return "Keystone MCP Server - Model Context Protocol server for Keystone API"
+        return "FMind MCP Server - Model Context Protocol server for FMind API"
 
 
 # 读取依赖
@@ -27,15 +27,15 @@ def read_requirements():
 
 
 setup(
-    name="keystone-mcp-server",
+    name="fmind-mcp-server",
     version="1.0.0",
-    author="Keystone Team",
-    author_email="support@keystone.com",
-    description="Keystone MCP Server - Model Context Protocol server for Keystone API",
+    author="FMind Team",
+    author_email="support@fmind.com",
+    description="FMind MCP Server - Model Context Protocol server for FMind API",
     long_description=read_readme(),
     long_description_content_type="text/markdown",
-    url="https://github.com/NannaOlympicBroadcast/KeystoneMCP",
-    py_modules=["keystone_mcp_server", "main", "run_server", "run", "test_module"],
+    url="https://github.com/NannaOlympicBroadcast/FMindMCP",
+    py_modules=["fmind_mcp_server", "main", "run_server", "run", "test_module"],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
@@ -53,13 +53,13 @@ setup(
     install_requires=read_requirements(),
     entry_points={
         "console_scripts": [
-            "keystone-mcp-server=main:sync_main",
-            "keystone-server=run_server:main",
+            "fmind-mcp-server=main:sync_main",
+            "fmind-server=run_server:main",
         ],
     },
     include_package_data=True,
     data_files=[
         ("", ["README.md", "requirements.txt", "LICENSE"]),
     ],
-    keywords="mcp model-context-protocol keystone knowledge-management api-server",
+    keywords="mcp model-context-protocol fmind knowledge-management api-server",
 )

@@ -8,12 +8,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/projectlink"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/projectlink"
 )
 
-// mkLinkFile seeds .keystone/project.yaml in dir so the unlink path has
+// mkLinkFile seeds .fmind/project.yaml in dir so the unlink path has
 // something to remove. Returns the absolute file path.
 func mkLinkFile(t *testing.T, dir string) string {
 	t.Helper()

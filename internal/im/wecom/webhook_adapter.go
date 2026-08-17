@@ -1,4 +1,4 @@
-// Package wecom implements the WeCom (企业微信) IM adapter for Keystone.
+// Package wecom implements the WeCom (企业微信) IM adapter for FMind.
 //
 // WeCom Smart Bot flow:
 // 1. User sends a message to the bot (direct or @mention in group)
@@ -31,9 +31,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/im"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/im"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 	"github.com/gin-gonic/gin"
 )
 

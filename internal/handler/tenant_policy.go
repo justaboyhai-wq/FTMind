@@ -3,13 +3,13 @@ package handler
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/config"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/config"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 const (
 	tenantSelfServiceCreationSettingKey = "tenant.self_service_creation_enabled"
-	tenantSelfServiceCreationEnvName    = "KEYSTONE_TENANT_SELF_SERVICE_CREATION_ENABLED"
+	tenantSelfServiceCreationEnvName    = "FMIND_TENANT_SELF_SERVICE_CREATION_ENABLED"
 )
 
 // resolveTenantSelfServiceCreationEnabled is the shared policy resolver used

@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/models/provider"
-	"github.com/justaboyhai-wq/keystone/internal/models/utils/ollama"
-	"github.com/justaboyhai-wq/keystone/internal/tracing/langfuse"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/models/provider"
+	"github.com/justaboyhai-wq/fmind/internal/models/utils/ollama"
+	"github.com/justaboyhai-wq/fmind/internal/tracing/langfuse"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // Embedder defines the interface for text vectorization
@@ -62,7 +62,7 @@ type Config struct {
 
 // ConfigFromModel 根据 types.Model 构造 embedding.Config。
 // 生产路径（从 DB 拉起）和测试连接路径（临时表单）共享这份映射。
-// appID / appSecret 是已解密的 KeystoneCloud 凭证，调用方负责传入。
+// appID / appSecret 是已解密的 FMindCloud 凭证，调用方负责传入。
 func ConfigFromModel(m *types.Model, appID, appSecret string) Config {
 	if m == nil {
 		return Config{}
@@ -257,8 +257,8 @@ func newEmbedder(config Config, pooler EmbedderPooler, ollamaService *ollama.Oll
 			}
 			embedder, err = zhipuEmb, zErr
 			return embedder, err
-		case provider.ProviderKeystoneCloud:
-			embedder, err = NewKeystoneCloudEmbedder(config)
+		case provider.ProviderFMindCloud:
+			embedder, err = NewFMindCloudEmbedder(config)
 			return embedder, err
 		default:
 			// Use OpenAI-compatible embedder for other providers

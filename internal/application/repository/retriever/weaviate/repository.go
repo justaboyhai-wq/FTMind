@@ -8,9 +8,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	"github.com/go-openapi/strfmt"
 	"github.com/google/uuid"
 	"github.com/weaviate/weaviate-go-client/v5/weaviate"
@@ -21,7 +21,7 @@ import (
 
 const (
 	envWeaviateCollection = "WEAVIATE_COLLECTION"
-	defaultCollectionName = "Keystone_embeddings"
+	defaultCollectionName = "FMind_embeddings"
 	fieldContent          = "content"
 	fieldSourceID         = "source_id"
 	fieldSourceType       = "source_type"
@@ -80,7 +80,7 @@ func (w *weaviateRepository) ensureCollection(ctx context.Context, dimension int
 		//定义class结构
 		classObj := models.Class{
 			Class:       collectionName,
-			Description: fmt.Sprintf("Keystone embeddings collection with dimension %d", dimension),
+			Description: fmt.Sprintf("FMind embeddings collection with dimension %d", dimension),
 			VectorConfig: map[string]models.VectorConfig{
 				fieldEmbedding: {
 					VectorIndexType: "hnsw",

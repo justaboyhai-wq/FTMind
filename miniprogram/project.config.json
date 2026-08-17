@@ -1,5 +1,5 @@
 {
-  "description": "Keystone Mini Program plugin",
+  "description": "FMind Mini Program plugin",
   "setting": {
     "urlCheck": true,
     "es6": true,
@@ -9,6 +9,6 @@
   },
   "compileType": "miniprogram",
   "libVersion": "latest",
-  "projectname": "Keystone Mini Program",
+  "projectname": "FMind Mini Program",
   "condition": {}
 }

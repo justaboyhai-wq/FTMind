@@ -8,11 +8,11 @@ import (
 	"slices"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/mcp"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/mcp"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // mcpServiceService implements MCPServiceService interface

@@ -7,11 +7,11 @@ import (
 	"strings"
 	"testing"
 
-	apprepo "github.com/justaboyhai-wq/keystone/internal/application/repository"
-	"github.com/justaboyhai-wq/keystone/internal/config"
-	"github.com/justaboyhai-wq/keystone/internal/handler"
-	"github.com/justaboyhai-wq/keystone/internal/middleware"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	apprepo "github.com/justaboyhai-wq/fmind/internal/application/repository"
+	"github.com/justaboyhai-wq/fmind/internal/config"
+	"github.com/justaboyhai-wq/fmind/internal/handler"
+	"github.com/justaboyhai-wq/fmind/internal/middleware"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )

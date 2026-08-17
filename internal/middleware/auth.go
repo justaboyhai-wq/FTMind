@@ -12,10 +12,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/config"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/config"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -52,7 +52,7 @@ var noAuthAPI = map[string][]string{
 	"/api/v1/auth/oidc/url":           {"GET"},
 	"/api/v1/auth/oidc/callback":      {"GET"},
 	// MCP OAuth provider redirect: the third-party authorization server
-	// redirects the browser here without a Keystone bearer token. The request
+	// redirects the browser here without a FMind bearer token. The request
 	// is authenticated by the opaque, single-use `state` parameter instead.
 	"/api/v1/mcp-oauth/callback": {"GET"},
 	"/api/v1/auth/refresh":       {"POST"},
@@ -476,7 +476,7 @@ func verifyExternalUserJWT(tokenString string, tenantID uint64, secret string) (
 	}
 	claims := jwt.MapClaims{}
 	parser := jwt.NewParser(
-		jwt.WithAudience("keystone"),
+		jwt.WithAudience("fmind"),
 		jwt.WithExpirationRequired(),
 		jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}),
 	)

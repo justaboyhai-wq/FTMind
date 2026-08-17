@@ -7,9 +7,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 const (
@@ -46,7 +46,7 @@ type ViewService interface {
 	LoadMessages(ctx context.Context, sessionID string, limit int, beforeTime *time.Time) ([]sdk.Message, error)
 }
 
-// NewCmdView builds `keystone session view <id>`. Renders session metadata
+// NewCmdView builds `fmind session view <id>`. Renders session metadata
 // only by default. With `--full`, also loads the chat history via
 // `LoadMessages` and renders messages (or projects them into the JSON
 // payload under `messages`).
@@ -88,7 +88,7 @@ Pass --full to also load the chat history (LoadMessages SDK call). Use
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:       "fetch one chat session by id; --full also loads its message history",
 		RequiredFlags: []string{"<session-id> (positional)"},
-		Examples:      []string{"keystone session view sess_abc", "keystone session view sess_abc --full --limit 50"},
+		Examples:      []string{"fmind session view sess_abc", "fmind session view sess_abc --full --limit 50"},
 		Output:        "envelope.data is the session object; with --full it also carries the loaded messages",
 	})
 	return cmd

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -163,8 +163,8 @@ func TestFindIncompleteXMLTag(t *testing.T) {
 }
 
 func TestResolveIMFileServiceForPath_LocalSchemeDespiteCOSDefault(t *testing.T) {
-	t.Setenv("SYSTEM_AES_KEY", "keystone-test-aes-key-32bytes!!!")
-	t.Setenv("APP_EXTERNAL_URL", "https://keystone.example.com")
+	t.Setenv("SYSTEM_AES_KEY", "fmind-test-aes-key-32bytes!!!")
+	t.Setenv("APP_EXTERNAL_URL", "https://fmind.example.com")
 
 	tenant := &types.Tenant{
 		StorageEngineConfig: &types.StorageEngineConfig{
@@ -185,8 +185,8 @@ func TestResolveIMFileServiceForPath_LocalSchemeDespiteCOSDefault(t *testing.T) 
 }
 
 func TestRewriteStorageURLs_LocalUsesPresignedAPI(t *testing.T) {
-	t.Setenv("SYSTEM_AES_KEY", "keystone-test-aes-key-32bytes!!!")
-	t.Setenv("APP_EXTERNAL_URL", "https://keystone.example.com")
+	t.Setenv("SYSTEM_AES_KEY", "fmind-test-aes-key-32bytes!!!")
+	t.Setenv("APP_EXTERNAL_URL", "https://fmind.example.com")
 
 	tenant := &types.Tenant{
 		StorageEngineConfig: &types.StorageEngineConfig{
@@ -217,11 +217,11 @@ func TestRewriteStorageURLs_COSPathNotSignedAsLocalKey(t *testing.T) {
 				SecretKey:  "key",
 				BucketName: "test-bucket",
 				Region:     "ap-shanghai",
-				PathPrefix: "keystone",
+				PathPrefix: "fmind",
 			},
 		},
 	}
-	path := "cos://test-bucket/ap-shanghai/keystone/10000/exports/abc.png"
+	path := "cos://test-bucket/ap-shanghai/fmind/10000/exports/abc.png"
 	svc := resolveIMFileServiceForPath(tenant, path, nil)
 	require.NotNil(t, svc)
 
@@ -415,8 +415,8 @@ func TestSimulateIMStreamFlush_BareProviderURLStillHeld(t *testing.T) {
 }
 
 func TestCleanIMContent_AfterStreamReassembly(t *testing.T) {
-	t.Setenv("SYSTEM_AES_KEY", "keystone-test-aes-key-32bytes!!!")
-	t.Setenv("APP_EXTERNAL_URL", "https://keystone.example.com")
+	t.Setenv("SYSTEM_AES_KEY", "fmind-test-aes-key-32bytes!!!")
+	t.Setenv("APP_EXTERNAL_URL", "https://fmind.example.com")
 
 	tenant := &types.Tenant{
 		StorageEngineConfig: &types.StorageEngineConfig{
@@ -464,8 +464,8 @@ func TestSimulateIMStreamFlush_BracketInAltMiddleImage(t *testing.T) {
 }
 
 func TestRewriteStorageURLs_MultipleImagesInOneChunk(t *testing.T) {
-	t.Setenv("SYSTEM_AES_KEY", "keystone-test-aes-key-32bytes!!!")
-	t.Setenv("APP_EXTERNAL_URL", "https://keystone.example.com")
+	t.Setenv("SYSTEM_AES_KEY", "fmind-test-aes-key-32bytes!!!")
+	t.Setenv("APP_EXTERNAL_URL", "https://fmind.example.com")
 
 	tenant := &types.Tenant{
 		StorageEngineConfig: &types.StorageEngineConfig{DefaultProvider: "cos"},

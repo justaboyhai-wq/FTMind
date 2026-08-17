@@ -14,19 +14,19 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/application/repository"
-	"github.com/justaboyhai-wq/keystone/internal/application/service"
-	"github.com/justaboyhai-wq/keystone/internal/application/service/file"
-	"github.com/justaboyhai-wq/keystone/internal/config"
-	"github.com/justaboyhai-wq/keystone/internal/database"
-	apperrors "github.com/justaboyhai-wq/keystone/internal/errors"
-	"github.com/justaboyhai-wq/keystone/internal/infrastructure/docparser"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	modellimiter "github.com/justaboyhai-wq/keystone/internal/models/limiter"
-	"github.com/justaboyhai-wq/keystone/internal/runtime"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/application/repository"
+	"github.com/justaboyhai-wq/fmind/internal/application/service"
+	"github.com/justaboyhai-wq/fmind/internal/application/service/file"
+	"github.com/justaboyhai-wq/fmind/internal/config"
+	"github.com/justaboyhai-wq/fmind/internal/database"
+	apperrors "github.com/justaboyhai-wq/fmind/internal/errors"
+	"github.com/justaboyhai-wq/fmind/internal/infrastructure/docparser"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	modellimiter "github.com/justaboyhai-wq/fmind/internal/models/limiter"
+	"github.com/justaboyhai-wq/fmind/internal/runtime"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -254,11 +254,11 @@ func (h *SystemHandler) ListParserEngines(c *gin.Context) {
 			if tenant.ParserEngineConfig != nil {
 				overrides = tenant.ParserEngineConfig.ToOverridesMap()
 			}
-			if creds := tenant.Credentials.GetKeystoneCloud(); creds != nil {
+			if creds := tenant.Credentials.GetFMindCloud(); creds != nil {
 				if overrides == nil {
 					overrides = make(map[string]string)
 				}
-				overrides["keystonecloud_app_id"] = creds.AppID
+				overrides["fmindcloud_app_id"] = creds.AppID
 			}
 		}
 	}
@@ -316,11 +316,11 @@ func (h *SystemHandler) ReconnectDocReader(c *gin.Context) {
 			if tenant.ParserEngineConfig != nil {
 				overrides = tenant.ParserEngineConfig.ToOverridesMap()
 			}
-			if creds := tenant.Credentials.GetKeystoneCloud(); creds != nil {
+			if creds := tenant.Credentials.GetFMindCloud(); creds != nil {
 				if overrides == nil {
 					overrides = make(map[string]string)
 				}
-				overrides["keystonecloud_app_id"] = creds.AppID
+				overrides["fmindcloud_app_id"] = creds.AppID
 			}
 		}
 	}
@@ -357,11 +357,11 @@ func (h *SystemHandler) CheckParserEngines(c *gin.Context) {
 	merged := types.MergeParserEngineConfigForUpdate(&body, existing)
 	overrides := merged.ToOverridesMap()
 	if tenant != nil {
-		if creds := tenant.Credentials.GetKeystoneCloud(); creds != nil {
+		if creds := tenant.Credentials.GetFMindCloud(); creds != nil {
 			if overrides == nil {
 				overrides = make(map[string]string)
 			}
-			overrides["keystonecloud_app_id"] = creds.AppID
+			overrides["fmindcloud_app_id"] = creds.AppID
 		}
 	}
 	reader, docreaderAddr, docreaderTransport := h.resolveDocReader(c.Request.Context(), overrides)
@@ -373,7 +373,7 @@ func (h *SystemHandler) CheckParserEngines(c *gin.Context) {
 
 func (h *SystemHandler) resolveDocReader(ctx context.Context, overrides map[string]string) (interfaces.DocumentReader, string, string) {
 	if len(overrides) > 0 {
-		if addr := strings.TrimSpace(overrides["docreader_addr"]); addr != "" && service.IsKeystoneCloudDocReaderAddr(addr) {
+		if addr := strings.TrimSpace(overrides["docreader_addr"]); addr != "" && service.IsFMindCloudDocReaderAddr(addr) {
 			reader := h.ResolveDocumentReader(ctx, addr)
 			return reader, addr, transportFromDocReaderAddr(addr)
 		}
@@ -1132,12 +1132,12 @@ func (h *SystemHandler) ResolveDocumentReader(ctx context.Context, addr string) 
 		return h.documentReader
 	}
 
-	if service.IsKeystoneCloudDocReaderAddr(addr) {
-		creds := h.tenantSvc.GetKeystoneCloudCredentials(ctx)
+	if service.IsFMindCloudDocReaderAddr(addr) {
+		creds := h.tenantSvc.GetFMindCloudCredentials(ctx)
 		if creds == nil {
 			return nil
 		}
-		reader, err := docparser.NewKeystoneCloudSignedDocumentReader(creds.AppID, creds.AppSecret)
+		reader, err := docparser.NewFMindCloudSignedDocumentReader(creds.AppID, creds.AppSecret)
 		if err != nil {
 			return nil
 		}
@@ -2067,7 +2067,7 @@ func (h *SystemHandler) ApplyDefaultStorageQuotaToAllTenants(c *gin.Context) {
 	gb := h.systemSettingSvc.GetInt(
 		ctx,
 		"tenant.default_storage_quota_gb",
-		"KEYSTONE_TENANT_DEFAULT_STORAGE_QUOTA_GB",
+		"FMIND_TENANT_DEFAULT_STORAGE_QUOTA_GB",
 		10,
 	)
 	if gb <= 0 {

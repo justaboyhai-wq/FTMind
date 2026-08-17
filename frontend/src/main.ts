@@ -6,7 +6,7 @@ import TDesign from "tdesign-vue-next";
 // 引入组件库的少量全局样式变量
 import "tdesign-vue-next/es/style/index.css";
 import "@/assets/theme/theme.css";
-import "@/assets/theme/keystone.css";
+import "@/assets/theme/fmind.css";
 import "@/assets/dropdown-menu.less";
 import "@/components/css/chat-hljs-dark.less";
 // vue-virtual-scroller ships its own tiny stylesheet — required for
@@ -29,7 +29,7 @@ const app = createApp(App);
 
 // 全局错误处理：捕获未处理的组件错误，防止白屏
 app.config.errorHandler = (err, instance, info) => {
-  console.error("[Keystone] Unhandled Vue error:", err, "\nComponent:", instance, "\nInfo:", info);
+  console.error("[FMind] Unhandled Vue error:", err, "\nComponent:", instance, "\nInfo:", info);
 };
 
 app.use(TDesign);

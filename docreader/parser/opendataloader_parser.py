@@ -91,7 +91,7 @@ def _ping_hybrid(
             time.sleep(retry_delay_sec)
     hint = (
         "；若刚执行 make dev-start --odl-hybrid，请等待镜像构建/服务就绪"
-        "（docker logs Keystone-odl-hybrid）"
+        "（docker logs FMind-odl-hybrid）"
     )
     return False, last_err + hint
 
@@ -311,7 +311,7 @@ class OpenDataLoaderParser(BaseParser):
 
         max_workers = CONFIG.odl_max_workers
         with parser_worker_limit("opendataloader", max_workers):
-            with tempfile.TemporaryDirectory(prefix="keystone-odl-") as tmp_dir:
+            with tempfile.TemporaryDirectory(prefix="fmind-odl-") as tmp_dir:
                 pdf_path = os.path.join(tmp_dir, safe_name)
                 with open(pdf_path, "wb") as f:
                     f.write(content)

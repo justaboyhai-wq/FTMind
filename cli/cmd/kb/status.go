@@ -7,9 +7,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // StatusResult is the health-oriented response for `kb status <id>`.
@@ -38,7 +38,7 @@ var kbStatusFields = []string{
 	"is_processing", "processing_count",
 }
 
-// NewCmdStatus builds `keystone kb status <id>`.
+// NewCmdStatus builds `fmind kb status <id>`.
 func NewCmdStatus(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "status <kb-id>",
@@ -48,12 +48,12 @@ func NewCmdStatus(f *cmdutil.Factory) *cobra.Command {
 1 HTTP call:
   reachable / knowledge_count / chunk_count / is_processing / processing_count
 
-For deep verification including failed_count, use 'keystone kb check <id>'
+For deep verification including failed_count, use 'fmind kb check <id>'
 (1 + N HTTP, pages the doc list with parse_status=failed).
 
-For full metadata (config / pinned / tenant), use 'keystone kb view <id>'.`,
-		Example: `  keystone kb status kb_abc
-  keystone kb status kb_abc --format json`,
+For full metadata (config / pinned / tenant), use 'fmind kb view <id>'.`,
+		Example: `  fmind kb status kb_abc
+  fmind kb status kb_abc --format json`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			fopts, err := cmdutil.CheckFormatFlag(c)
@@ -76,7 +76,7 @@ For full metadata (config / pinned / tenant), use 'keystone kb view <id>'.`,
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:       "shallow health probe of a knowledge base (one HTTP call): reachability, no failed-doc aggregation",
 		RequiredFlags: []string{"<kb-id> (positional)"},
-		Examples:      []string{"keystone kb status kb_abc"},
+		Examples:      []string{"fmind kb status kb_abc"},
 		Output:        "envelope.data is {id, reachable, retrieval_ready, ...}; retrieval_ready=false means no embedding model is bound (run `kb config set`), so the KB cannot index/retrieve; use `kb check` for deep failed-doc aggregation",
 	})
 	return cmd
@@ -132,7 +132,7 @@ func retrievalHint(ready bool) string {
 	if ready {
 		return ""
 	}
-	return "  ← no embedding model bound; run `keystone kb config set <id>`"
+	return "  ← no embedding model bound; run `fmind kb config set <id>`"
 }
 
 // compile-time check: SDK client satisfies StatusService.

@@ -5,11 +5,11 @@ import (
 	"path"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/config"
-	"github.com/justaboyhai-wq/keystone/internal/handler"
-	"github.com/justaboyhai-wq/keystone/internal/middleware"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/config"
+	"github.com/justaboyhai-wq/fmind/internal/handler"
+	"github.com/justaboyhai-wq/fmind/internal/middleware"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	"github.com/gin-gonic/gin"
 )
 
@@ -38,7 +38,7 @@ import (
 //	      Viewer" hold uniformly.
 //
 //	NO  — Tenant-wide infrastructure: Model, VectorStore, IM channel,
-//	      WebSearchProvider, DataSource, MCPService, KeystoneCloud
+//	      WebSearchProvider, DataSource, MCPService, FMindCloud
 //	      credentials.
 //	      => Mutating routes use Admin().
 //	      There is no "creator-of-the-vector-store" concept; configuring

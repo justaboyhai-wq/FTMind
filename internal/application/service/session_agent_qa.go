@@ -7,12 +7,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/justaboyhai-wq/keystone/internal/agent/tools"
-	"github.com/justaboyhai-wq/keystone/internal/event"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/models/chat"
-	"github.com/justaboyhai-wq/keystone/internal/models/rerank"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/agent/tools"
+	"github.com/justaboyhai-wq/fmind/internal/event"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/models/chat"
+	"github.com/justaboyhai-wq/fmind/internal/models/rerank"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // AgentQA performs agent-based question answering with conversation history and streaming support
@@ -461,7 +461,7 @@ func (s *sessionService) configureSkillsFromAgent(
 		return
 	}
 	// When sandbox is disabled, skills cannot be enabled (no script execution environment)
-	sandboxMode := os.Getenv("KEYSTONE_SANDBOX_MODE")
+	sandboxMode := os.Getenv("FMIND_SANDBOX_MODE")
 	if sandboxMode == "" || sandboxMode == "disabled" {
 		agentConfig.SkillsEnabled = false
 		agentConfig.SkillDirs = nil

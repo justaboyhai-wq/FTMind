@@ -12,18 +12,18 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/config"
-	"github.com/justaboyhai-wq/keystone/internal/event"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/config"
+	"github.com/justaboyhai-wq/fmind/internal/event"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
 // pubsubChannelBase is the Redis channel prefix used to fan-out Resolve calls
 // across backend replicas (issue #1173 cross-instance support). The actual
-// channel is suffixed with KEYSTONE_REDIS_NAMESPACE (when set) so multiple
+// channel is suffixed with FMIND_REDIS_NAMESPACE (when set) so multiple
 // deployments sharing the same Redis don't cross-talk.
-const pubsubChannelBase = "keystone:mcp_approval:resolve"
+const pubsubChannelBase = "fmind:mcp_approval:resolve"
 
 // instanceID is a process-unique id used to ignore self-published pubsub
 // messages (avoids "pending not found" log noise on the publisher side).
@@ -61,7 +61,7 @@ type resolveAck struct {
 
 // pubsubChannel returns the namespaced pubsub channel name.
 func pubsubChannel() string {
-	if ns := strings.TrimSpace(os.Getenv("KEYSTONE_REDIS_NAMESPACE")); ns != "" {
+	if ns := strings.TrimSpace(os.Getenv("FMIND_REDIS_NAMESPACE")); ns != "" {
 		return pubsubChannelBase + ":" + ns
 	}
 	return pubsubChannelBase
@@ -192,8 +192,8 @@ func NewGate(cfg *config.Config, checker Checker, rdb *redis.Client) *Gate {
 		timeout = time.Duration(cfg.Agent.ToolApprovalTimeoutSeconds) * time.Second
 	}
 	// Default fail-close: if the checker errors, require approval (safer for a
-	// HITL feature). Set KEYSTONE_AGENT_TOOL_APPROVAL_FAIL_OPEN=true to revert.
-	failClose := !strings.EqualFold(strings.TrimSpace(os.Getenv("KEYSTONE_AGENT_TOOL_APPROVAL_FAIL_OPEN")), "true")
+	// HITL feature). Set FMIND_AGENT_TOOL_APPROVAL_FAIL_OPEN=true to revert.
+	failClose := !strings.EqualFold(strings.TrimSpace(os.Getenv("FMIND_AGENT_TOOL_APPROVAL_FAIL_OPEN")), "true")
 	g := &Gate{
 		pending:   make(map[string]*waiter),
 		checker:   checker,
@@ -294,7 +294,7 @@ func (g *Gate) NeedsApproval(ctx context.Context, tenantID uint64, serviceID, to
 	if err != nil {
 		// Default fail-close: a transient DB error must NOT silently allow a
 		// dangerous tool to run. Operators can opt into legacy behaviour via
-		// KEYSTONE_AGENT_TOOL_APPROVAL_FAIL_OPEN=true.
+		// FMIND_AGENT_TOOL_APPROVAL_FAIL_OPEN=true.
 		if g.failClose {
 			logger.GetLogger(ctx).Warnf("mcp tool approval check failed (fail-close: requiring approval): %v", err)
 			return true

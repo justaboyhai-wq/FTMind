@@ -1,32 +1,32 @@
 ---
-name: keystone
+name: fmind
 description: >
-  Import documents and retrieve knowledge through the Keystone REST API. Use
+  Import documents and retrieve knowledge through the FMind REST API. Use
   for uploading files, URLs, or Markdown to a knowledge base; hybrid search
   within a knowledge base; cross-knowledge-base search; and browsing imported
-  knowledge. Requires KEYSTONE_BASE_URL and KEYSTONE_API_KEY.
+  knowledge. Requires FMIND_BASE_URL and FMIND_API_KEY.
 metadata:
   openclaw:
     requires:
-      env: [KEYSTONE_BASE_URL, KEYSTONE_API_KEY]
+      env: [FMIND_BASE_URL, FMIND_API_KEY]
 ---
 
-# Keystone knowledge base
+# FMind knowledge base
 
-Use the Keystone REST API to import content and retrieve grounded context from
+Use the FMind REST API to import content and retrieve grounded context from
 the user's knowledge bases. Never expose the API key in messages, commands
 logged to shared output, or saved files.
 
 ## Setup
 
-1. In Keystone, open **Settings → API Integration** and create or copy an API
+1. In FMind, open **Settings → API Integration** and create or copy an API
    key.
-2. Configure the agent environment with the public Keystone API address. The
+2. Configure the agent environment with the public FMind API address. The
    address must end with `/api/v1` and be reachable from the agent runtime.
 
 ```bash
-export KEYSTONE_BASE_URL="https://keystone.example.com/api/v1"
-export KEYSTONE_API_KEY="sk-your-api-key"
+export FMIND_BASE_URL="https://fmind.example.com/api/v1"
+export FMIND_API_KEY="sk-your-api-key"
 ```
 
 For a local deployment used by an agent on the same computer, the usual base
@@ -38,8 +38,8 @@ Before making an API request, ensure both values exist. If either is missing,
 ask the user to configure it; do not guess or substitute a token.
 
 ```bash
-if [ -z "$KEYSTONE_BASE_URL" ] || [ -z "$KEYSTONE_API_KEY" ]; then
-  echo "Missing Keystone credentials. Set KEYSTONE_BASE_URL and KEYSTONE_API_KEY."
+if [ -z "$FMIND_BASE_URL" ] || [ -z "$FMIND_API_KEY" ]; then
+  echo "Missing FMind credentials. Set FMIND_BASE_URL and FMIND_API_KEY."
   exit 1
 fi
 ```
@@ -50,10 +50,10 @@ All JSON API requests use `X-API-Key`. Keep the endpoint relative to the base
 URL so deployments behind a reverse proxy continue to work.
 
 ```bash
-keystone_api() {
+fmind_api() {
   local method="$1" endpoint="$2" body="$3"
-  curl --fail-with-body -sS -X "$method" "$KEYSTONE_BASE_URL/$endpoint" \
-    -H "X-API-Key: $KEYSTONE_API_KEY" \
+  curl --fail-with-body -sS -X "$method" "$FMIND_BASE_URL/$endpoint" \
+    -H "X-API-Key: $FMIND_API_KEY" \
     -H "Content-Type: application/json" \
     -H "X-Request-ID: $(uuidgen 2>/dev/null || date +%s)" \
     ${body:+-d "$body"}
@@ -85,25 +85,25 @@ multipart request.
 
 ```bash
 # First find the target knowledge base and its id.
-keystone_api GET "knowledge-bases"
+fmind_api GET "knowledge-bases"
 
 # Upload. The response contains data.id (knowledge id).
-curl --fail-with-body -sS -X POST "$KEYSTONE_BASE_URL/knowledge-bases/<kb_id>/knowledge/file" \
-  -H "X-API-Key: $KEYSTONE_API_KEY" \
+curl --fail-with-body -sS -X POST "$FMIND_BASE_URL/knowledge-bases/<kb_id>/knowledge/file" \
+  -H "X-API-Key: $FMIND_API_KEY" \
   -F 'file=@document.pdf' \
   -F 'enable_multimodel=true'
 
 # Poll until data.parse_status is completed or failed.
-keystone_api GET "knowledge/<knowledge_id>"
+fmind_api GET "knowledge/<knowledge_id>"
 ```
 
 ### Import a URL or Markdown
 
 ```bash
-keystone_api POST "knowledge-bases/<kb_id>/knowledge/url" \
+fmind_api POST "knowledge-bases/<kb_id>/knowledge/url" \
   '{"url":"https://example.com/article","enable_multimodel":true}'
 
-keystone_api POST "knowledge-bases/<kb_id>/knowledge/manual" \
+fmind_api POST "knowledge-bases/<kb_id>/knowledge/manual" \
   '{"title":"Meeting notes","content":"# Q1 review\n\nKey points..."}'
 ```
 
@@ -111,11 +111,11 @@ keystone_api POST "knowledge-bases/<kb_id>/knowledge/manual" \
 
 ```bash
 # Hybrid retrieval within one knowledge base. This GET endpoint expects a JSON body.
-keystone_api GET "knowledge-bases/<kb_id>/hybrid-search" \
+fmind_api GET "knowledge-bases/<kb_id>/hybrid-search" \
   '{"query_text":"deployment process","match_count":5}'
 
 # Search across selected knowledge bases.
-keystone_api POST "knowledge-search" \
+fmind_api POST "knowledge-search" \
   '{"query":"deployment process","knowledge_base_ids":["kb-1","kb-2"]}'
 ```
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Keystone MCP Server 启动脚本
+FMind MCP Server 启动脚本
 """
 
 import asyncio
@@ -10,28 +10,28 @@ import sys
 
 def check_environment():
     """检查环境配置"""
-    base_url = os.getenv("KEYSTONE_BASE_URL")
-    api_key = os.getenv("KEYSTONE_API_KEY")
+    base_url = os.getenv("FMIND_BASE_URL")
+    api_key = os.getenv("FMIND_API_KEY")
 
     if not base_url:
         print(
-            "警告: KEYSTONE_BASE_URL 环境变量未设置，使用默认值: http://localhost:8080/api/v1"
+            "警告: FMIND_BASE_URL 环境变量未设置，使用默认值: http://localhost:8080/api/v1"
         )
 
     if not api_key:
-        print("警告: KEYSTONE_API_KEY 环境变量未设置")
+        print("警告: FMIND_API_KEY 环境变量未设置")
 
-    print(f"Keystone Base URL: {base_url or 'http://localhost:8080/api/v1'}")
+    print(f"FMind Base URL: {base_url or 'http://localhost:8080/api/v1'}")
     print(f"API Key: {'已设置' if api_key else '未设置'}")
 
 
 def main():
     """主函数"""
-    print("启动 Keystone MCP Server...")
+    print("启动 FMind MCP Server...")
     check_environment()
 
     try:
-        from keystone_mcp_server import run
+        from fmind_mcp_server import run
 
         asyncio.run(run())
     except ImportError as e:

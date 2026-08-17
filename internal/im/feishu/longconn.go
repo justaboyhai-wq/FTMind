@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/im"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/im"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
 	"github.com/larksuite/oapi-sdk-go/v3/event/dispatcher"
 	larkim "github.com/larksuite/oapi-sdk-go/v3/service/im/v1"
 	larkws "github.com/larksuite/oapi-sdk-go/v3/ws"

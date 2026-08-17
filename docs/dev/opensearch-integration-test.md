@@ -101,8 +101,8 @@ registration (as in the Option A example above). The driver default is `1`
 
 1. Bind a knowledge base to the store and ingest a few documents.
 2. Confirm the per-dimension index appears:
-   `curl -s 'localhost:9200/_cat/indices?v' | grep keystone`
-   (e.g. `keystone_<storeprefix>_768` + alias, plus `keystone_<storeprefix>_keywords`).
+   `curl -s 'localhost:9200/_cat/indices?v' | grep fmind`
+   (e.g. `fmind_<storeprefix>_768` + alias, plus `fmind_<storeprefix>_keywords`).
 3. Run a retrieval query against the bound KB and confirm hits come back.
 4. Copy the KB to another KB and confirm the docs are reindexed
    (`opensearch.reindex_executed` audit event).

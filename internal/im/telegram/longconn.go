@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/im"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/im"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
 )
 
 // MessageHandler is called when an IM message is received via long polling.

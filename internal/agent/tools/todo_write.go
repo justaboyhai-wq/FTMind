@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 var todoWriteTool = BaseTool{
@@ -42,15 +42,15 @@ NOTE that you should not use this tool if there is only one trivial task to do. 
 ## Examples of When to Use the Todo List
 
 <example>
-User: Compare Keystone with other RAG frameworks like LangChain and LlamaIndex.
-Assistant: I'll help you compare Keystone with other RAG frameworks. Let me create a retrieval plan to gather information about each framework.
-*Creates a todo list with retrieval tasks: 1) Search knowledge base for Keystone features and architecture, 2) Use web_search to find LangChain documentation and features, 3) Use web_search to find LlamaIndex documentation and features, 4) Retrieve detailed comparison points for each framework*
+User: Compare FMind with other RAG frameworks like LangChain and LlamaIndex.
+Assistant: I'll help you compare FMind with other RAG frameworks. Let me create a retrieval plan to gather information about each framework.
+*Creates a todo list with retrieval tasks: 1) Search knowledge base for FMind features and architecture, 2) Use web_search to find LangChain documentation and features, 3) Use web_search to find LlamaIndex documentation and features, 4) Retrieve detailed comparison points for each framework*
 *Note: Summary and synthesis will be handled by thinking tool after all retrieval tasks are completed*
-Assistant: Let me start by searching the knowledge base for detailed Keystone information.
+Assistant: Let me start by searching the knowledge base for detailed FMind information.
 
 <reasoning>
 The assistant used todo_write tool correctly because:
-1. The task requires multiple retrieval operations (searching KB for Keystone, web search for LangChain and LlamaIndex)
+1. The task requires multiple retrieval operations (searching KB for FMind, web search for LangChain and LlamaIndex)
 2. Each retrieval task is specific and actionable
 3. The todo list focuses on WHAT to retrieve, not HOW to summarize
 4. Summary and synthesis will be handled separately by thinking tool after all retrieval is complete

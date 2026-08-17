@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
 )
 
 func TestWaitCmd_Shape(t *testing.T) {

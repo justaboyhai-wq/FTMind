@@ -8,11 +8,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/output"
-	"github.com/justaboyhai-wq/keystone/cli/internal/text"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/output"
+	"github.com/justaboyhai-wq/fmind/cli/internal/text"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 const (
@@ -72,11 +72,11 @@ AI agents: prefer 'search chunks' for retrieval tasks. Use 'chunk list'
 only when you need to enumerate / verify the chunking output of a
 specific document.`
 
-const chunkListExample = `  keystone chunk list --doc doc_abc
-  keystone chunk list --doc doc_abc --all-pages --page-size 100
-  keystone chunk list --doc doc_abc --format json | jq '.[] | {id, chunk_index}'`
+const chunkListExample = `  fmind chunk list --doc doc_abc
+  fmind chunk list --doc doc_abc --all-pages --page-size 100
+  fmind chunk list --doc doc_abc --format json | jq '.[] | {id, chunk_index}'`
 
-// NewCmdList builds `keystone chunk list --doc <doc-id>`.
+// NewCmdList builds `fmind chunk list --doc <doc-id>`.
 func NewCmdList(f *cmdutil.Factory) *cobra.Command {
 	opts := &ListOptions{}
 	cmd := &cobra.Command{
@@ -114,7 +114,7 @@ func NewCmdList(f *cmdutil.Factory) *cobra.Command {
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:       "List chunks of a specific document in stored order (admin/debug). Results come with meta.count; use --limit (1..10000) and --all-pages to paginate. Prefer 'search chunks' for RAG retrieval.",
 		RequiredFlags: []string{"--doc"},
-		Examples:      []string{"keystone chunk list --doc doc_abc --format json", "keystone chunk list --doc doc_abc --all-pages --format json"},
+		Examples:      []string{"fmind chunk list --doc doc_abc --format json", "fmind chunk list --doc doc_abc --all-pages --format json"},
 		Output:        "envelope.data is an array of Chunk objects with id, chunk_index, content, is_enabled; meta.count is the returned count, meta.total_count the document's full chunk count, meta.has_more true when --limit truncated",
 	})
 	return cmd

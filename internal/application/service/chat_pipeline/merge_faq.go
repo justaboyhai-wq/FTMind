@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // populateFAQAnswers populates FAQ answers for the search results

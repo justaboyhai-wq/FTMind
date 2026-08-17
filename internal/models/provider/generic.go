@@ -3,7 +3,7 @@ package provider
 import (
 	"fmt"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // GenericProvider 实现通用 OpenAI 兼容的 Provider 接口

@@ -1,18 +1,18 @@
-# keystone — Keystone CLI
+# fmind — FMind CLI
 
-A command-line interface for the Keystone RAG knowledge-base server. Lets you
+A command-line interface for the FMind RAG knowledge-base server. Lets you
 authenticate, manage knowledge bases and documents, run hybrid search, and
 ask streaming RAG questions from your terminal or from an AI agent.
 
 ```bash
-$ keystone --help
-Command-line client for the Keystone RAG server. Manage knowledge bases
+$ fmind --help
+Command-line client for the FMind RAG server. Manage knowledge bases
 and documents, run hybrid search, chat with grounded answers, or expose
 a curated read-only MCP tool surface for AI agents.
 
 Available Commands:
   agent       Manage custom agents (CRUD + status/check)
-  api         Make a raw API request to the Keystone server
+  api         Make a raw API request to the FMind server
   auth        Manage authentication credentials and profiles
   chat        Ask a streaming RAG question against a knowledge base
   chunk       Manage document chunks (RAG retrieval debug)
@@ -24,7 +24,7 @@ Available Commands:
   help        Help about any command
   kb          Manage knowledge bases
   link        Bind the current directory to a knowledge base
-  mcp         Run keystone as a Model Context Protocol server
+  mcp         Run fmind as a Model Context Protocol server
   message     Inspect and manage messages inside chat sessions
   model       Manage models (list / view / create / update / delete)
   profile     Manage CLI profiles (named connection targets)
@@ -48,10 +48,10 @@ For contributing to the CLI source, see [AGENTS.md](AGENTS.md).
 Requires Go 1.26+.
 
 ```bash
-git clone https://github.com/justaboyhai-wq/keystone.git
-cd Keystone/cli
-go build -o keystone .
-sudo mv keystone /usr/local/bin/   # or anywhere on $PATH
+git clone https://github.com/justaboyhai-wq/fmind.git
+cd FMind/cli
+go build -o fmind .
+sudo mv fmind /usr/local/bin/   # or anywhere on $PATH
 ```
 
 ### Pre-built binaries
@@ -65,77 +65,77 @@ until then, use the from-source build above.
 ## 5-minute quickstart
 
 ```bash
-# 1. Register your Keystone server as a profile and make it active
-keystone profile add prod --host https://kb.example.com --use
+# 1. Register your FMind server as a profile and make it active
+fmind profile add prod --host https://kb.example.com --use
 
 # 2. Authenticate the active profile (interactive password prompt)
-keystone auth login
+fmind auth login
 
 # 2b. Or pipe an API key from stdin (for CI / AI agents)
-echo "sk-..." | keystone auth login --with-token
+echo "sk-..." | fmind auth login --with-token
 
 # 3. List knowledge bases
-keystone kb list
+fmind kb list
 
 # 4. Bind this directory to a knowledge base — subsequent commands auto-resolve --kb
-keystone link --kb my-knowledge-base
+fmind link --kb my-knowledge-base
 
 # 5. Upload a document, then block until parsing finishes
-keystone doc upload notes.md
-keystone doc wait doc_abc                          # exit 0 completed, 1 failed, 124 --timeout, 130 ^C
-keystone doc reparse doc_abc                       # re-trigger parsing if it failed, then wait again
+fmind doc upload notes.md
+fmind doc wait doc_abc                          # exit 0 completed, 1 failed, 124 --timeout, 130 ^C
+fmind doc reparse doc_abc                       # re-trigger parsing if it failed, then wait again
 
 # 6. Search
-keystone search chunks "what is reciprocal rank fusion?"
+fmind search chunks "what is reciprocal rank fusion?"
 
 # 7. Ask the LLM (streams to terminal)
-keystone chat "summarise the design doc"
+fmind chat "summarise the design doc"
 
-# 8. Manage custom agents and run them (see `keystone agent --help` / `keystone session --help`)
-keystone model list                               # discover a model id for --model
-keystone agent list
-keystone session ask --agent ag_abc "what's our q4 retention plan?"
+# 8. Manage custom agents and run them (see `fmind agent --help` / `fmind session --help`)
+fmind model list                               # discover a model id for --model
+fmind agent list
+fmind session ask --agent ag_abc "what's our q4 retention plan?"
 
 # 9. Inspect a document's chunks for RAG retrieval debug
-keystone chunk list --doc doc_xyz
+fmind chunk list --doc doc_xyz
 
 # 10. Inspect messages in a session / search across sessions
-keystone message list --session sess_abc
-keystone message search "retry policy"                      # cross-session Q&A retrieval
+fmind message list --session sess_abc
+fmind message search "retry policy"                      # cross-session Q&A retrieval
 
 # 11. Resolve a pending tool approval (agent run blocked on approval event)
-keystone session tool-approval resolve pend_xxx -y          # approve (after user go-ahead)
-keystone session resume sess_abc --message msg_xyz # resume the blocked stream
+fmind session tool-approval resolve pend_xxx -y          # approve (after user go-ahead)
+fmind session resume sess_abc --message msg_xyz # resume the blocked stream
 
 # 12. Health & verification verbs
-keystone kb status kb_abc       # fast snapshot: reachable / counts / processing flag (1 HTTP)
-keystone kb check kb_abc        # deep verify: also aggregates failed_count via doc list (1+N HTTP)
-keystone agent status ag_abc    # fast: reachable / model_id
-keystone agent check ag_abc     # deep: probes every KB in the agent's scope
+fmind kb status kb_abc       # fast snapshot: reachable / counts / processing flag (1 HTTP)
+fmind kb check kb_abc        # deep verify: also aggregates failed_count via doc list (1+N HTTP)
+fmind agent status ag_abc    # fast: reachable / model_id
+fmind agent check ag_abc     # deep: probes every KB in the agent's scope
 ```
 
 ---
 
 ### Agent quick start
 
-For AI agents (any MCP-capable host) integrating Keystone:
+For AI agents (any MCP-capable host) integrating FMind:
 
 1. Install: build from source (see [Install](#install))
 2. Authenticate. In a sandbox / CI, the **stateless** path needs no `auth login`
    and writes nothing to disk — just set two env vars:
    ```bash
-   export KEYSTONE_API_KEY="sk-…"   # or KEYSTONE_TOKEN for a bearer JWT
-   export KEYSTONE_HOST="https://kb.example.com"
-   keystone kb list                 # already authenticated
+   export FMIND_API_KEY="sk-…"   # or FMIND_TOKEN for a bearer JWT
+   export FMIND_HOST="https://kb.example.com"
+   fmind kb list                 # already authenticated
    ```
    Or, for a persisted local profile:
    ```bash
-   keystone profile add prod --host <server-url> --use
-   keystone auth login
+   fmind profile add prod --host <server-url> --use
+   fmind auth login
    ```
 3. Register MCP in the host's MCP config:
    ```json
-   {"mcpServers": {"keystone": {"command": "keystone", "args": ["mcp", "serve"]}}}
+   {"mcpServers": {"fmind": {"command": "fmind", "args": ["mcp", "serve"]}}}
    ```
 4. Read the [wire contract](AGENTS.md#wire-contract-for-ai-agents) before
    parsing `--format json` output.
@@ -143,21 +143,21 @@ For AI agents (any MCP-capable host) integrating Keystone:
    any destructive call.
 
 **Bundled Agent Skills.** This CLI ships [Agent Skills](https://agentskills.io/specification)
-under [`skills/`](skills/) that teach an agent to drive Keystone without trial and error:
+under [`skills/`](skills/) that teach an agent to drive FMind without trial and error:
 
-- [`keystone-shared`](skills/keystone-shared/SKILL.md) — **read first**: auth/profile
+- [`fmind-shared`](skills/fmind-shared/SKILL.md) — **read first**: auth/profile
   sequence, `--kb` resolution, the JSON-envelope + exit-code contract, the exit-10
   protocol, `--dry-run`, and CLI-vs-MCP selection.
-- [`keystone-rag-search`](skills/keystone-rag-search/SKILL.md) — when to use `chat`
+- [`fmind-rag-search`](skills/fmind-rag-search/SKILL.md) — when to use `chat`
   vs `session ask` vs `search chunks`, plus retrieval gotchas.
 
 Install them with the CLI (the skills are embedded in the binary, no checkout
 needed):
 
 ```bash
-keystone skills install                      # writes to ~/.claude/skills
-keystone skills install --dir <agent-skills-dir> --force   # other agents / overwrite
-keystone skills list --format json           # what would be installed
+fmind skills install                      # writes to ~/.claude/skills
+fmind skills install --dir <agent-skills-dir> --force   # other agents / overwrite
+fmind skills list --format json           # what would be installed
 ```
 
 Existing files are left untouched without `--force`; `--dry-run` previews the
@@ -174,27 +174,27 @@ on the *active* profile (override per-invocation with the global `--profile`
 flag). Create a profile first, then authenticate it:
 
 ```bash
-keystone profile add prod    --host https://prod.example.com --use     # add + switch
-keystone auth login                                                    # authenticate active (prod)
+fmind profile add prod    --host https://prod.example.com --use     # add + switch
+fmind auth login                                                    # authenticate active (prod)
 
-keystone profile add staging --host https://staging.example.com        # add (stays inactive)
-echo "sk-..." | keystone --profile staging auth login --with-token     # authenticate staging
+fmind profile add staging --host https://staging.example.com        # add (stays inactive)
+echo "sk-..." | fmind --profile staging auth login --with-token     # authenticate staging
 
-keystone auth list
-keystone profile use prod                                              # switch back
+fmind auth list
+fmind profile use prod                                              # switch back
 ```
 
 Credentials are persisted to your OS keyring (Keychain on macOS, libsecret on
 Linux, Wincred on Windows) when available, otherwise to a 0600-mode file
-under `$XDG_CONFIG_HOME/keystone/secrets/`. The active profile lives in
-`~/.config/keystone/config.yaml`.
+under `$XDG_CONFIG_HOME/fmind/secrets/`. The active profile lives in
+`~/.config/fmind/config.yaml`.
 
 To remove a profile's stored credentials:
 
 ```bash
-keystone auth logout                       # active profile
-keystone --profile staging auth logout     # specific profile
-keystone auth logout --all
+fmind auth logout                       # active profile
+fmind --profile staging auth logout     # specific profile
+fmind auth logout --all
 ```
 
 ---
@@ -203,7 +203,7 @@ keystone auth logout --all
 
 Designed to be AI-agent-first. Stable across minor releases; breaking
 changes announced in the changelog and the corresponding
-`keystone --version` bump. This section is the human overview; the complete,
+`fmind --version` bump. This section is the human overview; the complete,
 authoritative contract (envelope field stability, error taxonomy, streaming,
 confirmation and dry-run protocols) lives in **[AGENTS.md](AGENTS.md)**.
 
@@ -222,16 +222,16 @@ symmetric envelope `{ok, data, meta?}` — `data` is an array for `list` /
 against the whole envelope, so reach into list items with `.data[]`:
 
 ```bash
-keystone kb list --format json                              # {"ok":true,"data":[{"id":"kb_x",…}],"meta":{"count":1,…}}
-keystone kb view kb_x --format json                         # {"ok":true,"data":{"id":"kb_x","name":"Eng",…}}
-keystone kb list --format json --jq '.data[] | {id, name}'  # project listed fields out of each item
-keystone kb list --format json --jq '.data[].id'            # ids only
-keystone kb list --format json --jq '.meta.count'           # number returned
+fmind kb list --format json                              # {"ok":true,"data":[{"id":"kb_x",…}],"meta":{"count":1,…}}
+fmind kb view kb_x --format json                         # {"ok":true,"data":{"id":"kb_x","name":"Eng",…}}
+fmind kb list --format json --jq '.data[] | {id, name}'  # project listed fields out of each item
+fmind kb list --format json --jq '.data[].id'            # ids only
+fmind kb list --format json --jq '.meta.count'           # number returned
 ```
 
 `--format ndjson` is also accepted for streaming list commands; each
 element is emitted as its own JSON line. `--format json` is the default
-regardless of TTY — running `keystone kb list | jq` works without an
+regardless of TTY — running `fmind kb list | jq` works without an
 explicit flag. Use `--format text` for human-readable output.
 
 ### Errors
@@ -248,7 +248,7 @@ Example:
 
 ```
 auth.unauthenticated: fetch current user: HTTP error 401: ...
-hint: run `keystone auth login`
+hint: run `fmind auth login`
 ```
 
 Under `--format json` the same failure is the typed error envelope on stderr
@@ -262,7 +262,7 @@ taxonomy.
 |---|---|---|
 | `0`   | success                                                | continue |
 | `1`   | typed `local.*` / `operation.failed` / unclassified    | read stderr, decide retry/abort |
-| `2`   | flag / argument validation error                       | re-check `keystone <cmd> --help` |
+| `2`   | flag / argument validation error                       | re-check `fmind <cmd> --help` |
 | `3`   | `auth.*` (token missing / expired / forbidden)         | re-auth, then retry |
 | `4`   | `resource.not_found`                                   | verify the resource id |
 | `5`   | `input.*` (other than `confirmation_required`)         | adjust args, retry |
@@ -272,7 +272,7 @@ taxonomy.
 | `124` | `operation.timeout` (e.g. `doc wait --timeout` reached) | raise `--timeout` or check the underlying job |
 | `130` | cancelled by signal — typed `operation.cancelled` errors exit 1; `main.go` promotes the process exit to 130 when the root context was signal-cancelled (SIGINT / SIGTERM) | stop, do not retry |
 
-Run `keystone exit-codes` for the machine-readable matrix (JSON); `keystone help exit-codes` for the human-readable table.
+Run `fmind exit-codes` for the machine-readable matrix (JSON); `fmind help exit-codes` for the human-readable table.
 
 **Exit 10** is the wire-level signal for "destructive write needs
 explicit confirmation". Pass `-y/--yes` on `kb delete` /
@@ -290,10 +290,10 @@ is the guard against unintended writes.
   the unmodified raw stream.
 - `--format json` composes with the global `--profile <name>` for
   single-shot profile overrides without disk writes.
-- `keystone mcp serve` exposes a curated read-only tool surface over
+- `fmind mcp serve` exposes a curated read-only tool surface over
   stdio MCP for any MCP-compatible client.
-- `keystone schema` enumerates every command with its `used_for`, and
-  `keystone schema <cmd path>` (e.g. `keystone schema doc update`) prints that
+- `fmind schema` enumerates every command with its `used_for`, and
+  `fmind schema <cmd path>` (e.g. `fmind schema doc update`) prints that
   command's full contract — `used_for`, `required_flags`, `examples`,
   `output`, `warnings`, `risk`, and local `flags` — as the standard envelope,
   so an agent can discover the surface without scraping `--help` prose.
@@ -302,27 +302,27 @@ is the guard against unintended writes.
 
 ## Advanced operations not exposed as flags
 
-Keystone CLI exposes top use cases as polished commands; deep
+FMind CLI exposes top use cases as polished commands; deep
 configuration goes through the raw HTTP passthrough. CLI flag coverage
 targets common workflows, not 1:1 API parity. Examples of deep
-operations that intentionally go through `keystone api`:
+operations that intentionally go through `fmind api`:
 
 - **Tuning a KB's nested config** — chunking strategy, summary model,
   multimodal extraction defaults, FAQ thresholds, VLM model. Use
-  `keystone api PUT /api/v1/knowledge-bases/<id> --input -` with a JSON
+  `fmind api PUT /api/v1/knowledge-bases/<id> --input -` with a JSON
   body matching the server's `UpdateKnowledgeBaseRequest`. (Note: the
   storage provider is set once at create time via
   `kb create --storage-provider <name>` and is not updatable.)
 - **Per-request `chat` parameters** — multi-KB scope, summary model
-  override, image attachments, web search toggle. Use `keystone api POST
+  override, image attachments, web search toggle. Use `fmind api POST
   /api/v1/knowledge-chat/<session-id> --input -`.
 - **Per-request `session ask --agent` overrides** — same shape via
-  `keystone api POST /api/v1/agent-chat/<session-id> --input -`.
+  `fmind api POST /api/v1/agent-chat/<session-id> --input -`.
 - **Operations without a CLI verb** — register / change-password /
   OIDC flows, organization / sharing endpoints, tenant management.
 
-`keystone api --help` documents the raw passthrough. Run
-`keystone doctor` first to verify auth and base URL.
+`fmind api --help` documents the raw passthrough. Run
+`fmind doctor` first to verify auth and base URL.
 
 ---
 
@@ -332,7 +332,7 @@ Add `--dry-run` to any mutation command to preview the would-be action without e
 
 ```bash
 # Preview a kb create without actually creating
-keystone kb create --name "test-kb" --description "for review" --dry-run
+fmind kb create --name "test-kb" --description "for review" --dry-run
 
 # Output (single line; pretty-printed here for readability):
 # {
@@ -353,32 +353,32 @@ dry-run is **offline**: no network calls, no file IO, no credential touches. Wor
 For destructive commands, dry-run does NOT trigger the exit-10 confirmation flow:
 
 ```bash
-keystone kb delete kb_xxxx --dry-run   # exit 0, no prompt
-keystone kb delete kb_xxxx             # exit 10, prompts for -y
+fmind kb delete kb_xxxx --dry-run   # exit 0, no prompt
+fmind kb delete kb_xxxx             # exit 10, prompts for -y
 ```
 
 For the `api` command, dry-run requires explicit write method (POST/PUT/PATCH/DELETE); GET returns FlagError:
 
 ```bash
-echo '{"name":"foo"}' | keystone api -X POST /api/v1/knowledge-bases --input - --dry-run   # OK
-keystone api /api/v1/knowledge-bases --dry-run                                              # exit 2: requires explicit -X
+echo '{"name":"foo"}' | fmind api -X POST /api/v1/knowledge-bases --input - --dry-run   # OK
+fmind api /api/v1/knowledge-bases --dry-run                                              # exit 2: requires explicit -X
 ```
 
 ---
 
 ## Resuming streams
 
-The `keystone session resume` command resumes an SSE event stream for an existing assistant message. Useful for network-blip recovery or polling long-running agent invocations:
+The `fmind session resume` command resumes an SSE event stream for an existing assistant message. Useful for network-blip recovery or polling long-running agent invocations:
 
 ```bash
 # Original streaming call captures session_id + message_id from init event:
-keystone session ask "..." --agent ag_xxxx --format ndjson | tee /tmp/stream.ndjson
+fmind session ask "..." --agent ag_xxxx --format ndjson | tee /tmp/stream.ndjson
 # {"type":"init","session_id":"sess_abc","message_id":"msg_xyz"}
 # ... events flow ...
 # [network blip]
 
 # Resume the same stream:
-keystone session resume sess_abc --message msg_xyz
+fmind session resume sess_abc --message msg_xyz
 # Server REPLAYS all stored events from the start, then tails new ones.
 # Agent must dedupe (by message_id or event hash) to avoid double-processing.
 ```
@@ -390,10 +390,10 @@ An agent run may pause the stream on a tool-approval event until a human approve
 ```bash
 # 1. Stream pauses with a tool-approval event carrying a pending_id.
 # 2. Surface the pending tool call to the user; get explicit go-ahead.
-keystone session tool-approval resolve pend_xxx -y                      # approve
-# keystone session tool-approval resolve pend_xxx --reject --reason "..." -y  # reject
+fmind session tool-approval resolve pend_xxx -y                      # approve
+# fmind session tool-approval resolve pend_xxx --reject --reason "..." -y  # reject
 # 3. Resume the stream — server replays + tails from where the run was blocked.
-keystone session resume sess_abc --message msg_xyz
+fmind session resume sess_abc --message msg_xyz
 ```
 
 Pass `--modified-args '{"key":"value"}'` to replace tool arguments on approve (must be a non-empty JSON object). Never auto-pass `-y` — the approval is the exit-10 human-in-the-loop gate.
@@ -406,7 +406,7 @@ See `cli/AGENTS.md` "Stream recovery" section for the full agent contract.
 
 ## Health check
 
-Run `keystone doctor` for a 4-status diagnostic (OK / warn / fail /
+Run `fmind doctor` for a 4-status diagnostic (OK / warn / fail /
 skip) covering base URL reachability, authentication, server-CLI
 version skew, and credential storage backend. Add `--format json` for
 machine-readable output, `--offline` to skip network checks.
@@ -416,12 +416,12 @@ a fast vs deep choice:
 
 | Verb | Cost | Use |
 |---|---|---|
-| `keystone kb status <kb-id>`     | 1 HTTP    | live counts / processing flag |
-| `keystone kb check <kb-id>`      | 1+N HTTP  | adds `failed_count` via doc-list page-walk |
-| `keystone agent status <agent-id>` | 1 HTTP  | reachable / model_id |
-| `keystone agent check <agent-id>`  | 1+N HTTP | also probes every KB in the agent's scope |
+| `fmind kb status <kb-id>`     | 1 HTTP    | live counts / processing flag |
+| `fmind kb check <kb-id>`      | 1+N HTTP  | adds `failed_count` via doc-list page-walk |
+| `fmind agent status <agent-id>` | 1 HTTP  | reachable / model_id |
+| `fmind agent check <agent-id>`  | 1+N HTTP | also probes every KB in the agent's scope |
 
-`keystone doc wait <doc-id> [<doc-id>...]` blocks until each document
+`fmind doc wait <doc-id> [<doc-id>...]` blocks until each document
 reaches a terminal `parse_status` (completed or failed). Exit codes:
 0 (all completed), 1 (any failed), 124 (`--timeout` reached), 130
 (Ctrl-C / SIGTERM). Multi-target is polled concurrently (max 5 in
@@ -435,7 +435,7 @@ flight; pipe through `xargs -P` for more).
 # Run unit + contract tests
 go test ./...
 
-# Run the real-server e2e suite (requires KEYSTONE_E2E_HOST + token env vars)
+# Run the real-server e2e suite (requires FMIND_E2E_HOST + token env vars)
 go test -tags acceptance_e2e ./acceptance/e2e/...
 
 # Static analysis
@@ -450,7 +450,7 @@ macOS / Windows × Go 1.26, path-filtered to changes under `cli/`.
 ## Contributing / Reporting issues
 
 - **Bugs and feature requests**: file an issue at
-  [github.com/justaboyhai-wq/keystone/issues](https://github.com/justaboyhai-wq/keystone/issues).
+  [github.com/justaboyhai-wq/fmind/issues](https://github.com/justaboyhai-wq/fmind/issues).
 - **Security disclosures**: see the repository-level
   [SECURITY.md](../SECURITY.md). Do not file public issues for
   security findings.

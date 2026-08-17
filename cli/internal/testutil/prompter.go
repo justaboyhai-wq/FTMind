@@ -1,7 +1,7 @@
 package testutil
 
 import (
-	"github.com/justaboyhai-wq/keystone/cli/internal/prompt"
+	"github.com/justaboyhai-wq/fmind/cli/internal/prompt"
 )
 
 // ConfirmPrompter is a test double for prompt.Prompter that scripts a single

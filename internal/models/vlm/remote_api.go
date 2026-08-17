@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/models/provider"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/models/provider"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 	openai "github.com/sashabaranov/go-openai"
 )
 

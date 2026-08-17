@@ -10,9 +10,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // fakeCreateSvc captures call arguments and returns canned responses.
@@ -151,12 +151,12 @@ func TestCreate_EmptyText_RejectsBeforeSDK(t *testing.T) {
 	assert.Nil(t, svc.got.req, "SDK must not be called when --text is empty")
 }
 
-// TestCreate_AgentHelp_EmitsUsedFor verifies that when KEYSTONE_AGENT_HELP=1
+// TestCreate_AgentHelp_EmitsUsedFor verifies that when FMIND_AGENT_HELP=1
 // the `doc create --help` path emits a JSON blob containing "used_for".
 // This is the representative test for 3.2; the mechanism is covered by
 // internal/cmdutil/agenthelp_test.go — we test the wiring here.
 func TestCreate_AgentHelp_EmitsUsedFor(t *testing.T) {
-	t.Setenv("KEYSTONE_AGENT_HELP", "1")
+	t.Setenv("FMIND_AGENT_HELP", "1")
 	_, _ = iostreams.SetForTest(t)
 
 	f := &cmdutil.Factory{}

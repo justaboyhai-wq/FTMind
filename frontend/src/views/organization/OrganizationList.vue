@@ -175,7 +175,7 @@
 
         <!-- 空状态（按筛选显示不同文案） -->
         <div v-else-if="!loading" class="empty-state">
-          <KeystoneEmptyStateArt class="empty-art" variant="shared" />
+          <FMindEmptyStateArt class="empty-art" variant="shared" />
           <span class="empty-txt">{{ emptyStateTitle }}</span>
           <span class="empty-desc">{{ emptyStateDesc }}</span>
           <div class="empty-state-actions">
@@ -320,7 +320,7 @@
                       <div class="searchable-list-wrap">
                         <t-loading :loading="searchLoading">
                           <div v-if="searchableList.length === 0 && !searchLoading" class="searchable-empty">
-                            <KeystoneEmptyStateArt class="searchable-empty-art" variant="shared" />
+                            <FMindEmptyStateArt class="searchable-empty-art" variant="shared" />
                             <span class="searchable-empty-txt">
                               {{ searchQuery ? $t('organization.join.noSearchResult') :
                                 $t('organization.join.noSearchableSpaces') }}
@@ -556,7 +556,7 @@ import OrganizationSettingsModal from './OrganizationSettingsModal.vue'
 import SpaceAvatar from '@/components/SpaceAvatar.vue'
 import ListSpaceSidebar from '@/components/ListSpaceSidebar.vue'
 import { shouldShowOrgRelationTag } from '@/utils/card-list-badge'
-import KeystoneEmptyStateArt from '@/components/KeystoneEmptyStateArt.vue'
+import FMindEmptyStateArt from '@/components/FMindEmptyStateArt.vue'
 
 interface OrgWithUI extends Organization {
   showMore?: boolean

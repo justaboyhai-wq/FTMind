@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/event"
+	"github.com/justaboyhai-wq/fmind/internal/event"
 )
 
 type execCtxKey struct{}

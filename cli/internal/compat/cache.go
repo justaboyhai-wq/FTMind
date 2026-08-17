@@ -8,7 +8,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/xdg"
+	"github.com/justaboyhai-wq/fmind/cli/internal/xdg"
 )
 
 const ttl = 24 * time.Hour

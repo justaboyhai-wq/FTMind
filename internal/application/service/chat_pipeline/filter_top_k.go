@@ -3,7 +3,7 @@ package chatpipeline
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // PluginFilterTopK is a plugin that filters search results to keep only the top K items

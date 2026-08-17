@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/models/chat"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
-	"github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/models/chat"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/utils"
 	"github.com/google/uuid"
 )
 

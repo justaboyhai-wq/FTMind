@@ -3,7 +3,7 @@ package dto
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // RoleFromContext returns the caller's tenant role from ctx.

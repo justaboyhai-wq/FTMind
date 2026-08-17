@@ -58,7 +58,7 @@ body:
         - Just me / a personal preference
         - My team or a small group
         - Many users would benefit
-        - Blocking adoption of Keystone
+        - Blocking adoption of FMind
     validations:
       required: true
 

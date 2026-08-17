@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/justaboyhai-wq/keystone/internal/common"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/common"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // toolErrorHint is appended to tool error messages to guide the LLM to retry with a different approach.

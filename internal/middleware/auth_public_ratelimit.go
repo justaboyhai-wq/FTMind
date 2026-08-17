@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	apperrors "github.com/justaboyhai-wq/keystone/internal/errors"
+	apperrors "github.com/justaboyhai-wq/fmind/internal/errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,7 +22,7 @@ import (
 // and bounds the noise this endpoint can add to the user-create path.
 //
 // Local in-memory only — fine for typical deployments since both
-// endpoints handle low absolute volumes; if/when Keystone horizontally
+// endpoints handle low absolute volumes; if/when FMind horizontally
 // scales the auth surface, swap to the Redis-backed limiter in
 // internal/ratelimit (shared with IM + embed surfaces).
 

@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
-	"github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // defaultSearxngTimeout is sized slightly above the SearXNG image's default
@@ -119,7 +119,7 @@ func (p *SearxngProvider) Search(
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Accept", "application/json")
-	req.Header.Set("User-Agent", "Keystone/1.0")
+	req.Header.Set("User-Agent", "FMind/1.0")
 
 	resp, err := p.client.Do(req)
 	if err != nil {

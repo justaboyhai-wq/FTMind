@@ -3,7 +3,7 @@ package cmdutil_test
 import (
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
 )
 
 func TestAllCodes_NonEmpty(t *testing.T) {

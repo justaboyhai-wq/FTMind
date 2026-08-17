@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/text"
+	"github.com/justaboyhai-wq/fmind/cli/internal/text"
 )
 
 func TestFuzzyAgoStr(t *testing.T) {

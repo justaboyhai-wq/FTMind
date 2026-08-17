@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // DataSourceResponse mirrors types.DataSource for response bodies, with the

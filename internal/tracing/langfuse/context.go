@@ -3,7 +3,7 @@ package langfuse
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // traceCtxKey is the exported context key defined in types/const.go. It lives

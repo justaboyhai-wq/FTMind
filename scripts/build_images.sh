@@ -1,5 +1,5 @@
 #!/bin/bash
-# 该脚本用于从源码构建Keystone的所有Docker镜像
+# 该脚本用于从源码构建FMind的所有Docker镜像
 
 # 设置颜色
 GREEN='\033[0;32m'
@@ -18,7 +18,7 @@ SCRIPT_NAME=$(basename "$0")
 
 # 显示帮助信息
 show_help() {
-    echo -e "${GREEN}Keystone 镜像构建脚本 v${VERSION}${NC}"
+    echo -e "${GREEN}FMind 镜像构建脚本 v${VERSION}${NC}"
     echo -e "${GREEN}用法:${NC} $0 [选项]"
     echo "选项:"
     echo "  -h, --help     显示帮助信息"
@@ -34,7 +34,7 @@ show_help() {
 
 # 显示版本信息
 show_version() {
-    echo -e "${GREEN}Keystone 镜像构建脚本 v${VERSION}${NC}"
+    echo -e "${GREEN}FMind 镜像构建脚本 v${VERSION}${NC}"
     exit 0
 }
 
@@ -126,7 +126,7 @@ get_version_info() {
 
 # 构建应用镜像
 build_app_image() {
-    log_info "构建应用镜像 (keystone-app)..."
+    log_info "构建应用镜像 (fmind-app)..."
     
     cd "$PROJECT_ROOT"
     
@@ -143,7 +143,7 @@ build_app_image() {
         --build-arg BUILD_TIME_ARG="$BUILD_TIME" \
         --build-arg GO_VERSION_ARG="$GO_VERSION" \
         -f docker/Dockerfile.app \
-        -t wechatopenai/keystone-app:latest \
+        -t wechatopenai/fmind-app:latest \
         .
     
     if [ $? -eq 0 ]; then
@@ -157,7 +157,7 @@ build_app_image() {
 
 # 构建文档读取器镜像
 build_docreader_image() {
-    log_info "构建文档读取器镜像 (keystone-docreader)..."
+    log_info "构建文档读取器镜像 (fmind-docreader)..."
     
     cd "$PROJECT_ROOT"
     
@@ -167,7 +167,7 @@ build_docreader_image() {
         --build-arg TARGETARCH=$TARGETARCH \
         --build-arg APT_MIRROR=${APT_MIRROR:-} \
         -f docker/Dockerfile.docreader \
-        -t wechatopenai/keystone-docreader:latest \
+        -t wechatopenai/fmind-docreader:latest \
         .
     
     if [ $? -eq 0 ]; then
@@ -181,7 +181,7 @@ build_docreader_image() {
 
 # 构建前端镜像
 build_frontend_image() {
-    log_info "构建前端镜像 (keystone-ui)..."
+    log_info "构建前端镜像 (fmind-ui)..."
     
     cd "$PROJECT_ROOT"
     
@@ -194,7 +194,7 @@ build_frontend_image() {
     docker build \
         --platform $PLATFORM \
         -f frontend/Dockerfile \
-        -t wechatopenai/keystone-ui:latest \
+        -t wechatopenai/fmind-ui:latest \
         frontend/
     
     if [ $? -eq 0 ]; then
@@ -208,14 +208,14 @@ build_frontend_image() {
 
 # 构建沙箱镜像
 build_sandbox_image() {
-    log_info "构建沙箱镜像 (keystone-sandbox)..."
+    log_info "构建沙箱镜像 (fmind-sandbox)..."
 
     cd "$PROJECT_ROOT"
 
     docker build \
         --platform $PLATFORM \
         -f docker/Dockerfile.sandbox \
-        -t wechatopenai/keystone-sandbox:latest \
+        -t wechatopenai/fmind-sandbox:latest \
         .
 
     if [ $? -eq 0 ]; then
@@ -290,26 +290,26 @@ build_all_images() {
 
 # 清理本地镜像
 clean_images() {
-    log_info "清理本地Keystone镜像..."
+    log_info "清理本地FMind镜像..."
     
     # 停止相关容器
     log_info "停止相关容器..."
-    docker stop $(docker ps -q --filter "ancestor=wechatopenai/keystone-app:latest" 2>/dev/null) 2>/dev/null || true
-    docker stop $(docker ps -q --filter "ancestor=wechatopenai/keystone-docreader:latest" 2>/dev/null) 2>/dev/null || true
-    docker stop $(docker ps -q --filter "ancestor=wechatopenai/keystone-ui:latest" 2>/dev/null) 2>/dev/null || true
+    docker stop $(docker ps -q --filter "ancestor=wechatopenai/fmind-app:latest" 2>/dev/null) 2>/dev/null || true
+    docker stop $(docker ps -q --filter "ancestor=wechatopenai/fmind-docreader:latest" 2>/dev/null) 2>/dev/null || true
+    docker stop $(docker ps -q --filter "ancestor=wechatopenai/fmind-ui:latest" 2>/dev/null) 2>/dev/null || true
     
     # 删除相关容器
     log_info "删除相关容器..."
-    docker rm $(docker ps -aq --filter "ancestor=wechatopenai/keystone-app:latest" 2>/dev/null) 2>/dev/null || true
-    docker rm $(docker ps -aq --filter "ancestor=wechatopenai/keystone-docreader:latest" 2>/dev/null) 2>/dev/null || true
-    docker rm $(docker ps -aq --filter "ancestor=wechatopenai/keystone-ui:latest" 2>/dev/null) 2>/dev/null || true
+    docker rm $(docker ps -aq --filter "ancestor=wechatopenai/fmind-app:latest" 2>/dev/null) 2>/dev/null || true
+    docker rm $(docker ps -aq --filter "ancestor=wechatopenai/fmind-docreader:latest" 2>/dev/null) 2>/dev/null || true
+    docker rm $(docker ps -aq --filter "ancestor=wechatopenai/fmind-ui:latest" 2>/dev/null) 2>/dev/null || true
     
     # 删除镜像
     log_info "删除本地镜像..."
-    docker rmi wechatopenai/keystone-app:latest 2>/dev/null || true
-    docker rmi wechatopenai/keystone-docreader:latest 2>/dev/null || true
-    docker rmi wechatopenai/keystone-ui:latest 2>/dev/null || true
-    docker rmi wechatopenai/keystone-sandbox:latest 2>/dev/null || true
+    docker rmi wechatopenai/fmind-app:latest 2>/dev/null || true
+    docker rmi wechatopenai/fmind-docreader:latest 2>/dev/null || true
+    docker rmi wechatopenai/fmind-ui:latest 2>/dev/null || true
+    docker rmi wechatopenai/fmind-sandbox:latest 2>/dev/null || true
     
     docker image prune -f
     

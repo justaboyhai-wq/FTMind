@@ -1,4 +1,4 @@
-// Package client provides the implementation for interacting with the Keystone API
+// Package client provides the implementation for interacting with the FMind API
 // The Tenant related interfaces are used to manage tenants in the system
 // Tenants can be created, retrieved, updated, deleted, and queried
 // They can also be used to manage retriever engines for different tasks
@@ -43,7 +43,7 @@ type Tenant struct {
 	// Storage used (Bytes)
 	StorageUsed int64 `yaml:"storage_used"      json:"storage_used"      gorm:"default:0"`
 	// APIKey is only populated by CreateTenant when the server has
-	// tenant.auto_create_api_key (env KEYSTONE_TENANT_AUTO_CREATE_API_KEY)
+	// tenant.auto_create_api_key (env FMIND_TENANT_AUTO_CREATE_API_KEY)
 	// enabled: it carries the plaintext token of an auto-created full_access
 	// key. Empty otherwise. Save it on receipt — it is never returned again.
 	APIKey string `yaml:"api_key,omitempty" json:"api_key,omitempty"`

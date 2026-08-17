@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 	"github.com/stretchr/testify/assert"
 )
 

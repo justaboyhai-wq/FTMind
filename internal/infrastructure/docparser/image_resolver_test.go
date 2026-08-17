@@ -16,8 +16,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // createTestPNG generates a minimal PNG image with the given dimensions.

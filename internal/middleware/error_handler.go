@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/justaboyhai-wq/keystone/internal/errors"
+	"github.com/justaboyhai-wq/fmind/internal/errors"
 )
 
 // ErrorHandler 是一个处理应用错误的中间件

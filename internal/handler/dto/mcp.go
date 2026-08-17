@@ -13,7 +13,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // MCPServiceResponse mirrors types.MCPService for response bodies, omitting

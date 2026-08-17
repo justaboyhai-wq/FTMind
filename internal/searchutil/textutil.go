@@ -6,7 +6,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // BuildContentSignature creates a normalized MD5 signature for content to detect duplicates.

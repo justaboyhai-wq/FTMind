@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/sse"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/sse"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 func TestProjector_DefaultKeepsOnlyAnswerEvents(t *testing.T) {

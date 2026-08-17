@@ -5,11 +5,11 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
 )
 
-// TestSearch_NoArgs_ShowsHelp: bare `keystone search` (no subcommand)
+// TestSearch_NoArgs_ShowsHelp: bare `fmind search` (no subcommand)
 // must run cobra's Help() without erroring.
 func TestSearch_NoArgs_ShowsHelp(t *testing.T) {
 	_, _ = iostreams.SetForTest(t)
@@ -20,7 +20,7 @@ func TestSearch_NoArgs_ShowsHelp(t *testing.T) {
 	require.NoError(t, cmd.Execute())
 }
 
-// TestSearch_RejectsPositional: bare positional `keystone search "<q>" --kb X`
+// TestSearch_RejectsPositional: bare positional `fmind search "<q>" --kb X`
 // must error - search is a pure dispatcher with no shortcut form.
 func TestSearch_RejectsPositional(t *testing.T) {
 	_, _ = iostreams.SetForTest(t)

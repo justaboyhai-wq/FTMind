@@ -59,7 +59,7 @@ function tenantSegmentForKey(): string {
 }
 
 function recentsKey(): string {
-  return `Keystone_${readUserId()}_${tenantSegmentForKey()}${RECENTS_SUFFIX}`
+  return `FMind_${readUserId()}_${tenantSegmentForKey()}${RECENTS_SUFFIX}`
 }
 
 function readRecents(): PinEntry[] {

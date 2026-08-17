@@ -3,7 +3,7 @@ package rerank
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/tracing/langfuse"
+	"github.com/justaboyhai-wq/fmind/internal/tracing/langfuse"
 )
 
 const langfuseRerankPreviewDocs = 8

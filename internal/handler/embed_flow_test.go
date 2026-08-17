@@ -10,9 +10,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/application/service"
-	"github.com/justaboyhai-wq/keystone/internal/middleware"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/application/service"
+	"github.com/justaboyhai-wq/fmind/internal/middleware"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/gin-gonic/gin"
 )
 
@@ -116,7 +116,7 @@ func (f *flowTenantSvc) SearchTenants(context.Context, string, uint64, int, int)
 func (f *flowTenantSvc) GetTenantByIDForUser(context.Context, uint64, string) (*types.Tenant, error) {
 	return f.tenant, nil
 }
-func (f *flowTenantSvc) GetKeystoneCloudCredentials(context.Context) *types.KeystoneCloudCredentials {
+func (f *flowTenantSvc) GetFMindCloudCredentials(context.Context) *types.FMindCloudCredentials {
 	return nil
 }
 

@@ -13,13 +13,13 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/config"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/prompt"
-	"github.com/justaboyhai-wq/keystone/cli/internal/testutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/config"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/prompt"
+	"github.com/justaboyhai-wq/fmind/cli/internal/testutil"
 )
 
 // fakeAllSvc implements AllService for --all mode tests.

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // ProviderFactory creates a new web search provider instance from parameters.

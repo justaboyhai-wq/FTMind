@@ -7,7 +7,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
 )
 
 // inspectByQueryResponse parses an _update_by_query / _delete_by_query

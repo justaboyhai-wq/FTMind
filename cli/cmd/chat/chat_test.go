@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/sse"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/sse"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // fakeChatService implements ChatService for unit tests. Tests configure the

@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/datasource"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/datasource"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
 )
 
 // fakeYuque sets up an httptest server emulating Yuque API endpoints.

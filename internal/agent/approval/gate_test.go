@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/config"
-	"github.com/justaboyhai-wq/keystone/internal/event"
+	"github.com/justaboyhai-wq/fmind/internal/config"
+	"github.com/justaboyhai-wq/fmind/internal/event"
 	"github.com/stretchr/testify/require"
 )
 

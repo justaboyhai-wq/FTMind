@@ -1,4 +1,4 @@
-# 使用 uv 运行 Keystone MCP 服务器
+# 使用 uv 运行 FMind MCP 服务器
 
 > 更推荐使用`uv`来运行基于python的MCP服务。
 
@@ -24,17 +24,17 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 ```json
 {
   "mcpServers": {
-    "keystone": {
+    "fmind": {
       "args": [
         "--directory",
-        "/path/Keystone/mcp-server",
+        "/path/FMind/mcp-server",
         "run",
         "run_server.py"
       ],
       "command": "uv",
       "env": {
-        "KEYSTONE_API_KEY": "your_api_key_here",
-        "KEYSTONE_BASE_URL": "http://localhost:8080/api/v1"
+        "FMIND_API_KEY": "your_api_key_here",
+        "FMIND_BASE_URL": "http://localhost:8080/api/v1"
       }
     }
   }
@@ -48,17 +48,17 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 ```json
 {
   "mcpServers": {
-    "keystone": {
+    "fmind": {
       "command": "uv",
       "args": [
         "--directory",
-        "/path/Keystone/mcp-server",
+        "/path/FMind/mcp-server",
         "run",
         "run_server.py"
       ],
       "env": {
-        "KEYSTONE_API_KEY": "your_api_key_here",
-        "KEYSTONE_BASE_URL": "http://localhost:8080/api/v1"
+        "FMIND_API_KEY": "your_api_key_here",
+        "FMIND_BASE_URL": "http://localhost:8080/api/v1"
       }
     }
   }
@@ -72,17 +72,17 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 ```json
 {
   "mcpServers": {
-    "keystone": {
+    "fmind": {
       "command": "uv",
       "args": [
         "--directory",
-        "/path/Keystone/mcp-server",
+        "/path/FMind/mcp-server",
         "run",
         "run_server.py"
       ],
       "env": {
-        "KEYSTONE_API_KEY": "your_api_key_here",
-        "KEYSTONE_BASE_URL": "http://localhost:8080/api/v1"
+        "FMIND_API_KEY": "your_api_key_here",
+        "FMIND_BASE_URL": "http://localhost:8080/api/v1"
       }
     }
   }
@@ -96,17 +96,17 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
 ```json
 {
   "mcpServers": {
-    "keystone": {
+    "fmind": {
       "command": "uv",
       "args": [
         "--directory",
-        "/path/Keystone/mcp-server",
+        "/path/FMind/mcp-server",
         "run",
         "run_server.py"
       ],
       "env": {
-        "KEYSTONE_API_KEY": "your_api_key_here",
-        "KEYSTONE_BASE_URL": "http://localhost:8080/api/v1"
+        "FMIND_API_KEY": "your_api_key_here",
+        "FMIND_BASE_URL": "http://localhost:8080/api/v1"
       }
     }
   }

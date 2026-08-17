@@ -10,9 +10,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/models/provider"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/models/provider"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 const anthropicVersion = "2023-06-01"

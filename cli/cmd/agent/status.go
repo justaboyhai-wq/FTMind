@@ -7,9 +7,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // AgentStatusResult is the shallow health snapshot for `agent status <id>`.
@@ -41,11 +41,11 @@ func NewCmdStatus(f *cmdutil.Factory) *cobra.Command {
 
 Returns: reachable / model_id.
 
-For downstream KB reachability verification use 'keystone agent check <id>'
+For downstream KB reachability verification use 'fmind agent check <id>'
 (active verification, 1 + N HTTP). For full agent config / metadata use
-'keystone agent view <id>'.`,
-		Example: `  keystone agent status ag_abc
-  keystone agent status ag_abc --format json`,
+'fmind agent view <id>'.`,
+		Example: `  fmind agent status ag_abc
+  fmind agent status ag_abc --format json`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			fopts, err := cmdutil.CheckFormatFlag(c)
@@ -68,7 +68,7 @@ For downstream KB reachability verification use 'keystone agent check <id>'
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:       "shallow health probe of a custom agent: reachability without kb_scope verification",
 		RequiredFlags: []string{"<agent-id> (positional)"},
-		Examples:      []string{"keystone agent status agent_abc"},
+		Examples:      []string{"fmind agent status agent_abc"},
 		Output:        "envelope.data is {id, reachable, ...}; use `agent check` for deep kb_scope verification",
 	})
 	return cmd

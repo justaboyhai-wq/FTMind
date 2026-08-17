@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/handler"
-	sessionhandler "github.com/justaboyhai-wq/keystone/internal/handler/session"
-	"github.com/justaboyhai-wq/keystone/internal/middleware"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/handler"
+	sessionhandler "github.com/justaboyhai-wq/fmind/internal/handler/session"
+	"github.com/justaboyhai-wq/fmind/internal/middleware"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/gin-gonic/gin"
 )
 
@@ -276,7 +276,7 @@ func TestTenantInfrastructureRoutesDeclareSpecificCapabilities(t *testing.T) {
 	RegisterEmbedChannelRoutes(v1, &handler.EmbedChannelHandler{}, g)
 	RegisterIMChannelRoutes(v1, &handler.IMHandler{}, g)
 	RegisterDataSourceRoutes(v1, &handler.DataSourceHandler{}, &handler.DataSourceCredentialsHandler{}, g)
-	RegisterKeystoneCloudRoutes(v1, &handler.KeystoneCloudHandler{}, g)
+	RegisterFMindCloudRoutes(v1, &handler.FMindCloudHandler{}, g)
 
 	cases := []struct {
 		method string
@@ -293,7 +293,7 @@ func TestTenantInfrastructureRoutesDeclareSpecificCapabilities(t *testing.T) {
 		{http.MethodGet, "/api/v1/embed-channels", types.APIKeyCapabilityManageChannels},
 		{http.MethodGet, "/api/v1/im-channels", types.APIKeyCapabilityManageChannels},
 		{http.MethodGet, "/api/v1/datasource", types.APIKeyCapabilityManageDataSources},
-		{http.MethodGet, "/api/v1/models/keystonecloud/status", types.APIKeyCapabilityManageModels},
+		{http.MethodGet, "/api/v1/models/fmindcloud/status", types.APIKeyCapabilityManageModels},
 	}
 
 	for _, tc := range cases {

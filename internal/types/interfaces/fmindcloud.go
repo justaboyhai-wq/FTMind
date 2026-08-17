@@ -3,14 +3,14 @@ package interfaces
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
-// KeystoneCloudService 处理 KeystoneCloud 凭证管理
-type KeystoneCloudService interface {
+// FMindCloudService 处理 FMindCloud 凭证管理
+type FMindCloudService interface {
 	// SaveCredentials 仅保存 APPID/APPSECRET 凭证到空间配置，不自动创建模型
 	SaveCredentials(ctx context.Context, appID, appSecret string) error
-	// CheckStatus 检查当前空间的 KeystoneCloud 凭证是否可正常解密
+	// CheckStatus 检查当前空间的 FMindCloud 凭证是否可正常解密
 	// needsReinit=true 表示加密状态已损坏（salt 变更等），需要用户重新填写凭证
-	CheckStatus(ctx context.Context) (*types.KeystoneCloudStatusResult, error)
+	CheckStatus(ctx context.Context) (*types.FMindCloudStatusResult, error)
 }

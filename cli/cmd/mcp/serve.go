@@ -3,11 +3,11 @@ package mcpcmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	mcpserver "github.com/justaboyhai-wq/keystone/cli/internal/mcp"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	mcpserver "github.com/justaboyhai-wq/fmind/cli/internal/mcp"
 )
 
-// NewCmdServe builds `keystone mcp serve`. Currently stdio-only; HTTP
+// NewCmdServe builds `fmind mcp serve`. Currently stdio-only; HTTP
 // (streamable / SSE) transports may be added later.
 func NewCmdServe(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
@@ -27,8 +27,8 @@ under "mcpServers":
 
     {
       "mcpServers": {
-        "keystone": {
-          "command": "keystone",
+        "fmind": {
+          "command": "fmind",
           "args": ["mcp", "serve"]
         }
       }
@@ -47,13 +47,13 @@ Consult your MCP client's documentation for the exact config-file location.`,
 		},
 	}
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
-		UsedFor: "run keystone as a long-lived MCP (Model Context Protocol) server over stdio for an IDE/host agent",
+		UsedFor: "run fmind as a long-lived MCP (Model Context Protocol) server over stdio for an IDE/host agent",
 		Output:  "no stdout payload (JSON-RPC 2.0 protocol traffic); logs go to stderr",
 		Examples: []string{
-			"keystone mcp serve",
+			"fmind mcp serve",
 		},
 		Warnings: []string{
-			"this is a long-running stdio server, not a one-shot command — register it in your MCP client (command: keystone, args: [mcp, serve])",
+			"this is a long-running stdio server, not a one-shot command — register it in your MCP client (command: fmind, args: [mcp, serve])",
 			"exits with auth.unauthenticated at startup if no profile is configured",
 		},
 	})

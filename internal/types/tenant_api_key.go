@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/errors"
-	"github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/errors"
+	"github.com/justaboyhai-wq/fmind/internal/utils"
 	"gorm.io/gorm"
 )
 
@@ -82,7 +82,7 @@ const (
 	// messages across the tenant.
 	APIKeyCapabilityMessageHistory APIKeyCapability = "message_history"
 	// APIKeyCapabilityManageModels lets a key manage tenant model
-	// definitions, credentials, model checks, and KeystoneCloud credentials.
+	// definitions, credentials, model checks, and FMindCloud credentials.
 	APIKeyCapabilityManageModels APIKeyCapability = "manage_models"
 	// APIKeyCapabilityManageMCPServices lets a key manage tenant MCP service
 	// definitions, credentials, tool policies, and per-principal OAuth state.

@@ -3,7 +3,7 @@ package service
 import (
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/searchutil"
+	"github.com/justaboyhai-wq/fmind/internal/searchutil"
 )
 
 // Fuzzy slug resolution: rescue LLM-generated `[[slug|display]]` links

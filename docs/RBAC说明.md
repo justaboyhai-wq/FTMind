@@ -1,6 +1,6 @@
 # 空间 RBAC 说明
 
-本文档介绍 Keystone **空间内权限控制（Workspace RBAC）** 的设计、角色矩阵、资源归属模型、配置方式，以及它与 [共享空间](./共享空间说明.md) 之间的关系。
+本文档介绍 FMind **空间内权限控制（Workspace RBAC）** 的设计、角色矩阵、资源归属模型、配置方式，以及它与 [共享空间](./共享空间说明.md) 之间的关系。
 
 > 状态：已随 #1303 发布，由配置项 `tenant.enable_rbac` 控制，默认 `true`（强制鉴权）。可临时切到 `false` 进入「仅记录不拦截」的灰度窗口。
 
@@ -127,8 +127,8 @@ audit:
 
 | 环境变量 | YAML 路径 | 取值 |
 |----------|-----------|------|
-| `KEYSTONE_TENANT_ENABLE_RBAC` | `tenant.enable_rbac` | `true` / `false` |
-| `KEYSTONE_AUDIT_RETENTION_DAYS` | `audit.retention_days` | 非负整数 |
+| `FMIND_TENANT_ENABLE_RBAC` | `tenant.enable_rbac` | `true` / `false` |
+| `FMIND_AUDIT_RETENTION_DAYS` | `audit.retention_days` | 非负整数 |
 
 `auth.registration_mode` 没有专属环境变量，沿用历史的 `DISABLE_REGISTRATION=true`——一旦设置，启动时会把 `auth.registration_mode` 强制改成 `invite_only`，保证后端 API 和 `/auth/config` 驱动的前端注册入口一致。
 
@@ -168,7 +168,7 @@ audit:
 ### 回滚
 
 ```bash
-export KEYSTONE_TENANT_ENABLE_RBAC=false
+export FMIND_TENANT_ENABLE_RBAC=false
 # 重启服务即可回到观察模式
 ```
 
@@ -188,7 +188,7 @@ Pinia 中的 `authStore` 暴露：
 
 - **成员管理**同时展示待接受邀请和空间成员；仅 Owner 可新增或移除成员，审计入口跳转到 `audit_logs` 视图。
 - **用户菜单和工作区切换器**展示当前角色、设置和退出入口，并标识活跃工作区。
-- **自助创建工作区**会让创建者成为 Owner，受 `KEYSTONE_TENANT_MAX_PER_USER` 上限保护。
+- **自助创建工作区**会让创建者成为 Owner，受 `FMIND_TENANT_MAX_PER_USER` 上限保护。
 - **待处理邀请**可直接接受或拒绝；七天未响应自动过期。
 
 ## 九、常见问题

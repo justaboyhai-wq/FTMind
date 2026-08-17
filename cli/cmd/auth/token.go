@@ -6,8 +6,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
 )
 
 // authTokenFields lists fields surfaced in `--help` as a hint for `--jq`
@@ -20,12 +20,12 @@ type tokenResult struct {
 	Profile string `json:"profile"`
 }
 
-// NewCmdToken builds `keystone auth token`. Prints the active profile's
+// NewCmdToken builds `fmind auth token`. Prints the active profile's
 // credential to stdout for use in shell pipelines, e.g.
 //
-//	KEYSTONE_TOKEN=$(keystone auth token)
-//	curl -H "Authorization: Bearer $KEYSTONE_TOKEN" ...     # JWT mode
-//	curl -H "X-API-Key: $KEYSTONE_TOKEN" ...                # api-key mode
+//	FMIND_TOKEN=$(fmind auth token)
+//	curl -H "Authorization: Bearer $FMIND_TOKEN" ...     # JWT mode
+//	curl -H "X-API-Key: $FMIND_TOKEN" ...                # api-key mode
 //
 // The user is responsible for constructing the appropriate header -
 // `auth list` shows which mode each profile uses.
@@ -40,26 +40,26 @@ func NewCmdToken(f *cmdutil.Factory) *cobra.Command {
 newline, suitable for shell command substitution.
 
 The credential is the long-lived API key (mode: api-key) or the access JWT
-(mode: bearer), depending on how the profile was created. Run ` + "`keystone auth list`" + `
+(mode: bearer), depending on how the profile was created. Run ` + "`fmind auth list`" + `
 to see which mode each profile uses, and construct the matching HTTP header:
 
   Authorization: Bearer <token>    # bearer mode
   X-API-Key: <token>               # api-key mode
 
 ` + "`--profile <name>`" + ` (global flag) selects a non-active profile to read from.`,
-		Example: `  KEYSTONE_TOKEN=$(keystone auth token)
-  keystone auth token --profile staging
-  keystone auth token --format json`,
+		Example: `  FMIND_TOKEN=$(fmind auth token)
+  fmind auth token --profile staging
+  fmind auth token --format json`,
 		Args: cobra.NoArgs,
 		RunE: func(c *cobra.Command, _ []string) error {
 			fopts, err := cmdutil.CheckFormatFlag(c)
 			if err != nil {
 				return err
 			}
-			// `auth token` is a scalar scripting helper (KEYSTONE_TOKEN=$(...)),
+			// `auth token` is a scalar scripting helper (FMIND_TOKEN=$(...)),
 			// so it defaults to the raw token — overriding the global json
 			// default, the same way `doc download` streams raw bytes. Explicit
-			// --format json / KEYSTONE_FORMAT=json still emit the
+			// --format json / FMIND_FORMAT=json still emit the
 			// {token,mode,profile} envelope.
 			fopts.FromEnv()
 			if fopts.Mode == "" {
@@ -78,9 +78,9 @@ to see which mode each profile uses, and construct the matching HTTP header:
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor: "print the active profile's raw credential to stdout for shell capture",
 		Examples: []string{
-			"KEYSTONE_TOKEN=$(keystone auth token)",
-			"keystone auth token --profile staging",
-			"keystone auth token --format json",
+			"FMIND_TOKEN=$(fmind auth token)",
+			"fmind auth token --profile staging",
+			"fmind auth token --format json",
 		},
 		Output: "raw token on stdout (no envelope, no trailing newline) by default; --format json emits {token, mode, profile}",
 		Warnings: []string{
@@ -96,7 +96,7 @@ func runToken(f *cmdutil.Factory, fopts *cmdutil.FormatOptions) error {
 	// erroring on the absence of a stored profile.
 	if active, kind := cmdutil.EnvCredential(); active {
 		mode := ModeBearer
-		if kind == "KEYSTONE_API_KEY" {
+		if kind == "FMIND_API_KEY" {
 			mode = ModeAPIKey
 		}
 		return emitToken(fopts, os.Getenv(kind), mode, "(env)")
@@ -143,12 +143,12 @@ func runToken(f *cmdutil.Factory, fopts *cmdutil.FormatOptions) error {
 		token, mode = v, ModeAPIKey
 	default:
 		return cmdutil.NewError(cmdutil.CodeAuthUnauthenticated,
-			fmt.Sprintf("profile %q has no stored credential; run `keystone auth login`", profileName))
+			fmt.Sprintf("profile %q has no stored credential; run `fmind auth login`", profileName))
 	}
 
 	if token == "" {
 		return cmdutil.NewError(cmdutil.CodeAuthUnauthenticated,
-			fmt.Sprintf("profile %q credential is empty in keyring; run `keystone auth login`", profileName))
+			fmt.Sprintf("profile %q credential is empty in keyring; run `fmind auth login`", profileName))
 	}
 
 	return emitToken(fopts, token, mode, profileName)
@@ -156,7 +156,7 @@ func runToken(f *cmdutil.Factory, fopts *cmdutil.FormatOptions) error {
 
 // emitToken renders a resolved credential: the {token, mode, profile} envelope
 // under --format json, else the raw token on stdout (no trailing newline, for
-// clean $(keystone auth token) capture) with a TTY-only leak hint on stderr.
+// clean $(fmind auth token) capture) with a TTY-only leak hint on stderr.
 func emitToken(fopts *cmdutil.FormatOptions, token, mode, profile string) error {
 	if token == "" {
 		return cmdutil.NewError(cmdutil.CodeAuthUnauthenticated, "active credential is empty")
@@ -165,7 +165,7 @@ func emitToken(fopts *cmdutil.FormatOptions, token, mode, profile string) error 
 		return fopts.Emit(iostreams.IO.Out, tokenResult{Token: token, Mode: mode, Profile: profile}, nil)
 	}
 
-	// No trailing newline - clean $(keystone auth token) substitution.
+	// No trailing newline - clean $(fmind auth token) substitution.
 	fmt.Fprint(iostreams.IO.Out, token)
 	// Defensive hint to stderr when stdout is an interactive terminal:
 	// the user likely didn't mean to display the secret on screen.
@@ -174,7 +174,7 @@ func emitToken(fopts *cmdutil.FormatOptions, token, mode, profile string) error 
 	// recourse on leak - bearer tokens self-expire via refresh.
 	if iostreams.IO.IsStdoutTTY() {
 		fmt.Fprintln(iostreams.IO.Err)
-		fmt.Fprintln(iostreams.IO.Err, "hint: pipe to $(keystone auth token) to capture; this terminal scrollback now contains the secret")
+		fmt.Fprintln(iostreams.IO.Err, "hint: pipe to $(fmind auth token) to capture; this terminal scrollback now contains the secret")
 		if mode == ModeAPIKey {
 			fmt.Fprintln(iostreams.IO.Err, "note: api-key credentials are long-lived - rotate via your auth provider if exposed (no `auth refresh` path)")
 		}

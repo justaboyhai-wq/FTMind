@@ -6,11 +6,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	apperrors "github.com/justaboyhai-wq/keystone/internal/errors"
-	"github.com/justaboyhai-wq/keystone/internal/handler/dto"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	apperrors "github.com/justaboyhai-wq/fmind/internal/errors"
+	"github.com/justaboyhai-wq/fmind/internal/handler/dto"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // registerByInviteRequest is the body for /auth/register-by-invite.

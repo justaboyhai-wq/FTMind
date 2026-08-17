@@ -5,10 +5,10 @@ import (
 	"errors"
 	"time"
 
-	werrors "github.com/justaboyhai-wq/keystone/internal/errors"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	werrors "github.com/justaboyhai-wq/fmind/internal/errors"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // ListTenantsParams defines parameters for listing tenants with filtering and pagination
@@ -231,11 +231,11 @@ func (s *tenantService) GetTenantByIDForUser(ctx context.Context, tenantID uint6
 	return tenant, nil
 }
 
-func (s *tenantService) GetKeystoneCloudCredentials(ctx context.Context) *types.KeystoneCloudCredentials {
+func (s *tenantService) GetFMindCloudCredentials(ctx context.Context) *types.FMindCloudCredentials {
 	// Try to get tenant info from context first (already loaded by middleware).
 	// CredentialsConfig.Scan handles decryption, so credentials are ready to use.
 	if tenant, ok := types.TenantInfoFromContext(ctx); ok {
-		if creds := tenant.Credentials.GetKeystoneCloud(); creds != nil {
+		if creds := tenant.Credentials.GetFMindCloud(); creds != nil {
 			return creds
 		}
 	}
@@ -250,7 +250,7 @@ func (s *tenantService) GetKeystoneCloudCredentials(ctx context.Context) *types.
 	if err != nil || tenant == nil {
 		return nil
 	}
-	return tenant.Credentials.GetKeystoneCloud()
+	return tenant.Credentials.GetFMindCloud()
 }
 
 func (s *tenantService) validateStorageBucketUniqueness(ctx context.Context, tenant *types.Tenant) error {

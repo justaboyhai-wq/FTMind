@@ -3,7 +3,7 @@ package chat
 import (
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // TestConfigFromModel 验证 ConfigFromModel 能把 types.Model 完整映射到 ChatConfig，

@@ -11,8 +11,8 @@ import (
 	"github.com/google/uuid"
 	osapi "github.com/opensearch-project/opensearch-go/v4/opensearchapi"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // copyBatchSize is the pagination size for the source scan. Kept under the

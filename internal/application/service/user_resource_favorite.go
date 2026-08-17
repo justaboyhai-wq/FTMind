@@ -5,8 +5,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // Sentinel errors so the handler can map cleanly to HTTP status codes

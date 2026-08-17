@@ -6,9 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // modelViewFields enumerates the fields surfaced for `--format json` discovery
@@ -24,7 +24,7 @@ type ViewService interface {
 	GetModel(ctx context.Context, id string) (*sdk.Model, error)
 }
 
-// NewCmdView builds `keystone model view <model-id>`.
+// NewCmdView builds `fmind model view <model-id>`.
 func NewCmdView(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "view <model-id>",
@@ -48,7 +48,7 @@ func NewCmdView(f *cmdutil.Factory) *cobra.Command {
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:       "fetch one model's full record by id",
 		RequiredFlags: []string{"<model-id> (positional)"},
-		Examples:      []string{"keystone model view model_abc --jq .data.type"},
+		Examples:      []string{"fmind model view model_abc --jq .data.type"},
 		Output:        "envelope.data is the Model object (id, name, display_name, type, source, is_default, parameters)",
 	})
 	return cmd

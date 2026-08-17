@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Keystone MCP Server Package
+FMind MCP Server Package
 
-A Model Context Protocol server that provides access to the Keystone knowledge management API.
+A Model Context Protocol server that provides access to the FMind knowledge management API.
 """
 
 __version__ = "1.0.0"
-__author__ = "Keystone Team"
-__description__ = "Keystone MCP Server - Model Context Protocol server for Keystone API"
+__author__ = "FMind Team"
+__description__ = "FMind MCP Server - Model Context Protocol server for FMind API"
 
-from .keystone_mcp_server import KeystoneClient, run
+from .fmind_mcp_server import FMindClient, run
 
-__all__ = ["KeystoneClient", "run"]
+__all__ = ["FMindClient", "run"]

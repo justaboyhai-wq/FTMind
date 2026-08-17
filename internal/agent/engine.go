@@ -7,17 +7,17 @@ import (
 	"strings"
 	"time"
 
-	agentmemory "github.com/justaboyhai-wq/keystone/internal/agent/memory"
-	"github.com/justaboyhai-wq/keystone/internal/agent/skills"
-	agenttoken "github.com/justaboyhai-wq/keystone/internal/agent/token"
-	agenttools "github.com/justaboyhai-wq/keystone/internal/agent/tools"
-	"github.com/justaboyhai-wq/keystone/internal/common"
-	appconfig "github.com/justaboyhai-wq/keystone/internal/config"
-	"github.com/justaboyhai-wq/keystone/internal/event"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/models/chat"
-	"github.com/justaboyhai-wq/keystone/internal/tracing/langfuse"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	agentmemory "github.com/justaboyhai-wq/fmind/internal/agent/memory"
+	"github.com/justaboyhai-wq/fmind/internal/agent/skills"
+	agenttoken "github.com/justaboyhai-wq/fmind/internal/agent/token"
+	agenttools "github.com/justaboyhai-wq/fmind/internal/agent/tools"
+	"github.com/justaboyhai-wq/fmind/internal/common"
+	appconfig "github.com/justaboyhai-wq/fmind/internal/config"
+	"github.com/justaboyhai-wq/fmind/internal/event"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/models/chat"
+	"github.com/justaboyhai-wq/fmind/internal/tracing/langfuse"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // langfuseQueryPreview caps the query length we ship as the agent.execute

@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/common"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/common"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/pgvector/pgvector-go"
 )
 

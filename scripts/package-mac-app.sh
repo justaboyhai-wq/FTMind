@@ -2,7 +2,7 @@
 set -euo pipefail
 
 #
-# 本地构建 + 打包 Keystone macOS 桌面应用 (.app)
+# 本地构建 + 打包 FMind macOS 桌面应用 (.app)
 #
 # 用法:
 #   ./scripts/package-mac-app.sh
@@ -13,11 +13,11 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${ROOT_DIR}"
 
-APP_NAME="Keystone Lite"
+APP_NAME="FMind Lite"
 APP_BUNDLE="${APP_NAME}.app"
 DIST_DIR="dist/${APP_BUNDLE}"
 
-echo "=== Keystone Mac App Packager ==="
+echo "=== FMind Mac App Packager ==="
 echo "  Output: dist/${APP_BUNDLE}"
 echo ""
 
@@ -65,7 +65,7 @@ export GOLANG_PROTOBUF_REGISTRATION_CONFLICT=warn
 eval "$(./scripts/get_version.sh env)"
 LDFLAGS="$(./scripts/get_version.sh ldflags) -X 'google.golang.org/protobuf/reflect/protoregistry.conflictPolicy=warn'"
 
-# 默认生成 Wails 绑定（供 window.go.main.App.* 等）；若加 -skipbindings 则需在 OnDomReady 注入 __KEYSTONE_API_BASE__
+# 默认生成 Wails 绑定（供 window.go.main.App.* 等）；若加 -skipbindings 则需在 OnDomReady 注入 __FMIND_API_BASE__
 (cd cmd/desktop && wails build -clean -tags "sqlite_fts5" -ldflags="$LDFLAGS" -o "${APP_NAME}")
 
 # ── Step 3: Copy generated .app to dist ──

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 const defaultHitPreviewLimit = 25

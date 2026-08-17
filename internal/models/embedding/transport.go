@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // validateEmbeddingBaseURL checks that a resolved embedding API base URL is safe

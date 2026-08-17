@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/agent/skills"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/agent/skills"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // Tool name constant for execute_skill_script

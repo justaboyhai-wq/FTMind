@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // TenantInvitationRepository persists tenant_invitations rows that

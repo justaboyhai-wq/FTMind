@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/tencent/vectordatabase-sdk-go/tcvdbtext/encoder"
 )
@@ -102,9 +102,9 @@ func TestTencentVectorDBUsesConfiguredReplicaNumber(t *testing.T) {
 func TestCollectionNameUsesDimensionSuffixByDefault(t *testing.T) {
 	repo := NewTencentVectorDBRetrieveEngineRepository(nil, "", nil).(*repository)
 
-	assert.Equal(t, "keystone_embeddings_1024", repo.collectionName(1024))
-	assert.True(t, repo.matchesCollection("keystone_embeddings_1024"))
-	assert.False(t, repo.matchesCollection("keystone_embeddings"))
+	assert.Equal(t, "fmind_embeddings_1024", repo.collectionName(1024))
+	assert.True(t, repo.matchesCollection("fmind_embeddings_1024"))
+	assert.False(t, repo.matchesCollection("fmind_embeddings"))
 }
 
 func TestCollectionNameRespectsExplicitCollectionName(t *testing.T) {

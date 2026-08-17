@@ -7,10 +7,10 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/config"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/config"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 type viewEnvelope struct {
@@ -101,7 +101,7 @@ func networkFreeFactory(t *testing.T) *cmdutil.Factory {
 	return f
 }
 
-// TestConfigView_EnvCredentialSurfaced: when KEYSTONE_API_KEY + KEYSTONE_HOST are
+// TestConfigView_EnvCredentialSurfaced: when FMIND_API_KEY + FMIND_HOST are
 // set, config view reports the env override (auth_source + the env host), not
 // the bypassed config profile's host.
 func TestConfigView_EnvCredentialSurfaced(t *testing.T) {
@@ -111,10 +111,10 @@ func TestConfigView_EnvCredentialSurfaced(t *testing.T) {
 		Profiles:       map[string]config.Profile{"prod": {Host: "https://configured.example.com"}},
 	}
 	require.NoError(t, config.Save(cfg))
-	t.Setenv("KEYSTONE_API_KEY", "sk-test")
-	t.Setenv("KEYSTONE_HOST", "https://env-override.example.com")
+	t.Setenv("FMIND_API_KEY", "sk-test")
+	t.Setenv("FMIND_HOST", "https://env-override.example.com")
 
 	env := runViewJSON(t, networkFreeFactory(t))
-	assert.Contains(t, env.Data.AuthSource, "KEYSTONE_API_KEY env")
+	assert.Contains(t, env.Data.AuthSource, "FMIND_API_KEY env")
 	assert.Equal(t, "https://env-override.example.com", env.Data.Host, "host must be the env override, not the profile host")
 }

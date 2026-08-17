@@ -12,8 +12,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // ToInterfaceSlice converts a slice of strings to a slice of empty interfaces.

@@ -1,18 +1,18 @@
-# Keystone 部署与运维手册（新员工必读）
+# FMind 部署与运维手册（新员工必读）
 
 > 本文是当前生产实例的事实基线，校准日期为 2026-07-28。它用于部署、值守、排障、备份和回滚，不记录任何密码、私钥、AccessKey 或模型 API Key。通用代码与组件边界见[开发与系统架构](./ARCHITECTURE.md)。
 
 ## 1. 当前生产结论
 
-Keystone 已采用“杭州 ECS 单机应用栈 + 阿里云托管 Tair/OSS + 远程模型 API”的纯云 MVP 架构。历史上的 WireGuard、本机 Docker、MinIO 和本地模型不再是生产请求链路的一部分。
+FMind 已采用“杭州 ECS 单机应用栈 + 阿里云托管 Tair/OSS + 远程模型 API”的纯云 MVP 架构。历史上的 WireGuard、本机 Docker、MinIO 和本地模型不再是生产请求链路的一部分。
 
 | 项目 | 当前值 |
 | --- | --- |
-| 访问地址 | `https://keystone.boliboliworld.cn` |
+| 访问地址 | `https://fmind.boliboliworld.cn` |
 | ECS | 华东 1（杭州），`2 vCPU / 4 GiB`，公网 `8.136.98.84`，私网 `172.19.172.202` |
 | 系统盘 | 100 GiB 文件系统；2026-07-28 实测约 41 GiB 已用、54 GiB 可用 |
-| 部署目录 | `/opt/keystone/deploy/cloud-mvp` |
-| Compose 项目 | `keystone-mvp` |
+| 部署目录 | `/opt/fmind/deploy/cloud-mvp` |
+| Compose 项目 | `fmind-mvp` |
 | 公网入口 | 宿主机 Nginx：80/443；前端只绑定 `127.0.0.1:18081` |
 | 应用容器 | Frontend、App、ParadeDB/PostgreSQL、Qdrant、DocReader |
 | 托管服务 | 阿里云 Tair（Redis 兼容）、阿里云 OSS |
@@ -25,10 +25,10 @@ Keystone 已采用“杭州 ECS 单机应用栈 + 阿里云托管 Tair/OSS + 远
 
 ```mermaid
 flowchart LR
-    U[浏览器] -->|HTTPS 443| DNS[keystone.boliboliworld.cn]
+    U[浏览器] -->|HTTPS 443| DNS[fmind.boliboliworld.cn]
     DNS --> NG[杭州 ECS<br/>Nginx / TLS]
     NG -->|127.0.0.1:18081| FE[Frontend 容器]
-    FE -->|Compose 私网 :8080| APP[Keystone App<br/>API + Asynq Workers]
+    FE -->|Compose 私网 :8080| APP[FMind App<br/>API + Asynq Workers]
     APP --> PG[(ParadeDB / PostgreSQL)]
     APP --> Q[(Qdrant)]
     APP --> DR[DocReader gRPC]
@@ -60,30 +60,30 @@ flowchart LR
 | --- | --- | --- |
 | 云端 Compose | `deploy/cloud-mvp/docker-compose.yml` | 是 |
 | 配置模板 | `deploy/cloud-mvp/.env.example` | 是，仅占位符 |
-| 生产配置 | `/opt/keystone/deploy/cloud-mvp/.env` | 否，权限必须为 `600` |
-| Nginx 站点 | `/etc/nginx/conf.d/keystone.boliboliworld.cn.conf` | 服务器受控配置 |
-| TLS 证书 | `/etc/letsencrypt/live/keystone.boliboliworld.cn/` | 否 |
+| 生产配置 | `/opt/fmind/deploy/cloud-mvp/.env` | 否，权限必须为 `600` |
+| Nginx 站点 | `/etc/nginx/conf.d/fmind.boliboliworld.cn.conf` | 服务器受控配置 |
+| TLS 证书 | `/etc/letsencrypt/live/fmind.boliboliworld.cn/` | 否 |
 | 数据卷 | Docker volumes：PostgreSQL、Qdrant、App、DocReader 临时卷 | 否 |
-| 备份目录 | `/opt/keystone/backups/` | 否 |
+| 备份目录 | `/opt/fmind/backups/` | 否 |
 
 生产 `.env` 必须包含随机数据库、JWT、AES、主密钥与盐，以及 Tair/OSS 凭据。不要通过命令参数、Git、截图、聊天或工单传播密钥。火山 AgentPlan 同一 Provider 下的模型共用一份加密凭据；只需在一个相关模型录入/更新 Key，不应复制多份。
 
-当前 OSS RAM 用户仍使用账号级 `AliyunOSSFullAccess`，这是待收敛风险。应改为仅允许 `keystore001/keystone-mvp/*` 的 `List/Get/Put/Delete` 自定义策略，验证后撤销全量权限。
+当前 OSS RAM 用户仍使用账号级 `AliyunOSSFullAccess`，这是待收敛风险。应改为仅允许 `keystore001/fmind-mvp/*` 的 `List/Get/Put/Delete` 自定义策略，验证后撤销全量权限。
 
 ## 4. 首次部署
 
 ### 4.1 前置条件
 
 1. ECS 文件系统已扩到 100 GiB，Docker、Compose、Git 和 Nginx 可用。
-2. DNS A 记录 `keystone` 指向 `8.136.98.84`，安全组只开放必要的 22、80、443。
+2. DNS A 记录 `fmind` 指向 `8.136.98.84`，安全组只开放必要的 22、80、443。
 3. Tair 与 ECS 在可达的 VPC 网络中，白名单包含 `172.19.172.202`。
 4. OSS bucket、RAM 用户和限定前缀已创建。
-5. `/opt/keystone` 是经确认的 Git commit，工作目录没有未解释的生产手改。
+5. `/opt/fmind` 是经确认的 Git commit，工作目录没有未解释的生产手改。
 
 ### 4.2 部署命令
 
 ```bash
-cd /opt/keystone
+cd /opt/fmind
 git fetch origin main
 git checkout main
 git pull --ff-only origin main
@@ -99,7 +99,7 @@ docker compose up -d --build
 docker compose ps
 curl -f http://127.0.0.1:18081/health
 nginx -t && systemctl reload nginx
-curl -I https://keystone.boliboliworld.cn/
+curl -I https://fmind.boliboliworld.cn/
 ```
 
 首次启动后在管理界面完成：
@@ -112,10 +112,10 @@ curl -I https://keystone.boliboliworld.cn/
 
 ## 5. 日常发布
 
-发布前必须知道旧 commit，并确保 `/opt/keystone/backups/` 中存在可用 PostgreSQL 备份。
+发布前必须知道旧 commit，并确保 `/opt/fmind/backups/` 中存在可用 PostgreSQL 备份。
 
 ```bash
-cd /opt/keystone
+cd /opt/fmind
 old_commit="$(git rev-parse HEAD)"
 git fetch origin main
 git pull --ff-only origin main
@@ -125,14 +125,14 @@ docker compose config --quiet
 docker compose up -d --build
 docker compose ps
 curl -f http://127.0.0.1:18081/health
-curl -fsS https://keystone.boliboliworld.cn/ >/dev/null
+curl -fsS https://fmind.boliboliworld.cn/ >/dev/null
 echo "previous commit: ${old_commit}"
 ```
 
 仅调整问题生成提示词时，App 通过只读挂载读取 `config/prompt_templates/generate_questions.yaml`，无需重建 App 镜像，但需要重建/重启 App 容器：
 
 ```bash
-cd /opt/keystone/deploy/cloud-mvp
+cd /opt/fmind/deploy/cloud-mvp
 docker compose up -d --force-recreate app
 docker compose ps app
 ```
@@ -145,12 +145,12 @@ nginx -t
 df -h /
 free -h
 
-cd /opt/keystone/deploy/cloud-mvp
+cd /opt/fmind/deploy/cloud-mvp
 docker compose ps
 docker compose logs --tail 100 app
 docker compose logs --tail 100 docreader
 curl -f http://127.0.0.1:18081/health
-curl -I https://keystone.boliboliworld.cn/
+curl -I https://fmind.boliboliworld.cn/
 ```
 
 预期状态：
@@ -203,13 +203,13 @@ Redis/Tair 是运行态，不是唯一事实源。DocReader 临时卷不作为�
 示例数据库备份：
 
 ```bash
-cd /opt/keystone/deploy/cloud-mvp
-mkdir -p /opt/keystone/backups
+cd /opt/fmind/deploy/cloud-mvp
+mkdir -p /opt/fmind/backups
 stamp="$(date +%Y%m%d-%H%M%S)"
 docker compose exec -T postgres pg_dump \
-  -U "${DB_USER:-keystone}" -d "${DB_NAME:-keystone}" -Fc \
-  > "/opt/keystone/backups/keystone-${stamp}.dump"
-sha256sum "/opt/keystone/backups/keystone-${stamp}.dump"
+  -U "${DB_USER:-fmind}" -d "${DB_NAME:-fmind}" -Fc \
+  > "/opt/fmind/backups/fmind-${stamp}.dump"
+sha256sum "/opt/fmind/backups/fmind-${stamp}.dump"
 ```
 
 执行前应从受限环境加载正确的数据库名和用户；不要把密码写进命令。备份完成不等于可恢复，必须定期在隔离环境做恢复演练。
@@ -228,7 +228,7 @@ sha256sum "/opt/keystone/backups/keystone-${stamp}.dump"
 代码回滚使用明确 commit，不使用 `reset --hard` 清理未知工作：
 
 ```bash
-cd /opt/keystone
+cd /opt/fmind
 git status --short
 git checkout <last-known-good-commit>
 cd deploy/cloud-mvp
@@ -241,12 +241,12 @@ curl -f http://127.0.0.1:18081/health
 
 ## 11. 共享 ECS 注意事项
 
-该 ECS 还承载其他历史应用和 Nginx 站点。Keystone 变更必须限定在：
+该 ECS 还承载其他历史应用和 Nginx 站点。FMind 变更必须限定在：
 
-- `/opt/keystone`；
-- Compose 项目 `keystone-mvp`；
+- `/opt/fmind`；
+- Compose 项目 `fmind-mvp`；
 - `127.0.0.1:18081`；
-- Keystone 自己的 Nginx vhost。
+- FMind 自己的 Nginx vhost。
 
 不要停止整机 Nginx、删除不明容器/镜像/目录或改写其他域名配置。需要清理 Docker 缓存时，先列出占用与引用关系，确认不会影响其他应用。
 

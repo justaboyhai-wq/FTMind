@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/docreader/proto"
+	"github.com/justaboyhai-wq/fmind/docreader/proto"
 )
 
 func init() {

@@ -1,10 +1,10 @@
-# Keystone
+# FMind
 
 [简体中文](./README_CN.md)
 
 ## Overview
 
-Keystone turns files, web pages and Markdown into a private, searchable knowledge workspace. It combines document parsing, embeddings, hybrid retrieval, streaming chat, controlled Agents and Wiki generation in one deployable application.
+FMind turns files, web pages and Markdown into a private, searchable knowledge workspace. It combines document parsing, embeddings, hybrid retrieval, streaming chat, controlled Agents and Wiki generation in one deployable application.
 
 This is a controlled application repository for private deployment and internal maintenance. Deploy it only through approved infrastructure, configure external services with managed credentials, and retain operational data in the intended environment. Models, vector stores, object storage, parsing engines and web-search providers are independently configurable.
 
@@ -28,7 +28,7 @@ The current production profile is a cloud MVP on the Hangzhou ECS: the applicati
 
 - Docker Desktop with Docker Compose
 
-### Start Keystone
+### Start FMind
 
 ```bash
 cp .env.example .env
@@ -92,7 +92,7 @@ Existing deployments can keep their current data and service configuration when 
 | Architecture and deployment | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
 | Production deployment runbook | [docs/DEPLOYMENT_RUNBOOK.md](./docs/DEPLOYMENT_RUNBOOK.md) |
 | Cloud MVP Compose | [deploy/cloud-mvp/README.md](./deploy/cloud-mvp/README.md) |
-| Business capability map | [docs/diagrams/keystone-business-architecture.png](./docs/diagrams/keystone-business-architecture.png) |
+| Business capability map | [docs/diagrams/fmind-business-architecture.png](./docs/diagrams/fmind-business-architecture.png) |
 
 ## Development and verification
 

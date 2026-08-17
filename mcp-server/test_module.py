@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Keystone MCP Server 模组测试脚本
+FMind MCP Server 模组测试脚本
 
 测试模组的各种启动方式和功能
 """
@@ -26,14 +26,14 @@ def test_imports():
         print("✓ requests 模块导入成功")
 
         # 测试主模块
-        import keystone_mcp_server
+        import fmind_mcp_server
 
-        print("✓ keystone_mcp_server 模块导入成功")
+        print("✓ fmind_mcp_server 模块导入成功")
 
         # 测试包导入
-        from keystone_mcp_server import KeystoneClient, run
+        from fmind_mcp_server import FMindClient, run
 
-        print("✓ KeystoneClient 和 run 函数导入成功")
+        print("✓ FMindClient 和 run 函数导入成功")
 
         # 测试主入口点
         import main
@@ -51,17 +51,17 @@ def test_environment():
     """测试环境配置"""
     print("\n=== 测试环境配置 ===")
 
-    base_url = os.getenv("KEYSTONE_BASE_URL")
-    api_key = os.getenv("KEYSTONE_API_KEY")
+    base_url = os.getenv("FMIND_BASE_URL")
+    api_key = os.getenv("FMIND_API_KEY")
 
-    print(f"KEYSTONE_BASE_URL: {base_url or '未设置 (将使用默认值)'}")
-    print(f"KEYSTONE_API_KEY: {'已设置' if api_key else '未设置'}")
+    print(f"FMIND_BASE_URL: {base_url or '未设置 (将使用默认值)'}")
+    print(f"FMIND_API_KEY: {'已设置' if api_key else '未设置'}")
 
     if not base_url:
-        print("提示: 可以设置环境变量 KEYSTONE_BASE_URL")
+        print("提示: 可以设置环境变量 FMIND_BASE_URL")
 
     if not api_key:
-        print("提示: 建议设置环境变量 KEYSTONE_API_KEY")
+        print("提示: 建议设置环境变量 FMIND_API_KEY")
 
     return True
 
@@ -71,13 +71,13 @@ def test_client_creation():
     print("\n=== 测试客户端创建 ===")
 
     try:
-        from keystone_mcp_server import KeystoneClient
+        from fmind_mcp_server import FMindClient
 
-        base_url = os.getenv("KEYSTONE_BASE_URL", "http://localhost:8080/api/v1")
-        api_key = os.getenv("KEYSTONE_API_KEY", "test_key")
+        base_url = os.getenv("FMIND_BASE_URL", "http://localhost:8080/api/v1")
+        api_key = os.getenv("FMIND_API_KEY", "test_key")
 
-        client = KeystoneClient(base_url, api_key)
-        print("✓ KeystoneClient 创建成功")
+        client = FMindClient(base_url, api_key)
+        print("✓ FMindClient 创建成功")
 
         # 检查客户端属性
         assert client.base_url == base_url
@@ -99,7 +99,7 @@ def test_file_structure():
         "__init__.py",
         "main.py",
         "run_server.py",
-        "keystone_mcp_server.py",
+        "fmind_mcp_server.py",
         "requirements.txt",
         "setup.py",
         "pyproject.toml",
@@ -177,14 +177,14 @@ def test_wiki_tools():
     print("\n=== 测试 Wiki 工具 ===")
 
     try:
-        import keystone_mcp_server
+        import fmind_mcp_server
 
         # 验证 Client 方法存在
-        client = keystone_mcp_server.KeystoneClient("http://localhost:8080/api/v1", "test")
+        client = fmind_mcp_server.FMindClient("http://localhost:8080/api/v1", "test")
         for method in ["wiki_search", "wiki_read_page", "wiki_index_view"]:
-            assert hasattr(client, method), f"KeystoneClient 缺少方法: {method}"
+            assert hasattr(client, method), f"FMindClient 缺少方法: {method}"
             assert callable(getattr(client, method)), f"{method} 不可调用"
-            print(f"✓ KeystoneClient.{method} 存在")
+            print(f"✓ FMindClient.{method} 存在")
 
         return True
 
@@ -224,7 +224,7 @@ def test_package_installation():
 
 def main():
     """运行所有测试"""
-    print("Keystone MCP Server 模组测试")
+    print("FMind MCP Server 模组测试")
     print("=" * 50)
 
     tests = [

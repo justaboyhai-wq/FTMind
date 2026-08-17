@@ -3,7 +3,7 @@ package format
 import (
 	"testing"
 
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 func TestIndexReferences_ProjectsLookupFieldsWithoutMutation(t *testing.T) {

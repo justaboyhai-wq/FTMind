@@ -3,7 +3,7 @@ package text_test
 import (
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/text"
+	"github.com/justaboyhai-wq/fmind/cli/internal/text"
 )
 
 func TestPluralize(t *testing.T) {

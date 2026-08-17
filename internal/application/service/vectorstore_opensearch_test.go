@@ -3,7 +3,7 @@ package service
 import (
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 func TestValidateConnectionConfig_OpenSearch_RequiresAddr(t *testing.T) {

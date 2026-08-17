@@ -3,7 +3,7 @@ package docparser
 import (
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // EngineRegistration is the interface every locally registered parser engine
@@ -27,7 +27,7 @@ func RegisterEngine(e EngineRegistration) {
 func init() {
 	RegisterEngine(&builtinEngine{})
 	RegisterEngine(&simpleEngine{})
-	RegisterEngine(&keystoneCloudEngine{})
+	RegisterEngine(&fmindCloudEngine{})
 	RegisterEngine(&mineruEngine{})
 	RegisterEngine(&mineruCloudEngine{})
 	RegisterEngine(&paddleOCRVLEngine{})
@@ -57,8 +57,8 @@ func (e *builtinEngine) CheckAvailable(docreaderConnected bool, _ map[string]str
 // SimpleEngineName is the engine name for Go-native simple format handling.
 const SimpleEngineName = "simple"
 
-// KeystoneCloudEngineName is the engine name for KeystoneCloud-backed document parsing.
-const KeystoneCloudEngineName = "keystonecloud"
+// FMindCloudEngineName is the engine name for FMindCloud-backed document parsing.
+const FMindCloudEngineName = "fmindcloud"
 
 // ---------------------------------------------------------------------------
 // simple — Go handles md/txt/csv natively, no external service needed.
@@ -80,21 +80,21 @@ func (e *simpleEngine) CheckAvailable(_ bool, _ map[string]string) (bool, string
 }
 
 // ---------------------------------------------------------------------------
-// keystonecloud — Tenant-scoped KeystoneCloud docreader with signed requests.
+// fmindcloud — Tenant-scoped FMindCloud docreader with signed requests.
 // ---------------------------------------------------------------------------
 
-type keystoneCloudEngine struct{}
+type fmindCloudEngine struct{}
 
-func (e *keystoneCloudEngine) Name() string        { return KeystoneCloudEngineName }
-func (e *keystoneCloudEngine) Description() string { return "KeystoneCloud document reader" }
-func (e *keystoneCloudEngine) FileTypes(_ bool) []string {
+func (e *fmindCloudEngine) Name() string        { return FMindCloudEngineName }
+func (e *fmindCloudEngine) Description() string { return "FMindCloud document reader" }
+func (e *fmindCloudEngine) FileTypes(_ bool) []string {
 	return []string{"docx", "doc", "pdf", "md", "markdown", "xlsx", "xls", "pptx", "ppt"}
 }
-func (e *keystoneCloudEngine) CheckAvailable(docreaderConnected bool, overrides map[string]string) (bool, string) {
-	if overrides["keystonecloud_app_id"] != "" {
+func (e *fmindCloudEngine) CheckAvailable(docreaderConnected bool, overrides map[string]string) (bool, string) {
+	if overrides["fmindcloud_app_id"] != "" {
 		return true, ""
 	}
-	return false, "Keystone Cloud credentials not configured. Go to Settings → Keystone Cloud to set up."
+	return false, "FMind Cloud credentials not configured. Go to Settings → FMind Cloud to set up."
 }
 
 // ---------------------------------------------------------------------------

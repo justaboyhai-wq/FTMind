@@ -3,7 +3,7 @@ package datasource
 import (
 	"testing"
 
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 func TestValidateConnectorBaseURLBlocksLoopback(t *testing.T) {

@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/agent/approval"
-	"github.com/justaboyhai-wq/keystone/internal/event"
-	"github.com/justaboyhai-wq/keystone/internal/mcp"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/agent/approval"
+	"github.com/justaboyhai-wq/fmind/internal/event"
+	"github.com/justaboyhai-wq/fmind/internal/mcp"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	mcpclient "github.com/mark3labs/mcp-go/client"
 )
 

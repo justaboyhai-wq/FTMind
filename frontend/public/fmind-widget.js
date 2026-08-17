@@ -1,17 +1,17 @@
 /**
- * Keystone embed widget SDK — floating chat launcher.
+ * FMind embed widget SDK — floating chat launcher.
  *
  * Programmatic:
- *   Keystone.init({ channel, token, position, primaryColor, title, baseUrl })
- *   Keystone.open() | close() | toggle() | destroy()
- *   Keystone.on('ready', fn) | off('ready', fn)
+ *   FMind.init({ channel, token, position, primaryColor, title, baseUrl })
+ *   FMind.open() | close() | toggle() | destroy()
+ *   FMind.on('ready', fn) | off('ready', fn)
  *
  * Host context & actions (postMessage to iframe):
- *   Keystone.setContext({ userId, page, ... })
+ *   FMind.setContext({ userId, page, ... })
  *     Inject visitor/page context merged into each chat query.
- *   Keystone.openWithQuery('How do I reset my password?')
+ *   FMind.openWithQuery('How do I reset my password?')
  *     Opens the panel (if closed) and sends the query when the iframe is ready.
- *   Keystone.setLocale('en-US')
+ *   FMind.setLocale('en-US')
  *     Switch embed UI language (zh-CN | en-US | ko-KR | ru-RU).
  *
  * Secure mode (recommended): instead of `token`, pass `tokenEndpoint` — a URL on
@@ -26,8 +26,8 @@
 (function (global) {
   'use strict';
 
-  var HOST_SOURCE = 'keystone-host';
-  var EMBED_SOURCE = 'keystone-embed';
+  var HOST_SOURCE = 'fmind-host';
+  var EMBED_SOURCE = 'fmind-embed';
   var POSITIONS = ['bottom-right', 'bottom-left', 'top-right', 'top-left'];
   var DEFAULT_POSITION = 'bottom-right';
   var DEFAULT_COLOR = '#5B5BD6';
@@ -57,7 +57,7 @@
     var handlers = listeners[event];
     if (!handlers) return;
     handlers.slice().forEach(function (fn) {
-      try { fn(payload); } catch (e) { console.error('[Keystone]', e); }
+      try { fn(payload); } catch (e) { console.error('[FMind]', e); }
     });
   }
 
@@ -71,7 +71,7 @@
     // fetches a fresh token here and refreshes it before expiry.
     var tokenEndpoint = opts.tokenEndpoint || opts.token_endpoint || '';
     if (!channelId || (!staticToken && !tokenEndpoint)) {
-      console.warn('[Keystone] channel and (token or tokenEndpoint) are required');
+      console.warn('[FMind] channel and (token or tokenEndpoint) are required');
       return null;
     }
 
@@ -118,7 +118,7 @@
           return tok;
         })
         .catch(function (e) {
-          console.error('[Keystone] failed to load token', e);
+          console.error('[FMind] failed to load token', e);
           throw e;
         })
         .then(function (tok) { tokenInFlight = null; return tok; }, function (e) { tokenInFlight = null; throw e; });
@@ -132,7 +132,7 @@
     if (!baseUrl) {
       var script = document.currentScript;
       if (script && script.src) {
-        baseUrl = script.src.replace(/\/keystone-widget\.js.*$/, '');
+        baseUrl = script.src.replace(/\/fmind-widget\.js.*$/, '');
       } else {
         baseUrl = global.location ? global.location.origin : '';
       }
@@ -242,7 +242,7 @@
 
     function postHostPayload(type, payload) {
       if (!iframe.contentWindow) {
-        console.warn('[Keystone] iframe not ready');
+        console.warn('[FMind] iframe not ready');
         return false;
       }
       postToIframe({ source: HOST_SOURCE, type: type, payload: payload || {} });
@@ -256,7 +256,7 @@
         return;
       }
       if (tries >= 20) {
-        console.warn('[Keystone] iframe not ready');
+        console.warn('[FMind] iframe not ready');
         return;
       }
       setTimeout(function () { whenIframeReady(fn, tries + 1); }, 100);
@@ -264,7 +264,7 @@
 
     function setContext(ctx) {
       if (!ctx || typeof ctx !== 'object') {
-        console.warn('[Keystone] setContext expects an object');
+        console.warn('[FMind] setContext expects an object');
         return;
       }
       postHostPayload('set_context', ctx);
@@ -273,7 +273,7 @@
     function openWithQuery(query) {
       var text = String(query || '').trim();
       if (!text) {
-        console.warn('[Keystone] openWithQuery requires a non-empty query');
+        console.warn('[FMind] openWithQuery requires a non-empty query');
         return;
       }
       setOpen(true);
@@ -285,7 +285,7 @@
     function setLocale(locale) {
       var loc = String(locale || '').trim();
       if (!loc) {
-        console.warn('[Keystone] setLocale requires a locale string');
+        console.warn('[FMind] setLocale requires a locale string');
         return;
       }
       postHostPayload('set_locale', { locale: loc });
@@ -409,7 +409,7 @@
     setLocale: function (locale) { if (instance) instance.setLocale(locale); },
   };
 
-  global.Keystone = api;
+  global.FMind = api;
 
   var legacyScript = document.currentScript;
   if (legacyScript) {

@@ -4,7 +4,7 @@ package interfaces
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // CustomAgentService defines the custom agent service interface

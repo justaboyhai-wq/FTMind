@@ -7,10 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/errors"
-	"github.com/justaboyhai-wq/keystone/internal/models/embedding"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/errors"
+	"github.com/justaboyhai-wq/fmind/internal/models/embedding"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	sqlitedrv "gorm.io/driver/sqlite"
@@ -667,7 +667,7 @@ func TestTestConnection_DorisInvalidAddr(t *testing.T) {
 
 	_, err := svc.TestConnection(ctx, types.DorisRetrieverEngineType, types.ConnectionConfig{
 		Addr:     "127.0.0.1:1", // 一定不可连通
-		Database: "keystone",
+		Database: "fmind",
 		Username: "root",
 	})
 	require.Error(t, err)
@@ -768,13 +768,13 @@ func TestValidateConnectionConfig(t *testing.T) {
 		{
 			name:       "doris valid",
 			engineType: types.DorisRetrieverEngineType,
-			config:     types.ConnectionConfig{Addr: "doris-fe:9030", Database: "keystone"},
+			config:     types.ConnectionConfig{Addr: "doris-fe:9030", Database: "fmind"},
 			wantError:  false,
 		},
 		{
 			name:       "doris missing addr",
 			engineType: types.DorisRetrieverEngineType,
-			config:     types.ConnectionConfig{Database: "keystone"},
+			config:     types.ConnectionConfig{Database: "fmind"},
 			wantError:  true,
 		},
 		{

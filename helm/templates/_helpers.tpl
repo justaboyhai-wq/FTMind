@@ -2,7 +2,7 @@
 Copyright 2025 Tencent
 SPDX-License-Identifier: MIT
 
-Keystone Helm Chart Template Helpers
+FMind Helm Chart Template Helpers
 
 Best Practices References:
 - https://helm.sh/docs/chart_best_practices/templates/
@@ -12,14 +12,14 @@ Best Practices References:
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "keystone.name" -}}
+{{- define "fmind.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
 */}}
-{{- define "keystone.fullname" -}}
+{{- define "fmind.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -36,7 +36,7 @@ Create a default fully qualified app name.
 Create chart name and version as used by the chart label.
 Ref: https://helm.sh/docs/chart_best_practices/labels/
 */}}
-{{- define "keystone.chart" -}}
+{{- define "fmind.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -44,39 +44,39 @@ Ref: https://helm.sh/docs/chart_best_practices/labels/
 Common labels following Kubernetes recommended labels.
 Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
 */}}
-{{- define "keystone.labels" -}}
-helm.sh/chart: {{ include "keystone.chart" . }}
-{{ include "keystone.selectorLabels" . }}
+{{- define "fmind.labels" -}}
+helm.sh/chart: {{ include "fmind.chart" . }}
+{{ include "fmind.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-app.kubernetes.io/part-of: keystone
+app.kubernetes.io/part-of: fmind
 {{- end }}
 
 {{/*
 Selector labels
 */}}
-{{- define "keystone.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "keystone.name" . }}
+{{- define "fmind.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "fmind.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Component labels - use for individual components
-Usage: {{ include "keystone.componentLabels" (dict "component" "app" "context" .) }}
+Usage: {{ include "fmind.componentLabels" (dict "component" "app" "context" .) }}
 */}}
-{{- define "keystone.componentLabels" -}}
-{{ include "keystone.labels" .context }}
+{{- define "fmind.componentLabels" -}}
+{{ include "fmind.labels" .context }}
 app.kubernetes.io/component: {{ .component }}
 {{- end }}
 
 {{/*
 Component selector labels
-Usage: {{ include "keystone.componentSelectorLabels" (dict "component" "app" "context" .) }}
+Usage: {{ include "fmind.componentSelectorLabels" (dict "component" "app" "context" .) }}
 */}}
-{{- define "keystone.componentSelectorLabels" -}}
-{{ include "keystone.selectorLabels" .context }}
+{{- define "fmind.componentSelectorLabels" -}}
+{{ include "fmind.selectorLabels" .context }}
 app.kubernetes.io/component: {{ .component }}
 {{- end }}
 
@@ -84,9 +84,9 @@ app.kubernetes.io/component: {{ .component }}
 Create the name of the service account to use.
 Ref: https://helm.sh/docs/chart_best_practices/rbac/
 */}}
-{{- define "keystone.serviceAccountName" -}}
+{{- define "fmind.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "keystone.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "fmind.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
@@ -95,11 +95,11 @@ Ref: https://helm.sh/docs/chart_best_practices/rbac/
 {{/*
 Secret name - supports existing secret
 */}}
-{{- define "keystone.secretName" -}}
+{{- define "fmind.secretName" -}}
 {{- if .Values.secrets.existingSecret }}
 {{- .Values.secrets.existingSecret }}
 {{- else }}
-{{- include "keystone.fullname" . }}-secrets
+{{- include "fmind.fullname" . }}-secrets
 {{- end }}
 {{- end }}
 
@@ -107,7 +107,7 @@ Secret name - supports existing secret
 Return the app image with tag.
 Defaults to Chart.appVersion if tag is not specified.
 */}}
-{{- define "keystone.app.image" -}}
+{{- define "fmind.app.image" -}}
 {{- $tag := default .Chart.AppVersion .Values.app.image.tag }}
 {{- printf "%s:%s" .Values.app.image.repository $tag }}
 {{- end }}
@@ -115,42 +115,42 @@ Defaults to Chart.appVersion if tag is not specified.
 {{/*
 Return the frontend image with tag.
 */}}
-{{- define "keystone.frontend.image" -}}
+{{- define "fmind.frontend.image" -}}
 {{- printf "%s:%s" .Values.frontend.image.repository .Values.frontend.image.tag }}
 {{- end }}
 
 {{/*
 Return the docreader image with tag.
 */}}
-{{- define "keystone.docreader.image" -}}
+{{- define "fmind.docreader.image" -}}
 {{- printf "%s:%s" .Values.docreader.image.repository .Values.docreader.image.tag }}
 {{- end }}
 
 {{/*
 Return the PostgreSQL image with tag.
 */}}
-{{- define "keystone.postgresql.image" -}}
+{{- define "fmind.postgresql.image" -}}
 {{- printf "%s:%s" .Values.postgresql.image.repository .Values.postgresql.image.tag }}
 {{- end }}
 
 {{/*
 Return the Redis image with tag.
 */}}
-{{- define "keystone.redis.image" -}}
+{{- define "fmind.redis.image" -}}
 {{- printf "%s:%s" .Values.redis.image.repository .Values.redis.image.tag }}
 {{- end }}
 
 {{/*
 Return the Neo4j image with tag.
 */}}
-{{- define "keystone.neo4j.image" -}}
+{{- define "fmind.neo4j.image" -}}
 {{- printf "%s:%s" .Values.neo4j.image.repository .Values.neo4j.image.tag }}
 {{- end }}
 
 {{/*
 Create image pull secrets list.
 */}}
-{{- define "keystone.imagePullSecrets" -}}
+{{- define "fmind.imagePullSecrets" -}}
 {{- with .Values.global.imagePullSecrets }}
 imagePullSecrets:
 {{- toYaml . | nindent 2 }}
@@ -160,7 +160,7 @@ imagePullSecrets:
 {{/*
 Return the storage class name.
 */}}
-{{- define "keystone.storageClass" -}}
+{{- define "fmind.storageClass" -}}
 {{- if .Values.global.storageClass }}
 {{- if eq .Values.global.storageClass "-" }}
 storageClassName: ""
@@ -174,7 +174,7 @@ storageClassName: {{ .Values.global.storageClass | quote }}
 Pod security context.
 Merges global defaults with component-specific overrides.
 */}}
-{{- define "keystone.podSecurityContext" -}}
+{{- define "fmind.podSecurityContext" -}}
 {{- $global := .Values.global.podSecurityContext | default dict }}
 {{- $component := .componentSecurityContext | default dict }}
 {{- $merged := merge $component $global }}
@@ -187,7 +187,7 @@ securityContext:
 {{/*
 Container security context.
 */}}
-{{- define "keystone.containerSecurityContext" -}}
+{{- define "fmind.containerSecurityContext" -}}
 {{- if . }}
 securityContext:
 {{- toYaml . | nindent 2 }}

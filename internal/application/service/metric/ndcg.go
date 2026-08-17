@@ -3,7 +3,7 @@ package metric
 import (
 	"math"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // NDCGMetric calculates Normalized Discounted Cumulative Gain

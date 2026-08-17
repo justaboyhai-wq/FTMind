@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
 )
 
 // debugReranker wraps a Reranker with LLM debug logging.

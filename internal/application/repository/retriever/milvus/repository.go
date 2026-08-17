@@ -14,15 +14,15 @@ import (
 	"github.com/milvus-io/milvus/client/v2/index"
 	client "github.com/milvus-io/milvus/client/v2/milvusclient"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 const (
 	envMilvusCollection   = "MILVUS_COLLECTION"
 	envMilvusMetricType   = "MILVUS_METRIC_TYPE"
-	defaultCollectionName = "keystone_embeddings"
+	defaultCollectionName = "fmind_embeddings"
 	fieldContent          = "content"
 	fieldSourceID         = "source_id"
 	fieldSourceType       = "source_type"
@@ -106,7 +106,7 @@ func (m *milvusRepository) ensureCollection(ctx context.Context, dimension int) 
 		// Define schema
 		schema := &entity.Schema{
 			CollectionName: collectionName,
-			Description:    fmt.Sprintf("Keystone embeddings collection with dimension %d", dimension),
+			Description:    fmt.Sprintf("FMind embeddings collection with dimension %d", dimension),
 			AutoID:         false,
 			Fields: []*entity.Field{
 				entity.NewField().

@@ -8,9 +8,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/application/service"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/application/service"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	"github.com/gin-gonic/gin"
 )
 
@@ -181,7 +181,7 @@ func (f *fakeTenantService) GetTenantByIDForUser(
 	return f.tenant, nil
 }
 
-func (f *fakeTenantService) GetKeystoneCloudCredentials(ctx context.Context) *types.KeystoneCloudCredentials {
+func (f *fakeTenantService) GetFMindCloudCredentials(ctx context.Context) *types.FMindCloudCredentials {
 	return nil
 }
 

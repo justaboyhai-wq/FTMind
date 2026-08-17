@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // wikiLogEntryService is a thin wrapper over WikiLogEntryRepository. The

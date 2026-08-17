@@ -7,7 +7,7 @@ source: IM集成开发文档.md
 
 # IM 集成开发
 
-Keystone 的 IM 集成模块将企业即时通讯平台（企业微信、飞书、Slack、Telegram、钉钉、Mattermost）接入 Keystone 知识问答管道，支持在 IM 中直接向 AI 提问并获得实时流式回答。
+FMind 的 IM 集成模块将企业即时通讯平台（企业微信、飞书、Slack、Telegram、钉钉、Mattermost）接入 FMind 知识问答管道，支持在 IM 中直接向 AI 提问并获得实时流式回答。
 
 IM 渠道绑定到 Agent，一个 Agent 可接入多个 IM 渠道。
 
@@ -28,7 +28,7 @@ IM 渠道绑定到 Agent，一个 Agent 可接入多个 IM 渠道。
 
 ### 前置条件
 
-- Keystone 已部署并运行
+- FMind 已部署并运行
 - 已创建至少一个 Agent（自定义智能体）
 - Agent 已配置好模型和知识库
 

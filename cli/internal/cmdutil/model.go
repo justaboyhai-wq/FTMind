@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // ModelLister is the narrow SDK surface ResolveModelRef needs. *sdk.Client
@@ -44,10 +44,10 @@ func ResolveModelRef(ctx context.Context, lister ModelLister, ref, wantType stri
 			msg = fmt.Sprintf("no %s model named %q", wantType, ref)
 		}
 		return "", NewError(CodeResourceNotFound, msg).
-			WithHint("discover models with `keystone model list`")
+			WithHint("discover models with `fmind model list`")
 	default:
 		return "", NewError(CodeInputInvalidArgument,
 			fmt.Sprintf("%q matches %d models — pass the model id instead", ref, len(matches))).
-			WithHint("`keystone model list` shows the ids")
+			WithHint("`fmind model list` shows the ids")
 	}
 }

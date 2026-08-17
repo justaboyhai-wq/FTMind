@@ -6,11 +6,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/prompt"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/prompt"
 )
 
 // docDeleteFields enumerates the fields surfaced for `--format json` discovery
@@ -42,7 +42,7 @@ type deleteResult struct {
 	Deleted bool   `json:"deleted"`
 }
 
-// NewCmdDelete builds `keystone doc delete`. Single-id keeps the simpler
+// NewCmdDelete builds `fmind doc delete`. Single-id keeps the simpler
 // code path (one confirm prompt, exit 0/1); multi-id uses keep-going
 // semantics (one -y confirms all, failures collected, exit 1 if any fail);
 // --all --kb=<id> atomically clears every document in a knowledge base.
@@ -71,13 +71,13 @@ All-in-KB (--all --kb=<kb-id>):
 AI agents: This is a high-risk write. Without -y/--yes the CLI exits 10
 and writes input.confirmation_required to stderr. NEVER auto-pass -y
 without the user's explicit go-ahead.`,
-		Example: `  keystone doc delete doc_abc                        # interactive confirm
-  keystone doc delete doc_abc -y                     # no prompt
-  keystone doc delete doc_abc -y --format json       # bare {id, deleted:true} JSON
-  keystone doc delete doc_a doc_b doc_c -y           # delete 3, keep-going
-  keystone doc delete doc_a doc_b --format json      # multi-id JSON output
-  keystone doc delete --all --kb=kb_x -y             # clear all docs in kb_x
-  keystone doc delete --all --kb=kb_x -y --format json # agent-friendly`,
+		Example: `  fmind doc delete doc_abc                        # interactive confirm
+  fmind doc delete doc_abc -y                     # no prompt
+  fmind doc delete doc_abc -y --format json       # bare {id, deleted:true} JSON
+  fmind doc delete doc_a doc_b doc_c -y           # delete 3, keep-going
+  fmind doc delete doc_a doc_b --format json      # multi-id JSON output
+  fmind doc delete --all --kb=kb_x -y             # clear all docs in kb_x
+  fmind doc delete --all --kb=kb_x -y --format json # agent-friendly`,
 		Args: cobra.ArbitraryArgs,
 		RunE: func(c *cobra.Command, args []string) error {
 			fopts, err := cmdutil.CheckFormatFlag(c)
@@ -94,7 +94,7 @@ without the user's explicit go-ahead.`,
 				if opts.KB == "" {
 					return cmdutil.NewError(cmdutil.CodeInputInvalidArgument, "--all requires --kb=<id>").
 						WithHint("specify --kb=<uuid-or-name> to scope the delete-all operation").
-						WithRetryArgv([]string{"keystone", "doc", "delete", "--all", "--kb=<kb-id>", "-y"})
+						WithRetryArgv([]string{"fmind", "doc", "delete", "--all", "--kb=<kb-id>", "-y"})
 				}
 				if len(args) > 0 {
 					return cmdutil.NewFlagError(fmt.Errorf("--all is exclusive with positional doc ids"))
@@ -137,7 +137,7 @@ without the user's explicit go-ahead.`,
 			if len(args) == 1 {
 				return runDelete(c.Context(), opts, fopts, cli, f.Prompter(), args[0])
 			}
-			batchRetry := append([]string{"keystone", "doc", "delete"}, args...)
+			batchRetry := append([]string{"fmind", "doc", "delete"}, args...)
 			batchRetry = append(batchRetry, "-y")
 			if err := cmdutil.ConfirmDestructiveBatch(f.Prompter(), opts.Yes, fopts.WantsJSON(), "delete", "document", len(args), "doc.delete", batchRetry); err != nil {
 				return err
@@ -168,9 +168,9 @@ without the user's explicit go-ahead.`,
 		UsedFor:       "permanently delete one or more documents from a knowledge base",
 		RequiredFlags: []string{"<doc-id>... (positional) | --all --kb=<uuid-or-name>"},
 		Examples: []string{
-			"keystone doc delete doc_abc -y",
-			"keystone doc delete doc_a doc_b doc_c -y",
-			"keystone doc delete --all --kb=kb_x -y --format json",
+			"fmind doc delete doc_abc -y",
+			"fmind doc delete doc_a doc_b doc_c -y",
+			"fmind doc delete --all --kb=kb_x -y --format json",
 		},
 		Output: "envelope.data shape depends on the form: a single doc id -> {id, deleted:true}; multiple doc ids -> batch envelope (top-level status success|partial|error, ok=(failures==0), data per-item [{id, ok, error?}], meta.successes/failures — read data[].ok per id, ok:true overall does not survive a partial failure / exit 1); --all --kb -> {kb_id, deleted_count}.",
 		Warnings: []string{
@@ -183,7 +183,7 @@ without the user's explicit go-ahead.`,
 }
 
 func runDelete(ctx context.Context, opts *DeleteOptions, fopts *cmdutil.FormatOptions, svc DeleteService, p prompt.Prompter, id string) error {
-	if err := cmdutil.ConfirmDestructive(p, opts.Yes, fopts.WantsJSON(), "delete", "document", id, "doc.delete", []string{"keystone", "doc", "delete", id, "-y"}); err != nil {
+	if err := cmdutil.ConfirmDestructive(p, opts.Yes, fopts.WantsJSON(), "delete", "document", id, "doc.delete", []string{"fmind", "doc", "delete", id, "-y"}); err != nil {
 		return err
 	}
 
@@ -203,7 +203,7 @@ func runDelete(ctx context.Context, opts *DeleteOptions, fopts *cmdutil.FormatOp
 // CodeInputConfirmationRequired (exit 10) with risk metadata so agents can
 // surface the risk to the user before re-invoking with -y.
 func runDeleteAll(ctx context.Context, opts *DeleteOptions, fopts *cmdutil.FormatOptions, svc AllService, p prompt.Prompter) error {
-	if err := cmdutil.ConfirmDestructive(p, opts.Yes, fopts.WantsJSON(), "delete", "all docs in KB", opts.KB, "doc.delete_all", []string{"keystone", "doc", "delete", "--all", "--kb=" + opts.KB, "-y"}); err != nil {
+	if err := cmdutil.ConfirmDestructive(p, opts.Yes, fopts.WantsJSON(), "delete", "all docs in KB", opts.KB, "doc.delete_all", []string{"fmind", "doc", "delete", "--all", "--kb=" + opts.KB, "-y"}); err != nil {
 		return err
 	}
 

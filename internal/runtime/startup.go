@@ -10,7 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
 )
 
 // SilenceGinRouteSpam mutes Gin's per-route "[GIN-debug] METHOD path -->

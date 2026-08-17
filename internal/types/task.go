@@ -161,12 +161,12 @@ func ResolveWorkerPoolConcurrency(read func(key, env string, fallback int) int) 
 		}
 		return value
 	}
-	allocation.Core = positive("asynq.core_concurrency", "KEYSTONE_ASYNQ_CORE_CONCURRENCY", allocation.Core)
-	allocation.PostProcess = positive("asynq.postprocess_concurrency", "KEYSTONE_ASYNQ_POSTPROCESS_CONCURRENCY", allocation.PostProcess)
-	allocation.Enrichment = positive("asynq.enrichment_concurrency", "KEYSTONE_ASYNQ_ENRICHMENT_CONCURRENCY", allocation.Enrichment)
-	allocation.Maintenance = positive("asynq.maintenance_concurrency", "KEYSTONE_ASYNQ_MAINTENANCE_CONCURRENCY", allocation.Maintenance)
-	allocation.Shared = positive("asynq.shared_concurrency", "KEYSTONE_ASYNQ_SHARED_CONCURRENCY", allocation.Shared)
-	allocation.Wiki = positive("asynq.wiki_concurrency", "KEYSTONE_WIKI_ASYNQ_CONCURRENCY", allocation.Wiki)
+	allocation.Core = positive("asynq.core_concurrency", "FMIND_ASYNQ_CORE_CONCURRENCY", allocation.Core)
+	allocation.PostProcess = positive("asynq.postprocess_concurrency", "FMIND_ASYNQ_POSTPROCESS_CONCURRENCY", allocation.PostProcess)
+	allocation.Enrichment = positive("asynq.enrichment_concurrency", "FMIND_ASYNQ_ENRICHMENT_CONCURRENCY", allocation.Enrichment)
+	allocation.Maintenance = positive("asynq.maintenance_concurrency", "FMIND_ASYNQ_MAINTENANCE_CONCURRENCY", allocation.Maintenance)
+	allocation.Shared = positive("asynq.shared_concurrency", "FMIND_ASYNQ_SHARED_CONCURRENCY", allocation.Shared)
+	allocation.Wiki = positive("asynq.wiki_concurrency", "FMIND_WIKI_ASYNQ_CONCURRENCY", allocation.Wiki)
 	return allocation
 }
 

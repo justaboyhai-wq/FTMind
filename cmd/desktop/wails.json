@@ -1,19 +1,19 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
-  "name": "Keystone Lite",
-  "outputfilename": "Keystone Lite",
+  "name": "FMind Lite",
+  "outputfilename": "FMind Lite",
   "frontend:dir": "../../frontend",
   "wailsjsdir": "../../frontend/src",
   "author": {
-    "name": "Keystone Team",
+    "name": "FMind Team",
     "email": ""
   },
   "info": {
     "companyName": "Tencent",
-    "productName": "Keystone Lite",
+    "productName": "FMind Lite",
     "productVersion": "1.0.0",
     "copyright": "Copyright 2026 Tencent",
-    "comments": "Keystone Desktop Edition"
+    "comments": "FMind Desktop Edition"
   },
   "mac": {
     "category": "public.app-category.productivity",

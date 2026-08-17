@@ -3,8 +3,8 @@ package chat
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/models/limiter"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/models/limiter"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // Model provider budgets are the real bottleneck shared by every LLM-backed

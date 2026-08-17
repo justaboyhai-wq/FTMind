@@ -1,6 +1,6 @@
 //go:build acceptance_e2e
 
-// Package e2e_test drives the Keystone CLI binary against a real running
+// Package e2e_test drives the FMind CLI binary against a real running
 // server to validate the RAG closing loop end-to-end.
 //
 // Build tag isolation: //go:build acceptance_e2e excludes this file from
@@ -8,11 +8,11 @@
 // requested. To run:
 //
 //	cd cli
-//	KEYSTONE_E2E_HOST=https://kb.example.com \
-//	KEYSTONE_E2E_TOKEN=eyJhbGc... \
+//	FMIND_E2E_HOST=https://kb.example.com \
+//	FMIND_E2E_TOKEN=eyJhbGc... \
 //	go test -tags=acceptance_e2e -v ./acceptance/e2e/...
 //
-// Optional KEYSTONE_E2E_KB_NAME_PREFIX customizes the throwaway KB name (default
+// Optional FMIND_E2E_KB_NAME_PREFIX customizes the throwaway KB name (default
 // "cli-e2e-"). Cleanup runs even on test failure via t.Cleanup so the server
 // doesn't accumulate test debris.
 package e2e_test
@@ -34,9 +34,9 @@ import (
 // step parses the CLI's bare JSON to extract IDs for the next step -
 // validating both functional behavior and wire-contract stability.
 func TestRAGFullLoop(t *testing.T) {
-	host := mustEnv(t, "KEYSTONE_E2E_HOST")
-	token := mustEnv(t, "KEYSTONE_E2E_TOKEN")
-	prefix := envOr("KEYSTONE_E2E_KB_NAME_PREFIX", "cli-e2e-")
+	host := mustEnv(t, "FMIND_E2E_HOST")
+	token := mustEnv(t, "FMIND_E2E_TOKEN")
+	prefix := envOr("FMIND_E2E_KB_NAME_PREFIX", "cli-e2e-")
 
 	bin := buildBinary(t)
 	xdg := t.TempDir()
@@ -46,7 +46,7 @@ func TestRAGFullLoop(t *testing.T) {
 		"XDG_CONFIG_HOME="+xdg,
 		"XDG_CACHE_HOME="+filepath.Join(xdg, "cache"),
 		// SDK debug off - explicit so the CI run isn't noisy.
-		"KEYSTONE_LOG_LEVEL=error",
+		"FMIND_LOG_LEVEL=error",
 	)
 
 	// 1. kb create → bare KnowledgeBase object
@@ -150,7 +150,7 @@ func envOr(key, fallback string) string {
 func buildBinary(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
-	out := filepath.Join(dir, "keystone")
+	out := filepath.Join(dir, "fmind")
 	// Repo layout: this test sits at cli/acceptance/e2e/, so cli/ is two levels up.
 	cmd := exec.Command("go", "build", "-o", out, ".")
 	cmd.Dir = filepath.Join("..", "..")
@@ -163,12 +163,12 @@ func buildBinary(t *testing.T) string {
 }
 
 // writeProfileYAML drops a minimal config.yaml into XDG_CONFIG_HOME so the
-// CLI finds a profile without needing `keystone profile add` (which prompts
+// CLI finds a profile without needing `fmind profile add` (which prompts
 // in interactive scenarios). Tests using `auth login` belong to a different
 // suite; here we go straight to authenticated calls.
 func writeProfileYAML(t *testing.T, xdg, host, token string) {
 	t.Helper()
-	dir := filepath.Join(xdg, "keystone")
+	dir := filepath.Join(xdg, "fmind")
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		t.Fatalf("mkdir xdg: %v", err)
 	}
@@ -188,13 +188,13 @@ profiles:
 // window.
 func writeSampleDoc(t *testing.T) string {
 	t.Helper()
-	content := `Keystone E2E Sample Document
+	content := `FMind E2E Sample Document
 
-This sample document is used by the Keystone CLI acceptance test suite to
+This sample document is used by the FMind CLI acceptance test suite to
 validate the end-to-end retrieval-augmented generation pipeline.
 
 向量检索的核心思想是把文本通过 embedding 模型映射到高维向量空间,然后通过余弦相似度
-等度量找出语义最接近的内容片段。Keystone 支持 vector + keyword 的混合检索模式。
+等度量找出语义最接近的内容片段。FMind 支持 vector + keyword 的混合检索模式。
 
 The hybrid search mode combines vector similarity (semantic) with keyword
 matching (lexical) to balance recall and precision.
@@ -208,7 +208,7 @@ matching (lexical) to balance recall and precision.
 }
 
 // waitDocReady polls `doc list` until the uploaded document's status indicates
-// indexing is complete. Keystone server uses a few status values across versions
+// indexing is complete. FMind server uses a few status values across versions
 // ("ready", "completed", "ok") - accept any non-pending/non-processing/non-failed
 // state so we don't break on a server-side rename. Failed status fails the test
 // fast.

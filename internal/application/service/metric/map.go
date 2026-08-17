@@ -1,7 +1,7 @@
 package metric
 
 import (
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // MAPMetric calculates Mean Average Precision for retrieval evaluation

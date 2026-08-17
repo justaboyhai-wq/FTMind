@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/projectlink"
+	"github.com/justaboyhai-wq/fmind/cli/internal/projectlink"
 )
 
 func TestDiscover_FoundInCwd(t *testing.T) {
@@ -19,7 +19,7 @@ func TestDiscover_FoundInCwd(t *testing.T) {
 	if !found {
 		t.Fatalf("expected found=true")
 	}
-	want := filepath.Join(dir, ".keystone", "project.yaml")
+	want := filepath.Join(dir, ".fmind", "project.yaml")
 	if got != want {
 		t.Errorf("got %q, want %q", got, want)
 	}
@@ -57,7 +57,7 @@ func TestDiscover_NotFound(t *testing.T) {
 
 func TestLoad_RoundTrip(t *testing.T) {
 	dir := t.TempDir()
-	path := filepath.Join(dir, ".keystone", "project.yaml")
+	path := filepath.Join(dir, ".fmind", "project.yaml")
 	in := &projectlink.Project{Profile: "prod", KBID: "kb_abc", CreatedAt: time.Now().UTC().Round(time.Second)}
 	if err := projectlink.Save(path, in); err != nil {
 		t.Fatalf("Save: %v", err)
@@ -73,7 +73,7 @@ func TestLoad_RoundTrip(t *testing.T) {
 
 func TestLoad_Corrupt(t *testing.T) {
 	dir := t.TempDir()
-	path := filepath.Join(dir, ".keystone", "project.yaml")
+	path := filepath.Join(dir, ".fmind", "project.yaml")
 	if err := os.MkdirAll(filepath.Dir(path), 0o700); err != nil {
 		t.Fatal(err)
 	}
@@ -88,12 +88,12 @@ func TestLoad_Corrupt(t *testing.T) {
 
 func TestSave_CreatesParent(t *testing.T) {
 	dir := t.TempDir()
-	path := filepath.Join(dir, ".keystone", "project.yaml")
+	path := filepath.Join(dir, ".fmind", "project.yaml")
 	if err := projectlink.Save(path, &projectlink.Project{KBID: "kb_x"}); err != nil {
 		t.Fatalf("Save: %v", err)
 	}
-	if _, err := os.Stat(filepath.Join(dir, ".keystone")); err != nil {
-		t.Errorf("parent .keystone not created: %v", err)
+	if _, err := os.Stat(filepath.Join(dir, ".fmind")); err != nil {
+		t.Errorf("parent .fmind not created: %v", err)
 	}
 	if _, err := os.Stat(path); err != nil {
 		t.Errorf("file not created: %v", err)
@@ -102,7 +102,7 @@ func TestSave_CreatesParent(t *testing.T) {
 
 func mkLink(t *testing.T, dir string) {
 	t.Helper()
-	d := filepath.Join(dir, ".keystone")
+	d := filepath.Join(dir, ".fmind")
 	if err := os.MkdirAll(d, 0o700); err != nil {
 		t.Fatal(err)
 	}

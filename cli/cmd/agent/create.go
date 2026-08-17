@@ -9,9 +9,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // CreateService is the narrow SDK surface this command depends on.
@@ -58,16 +58,16 @@ type createFlagSet struct {
 	kbsSet             bool
 }
 
-const agentCreateExample = `  keystone agent create "Support Bot" --model <model-id>
-  keystone agent create "Code Reviewer" --model <model-id> --system-prompt-file ./prompt.md --attach-kb kb_eng --attach-kb kb_arch
-  keystone agent create "From Template" --model <model-id> --from ag_existing
-  keystone agent create --generate-skeleton > my-agent.yaml
-  keystone agent create "Tuned" --model <model-id> --config-file ./my-agent.yaml`
+const agentCreateExample = `  fmind agent create "Support Bot" --model <model-id>
+  fmind agent create "Code Reviewer" --model <model-id> --system-prompt-file ./prompt.md --attach-kb kb_eng --attach-kb kb_arch
+  fmind agent create "From Template" --model <model-id> --from ag_existing
+  fmind agent create --generate-skeleton > my-agent.yaml
+  fmind agent create "Tuned" --model <model-id> --config-file ./my-agent.yaml`
 
 const agentCreateLong = `Create a new custom agent.
 
 --model is required (an agent without a model cannot invoke); discover a
-valid model id with 'keystone model list'. The 7
+valid model id with 'fmind model list'. The 7
 optional hot-path flags cover the most frequently set AgentConfig fields;
 for the remaining 27 use --config-file with a YAML or JSON document
 matching the AgentConfig schema (run --generate-skeleton to get a
@@ -84,7 +84,7 @@ AI agents: writes a new resource server-side. Failure surfaces as a
 typed code on stderr: input.invalid_argument (bad flags, bad file, or
 bad model), resource.not_found (--from <missing>), auth.unauthenticated.`
 
-// NewCmdCreate builds `keystone agent create <name> --model <id>`.
+// NewCmdCreate builds `fmind agent create <name> --model <id>`.
 func NewCmdCreate(f *cmdutil.Factory) *cobra.Command {
 	opts := &CreateOptions{}
 	var systemPromptFile, configFile string
@@ -222,9 +222,9 @@ func NewCmdCreate(f *cmdutil.Factory) *cobra.Command {
 		UsedFor:       "Create a new custom agent. --model is required and accepts a model id or name; --attach-kb (repeatable) accepts KB ids or names. Emits the created Agent object.",
 		RequiredFlags: []string{"<name> (positional)", "--model"},
 		Examples: []string{
-			`keystone agent create "Support Bot" --model gpt-4o`,
-			`keystone agent create "Support Bot" --model gpt-4o --attach-kb kb_eng --system-prompt "You are a support assistant."`,
-			`keystone agent create --generate-skeleton   # print a blank config to fill in (no --model needed)`,
+			`fmind agent create "Support Bot" --model gpt-4o`,
+			`fmind agent create "Support Bot" --model gpt-4o --attach-kb kb_eng --system-prompt "You are a support assistant."`,
+			`fmind agent create --generate-skeleton   # print a blank config to fill in (no --model needed)`,
 		},
 		Output: "envelope.data is the created Agent object with id, name, config",
 	})

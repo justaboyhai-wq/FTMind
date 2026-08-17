@@ -8,8 +8,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // OpenAIReranker implements a reranking system based on OpenAI models

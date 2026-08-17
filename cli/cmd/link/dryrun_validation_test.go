@@ -14,11 +14,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/config"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/prompt"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/config"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/prompt"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // linkDryRunFactory builds a Factory whose Client closure panics if invoked —
@@ -41,7 +41,7 @@ func linkDryRunFactory(t *testing.T, cfg *config.Config) *cmdutil.Factory {
 // withRootHarnessLink wraps a link subcommand under a synthetic root cmd
 // that registers the global persistent flags.
 func withRootHarnessLink(sub *cobra.Command, args ...string) *cobra.Command {
-	root := &cobra.Command{Use: "keystone"}
+	root := &cobra.Command{Use: "fmind"}
 	pf := root.PersistentFlags()
 	pf.BoolP("yes", "y", false, "")
 	pf.String("format", "", "")
@@ -85,7 +85,7 @@ func TestLink_DryRun_RejectsNoKBNoTTY(t *testing.T) {
 	assert.Equal(t, cmdutil.CodeKBIDRequired, typed.Code)
 }
 
-// TestUnlink_DryRun_RejectsMissingLink: cwd has no .keystone/project.yaml →
+// TestUnlink_DryRun_RejectsMissingLink: cwd has no .fmind/project.yaml →
 // live path returns input.invalid_argument; --dry-run must do the same.
 func TestUnlink_DryRun_RejectsMissingLink(t *testing.T) {
 	iostreams.SetForTest(t)

@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/middleware"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/middleware"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -49,7 +49,7 @@ func (s *stubTenantService) BulkSetStorageQuota(context.Context, int64) (int64, 
 func (s *stubTenantService) GetTenantByIDForUser(context.Context, uint64, string) (*types.Tenant, error) {
 	return s.tenant, nil
 }
-func (s *stubTenantService) GetKeystoneCloudCredentials(context.Context) *types.KeystoneCloudCredentials {
+func (s *stubTenantService) GetFMindCloudCredentials(context.Context) *types.FMindCloudCredentials {
 	return nil
 }
 

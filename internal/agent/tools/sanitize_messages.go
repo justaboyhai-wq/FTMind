@@ -1,7 +1,7 @@
 package tools
 
 import (
-	"github.com/justaboyhai-wq/keystone/internal/models/chat"
+	"github.com/justaboyhai-wq/fmind/internal/models/chat"
 )
 
 // SanitizeMessages validates and fixes a message array for LLM compatibility.

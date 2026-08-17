@@ -1,13 +1,13 @@
-// Package main is the main package for the Keystone server
+// Package main is the main package for the FMind server
 // It contains the main function and the entry point for the server
 //
-// @title           Keystone API
+// @title           FMind API
 // @version         1.0
-// @description     Keystone 知识库管理系统 API 文档
+// @description     FMind 知识库管理系统 API 文档
 // @termsOfService  http://swagger.io/terms/
 //
-// @contact.name   Keystone Github
-// @contact.url    https://github.com/justaboyhai-wq/keystone
+// @contact.name   FMind Github
+// @contact.url    https://github.com/justaboyhai-wq/fmind
 //
 // @BasePath  /api/v1
 //
@@ -32,11 +32,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/justaboyhai-wq/keystone/internal/config"
-	"github.com/justaboyhai-wq/keystone/internal/container"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/runtime"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/config"
+	"github.com/justaboyhai-wq/fmind/internal/container"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/runtime"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 func main() {

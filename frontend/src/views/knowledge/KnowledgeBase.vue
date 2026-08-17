@@ -386,7 +386,7 @@ let movePollTimer: ReturnType<typeof setInterval> | null = null;
 
 // View mode (grid / list) — persisted per browser
 type DocViewMode = 'grid' | 'list';
-const VIEW_MODE_KEY = 'keystone.kb.docs.viewMode';
+const VIEW_MODE_KEY = 'fmind.kb.docs.viewMode';
 const initViewMode = (): DocViewMode => {
   try {
     return localStorage.getItem(VIEW_MODE_KEY) === 'list' ? 'list' : 'grid';
@@ -1029,13 +1029,13 @@ onMounted(() => {
 
   window.addEventListener('knowledgeFileUploaded', handleFileUploaded as EventListener);
   window.addEventListener('openURLImportDialog', handleOpenURLImportDialog as EventListener);
-  window.addEventListener('keystone:open-knowledge', handleOpenKnowledgeEvent as EventListener);
+  window.addEventListener('fmind:open-knowledge', handleOpenKnowledgeEvent as EventListener);
 });
 
 onUnmounted(() => {
   window.removeEventListener('knowledgeFileUploaded', handleFileUploaded as EventListener);
   window.removeEventListener('openURLImportDialog', handleOpenURLImportDialog as EventListener);
-  window.removeEventListener('keystone:open-knowledge', handleOpenKnowledgeEvent as EventListener);
+  window.removeEventListener('fmind:open-knowledge', handleOpenKnowledgeEvent as EventListener);
   stopMovePoll();
   if (timeout !== null) {
     clearTimeout(timeout);

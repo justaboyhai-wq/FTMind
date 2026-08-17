@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 func TestKeenableProvider_Search_Keyless(t *testing.T) {
@@ -20,8 +20,8 @@ func TestKeenableProvider_Search_Keyless(t *testing.T) {
 		if got := r.Header.Get("X-API-Key"); got != "" {
 			t.Errorf("X-API-Key = %q, want empty for keyless", got)
 		}
-		if got := r.Header.Get("X-Keenable-Title"); got != "Keystone" {
-			t.Errorf("X-Keenable-Title = %q, want Keystone", got)
+		if got := r.Header.Get("X-Keenable-Title"); got != "FMind" {
+			t.Errorf("X-Keenable-Title = %q, want FMind", got)
 		}
 		var body map[string]any
 		_ = json.NewDecoder(r.Body).Decode(&body)

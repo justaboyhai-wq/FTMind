@@ -3,7 +3,7 @@ package interfaces
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // UserResourceFavoriteRepository is the storage contract for per-user

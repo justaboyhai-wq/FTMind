@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	apperrors "github.com/justaboyhai-wq/keystone/internal/errors"
+	apperrors "github.com/justaboyhai-wq/fmind/internal/errors"
 	"gorm.io/gorm"
 )
 

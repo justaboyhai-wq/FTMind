@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // fakeAuditSvc records Log calls.
@@ -36,7 +36,7 @@ func TestAuditSinkAdapter_EmitsWithTenant(t *testing.T) {
 	f := &fakeAuditSvc{}
 	sink := newAuditSinkAdapter(f)
 
-	sink.EmitIndexCreated(ctxWithTenant(42), "keystone_768", 768)
+	sink.EmitIndexCreated(ctxWithTenant(42), "fmind_768", 768)
 	if len(f.logged) != 1 {
 		t.Fatalf("want 1 audit entry, got %d", len(f.logged))
 	}
@@ -61,7 +61,7 @@ func TestAuditSinkAdapter_SkipsWithoutTenant(t *testing.T) {
 	f := &fakeAuditSvc{}
 	sink := newAuditSinkAdapter(f)
 	// background ctx carries no tenant → adapter must skip (never write tenant=0)
-	sink.EmitIndexCreated(context.Background(), "keystone_768", 768)
+	sink.EmitIndexCreated(context.Background(), "fmind_768", 768)
 	sink.EmitReindexExecuted(context.Background(), "a", "b", 1)
 	if len(f.logged) != 0 {
 		t.Errorf("want 0 audit entries without tenant, got %d", len(f.logged))

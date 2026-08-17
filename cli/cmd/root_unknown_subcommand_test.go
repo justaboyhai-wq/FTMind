@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
 )
 
 // TestAgentInvoke_NowReturnsUnknownSubcommand verifies the deleted v0.6
@@ -48,7 +48,7 @@ func TestUnknownSubcommand_EmitsTypedEnvelope(t *testing.T) {
 	if !strings.Contains(got, `"available":[`) {
 		t.Errorf("expected detail.available[]; got %q", got)
 	}
-	if !strings.Contains(got, `"retry_argv":["keystone","--help"]`) {
+	if !strings.Contains(got, `"retry_argv":["fmind","--help"]`) {
 		t.Errorf("expected retry_argv; got %q", got)
 	}
 }

@@ -8,7 +8,7 @@ withDefaults(defineProps<{
 
 <template>
   <svg
-    class="keystone-empty-art"
+    class="fmind-empty-art"
     viewBox="0 0 200 160"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -94,20 +94,20 @@ withDefaults(defineProps<{
 </template>
 
 <style scoped lang="less">
-.keystone-empty-art {
-  --keystone-art-primary: var(--td-brand-color, #5b5bd6);
-  --keystone-art-secondary: #3b82f6;
-  --keystone-art-accent: #8b5cf6;
+.fmind-empty-art {
+  --fmind-art-primary: var(--td-brand-color, #5b5bd6);
+  --fmind-art-secondary: #3b82f6;
+  --fmind-art-accent: #8b5cf6;
   display: block;
   width: min(100%, 190px);
   height: auto;
   overflow: visible;
-  color: var(--keystone-art-primary);
-  filter: drop-shadow(0 18px 24px color-mix(in srgb, var(--keystone-art-primary) 14%, transparent));
+  color: var(--fmind-art-primary);
+  filter: drop-shadow(0 18px 24px color-mix(in srgb, var(--fmind-art-primary) 14%, transparent));
 }
 
 .orbit {
-  stroke: var(--keystone-art-primary);
+  stroke: var(--fmind-art-primary);
   stroke-width: 1;
   stroke-linecap: round;
   opacity: 0.18;
@@ -116,20 +116,20 @@ withDefaults(defineProps<{
 }
 
 .orbit-front {
-  stroke: var(--keystone-art-secondary);
+  stroke: var(--fmind-art-secondary);
   animation-duration: 11s;
   animation-direction: reverse;
 }
 
 .network {
-  stroke: color-mix(in srgb, var(--keystone-art-primary) 36%, transparent);
+  stroke: color-mix(in srgb, var(--fmind-art-primary) 36%, transparent);
   stroke-width: 1;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
 
 .node-halo {
-  fill: color-mix(in srgb, var(--keystone-art-primary) 12%, transparent);
+  fill: color-mix(in srgb, var(--fmind-art-primary) 12%, transparent);
   animation: halo-pulse 3.8s ease-in-out infinite;
 }
 
@@ -139,15 +139,15 @@ withDefaults(defineProps<{
 }
 
 .node-primary {
-  fill: var(--keystone-art-primary);
+  fill: var(--fmind-art-primary);
 }
 
 .node-secondary {
-  fill: var(--keystone-art-secondary);
+  fill: var(--fmind-art-secondary);
 }
 
 .node-accent {
-  fill: var(--keystone-art-accent);
+  fill: var(--fmind-art-accent);
 }
 
 .satellite {
@@ -178,23 +178,23 @@ withDefaults(defineProps<{
 }
 
 .core-shadow {
-  fill: color-mix(in srgb, var(--keystone-art-primary) 15%, transparent);
+  fill: color-mix(in srgb, var(--fmind-art-primary) 15%, transparent);
 }
 
 .core-shell {
   fill: var(--td-bg-color-container, #fff);
-  stroke: color-mix(in srgb, var(--keystone-art-primary) 72%, transparent);
+  stroke: color-mix(in srgb, var(--fmind-art-primary) 72%, transparent);
   stroke-width: 1.5;
 }
 
 .core-inset {
-  fill: color-mix(in srgb, var(--keystone-art-primary) 10%, var(--td-bg-color-container, #fff));
-  stroke: color-mix(in srgb, var(--keystone-art-primary) 22%, transparent);
+  fill: color-mix(in srgb, var(--fmind-art-primary) 10%, var(--td-bg-color-container, #fff));
+  stroke: color-mix(in srgb, var(--fmind-art-primary) 22%, transparent);
   stroke-width: 1;
 }
 
 .core-symbol {
-  color: var(--keystone-art-primary);
+  color: var(--fmind-art-primary);
   stroke: currentColor;
   stroke-width: 1.8;
   stroke-linecap: round;
@@ -205,22 +205,22 @@ withDefaults(defineProps<{
 .agent-symbol rect,
 .shared-symbol circle,
 .shared-symbol > path:not(.symbol-detail) {
-  fill: color-mix(in srgb, var(--keystone-art-primary) 12%, var(--td-bg-color-container, #fff));
+  fill: color-mix(in srgb, var(--fmind-art-primary) 12%, var(--td-bg-color-container, #fff));
 }
 
 .symbol-detail {
   fill: none !important;
-  stroke: var(--keystone-art-secondary);
+  stroke: var(--fmind-art-secondary);
   stroke-width: 1.35;
 }
 
 .symbol-detail-fill {
-  fill: var(--keystone-art-secondary);
+  fill: var(--fmind-art-secondary);
   stroke: none;
 }
 
 .sparkles {
-  stroke: var(--keystone-art-accent);
+  stroke: var(--fmind-art-accent);
   stroke-width: 1.4;
   stroke-linecap: round;
   opacity: 0.62;

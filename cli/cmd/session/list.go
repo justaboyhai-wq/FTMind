@@ -10,11 +10,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/output"
-	"github.com/justaboyhai-wq/keystone/cli/internal/text"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/output"
+	"github.com/justaboyhai-wq/fmind/cli/internal/text"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 const (
@@ -44,7 +44,7 @@ type ListService interface {
 	GetSessionsByTenant(ctx context.Context, page, pageSize int) ([]sdk.Session, int, error)
 }
 
-// NewCmdList builds `keystone session list`.
+// NewCmdList builds `fmind session list`.
 func NewCmdList(f *cmdutil.Factory) *cobra.Command {
 	opts := &ListOptions{PageSize: defaultPageSize}
 	cmd := &cobra.Command{
@@ -77,7 +77,7 @@ func NewCmdList(f *cmdutil.Factory) *cobra.Command {
 	cmdutil.AddFormatFlag(cmd, sessionListFields...)
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:  "List chat sessions for the active profile. Results come with meta.count; use --limit to cap, --all-pages to walk every server page, --since to filter by recency (e.g. 7d).",
-		Examples: []string{"keystone session list --format json", "keystone session list --all-pages --since 7d --format json"},
+		Examples: []string{"fmind session list --format json", "fmind session list --all-pages --since 7d --format json"},
 		Output:   "envelope.data is an array of Session objects with id, title, updated_at; meta.count is the returned count; meta.total_count is the server-side total before --since filtering; meta.has_more=true when --limit truncated",
 	})
 	return cmd

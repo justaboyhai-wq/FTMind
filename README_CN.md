@@ -1,10 +1,10 @@
-# Keystone
+# FMind
 
 [English](./README.md)
 
 ## 项目介绍
 
-Keystone 将文件、网页和 Markdown 沉淀为可私有部署、可持续演进的知识工作台。它把文档解析、向量化、混合检索、流式对话、受控智能体和 Wiki 构建整合在同一应用中。
+FMind 将文件、网页和 Markdown 沉淀为可私有部署、可持续演进的知识工作台。它把文档解析、向量化、混合检索、流式对话、受控智能体和 Wiki 构建整合在同一应用中。
 
 这是一个面向私有部署和内部维护的受控应用仓库：仅通过获准的基础设施部署，使用受管凭据配置外部服务，并将业务与运行数据保留在指定环境内。模型、向量数据库、对象存储、解析引擎和网络搜索服务均可独立配置。
 
@@ -28,7 +28,7 @@ Keystone 将文件、网页和 Markdown 沉淀为可私有部署、可持续演�
 
 - Docker Desktop（含 Docker Compose）
 
-### 启动 Keystone
+### 启动 FMind
 
 ```bash
 cp .env.example .env
@@ -92,7 +92,7 @@ docker compose --profile minio --profile neo4j up -d
 | 架构与部署说明 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) |
 | 生产部署与运维手册 | [docs/DEPLOYMENT_RUNBOOK.md](./docs/DEPLOYMENT_RUNBOOK.md) |
 | 云端 MVP Compose | [deploy/cloud-mvp/README.md](./deploy/cloud-mvp/README.md) |
-| 业务功能架构图 | [docs/diagrams/keystone-business-architecture.png](./docs/diagrams/keystone-business-architecture.png) |
+| 业务功能架构图 | [docs/diagrams/fmind-business-architecture.png](./docs/diagrams/fmind-business-architecture.png) |
 
 ## 本地开发与验证
 

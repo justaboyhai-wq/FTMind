@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/justaboyhai-wq/keystone/internal/types"
+import "github.com/justaboyhai-wq/fmind/internal/types"
 
 // AuthLoginResponse is the HTTP-safe login / switch-tenant response shape.
 type AuthLoginResponse struct {

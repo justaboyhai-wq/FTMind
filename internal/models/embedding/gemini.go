@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 const geminiEmbeddingBaseURL = "https://generativelanguage.googleapis.com/v1beta"

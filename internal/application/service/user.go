@@ -20,12 +20,12 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 
-	apprepo "github.com/justaboyhai-wq/keystone/internal/application/repository"
-	"github.com/justaboyhai-wq/keystone/internal/config"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	apprepo "github.com/justaboyhai-wq/fmind/internal/application/repository"
+	"github.com/justaboyhai-wq/fmind/internal/config"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 var (

@@ -1,9 +1,9 @@
 -- Rewrite legacy MinIO URLs after their corresponding logical objects have
 -- been copied to OSS. Run with psql variables, for example:
 --
---   docker compose exec -T postgres psql -U keystone -d keystone \
+--   docker compose exec -T postgres psql -U fmind -d fmind \
 --     -v old_prefix='minio://blexwiki/' \
---     -v new_prefix='oss://keystore001/keystone-mvp/legacy-import-YYYYMMDD/blexwiki/' \
+--     -v new_prefix='oss://keystore001/fmind-mvp/legacy-import-YYYYMMDD/blexwiki/' \
 --     -f /path/to/migrate-legacy-minio-refs.sql
 --
 -- Take a database backup first. This script deliberately does not issue a

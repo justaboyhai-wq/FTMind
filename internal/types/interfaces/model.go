@@ -3,12 +3,12 @@ package interfaces
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/models/chat"
-	"github.com/justaboyhai-wq/keystone/internal/models/embedding"
-	"github.com/justaboyhai-wq/keystone/internal/models/rerank"
-	"github.com/justaboyhai-wq/keystone/internal/models/asr"
-	"github.com/justaboyhai-wq/keystone/internal/models/vlm"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/models/chat"
+	"github.com/justaboyhai-wq/fmind/internal/models/embedding"
+	"github.com/justaboyhai-wq/fmind/internal/models/rerank"
+	"github.com/justaboyhai-wq/fmind/internal/models/asr"
+	"github.com/justaboyhai-wq/fmind/internal/models/vlm"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // ModelService defines the model service interface

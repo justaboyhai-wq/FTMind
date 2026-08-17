@@ -7,7 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	apperrors "github.com/justaboyhai-wq/keystone/internal/errors"
+	apperrors "github.com/justaboyhai-wq/fmind/internal/errors"
 )
 
 const (

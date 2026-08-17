@@ -3,7 +3,7 @@ package chat
 import (
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/models/provider"
+	"github.com/justaboyhai-wq/fmind/internal/models/provider"
 	"github.com/sashabaranov/go-openai"
 )
 

@@ -1,6 +1,6 @@
-// Package feishu implements the Feishu (飞书/Lark) data source connector for Keystone.
+// Package feishu implements the Feishu (飞书/Lark) data source connector for FMind.
 //
-// It syncs documents from Feishu Wiki spaces and cloud documents into Keystone knowledge bases.
+// It syncs documents from Feishu Wiki spaces and cloud documents into FMind knowledge bases.
 //
 // Feishu API docs:
 //   - Wiki spaces:      https://open.feishu.cn/document/server-docs/docs/wiki-v2/space/list

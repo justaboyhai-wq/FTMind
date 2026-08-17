@@ -1,53 +1,53 @@
 ---
-name: keystone-shared
-description: Use when driving a Keystone RAG server through the `keystone` CLI as an agent — authenticating, managing knowledge bases / documents / sessions / agents, running search or chat, or interpreting the CLI's JSON envelopes and exit codes. Read this before any other keystone-* skill.
+name: fmind-shared
+description: Use when driving a FMind RAG server through the `fmind` CLI as an agent — authenticating, managing knowledge bases / documents / sessions / agents, running search or chat, or interpreting the CLI's JSON envelopes and exit codes. Read this before any other fmind-* skill.
 metadata:
   tested_against: v0.10
 ---
 
-# Keystone CLI — shared base
+# FMind CLI — shared base
 
-`keystone` is the agent-first CLI for a Keystone RAG server. Every command prints
+`fmind` is the agent-first CLI for a FMind RAG server. Every command prints
 a JSON envelope and uses a typed exit code, so you branch on machine-readable
-output, not prose. Read this skill before any task-specific `keystone-*` skill.
+output, not prose. Read this skill before any task-specific `fmind-*` skill.
 
 ## 1. Authenticate (do this first — order matters)
 
-**Agents usually skip profiles entirely:** set `KEYSTONE_API_KEY` (or
-`KEYSTONE_TOKEN`) + `KEYSTONE_HOST` and every command authenticates statelessly and
+**Agents usually skip profiles entirely:** set `FMIND_API_KEY` (or
+`FMIND_TOKEN`) + `FMIND_HOST` and every command authenticates statelessly and
 zero-disk — no `profile add` / `auth login` needed. `auth token` echoes that env
 credential; `auth status` / `doctor` confirm it. The steps below set up a
 **persistent named profile** instead (interactive / multi-environment use).
 
-Authentication is a **two-step sequence**. `keystone auth login` operates on the
+Authentication is a **two-step sequence**. `fmind auth login` operates on the
 *active profile*, so the profile must exist first:
 
 ```bash
 # 1. register a connection target and make it active
-keystone profile add prod --host https://kb.example.com --use
+fmind profile add prod --host https://kb.example.com --use
 # 2a. API key (agent default — pipe the key on stdin, non-interactive):
-echo "$KEYSTONE_API_KEY" | keystone auth login --with-token
+echo "$FMIND_API_KEY" | fmind auth login --with-token
 # 2b. OR email+password (interactive prompt only — no flags; not for agents)
-keystone auth login
+fmind auth login
 
-keystone auth status          # verify: who am I, which tenant
+fmind auth status          # verify: who am I, which tenant
 ```
 
 - Target a *non-active* profile for one command with the global `--profile NAME`
-  (e.g. `keystone --profile staging auth refresh`). There is no per-command
+  (e.g. `fmind --profile staging auth refresh`). There is no per-command
   `--name`/`--host` on auth commands.
-- Get the raw token for scripting with `KEYSTONE_TOKEN=$(keystone auth token)`
+- Get the raw token for scripting with `FMIND_TOKEN=$(fmind auth token)`
   (raw token by default; works with an env credential too; `--format json` gives
   the `{token, mode, profile}` envelope).
-- `keystone auth logout` clears a profile's stored credentials but **keeps the
+- `fmind auth logout` clears a profile's stored credentials but **keeps the
   profile registered** (re-auth later with `auth login`); use `profile remove`
   to delete the profile entirely.
-- `keystone doctor` runs 4 health checks (reachability, credential, version, storage).
+- `fmind doctor` runs 4 health checks (reachability, credential, version, storage).
 
 ## 2. Selecting a knowledge base (`--kb`)
 
 `--kb` accepts a **name or a UUID** (resolved server-side). Resolution order:
-`--kb` flag → `KEYSTONE_KB_ID` env → directory link (`keystone link --kb X` binds
+`--kb` flag → `FMIND_KB_ID` env → directory link (`fmind link --kb X` binds
 the cwd) → error. Read/create commands that operate "inside a project" inherit
 the link; **`search *` and destructive `--all` operations always require an
 explicit `--kb`** (so an agent never silently hits the wrong corpus).
@@ -56,7 +56,7 @@ explicit `--kb`** (so an agent never silently hits the wrong corpus).
 KB is `retrieval_ready:false` — uploaded docs stay unindexed and `search`/`chat`
 return nothing until you bind models. Create it ready in one step
 (`kb create --embedding-model <m> --chat-model <m>`, discover ids with
-`keystone model list`) or bind after the fact
+`fmind model list`) or bind after the fact
 (`kb config set <kb> --embedding-model <m> --chat-model <m>`). `kb status` /
 `kb check` report `retrieval_ready`, and `kb create` hints the fix when it is
 false — so an unconfigured KB is never silently "healthy".
@@ -81,8 +81,8 @@ Default output is `--format json`: a single envelope.
   pass `--reference` for indexed citations, `--verbose` for execution detail,
   or `--format ndjson` for raw event lines. `session resume` remains
   an NDJSON streaming command.
-- `--jq '<expr>'` filters the envelope (e.g. `keystone kb list --jq '.data[].id'`).
-- Exception: `keystone auth token` emits the **raw token** by default (it's a
+- `--jq '<expr>'` filters the envelope (e.g. `fmind kb list --jq '.data[].id'`).
+- Exception: `fmind auth token` emits the **raw token** by default (it's a
   scripting helper); pass `--format json` for the `{token, mode, profile}` envelope.
 - **Batch / wait caveat:** multi-item commands come in two shapes, but for
   **both you branch on the exit code, not `ok`**:
@@ -102,7 +102,7 @@ Default output is `--format json`: a single envelope.
 |---|---|---|
 | 0 | success (incl. `--dry-run`) | proceed |
 | 1 | `local.*` / unclassified (incl. `local.kb_not_found`) | read `error`, decide retry/abort |
-| 2 | flag / argument validation (bad/unknown/missing-required flag) | re-check `keystone <cmd> --help` |
+| 2 | flag / argument validation (bad/unknown/missing-required flag) | re-check `fmind <cmd> --help` |
 | 3 | `auth.*` (missing / expired / forbidden) | re-auth, then retry |
 | 4 | `resource.not_found` (a server resource id) | verify the id |
 | 5 | `input.*` (other than confirmation_required) | adjust args, retry |
@@ -128,7 +128,7 @@ Destructive commands (`kb/doc/chunk/session/agent delete`, `kb/agent update`,
 ```jsonc
 {"ok":false,"error":{"type":"input.confirmation_required",
   "message":"delete knowledge base X requires explicit confirmation: re-run with -y",
-  "retry_argv":["keystone","kb","delete","X","-y"],"risk":{"level":"destructive","action":"kb.delete"}}}
+  "retry_argv":["fmind","kb","delete","X","-y"],"risk":{"level":"destructive","action":"kb.delete"}}}
 ```
 
 **Surface this to the user and get explicit approval. Re-run with `-y` ONLY
@@ -146,22 +146,22 @@ it for real — especially before destructive or bulk operations.
 Mutations return the new resource id in `data.id`. Chain with it:
 
 ```bash
-KB=$(keystone kb create "Docs" --jq '.data.id' --format json | tr -d '"')
-keystone doc upload ./manual.pdf --kb "$KB"
+KB=$(fmind kb create "Docs" --jq '.data.id' --format json | tr -d '"')
+fmind doc upload ./manual.pdf --kb "$KB"
 ```
 
 ## 7a. Reliability patterns for long-running agent runs
 
 ### Inspecting prior messages
-Use `keystone message list --session <sess-id>` to review the message history of a session (e.g., after a stream drops) before deciding whether to re-ask or continue. Use `keystone message search "<query>"` to locate a prior Q&A exchange across all sessions — prefer this over re-running an expensive query when the answer may already exist.
+Use `fmind message list --session <sess-id>` to review the message history of a session (e.g., after a stream drops) before deciding whether to re-ask or continue. Use `fmind message search "<query>"` to locate a prior Q&A exchange across all sessions — prefer this over re-running an expensive query when the answer may already exist.
 
 ### Tool-approval unlock
 An agent run pauses mid-stream on a tool-approval event when the server requires human sign-off before executing a tool call. The pattern:
 
 1. The stream emits a tool-approval event; capture the `pending_id`.
 2. **Surface the pending tool call to the user** (show tool name + proposed args). Do not auto-approve.
-3. After explicit user go-ahead: `keystone session tool-approval resolve <pending-id> -y` to approve, or add `--reject --reason "..."` to reject.
-4. Resume the answer: `keystone session resume <sess-id> --message <msg-id>`.
+3. After explicit user go-ahead: `fmind session tool-approval resolve <pending-id> -y` to approve, or add `--reject --reason "..."` to reject.
+4. Resume the answer: `fmind session resume <sess-id> --message <msg-id>`.
 
 `--modified-args '{"key":"val"}'` replaces the tool arguments on approve (non-empty JSON object required). This is an exit-10 interaction — see §5.
 
@@ -178,25 +178,25 @@ model     configured models list/view/create/update/delete   (update rotates key
 search    retrieval         chunks / docs / kb / sessions
 chat      one-shot KB RAG Q&A (streaming)
 api       raw HTTP passthrough to any server endpoint (escape hatch)
-link/unlink  bind cwd to a KB        mcp serve  expose keystone as MCP tools
+link/unlink  bind cwd to a KB        mcp serve  expose fmind as MCP tools
 ```
 
 **chat vs session ask vs search** — the most common confusion: see the
-`keystone-rag-search` skill for the decision table. Briefly: `chat` = one-shot
+`fmind-rag-search` skill for the decision table. Briefly: `chat` = one-shot
 KB Q&A with an LLM; `session ask --agent <id>` = invoke a *custom agent*;
 `search chunks` = raw hybrid retrieval (no LLM).
 
 ## 9. CLI vs MCP
 
 For your own scripted control, use the CLI (richer: dry-run, exit-10, all verbs).
-For an IDE/host agent that speaks MCP, `keystone mcp serve` exposes a curated
+For an IDE/host agent that speaks MCP, `fmind mcp serve` exposes a curated
 read+chat tool set: `kb_list`, `kb_view`, `doc_list`, `doc_view`, `doc_download`,
 `search_chunks`, `chunk_list`, `agent_list`, `chat`, `session_ask`. MCP tools
 take raw ids (no name resolution); resolve names via `kb_list` first.
 
 ## 10. Agent self-help
 
-Run `keystone <command> --help`. With `KEYSTONE_AGENT_HELP=1` set, `--help` emits a
+Run `fmind <command> --help`. With `FMIND_AGENT_HELP=1` set, `--help` emits a
 JSON blob (`used_for` / `required_flags` / `examples`) instead of prose — parse
 that to learn a command without scraping the human help table.
 
@@ -204,8 +204,8 @@ that to learn a command without scraping the human help table.
 
 | Mistake | Fix |
 |---|---|
-| `keystone auth login` before any profile exists | `profile add <n> --host <url> --use` first (§1) |
+| `fmind auth login` before any profile exists | `profile add <n> --host <url> --use` first (§1) |
 | Passing `--host` or `--name` to `auth login` | `auth login` takes neither — host comes from the profile; use `profile add <n> --host <url> --use`, then `auth login` |
 | Auto-adding `-y` to clear an exit-10 | Never; get user approval first (§5) |
 | Need the raw `chat` event stream | pass `--format ndjson`; use `--format text` for a live projected transcript |
-| `search chunks "q"` → exit 1 `local.kb_id_required` | Pass `--kb <name-or-id>`, set `KEYSTONE_KB_ID`, or `keystone link` the dir |
+| `search chunks "q"` → exit 1 `local.kb_id_required` | Pass `--kb <name-or-id>`, set `FMIND_KB_ID`, or `fmind link` the dir |

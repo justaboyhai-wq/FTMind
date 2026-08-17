@@ -129,11 +129,11 @@ const capabilityIcons: Record<(typeof capabilityKeys)[number], string> = {
   browse: 'view-list',
 }
 
-const installCommand = 'openclaw skills install @justaboyhai-wq/keystone'
+const installCommand = 'openclaw skills install @justaboyhai-wq/fmind'
 
 const envExample = computed(() => {
   const base = apiBaseUrlDisplay.value || 'https://your-server.com/api/v1'
-  return `export KEYSTONE_BASE_URL="${base}"\nexport KEYSTONE_API_KEY="sk-your-api-key"`
+  return `export FMIND_BASE_URL="${base}"\nexport FMIND_API_KEY="sk-your-api-key"`
 })
 
 const openClawHub = () => {

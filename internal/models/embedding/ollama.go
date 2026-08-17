@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/models/utils/ollama"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/models/utils/ollama"
 	ollamaapi "github.com/ollama/ollama/api"
 )
 

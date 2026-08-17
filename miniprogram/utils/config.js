@@ -1,4 +1,4 @@
-const STORAGE_KEY = "keystone_settings";
+const STORAGE_KEY = "fmind_settings";
 
 function normalizeBaseUrl(baseUrl) {
   if (!baseUrl || typeof baseUrl !== "string") {

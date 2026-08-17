@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
 )
 
 // TestCompletion_AllShells smoke-tests cobra's auto-registered completion
@@ -21,7 +21,7 @@ func TestCompletion_AllShells(t *testing.T) {
 	}{
 		{"bash", "bash completion", 1024},
 		{"zsh", "#compdef", 1024},
-		{"fish", "complete -c keystone", 1024},
+		{"fish", "complete -c fmind", 1024},
 		{"powershell", "Register-ArgumentCompleter", 1024},
 	}
 	for _, tc := range cases {

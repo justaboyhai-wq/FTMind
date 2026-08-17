@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // 流管理器类型

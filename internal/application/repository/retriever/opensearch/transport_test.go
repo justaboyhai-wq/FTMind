@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // TestNewOpenSearchClient_RejectsEmptyAddr verifies the constructor

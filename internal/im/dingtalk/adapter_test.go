@@ -6,7 +6,7 @@ import (
 
 	"github.com/open-dingtalk/dingtalk-stream-sdk-go/chatbot"
 
-	"github.com/justaboyhai-wq/keystone/internal/im"
+	"github.com/justaboyhai-wq/fmind/internal/im"
 )
 
 // Compile-time check: the adapter must implement FileDownloader so the IM

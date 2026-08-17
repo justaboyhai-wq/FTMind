@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/justaboyhai-wq/keystone/internal/im"
+	"github.com/justaboyhai-wq/fmind/internal/im"
 )
 
 // NewFactory returns an im.AdapterFactory for DingTalk channels.

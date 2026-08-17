@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
 )
 
 // stringOr returns val (trimmed) if non-empty, otherwise fallback.

@@ -9,11 +9,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/output"
-	"github.com/justaboyhai-wq/keystone/cli/internal/text"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/output"
+	"github.com/justaboyhai-wq/fmind/cli/internal/text"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // kbSearchFields enumerates the fields surfaced for `--format json` discovery on
@@ -39,7 +39,7 @@ type KBSearchService interface {
 	ListKnowledgeBases(ctx context.Context) ([]sdk.KnowledgeBase, error)
 }
 
-// NewCmdKB builds `keystone search kb "<query>"` - substring + case-insensitive
+// NewCmdKB builds `fmind search kb "<query>"` - substring + case-insensitive
 // match across KB names and descriptions visible to the active profile.
 // Results are sorted by name length (shortest first; usually the closest
 // hit) for deterministic output.
@@ -53,9 +53,9 @@ to the active profile. Results are sorted by name length (shortest first;
 usually the closest hit) for deterministic output.
 
 This is name-discovery only - for searching *inside* a knowledge base's
-content, use ` + "`keystone search chunks`" + `.`,
-		Example: `  keystone search kb "marketing"
-  keystone search kb "team" --limit 5 --format json`,
+content, use ` + "`fmind search chunks`" + `.`,
+		Example: `  fmind search kb "marketing"
+  fmind search kb "team" --limit 5 --format json`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			opts.Query = strings.TrimSpace(args[0])
@@ -82,7 +82,7 @@ content, use ` + "`keystone search chunks`" + `.`,
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:       "Find knowledge bases by name or description (client-side case-insensitive substring match). Results come with meta.count; use --limit to cap. For searching content inside a KB, use 'search chunks' instead.",
 		RequiredFlags: []string{"<query> (positional)"},
-		Examples:      []string{`keystone search kb "engineering" --format json`},
+		Examples:      []string{`fmind search kb "engineering" --format json`},
 		Output:   "envelope.data is an array of KnowledgeBase objects with id, name, knowledge_count; meta.count is the returned count; meta.has_more=true if more matched than --limit",
 	})
 	return cmd

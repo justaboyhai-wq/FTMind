@@ -8,14 +8,14 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	apprepo "github.com/justaboyhai-wq/keystone/internal/application/repository"
-	"github.com/justaboyhai-wq/keystone/internal/application/service"
-	"github.com/justaboyhai-wq/keystone/internal/config"
-	apperrors "github.com/justaboyhai-wq/keystone/internal/errors"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	apprepo "github.com/justaboyhai-wq/fmind/internal/application/repository"
+	"github.com/justaboyhai-wq/fmind/internal/application/service"
+	"github.com/justaboyhai-wq/fmind/internal/config"
+	apperrors "github.com/justaboyhai-wq/fmind/internal/errors"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // TenantInvitationHandler exposes the tenant-scoped CRUD on the

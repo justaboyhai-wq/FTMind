@@ -14,12 +14,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/config"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/prompt"
-	"github.com/justaboyhai-wq/keystone/cli/internal/secrets"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/config"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/prompt"
+	"github.com/justaboyhai-wq/fmind/cli/internal/secrets"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // authDryRunFactory builds a Factory whose Client closure panics if invoked —
@@ -44,7 +44,7 @@ func authDryRunFactory(t *testing.T, cfg *config.Config) *cmdutil.Factory {
 // withRootHarnessAuth wraps an auth subcommand under a synthetic root cmd
 // that registers the global persistent flags.
 func withRootHarnessAuth(sub *cobra.Command, args ...string) *cobra.Command {
-	root := &cobra.Command{Use: "keystone"}
+	root := &cobra.Command{Use: "fmind"}
 	pf := root.PersistentFlags()
 	pf.BoolP("yes", "y", false, "")
 	pf.String("format", "", "")

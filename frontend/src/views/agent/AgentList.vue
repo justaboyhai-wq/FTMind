@@ -638,7 +638,7 @@
 
         <!-- 空状态：全部（保留创建 CTA） -->
         <div v-if="spaceSelection === 'all' && filteredAgents.length === 0 && !loading" class="empty-state">
-          <KeystoneEmptyStateArt class="empty-art" variant="agent" />
+          <FMindEmptyStateArt class="empty-art" variant="agent" />
           <span class="empty-txt">{{ $t('agent.empty.title') }}</span>
           <span class="empty-desc">{{ $t('agent.empty.description') }}</span>
           <t-button v-if="authStore.hasRole('contributor')" class="agent-create-btn empty-state-btn"
@@ -679,7 +679,7 @@
         </div>
         <!-- 空状态：我的 -->
         <div v-if="spaceSelection === 'mine' && agents.length === 0 && !loading" class="empty-state">
-          <KeystoneEmptyStateArt class="empty-art" variant="agent" />
+          <FMindEmptyStateArt class="empty-art" variant="agent" />
           <span class="empty-txt">{{ $t('agent.empty.title') }}</span>
           <span class="empty-desc">{{ $t('agent.empty.description') }}</span>
           <t-button v-if="authStore.hasRole('contributor')" class="agent-create-btn empty-state-btn"
@@ -708,7 +708,7 @@
         </div>
         <!-- 空状态：空间下 -->
         <div v-if="spaceSelectionOrgId && !spaceAgentsLoading && spaceAgentsList.length === 0" class="empty-state">
-          <KeystoneEmptyStateArt class="empty-art" variant="shared" />
+          <FMindEmptyStateArt class="empty-art" variant="shared" />
           <span class="empty-txt">{{ $t('agent.empty.sharedTitle') }}</span>
           <span class="empty-desc">{{ $t('agent.empty.sharedDescription') }}</span>
         </div>
@@ -837,7 +837,7 @@ import { shouldShowResourceOriginBadge } from '@/utils/card-list-badge'
 import { useAuthStore } from '@/stores/auth'
 import { useListUrlState } from '@/composables/useListUrlState'
 import { useResourcePins } from '@/composables/useResourcePins'
-import KeystoneEmptyStateArt from '@/components/KeystoneEmptyStateArt.vue'
+import FMindEmptyStateArt from '@/components/FMindEmptyStateArt.vue'
 
 const { t } = useI18n()
 const route = useRoute()

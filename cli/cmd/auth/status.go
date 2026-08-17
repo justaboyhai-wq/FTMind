@@ -8,9 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // authStatusFields enumerates the fields surfaced for `--format json` discovery
@@ -42,7 +42,7 @@ type statusResult struct {
 	TenantName          string `json:"tenant_name,omitempty"`
 }
 
-// NewCmdStatus builds the `keystone auth status` command.
+// NewCmdStatus builds the `fmind auth status` command.
 func NewCmdStatus(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "status",
@@ -51,7 +51,7 @@ func NewCmdStatus(f *cmdutil.Factory) *cobra.Command {
 and tenant the server resolves the credential to.
 
 Exits with auth.unauthenticated when the token is invalid or missing - run
-` + "`keystone auth login`" + ` (or ` + "`auth refresh`" + ` for JWT profiles) to recover.
+` + "`fmind auth login`" + ` (or ` + "`auth refresh`" + ` for JWT profiles) to recover.
 For JWT profiles the SDK transparently refreshes on 401, so this command
 usually only surfaces a hard auth failure.`,
 		Args: cobra.NoArgs,
@@ -71,7 +71,7 @@ usually only surfaces a hard auth failure.`,
 	cmdutil.AddFormatFlag(cmd, authStatusFields...)
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:  "show the active profile, the authenticated principal, and token state",
-		Examples: []string{"keystone auth status", "keystone auth status --jq .data.tenant_id"},
+		Examples: []string{"fmind auth status", "fmind auth status --jq .data.tenant_id"},
 		Output:   "envelope.data is {profile, host, auth_source, user_id, username, email, tenant_id, tenant_name, ...}; auth_source is 'profile + keyring' or a stateless env credential; exit 3 if unauthenticated",
 	})
 	return cmd
@@ -79,7 +79,7 @@ usually only surfaces a hard auth failure.`,
 
 func runStatus(ctx context.Context, fopts *cmdutil.FormatOptions, f *cmdutil.Factory, svc StatusService) error {
 	if svc == nil {
-		return cmdutil.NewError(cmdutil.CodeAuthUnauthenticated, "no SDK client available; run `keystone auth login`")
+		return cmdutil.NewError(cmdutil.CodeAuthUnauthenticated, "no SDK client available; run `fmind auth login`")
 	}
 	resp, err := svc.GetCurrentUser(ctx)
 	if err != nil {
@@ -94,8 +94,8 @@ func runStatus(ctx context.Context, fopts *cmdutil.FormatOptions, f *cmdutil.Fac
 	}
 
 	// Effective host + auth source. Stateless env credentials
-	// (KEYSTONE_TOKEN/KEYSTONE_API_KEY) override the profile + keyring for the
-	// client, so report the host they authenticate against (KEYSTONE_HOST) and
+	// (FMIND_TOKEN/FMIND_API_KEY) override the profile + keyring for the
+	// client, so report the host they authenticate against (FMIND_HOST) and
 	// that they are in effect — not the bypassed config profile's host.
 	host := ""
 	if c, ok := cfg.Profiles[cfg.CurrentProfile]; ok {
@@ -104,7 +104,7 @@ func runStatus(ctx context.Context, fopts *cmdutil.FormatOptions, f *cmdutil.Fac
 	authSource := "profile + keyring"
 	if active, kind := cmdutil.EnvCredential(); active {
 		authSource = kind + " env (stateless)"
-		if h := strings.TrimSpace(os.Getenv("KEYSTONE_HOST")); h != "" {
+		if h := strings.TrimSpace(os.Getenv("FMIND_HOST")); h != "" {
 			host = h
 		}
 	}

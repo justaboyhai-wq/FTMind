@@ -1,4 +1,4 @@
-// stop.go implements `keystone session stop` — cancel server-side generation
+// stop.go implements `fmind session stop` — cancel server-side generation
 // for a specific assistant message under a known session.
 //
 // Unlike Ctrl-C (which only drops the local connection while the server keeps
@@ -15,9 +15,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 var stopFields = []string{"session_id", "message_id", "stopped"}
@@ -42,7 +42,7 @@ type stopResult struct {
 	Stopped   bool   `json:"stopped"`
 }
 
-// NewCmdStop builds `keystone session stop <session-id> --message <id>`.
+// NewCmdStop builds `fmind session stop <session-id> --message <id>`.
 func NewCmdStop(f *cmdutil.Factory) *cobra.Command {
 	opts := &StopOptions{}
 	cmd := &cobra.Command{
@@ -53,7 +53,7 @@ session. Unlike Ctrl-C (which only drops the local connection while the server
 keeps generating and billing tokens), this tells the server to stop.
 
 Symmetric with 'session resume': both key on (session_id, message_id).`,
-		Example: `  keystone session stop sess_xyz --message msg_abc`,
+		Example: `  fmind session stop sess_xyz --message msg_abc`,
 		Args:    cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			opts.SessionID = args[0]
@@ -83,7 +83,7 @@ Symmetric with 'session resume': both key on (session_id, message_id).`,
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:       "Stop server-side generation for an in-flight assistant message (counterpart to resume). The message_id comes from the init event of the chat / session ask / resume stream you're stopping.",
 		RequiredFlags: []string{"<session-id> (positional)", "--message (message_id from the init event of the stream you're stopping)"},
-		Examples:      []string{"keystone session stop sess_xyz --message msg_abc"},
+		Examples:      []string{"fmind session stop sess_xyz --message msg_abc"},
 		Output:        "envelope {session_id, message_id, stopped:true}",
 	})
 	return cmd

@@ -7,9 +7,9 @@ import (
 
 	mcpsdk "github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/output"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/output"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // TestToolErrorResult_TypedError_PopulatesStructuredContent verifies the
@@ -30,8 +30,8 @@ func TestToolErrorResult_TypedError_PopulatesStructuredContent(t *testing.T) {
 	if sc.Type != "auth.unauthenticated" {
 		t.Errorf("type: got %v want auth.unauthenticated", sc.Type)
 	}
-	// retry_argv should fall back to ["keystone","auth","login"] via cmdutil default
-	if !reflect.DeepEqual(sc.RetryArgv, []string{"keystone", "auth", "login"}) {
+	// retry_argv should fall back to ["fmind","auth","login"] via cmdutil default
+	if !reflect.DeepEqual(sc.RetryArgv, []string{"fmind", "auth", "login"}) {
 		t.Errorf("retry_argv: got %v", sc.RetryArgv)
 	}
 }

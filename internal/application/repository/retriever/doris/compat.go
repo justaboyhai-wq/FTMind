@@ -8,7 +8,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
 )
 
 const envDorisCompatMode = "DORIS_COMPAT_MODE"

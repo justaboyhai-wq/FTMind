@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/models/utils/ollama"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/models/utils/ollama"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 	ollamaapi "github.com/ollama/ollama/api"
 )
 

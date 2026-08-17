@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# prepare.sh - 在干净的 Linux 实例上部署 Keystone 运行时, 用于制作云镜像模板。
-# 不需要 clone 整个 Keystone 仓库, 只下载 4 个运行时文件 (~100KB)。
+# prepare.sh - 在干净的 Linux 实例上部署 FMind 运行时, 用于制作云镜像模板。
+# 不需要 clone 整个 FMind 仓库, 只下载 4 个运行时文件 (~100KB)。
 # 兼容: Ubuntu / Debian / CentOS / Rocky / TencentOS 等带 systemd + Docker 的发行版。
 # 使用方式:  sudo bash prepare.sh
 # 可调环境变量:
-#   KEYSTONE_REF              要拉取的 git ref (tag / branch / commit), 默认 main
-#   KEYSTONE_DIR              部署目录, 默认 /opt/Keystone
-#   KEYSTONE_REPO             仓库地址, 默认 https://github.com/justaboyhai-wq/keystone
-#   KEYSTONE_GH_PROXY         GitHub 加速前缀, 默认空。中国大陆机器可设
+#   FMIND_REF              要拉取的 git ref (tag / branch / commit), 默认 main
+#   FMIND_DIR              部署目录, 默认 /opt/FMind
+#   FMIND_REPO             仓库地址, 默认 https://github.com/justaboyhai-wq/fmind
+#   FMIND_GH_PROXY         GitHub 加速前缀, 默认空。中国大陆机器可设
 #                            https://gh-proxy.com/ 或 https://ghfast.top/
-#                            (实际下载地址变成 ${KEYSTONE_GH_PROXY}${KEYSTONE_REPO}/archive/...)
+#                            (实际下载地址变成 ${FMIND_GH_PROXY}${FMIND_REPO}/archive/...)
 #   DOCKER_INSTALL_MIRROR    Docker 安装包镜像源, 默认空 (走 get.docker.com)。
 #                            中国大陆机器境外 CDN 不通时设为, 例如:
 #                              https://mirrors.tencent.com/docker-ce/linux/ubuntu
@@ -23,14 +23,14 @@
 #   PRUNE_OLD_IMAGES         升级场景下是否清理 dangling / 旧版本 tag 镜像,
 #                            默认 false。设为 true 时在拉新镜像之后执行
 #                            `docker image prune -af`, 把没有容器引用的镜像
-#                            (含旧 KEYSTONE_VERSION 的 wechatopenai/keystone-*)
+#                            (含旧 FMIND_VERSION 的 wechatopenai/fmind-*)
 #                            一次性删掉, 减少要打进云镜像的体积。
 set -euo pipefail
 
-KEYSTONE_REF="${KEYSTONE_REF:-main}"
-KEYSTONE_DIR="${KEYSTONE_DIR:-/opt/Keystone}"
-KEYSTONE_REPO="${KEYSTONE_REPO:-https://github.com/justaboyhai-wq/keystone}"
-KEYSTONE_GH_PROXY="${KEYSTONE_GH_PROXY:-}"
+FMIND_REF="${FMIND_REF:-main}"
+FMIND_DIR="${FMIND_DIR:-/opt/FMind}"
+FMIND_REPO="${FMIND_REPO:-https://github.com/justaboyhai-wq/fmind}"
+FMIND_GH_PROXY="${FMIND_GH_PROXY:-}"
 DOCKER_INSTALL_MIRROR="${DOCKER_INSTALL_MIRROR:-}"
 DOCKER_REGISTRY_MIRROR="${DOCKER_REGISTRY_MIRROR:-}"
 PRUNE_OLD_IMAGES="${PRUNE_OLD_IMAGES:-false}"
@@ -120,14 +120,14 @@ EOF
   done
 fi
 
-echo "[prepare] 2/6 拉取 Keystone 运行时文件 (ref=${KEYSTONE_REF})"
+echo "[prepare] 2/6 拉取 FMind 运行时文件 (ref=${FMIND_REF})"
 # 只下载实际需要的 4 个文件, 不 clone 整个仓库 (~MB 级 -> ~KB 级)
-mkdir -p "${KEYSTONE_DIR}/config" "${KEYSTONE_DIR}/skills"
+mkdir -p "${FMIND_DIR}/config" "${FMIND_DIR}/skills"
 
 tmp=$(mktemp -d)
 trap 'rm -rf "${tmp}"' EXIT
 
-tarball_url="${KEYSTONE_GH_PROXY}${KEYSTONE_REPO}/archive/${KEYSTONE_REF}.tar.gz"
+tarball_url="${FMIND_GH_PROXY}${FMIND_REPO}/archive/${FMIND_REF}.tar.gz"
 echo "[prepare]   tarball: ${tarball_url}"
 curl -fsSL "${tarball_url}" -o "${tmp}/repo.tar.gz"
 # 仅解压需要的路径, 显著加速且省空间
@@ -137,41 +137,41 @@ tar -xzf "${tmp}/repo.tar.gz" -C "${tmp}" \
   '*/.env.example' \
   '*/config/config.yaml' \
   '*/skills/preloaded'
-src=$(find "${tmp}" -maxdepth 1 -mindepth 1 -type d -name 'Keystone-*' | head -1)
+src=$(find "${tmp}" -maxdepth 1 -mindepth 1 -type d -name 'FMind-*' | head -1)
 if [[ -z "${src}" ]]; then
-  echo "[prepare] 解压失败, 未找到 Keystone-* 目录" >&2
+  echo "[prepare] 解压失败, 未找到 FMind-* 目录" >&2
   exit 1
 fi
 
-cp    "${src}/docker-compose.yml" "${KEYSTONE_DIR}/"
-cp    "${src}/.env.example"       "${KEYSTONE_DIR}/"
-cp    "${src}/config/config.yaml" "${KEYSTONE_DIR}/config/"
-rm -rf "${KEYSTONE_DIR}/skills/preloaded"
-cp -r "${src}/skills/preloaded"   "${KEYSTONE_DIR}/skills/"
+cp    "${src}/docker-compose.yml" "${FMIND_DIR}/"
+cp    "${src}/.env.example"       "${FMIND_DIR}/"
+cp    "${src}/config/config.yaml" "${FMIND_DIR}/config/"
+rm -rf "${FMIND_DIR}/skills/preloaded"
+cp -r "${src}/skills/preloaded"   "${FMIND_DIR}/skills/"
 
 # 记录元信息, 供 firstboot / 升级时参考
-cat >"${KEYSTONE_DIR}/.cloud-image-meta" <<EOF
-KEYSTONE_REF=${KEYSTONE_REF}
-KEYSTONE_REPO=${KEYSTONE_REPO}
+cat >"${FMIND_DIR}/.cloud-image-meta" <<EOF
+FMIND_REF=${FMIND_REF}
+FMIND_REPO=${FMIND_REPO}
 PREPARED_AT=$(date -Iseconds)
 EOF
 
 echo "[prepare] 3/6 准备 .env (默认值, firstboot 会替换为随机密钥)"
-cd "${KEYSTONE_DIR}"
+cd "${FMIND_DIR}"
 [[ -f .env ]] || cp .env.example .env
 sed -i 's/^GIN_MODE=.*/GIN_MODE=release/' .env || true
 
-# 把 KEYSTONE_VERSION 与 KEYSTONE_REF 对齐, 让 docker compose 拉取与 ref 一致的
+# 把 FMIND_VERSION 与 FMIND_REF 对齐, 让 docker compose 拉取与 ref 一致的
 # 镜像 tag。无条件覆盖, 避免 .env 残留上一次 prepare 留下的旧版本号。
-# Docker Hub 上 wechatopenai/keystone-* 的 tag 实际值就是 git ref 原样
+# Docker Hub 上 wechatopenai/fmind-* 的 tag 实际值就是 git ref 原样
 # (`main` / `v0.5.2`), 因此这里不剥 v、也不映射到 latest。
-KEYSTONE_VERSION_VAL="${KEYSTONE_REF}"
-if grep -qE '^KEYSTONE_VERSION=' .env; then
-  sed -i "s|^KEYSTONE_VERSION=.*|KEYSTONE_VERSION=${KEYSTONE_VERSION_VAL}|" .env
+FMIND_VERSION_VAL="${FMIND_REF}"
+if grep -qE '^FMIND_VERSION=' .env; then
+  sed -i "s|^FMIND_VERSION=.*|FMIND_VERSION=${FMIND_VERSION_VAL}|" .env
 else
-  echo "KEYSTONE_VERSION=${KEYSTONE_VERSION_VAL}" >>.env
+  echo "FMIND_VERSION=${FMIND_VERSION_VAL}" >>.env
 fi
-echo "[prepare]   -> KEYSTONE_VERSION=${KEYSTONE_VERSION_VAL}"
+echo "[prepare]   -> FMIND_VERSION=${FMIND_VERSION_VAL}"
 
 echo "[prepare] 4/6 拉取并启动默认 5 个常驻容器 (frontend/app/docreader/postgres/redis)"
 docker compose pull
@@ -184,22 +184,22 @@ docker compose --profile full pull sandbox || true
 
 # 其他向量库 / 可观测组件 (qdrant, milvus, weaviate, doris, neo4j, langfuse-*, minio, dex)
 # 不预拉, 体积可省 5-15GB. 用户如需启用:
-#   cd /opt/Keystone && docker compose --profile <name> up -d
+#   cd /opt/FMind && docker compose --profile <name> up -d
 
-# 升级场景: 清理旧版本 tag 的 wechatopenai/keystone-* 镜像。
+# 升级场景: 清理旧版本 tag 的 wechatopenai/fmind-* 镜像。
 # 默认关闭, 保留回滚路径; 制作镜像前显式打开以减小体积。
 #
 # 注意: 不用 `docker image prune -af`!
 # sandbox 镜像在 compose 里只 pull 不 up (Agent Skills 由 app 按需 docker run),
 # 没有任何容器引用它, 一旦 `prune -a` 会把当前版本的 sandbox 一起删掉,
 # 反而违背 prepare.sh 4.5 步预拉 sandbox 的目的。
-# 这里精确按 tag 比对, 只删 wechatopenai/keystone-* 仓库下、tag 不等于当前
-# KEYSTONE_VERSION 的镜像, 基础设施镜像 (paradedb / redis) 不动。
+# 这里精确按 tag 比对, 只删 wechatopenai/fmind-* 仓库下、tag 不等于当前
+# FMIND_VERSION 的镜像, 基础设施镜像 (paradedb / redis) 不动。
 if [[ "${PRUNE_OLD_IMAGES,,}" == "true" || "${PRUNE_OLD_IMAGES}" == "1" ]]; then
-  echo "[prepare] 4.6/6 清理 wechatopenai/keystone-* 仓库下旧版本镜像 (PRUNE_OLD_IMAGES=true, keep=${KEYSTONE_VERSION_VAL})"
+  echo "[prepare] 4.6/6 清理 wechatopenai/fmind-* 仓库下旧版本镜像 (PRUNE_OLD_IMAGES=true, keep=${FMIND_VERSION_VAL})"
   docker image ls --format '{{.Repository}}:{{.Tag}}' \
-    | grep -E '^wechatopenai/keystone-' \
-    | grep -vE ":${KEYSTONE_VERSION_VAL}\$" \
+    | grep -E '^wechatopenai/fmind-' \
+    | grep -vE ":${FMIND_VERSION_VAL}\$" \
     | xargs -r docker rmi -f 2>/dev/null || true
 fi
 
@@ -212,22 +212,22 @@ if [[ -z "${DOCKER_BIN}" ]]; then
 fi
 echo "[prepare]   docker binary: ${DOCKER_BIN}"
 
-install -m 0644 "${SCRIPT_DIR}/systemd/keystone.service"           /etc/systemd/system/keystone.service
-install -m 0644 "${SCRIPT_DIR}/systemd/keystone-firstboot.service" /etc/systemd/system/keystone-firstboot.service
-install -m 0755 "${SCRIPT_DIR}/firstboot.sh"                      /usr/local/sbin/keystone-firstboot.sh
+install -m 0644 "${SCRIPT_DIR}/systemd/fmind.service"           /etc/systemd/system/fmind.service
+install -m 0644 "${SCRIPT_DIR}/systemd/fmind-firstboot.service" /etc/systemd/system/fmind-firstboot.service
+install -m 0755 "${SCRIPT_DIR}/firstboot.sh"                      /usr/local/sbin/fmind-firstboot.sh
 
 # 把 systemd 单元里的 docker 路径模板替换为实际路径
-sed -i "s|@DOCKER_BIN@|${DOCKER_BIN}|g" /etc/systemd/system/keystone.service
+sed -i "s|@DOCKER_BIN@|${DOCKER_BIN}|g" /etc/systemd/system/fmind.service
 
 systemctl daemon-reload
-systemctl enable keystone.service
-systemctl enable keystone-firstboot.service
+systemctl enable fmind.service
+systemctl enable fmind-firstboot.service
 
 echo "[prepare] 6/6 完成"
 echo
-echo "  Keystone 运行时已部署到 ${KEYSTONE_DIR}"
+echo "  FMind 运行时已部署到 ${FMIND_DIR}"
 echo "    docker-compose.yml / config/config.yaml / skills/preloaded / .env"
-echo "  版本: ${KEYSTONE_REF}  (见 ${KEYSTONE_DIR}/.cloud-image-meta)"
+echo "  版本: ${FMIND_REF}  (见 ${FMIND_DIR}/.cloud-image-meta)"
 echo
 echo "  打开浏览器访问  http://<本机公网IP>  验证功能"
 echo

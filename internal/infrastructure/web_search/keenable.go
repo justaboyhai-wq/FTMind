@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 const (
@@ -19,7 +19,7 @@ const (
 	// Not configurable by tenants — prevents SSRF.
 	defaultKeenableBaseURL = "https://api.keenable.ai"
 	// keenableTitle is the attribution tag Keenable segments integration traffic by.
-	keenableTitle = "Keystone"
+	keenableTitle = "FMind"
 	// defaultKeenableResults matches the fallback other providers use when the
 	// caller does not specify a positive maxResults.
 	defaultKeenableResults = 5

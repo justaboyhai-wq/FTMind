@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/models/provider"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/models/provider"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // ZhipuEmbedder implements text vectorization functionality using Zhipu AI API

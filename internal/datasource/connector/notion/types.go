@@ -1,6 +1,6 @@
-// Package notion implements the Notion data source connector for Keystone.
+// Package notion implements the Notion data source connector for FMind.
 //
-// It syncs pages, databases, and attachments from Notion workspaces into Keystone knowledge bases.
+// It syncs pages, databases, and attachments from Notion workspaces into FMind knowledge bases.
 //
 // Notion API docs:
 //   - Authentication: https://developers.notion.com/docs/authorization
@@ -15,8 +15,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/datasource"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/datasource"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // NotionAPIVersion is the Notion API version used by this connector.

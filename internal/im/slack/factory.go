@@ -6,8 +6,8 @@ import (
 
 	slackpkg "github.com/slack-go/slack"
 
-	"github.com/justaboyhai-wq/keystone/internal/im"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/im"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
 )
 
 // NewFactory returns an im.AdapterFactory for Slack channels.

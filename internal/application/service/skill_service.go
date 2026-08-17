@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/justaboyhai-wq/keystone/internal/agent/skills"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/agent/skills"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // DefaultPreloadedSkillsDir is the default directory for preloaded skills
@@ -37,7 +37,7 @@ func NewSkillService() interfaces.SkillService {
 // getPreloadedSkillsDir returns the path to the preloaded skills directory
 func getPreloadedSkillsDir() string {
 	// Check if SKILLS_DIR environment variable is set
-	if dir := os.Getenv("KEYSTONE_SKILLS_DIR"); dir != "" {
+	if dir := os.Getenv("FMIND_SKILLS_DIR"); dir != "" {
 		return dir
 	}
 

@@ -1,6 +1,6 @@
 package handler
 
-import "github.com/justaboyhai-wq/keystone/internal/storageallowlist"
+import "github.com/justaboyhai-wq/fmind/internal/storageallowlist"
 
 func getSupportedStorageProviders() []string {
 	return storageallowlist.Supported()

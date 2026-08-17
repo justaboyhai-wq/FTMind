@@ -1,7 +1,7 @@
 package session
 
 import (
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // CreateSessionRequest represents a request to create a new session

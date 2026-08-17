@@ -3,7 +3,7 @@ package embedding
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/models/limiter"
+	"github.com/justaboyhai-wq/fmind/internal/models/limiter"
 )
 
 // Embedding is the highest-volume background model call: document ingestion

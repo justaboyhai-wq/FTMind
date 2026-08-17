@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	werrors "github.com/justaboyhai-wq/keystone/internal/errors"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	werrors "github.com/justaboyhai-wq/fmind/internal/errors"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // ResolveProcessConfig merges KB defaults with per-upload overrides for the parse pipeline.

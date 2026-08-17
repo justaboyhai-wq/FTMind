@@ -7,11 +7,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/output"
-	"github.com/justaboyhai-wq/keystone/cli/internal/sse"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/output"
+	"github.com/justaboyhai-wq/fmind/cli/internal/sse"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // sessionAskFields enumerates the fields surfaced for `--jq` projection
@@ -49,7 +49,7 @@ type AskService interface {
 	AgentQAStreamWithRequest(ctx context.Context, sessionID string, req *sdk.AgentQARequest, cb sdk.AgentEventCallback) error
 }
 
-// NewCmdAsk builds `keystone session ask --agent <agent-id> "<text>"`.
+// NewCmdAsk builds `fmind session ask --agent <agent-id> "<text>"`.
 func NewCmdAsk(f *cmdutil.Factory) *cobra.Command {
 	opts := &AskOptions{}
 	cmd := &cobra.Command{
@@ -60,7 +60,7 @@ a new session is auto-created and its id is reported in the output for
 the caller to thread follow-ups.
 
 AI agents: this is the primary entrypoint for invoking custom agents.
-The 'keystone agent' subtree handles CRUD only (list / view / create /
+The 'fmind agent' subtree handles CRUD only (list / view / create /
 update / delete / status / check).
 
 Modes:
@@ -72,9 +72,9 @@ Modes:
 Pass --reference to include bounded kb_id/chunk_id reference indexes. Pass
 --verbose to include reasoning, tool activity, and lifecycle frames. Combine
 both flags for the complete projected stream.`,
-		Example: `  keystone session ask --agent ag_x "Summarize Q3 sales"
-  keystone session ask --session sess_x --agent ag_x "Follow-up question"
-  keystone session ask --agent ag_x "Multi-step task" --format ndjson`,
+		Example: `  fmind session ask --agent ag_x "Summarize Q3 sales"
+  fmind session ask --session sess_x --agent ag_x "Follow-up question"
+  fmind session ask --agent ag_x "Multi-step task" --format ndjson`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			fopts, err := cmdutil.CheckFormatFlag(c)
@@ -100,9 +100,9 @@ both flags for the complete projected stream.`,
 		UsedFor:       "Invoke a custom agent in a session context. Default JSON returns a bounded answer-event projection. --reference adds indexed citations; --verbose adds reasoning, tools, and lifecycle events. --format ndjson streams raw SDK agent events; --format text renders the selected events live.",
 		RequiredFlags: []string{"<text> (positional)", "--agent"},
 		Examples: []string{
-			`keystone session ask --agent ag_x "Summarize Q3 sales"`,
-			`keystone session ask --agent ag_x "Summarize Q3 sales" --jq '[.data.events[].content] | join("")'`,
-			`keystone session ask --session sess_x --agent ag_x "Follow-up question"`,
+			`fmind session ask --agent ag_x "Summarize Q3 sales"`,
+			`fmind session ask --agent ag_x "Summarize Q3 sales" --jq '[.data.events[].content] | join("")'`,
+			`fmind session ask --session sess_x --agent ag_x "Follow-up question"`,
 		},
 		Output: "Default --format json: {ok,data:{events:[answer...],session_id,agent_id,query}}. --reference adds kb_id/chunk_id reference events; --verbose adds execution events. --format ndjson remains raw.",
 	})
@@ -125,7 +125,7 @@ func runAsk(ctx context.Context, opts *AskOptions, fopts *cmdutil.FormatOptions,
 	sessionID := opts.SessionID
 	autoCreated := false
 	if sessionID == "" {
-		sess, err := svc.CreateSession(ctx, &sdk.CreateSessionRequest{Title: "keystone session ask"})
+		sess, err := svc.CreateSession(ctx, &sdk.CreateSessionRequest{Title: "fmind session ask"})
 		if err != nil {
 			if cmdutil.IsCancelled(ctx, err) {
 				return cmdutil.Wrapf(cmdutil.CodeOperationCancelled, err, "session ask cancelled")

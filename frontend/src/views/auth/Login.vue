@@ -1,14 +1,14 @@
 <template>
   <div class="login-layout login-layout--gateway">
-    <KeystoneAuthGraph />
+    <FMindAuthGraph />
 
     <header class="auth-topbar">
-      <div class="header-logo" title="Keystone">
+      <div class="header-logo" title="FMind">
         <img :src="brandLogo" class="logo-image" alt="波粒二象 WAVE-PARTICLE DUALITY" />
       </div>
 
       <div class="auth-system">
-        <span class="auth-system__gateway">KEYSTONE AUTH GATEWAY · 01</span>
+        <span class="auth-system__gateway">FMIND AUTH GATEWAY · 01</span>
         <span class="auth-system__status"><i></i>SYSTEM READY</span>
         <div class="language-switch">
           <button @click="toggleLanguageMenu" class="header-link" :title="currentLangOption?.label">
@@ -199,7 +199,7 @@
         </div>
       </div>
     </div>
-    <footer class="auth-footer">Keystone · Intelligent Knowledge System</footer>
+    <footer class="auth-footer">FMind · Intelligent Knowledge System</footer>
   </div>
 </template>
 
@@ -209,7 +209,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { useRoleLabel } from '@/composables/useRoleLabel'
 import { notifyLoginSuccess } from '@/utils/loginNotify'
-import KeystoneAuthGraph from '@/components/auth/KeystoneAuthGraph.vue'
+import FMindAuthGraph from '@/components/auth/FMindAuthGraph.vue'
 import brandLogo from '@/assets/img/brand/wave-particle-duality-logo.png'
 import {
   login,
@@ -603,7 +603,7 @@ onMounted(async () => {
     return
   }
 
-  const AUTO_SETUP_FAILED_KEY = 'keystone_auto_setup_failed'
+  const AUTO_SETUP_FAILED_KEY = 'fmind_auto_setup_failed'
   if (localStorage.getItem(AUTO_SETUP_FAILED_KEY) !== 'true') {
     try {
       const response = await autoSetup()
@@ -1705,7 +1705,7 @@ html[theme-mode="dark"] {
     display: none;
   }
 
-  > .keystone-auth-graph {
+  > .fmind-auth-graph {
     position: absolute;
     inset: 0;
     z-index: 0;
@@ -2136,7 +2136,7 @@ html[theme-mode="dark"] {
       padding-inline: 24px !important;
     }
 
-    > .keystone-auth-graph {
+    > .fmind-auth-graph {
       opacity: 0.92;
     }
   }

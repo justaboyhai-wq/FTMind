@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
 )
 
 // dryRunExpectation declares, for every leaf command, whether it must register
@@ -93,7 +93,7 @@ func TestDryRunCoverageMatchesExpectation(t *testing.T) {
 
 	var unlisted, wrong []string
 	eachLeafCommand(root, func(c *cobra.Command) {
-		key := strings.TrimPrefix(c.CommandPath(), "keystone ")
+		key := strings.TrimPrefix(c.CommandPath(), "fmind ")
 		want, declared := dryRunExpectation[key]
 		if !declared {
 			unlisted = append(unlisted, key)

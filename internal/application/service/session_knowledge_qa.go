@@ -6,14 +6,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/agent/tools"
-	chatpipeline "github.com/justaboyhai-wq/keystone/internal/application/service/chat_pipeline"
-	"github.com/justaboyhai-wq/keystone/internal/common"
-	"github.com/justaboyhai-wq/keystone/internal/event"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/models/chat"
-	"github.com/justaboyhai-wq/keystone/internal/tracing/langfuse"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/agent/tools"
+	chatpipeline "github.com/justaboyhai-wq/fmind/internal/application/service/chat_pipeline"
+	"github.com/justaboyhai-wq/fmind/internal/common"
+	"github.com/justaboyhai-wq/fmind/internal/event"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/models/chat"
+	"github.com/justaboyhai-wq/fmind/internal/tracing/langfuse"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // KnowledgeQA performs knowledge base question answering with LLM summarization

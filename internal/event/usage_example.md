@@ -8,7 +8,7 @@
 // internal/container/container.go 或 main.go
 
 import (
-    "github.com/justaboyhai-wq/keystone/internal/event"
+    "github.com/justaboyhai-wq/fmind/internal/event"
 )
 
 func InitializeEventSystem() {
@@ -37,7 +37,7 @@ func InitializeEventSystem() {
 // internal/application/service/chat_pipline/search.go
 
 import (
-    "github.com/justaboyhai-wq/keystone/internal/event"
+    "github.com/justaboyhai-wq/fmind/internal/event"
     "time"
 )
 
@@ -251,7 +251,7 @@ package monitoring
 
 import (
     "context"
-    "github.com/justaboyhai-wq/keystone/internal/event"
+    "github.com/justaboyhai-wq/fmind/internal/event"
     "github.com/prometheus/client_golang/prometheus"
 )
 
@@ -310,8 +310,8 @@ package logging
 import (
     "context"
     "encoding/json"
-    "github.com/justaboyhai-wq/keystone/internal/event"
-    "github.com/justaboyhai-wq/keystone/internal/logger"
+    "github.com/justaboyhai-wq/fmind/internal/event"
+    "github.com/justaboyhai-wq/fmind/internal/logger"
 )
 
 func SetupEventLogging() {

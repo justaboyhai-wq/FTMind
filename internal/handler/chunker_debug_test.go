@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/infrastructure/chunker"
+	"github.com/justaboyhai-wq/fmind/internal/infrastructure/chunker"
 	"github.com/gin-gonic/gin"
 )
 

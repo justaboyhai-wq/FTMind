@@ -1,4 +1,4 @@
-// Package doc implements the `keystone doc` subtree (list / view / upload /
+// Package doc implements the `fmind doc` subtree (list / view / upload /
 // fetch / create / download / delete / wait). Upload supports --recursive /
 // --glob for bulk ingestion from local files. Fetch ingests a remote URL.
 // Create adds a knowledge entry from inline text content.
@@ -12,10 +12,10 @@ package doc
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
 )
 
-// NewCmd builds the `keystone doc` parent command.
+// NewCmd builds the `fmind doc` parent command.
 func NewCmd(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "doc",

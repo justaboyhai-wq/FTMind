@@ -588,7 +588,7 @@ const loadSystemInfo = async (force = false) => {
 
 const graphGuideUrl =
   import.meta.env.VITE_KG_GUIDE_URL ||
-  'https://github.com/justaboyhai-wq/keystone/blob/main/docs/KnowledgeGraph.md'
+  'https://github.com/justaboyhai-wq/fmind/blob/main/docs/KnowledgeGraph.md'
 
 // Open guide documentation to show how to enable graph database
 const handleOpenGraphGuide = () => {

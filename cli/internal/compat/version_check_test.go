@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/compat"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/compat"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 type fakeProbeClient struct {

@@ -13,7 +13,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
@@ -363,7 +363,7 @@ func defaultMacAppLogPath() string {
 		return ""
 	}
 
-	appName := "Keystone Lite"
+	appName := "FMind Lite"
 	if idx := strings.Index(execPath, ".app/Contents/MacOS"); idx >= 0 {
 		bundleName := filepath.Base(execPath[:idx+4])
 		if trimmed := strings.TrimSuffix(bundleName, ".app"); trimmed != "" {

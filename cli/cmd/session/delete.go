@@ -6,9 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/prompt"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/prompt"
 )
 
 // sessionDeleteFields enumerates the fields surfaced for `--format json`
@@ -32,7 +32,7 @@ type deleteResult struct {
 	Deleted bool   `json:"deleted"`
 }
 
-// NewCmdDelete builds `keystone session delete`. Single-id keeps the simpler
+// NewCmdDelete builds `fmind session delete`. Single-id keeps the simpler
 // code path; multi-id uses keep-going semantics (one -y confirms all,
 // failures collected, exit 1 if any fail).
 func NewCmdDelete(f *cmdutil.Factory) *cobra.Command {
@@ -55,10 +55,10 @@ Multi-id:
 AI agents: This is a high-risk write. Without -y/--yes the CLI exits 10
 and writes input.confirmation_required to stderr. NEVER auto-pass -y
 without the user's explicit go-ahead.`,
-		Example: `  keystone session delete s_abc                  # interactive confirm
-  keystone session delete s_abc -y               # no prompt
-  keystone session delete s_abc -y --format json # bare {id, deleted:true} JSON
-  keystone session delete s_a s_b s_c -y         # delete 3, keep-going`,
+		Example: `  fmind session delete s_abc                  # interactive confirm
+  fmind session delete s_abc -y               # no prompt
+  fmind session delete s_abc -y --format json # bare {id, deleted:true} JSON
+  fmind session delete s_a s_b s_c -y         # delete 3, keep-going`,
 		Args: cobra.MinimumNArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			opts.Yes, _ = c.Flags().GetBool("yes")
@@ -83,7 +83,7 @@ without the user's explicit go-ahead.`,
 			if len(args) == 1 {
 				return runDelete(c.Context(), opts, fopts, cli, f.Prompter(), args[0])
 			}
-			batchRetry := append([]string{"keystone", "session", "delete"}, args...)
+			batchRetry := append([]string{"fmind", "session", "delete"}, args...)
 			batchRetry = append(batchRetry, "-y")
 			if err := cmdutil.ConfirmDestructiveBatch(f.Prompter(), opts.Yes, fopts.WantsJSON(), "delete", "session", len(args), "session.delete", batchRetry); err != nil {
 				return err
@@ -112,9 +112,9 @@ without the user's explicit go-ahead.`,
 		UsedFor:       "permanently delete one or more chat sessions and their messages",
 		RequiredFlags: []string{"<session-id>... (positional, at least one)"},
 		Examples: []string{
-			"keystone session delete s_abc -y",
-			"keystone session delete s_a s_b s_c -y",
-			"keystone session delete s_abc -y --format json",
+			"fmind session delete s_abc -y",
+			"fmind session delete s_a s_b s_c -y",
+			"fmind session delete s_abc -y --format json",
 		},
 		Output: "envelope.data shape depends on the form: a single session id -> {id, deleted:true}; multiple ids -> batch envelope (top-level status success|partial|error, ok=(failures==0), data per-item [{id, ok, error?}], meta.successes/failures — read data[].ok per id).",
 		Warnings: []string{
@@ -126,7 +126,7 @@ without the user's explicit go-ahead.`,
 }
 
 func runDelete(ctx context.Context, opts *DeleteOptions, fopts *cmdutil.FormatOptions, svc DeleteService, p prompt.Prompter, id string) error {
-	if err := cmdutil.ConfirmDestructive(p, opts.Yes, fopts.WantsJSON(), "delete", "session", id, "session.delete", []string{"keystone", "session", "delete", id, "-y"}); err != nil {
+	if err := cmdutil.ConfirmDestructive(p, opts.Yes, fopts.WantsJSON(), "delete", "session", id, "session.delete", []string{"fmind", "session", "delete", id, "-y"}); err != nil {
 		return err
 	}
 

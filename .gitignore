@@ -28,15 +28,15 @@ temp/
 logs/
 *.pid
 
-Keystone
-Keystone-lite
+FMind
+FMind-lite
 cmd/desktop/build/bin/
 /models/
 test/data/mswag.txt
 data/files/
-data/keystone.db
-data/keystone.db-wal
-data/keystone.db-shm
+data/fmind.db
+data/fmind.db-wal
+data/fmind.db-shm
 skills-lock.json
 
 web/
@@ -46,7 +46,7 @@ web/
 /server
 frontend/.vite
 frontend/chrome-extension/
-Keystone-Chrome-Extension
+FMind-Chrome-Extension
 packages/protoc-3.19.4-linux-x86_64.zip
 
 Claude.md

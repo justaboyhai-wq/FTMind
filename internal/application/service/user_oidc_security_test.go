@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/config"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/config"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 func withOIDCSSRFWhitelist(t *testing.T, raw string) {

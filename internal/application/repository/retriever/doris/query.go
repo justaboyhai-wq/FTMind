@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // 字段名常量。Doris 是 SQL 库，字段名要在 SELECT/WHERE/INSERT 多处复用，

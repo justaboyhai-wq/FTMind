@@ -3,7 +3,7 @@ package wecom
 import (
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/im"
+	"github.com/justaboyhai-wq/fmind/internal/im"
 )
 
 // extractQuoteContent extracts text content from a quoted botMessage.

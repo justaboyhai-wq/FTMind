@@ -16,12 +16,12 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${ROOT_DIR}"
 
-TAP_NAME="keystone/test"
-FORMULA_NAME="keystone-lite-test"
+TAP_NAME="fmind/test"
+FORMULA_NAME="fmind-lite-test"
 VERSION="test"
 GOOS=$(go env GOOS)
 GOARCH=$(go env GOARCH)
-ARCHIVE="Keystone-lite_${VERSION}_${GOOS}_${GOARCH}"
+ARCHIVE="FMind-lite_${VERSION}_${GOOS}_${GOARCH}"
 TARBALL="${ROOT_DIR}/dist/${ARCHIVE}.tar.gz"
 
 # ── Step 1: Build package ──
@@ -47,7 +47,7 @@ echo ""
 echo "=== Step 2: Set up local tap ==="
 
 # Create tap if it doesn't exist
-TAP_DIR="$(brew --repository)/Library/Taps/keystone/homebrew-test"
+TAP_DIR="$(brew --repository)/Library/Taps/fmind/homebrew-test"
 if [ ! -d "${TAP_DIR}" ]; then
     mkdir -p "${TAP_DIR}/Formula"
     (cd "${TAP_DIR}" && git init -q && git commit --allow-empty -m "init" -q)
@@ -61,9 +61,9 @@ echo ""
 echo "=== Step 3: Generate Formula ==="
 
 cat > "${TAP_DIR}/Formula/${FORMULA_NAME}.rb" << RUBY
-class KeystoneLiteTest < Formula
-  desc "Keystone Lite (local test)"
-  homepage "https://github.com/justaboyhai-wq/keystone"
+class FMindLiteTest < Formula
+  desc "FMind Lite (local test)"
+  homepage "https://github.com/justaboyhai-wq/fmind"
   version "${VERSION}"
   license "Apache-2.0"
 
@@ -71,7 +71,7 @@ class KeystoneLiteTest < Formula
   sha256 "${SHA}"
 
   def install
-    libexec.install "Keystone-lite"
+    libexec.install "FMind-lite"
     pkgshare.install "web" if File.directory?("web")
     pkgshare.install "config" if File.directory?("config")
     pkgshare.install ".env.lite.example"
@@ -79,10 +79,10 @@ class KeystoneLiteTest < Formula
       pkgshare.install "migrations"
     end
 
-    (bin/"keystone-lite-test").write <<~SH
+    (bin/"fmind-lite-test").write <<~SH
       #!/bin/bash
-      CONFIG_DIR="\\\${KEYSTONE_CONFIG_DIR:-\\\${XDG_CONFIG_HOME:-\\\$HOME/.config}/keystone-test}"
-      DATA_DIR="\\\${KEYSTONE_DATA_DIR:-\\\${XDG_DATA_HOME:-\\\$HOME/.local/share}/keystone-test}"
+      CONFIG_DIR="\\\${FMIND_CONFIG_DIR:-\\\${XDG_CONFIG_HOME:-\\\$HOME/.config}/fmind-test}"
+      DATA_DIR="\\\${FMIND_DATA_DIR:-\\\${XDG_DATA_HOME:-\\\$HOME/.local/share}/fmind-test}"
 
       mkdir -p "\\\$DATA_DIR/files" "\\\$CONFIG_DIR/config" 2>/dev/null
 
@@ -96,7 +96,7 @@ class KeystoneLiteTest < Formula
 
       if [ ! -f "\\\$CONFIG_DIR/.env.lite" ]; then
         cp "#{pkgshare}/.env.lite.example" "\\\$CONFIG_DIR/.env.lite"
-        sed -i'' -e "s|DB_PATH=.*|DB_PATH=\\\$DATA_DIR/keystone.db|" "\\\$CONFIG_DIR/.env.lite"
+        sed -i'' -e "s|DB_PATH=.*|DB_PATH=\\\$DATA_DIR/fmind.db|" "\\\$CONFIG_DIR/.env.lite"
         sed -i'' -e "s|LOCAL_STORAGE_BASE_DIR=.*|LOCAL_STORAGE_BASE_DIR=\\\$DATA_DIR/files|" "\\\$CONFIG_DIR/.env.lite"
         echo ""
         echo "已创建配置文件: \\\$CONFIG_DIR/.env.lite"
@@ -107,30 +107,30 @@ class KeystoneLiteTest < Formula
       source "\\\$CONFIG_DIR/.env.lite"
       set +a
 
-      export DB_PATH="\\\${DB_PATH:-\\\$DATA_DIR/keystone.db}"
+      export DB_PATH="\\\${DB_PATH:-\\\$DATA_DIR/fmind.db}"
       export LOCAL_STORAGE_BASE_DIR="\\\${LOCAL_STORAGE_BASE_DIR:-\\\$DATA_DIR/files}"
-      export KEYSTONE_WEB_DIR="\\\${KEYSTONE_WEB_DIR:-#{pkgshare}/web}"
+      export FMIND_WEB_DIR="\\\${FMIND_WEB_DIR:-#{pkgshare}/web}"
 
       cd "\\\$CONFIG_DIR"
-      exec "#{libexec}/Keystone-lite" "\\\$@"
+      exec "#{libexec}/FMind-lite" "\\\$@"
     SH
   end
 
   def post_install
-    (var/"keystone-test").mkpath
+    (var/"fmind-test").mkpath
     (var/"log").mkpath
   end
 
   service do
-    run [bin/"keystone-lite-test"]
+    run [bin/"fmind-lite-test"]
     keep_alive true
-    working_dir var/"keystone-test"
-    log_path var/"log/keystone-lite-test.log"
-    error_log_path var/"log/keystone-lite-test.log"
+    working_dir var/"fmind-test"
+    log_path var/"log/fmind-lite-test.log"
+    error_log_path var/"log/fmind-lite-test.log"
   end
 
   test do
-    assert_predicate bin/"keystone-lite-test", :executable?
+    assert_predicate bin/"fmind-lite-test", :executable?
   end
 end
 RUBY
@@ -148,20 +148,20 @@ echo ""
 echo "=== Step 5: Verify ==="
 echo ""
 echo "  which:"
-which keystone-lite-test || true
+which fmind-lite-test || true
 echo ""
 echo "  Installed files:"
 brew list "${TAP_NAME}/${FORMULA_NAME}"
 echo ""
 echo "  Test paths (isolated from production):"
-echo "    Config: ~/.config/keystone-test/.env.lite"
-echo "    Data:   ~/.local/share/keystone-test/"
+echo "    Config: ~/.config/fmind-test/.env.lite"
+echo "    Data:   ~/.local/share/fmind-test/"
 
 echo ""
 echo "=== Done ==="
 echo ""
 echo "前台运行:"
-echo "  keystone-lite-test"
+echo "  fmind-lite-test"
 echo ""
 echo "后台服务:"
 echo "  brew services start ${TAP_NAME}/${FORMULA_NAME}"
@@ -169,10 +169,10 @@ echo "  brew services info ${TAP_NAME}/${FORMULA_NAME}"
 echo "  brew services stop ${TAP_NAME}/${FORMULA_NAME}"
 echo ""
 echo "日志:"
-echo "  $(brew --prefix)/var/log/keystone-lite-test.log"
+echo "  $(brew --prefix)/var/log/fmind-lite-test.log"
 echo ""
 echo "卸载测试:"
 echo "  brew services stop ${FORMULA_NAME} 2>/dev/null"
 echo "  brew uninstall ${FORMULA_NAME}"
 echo "  brew untap ${TAP_NAME}"
-echo "  rm -rf ~/.config/keystone-test ~/.local/share/keystone-test"
+echo "  rm -rf ~/.config/fmind-test ~/.local/share/fmind-test"

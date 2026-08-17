@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 func TestBuildLangfuseGenerationOutput(t *testing.T) {

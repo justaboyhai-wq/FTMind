@@ -212,15 +212,15 @@ export async function deleteModelCredentialField(
   await del(`/api/v1/models/${id}/credentials/${field}`)
 }
 
-export interface InitializeKeystoneCloudRequest {
+export interface InitializeFMindCloudRequest {
   app_id: string
   app_secret: string
 }
 
-// 仅保存 KeystoneCloud 凭证，不自动创建模型
-export function saveKeystoneCloudCredentials(data: InitializeKeystoneCloudRequest): Promise<{ success: boolean; message: string }> {
+// 仅保存 FMindCloud 凭证，不自动创建模型
+export function saveFMindCloudCredentials(data: InitializeFMindCloudRequest): Promise<{ success: boolean; message: string }> {
   return new Promise((resolve, reject) => {
-    post('/api/v1/keystonecloud/credentials', data)
+    post('/api/v1/fmindcloud/credentials', data)
       .then((response: any) => {
         if (response.success) {
           resolve(response)
@@ -229,21 +229,21 @@ export function saveKeystoneCloudCredentials(data: InitializeKeystoneCloudReques
         }
       })
       .catch((error: any) => {
-        console.error('Failed to save KeystoneCloud credentials:', error)
+        console.error('Failed to save FMindCloud credentials:', error)
         reject(error)
       })
   })
 }
 
-export interface KeystoneCloudStatusResult {
+export interface FMindCloudStatusResult {
   has_models: boolean
   needs_reinit: boolean
   reason?: string
 }
 
-export function getKeystoneCloudStatus(): Promise<KeystoneCloudStatusResult> {
+export function getFMindCloudStatus(): Promise<FMindCloudStatusResult> {
   return new Promise((resolve, reject) => {
-    get('/api/v1/models/keystonecloud/status')
+    get('/api/v1/models/fmindcloud/status')
       .then((response: any) => {
         // status 接口直接返回对象，不包在 success/data 中
         if (response && typeof response.has_models === 'boolean') {

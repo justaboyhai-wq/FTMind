@@ -1,8 +1,8 @@
 // Package projectlink reads and writes the per-project link file
-// .keystone/project.yaml that anchors a working directory to a profile+KB.
+// .fmind/project.yaml that anchors a working directory to a profile+KB.
 //
 // Discovery walks up from the start directory until either (a) a
-// .keystone/project.yaml is found, (b) the filesystem root is reached, or
+// .fmind/project.yaml is found, (b) the filesystem root is reached, or
 // (c) the walk exceeds a 64-level depth limit (cycle protection for
 // pathological symlink setups). Pattern matches `cargo`, `npm`, and `git`
 // - find-the-project's-root walks; mount-boundary crossing is allowed
@@ -16,22 +16,22 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/xdg"
+	"github.com/justaboyhai-wq/fmind/cli/internal/xdg"
 	"gopkg.in/yaml.v3"
 )
 
-// Project is the on-disk schema of .keystone/project.yaml.
+// Project is the on-disk schema of .fmind/project.yaml.
 type Project struct {
 	Profile   string    `yaml:"profile,omitempty"`
 	KBID      string    `yaml:"kb_id"`
 	CreatedAt time.Time `yaml:"created_at"`
 }
 
-// FileName is the project link file basename relative to .keystone/.
+// FileName is the project link file basename relative to .fmind/.
 const FileName = "project.yaml"
 
 // DirName is the project-link directory name.
-const DirName = ".keystone"
+const DirName = ".fmind"
 
 const maxWalkDepth = 64
 
@@ -79,7 +79,7 @@ func Load(path string) (*Project, error) {
 }
 
 // Save writes the project link to path atomically (0600 perms).
-// Creates parent .keystone/ directory if missing.
+// Creates parent .fmind/ directory if missing.
 func Save(path string, p *Project) error {
 	return xdg.WriteAtomicYAML(path, p)
 }

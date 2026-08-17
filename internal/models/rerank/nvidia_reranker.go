@@ -8,8 +8,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // NvidiaReranker implements a reranking system using Jina AI API

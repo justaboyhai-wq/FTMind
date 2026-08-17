@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/tracing/langfuse"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/tracing/langfuse"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // langfuseChat wraps a Chat implementation and emits a Langfuse generation

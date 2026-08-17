@@ -11,10 +11,10 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // DuckDuckGoProvider implements web search using DuckDuckGo (HTML first, API fallback)
@@ -149,7 +149,7 @@ func (p *DuckDuckGoProvider) searchAPI(
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
-	req.Header.Set("User-Agent", "Keystone/1.0")
+	req.Header.Set("User-Agent", "FMind/1.0")
 
 	resp, err := p.client.Do(req)
 	if err != nil {

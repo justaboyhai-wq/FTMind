@@ -6,10 +6,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/text"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/text"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // kbViewFields enumerates the fields surfaced for `--format json` discovery on
@@ -34,7 +34,7 @@ type ViewService interface {
 	ListKnowledgeBases(ctx context.Context) ([]sdk.KnowledgeBase, error)
 }
 
-// NewCmdView builds `keystone kb view <id>`.
+// NewCmdView builds `fmind kb view <id>`.
 func NewCmdView(f *cmdutil.Factory) *cobra.Command {
 	opts := &ViewOptions{}
 	cmd := &cobra.Command{
@@ -60,8 +60,8 @@ func NewCmdView(f *cmdutil.Factory) *cobra.Command {
 		UsedFor:       "fetch one knowledge base's full configuration by id",
 		RequiredFlags: []string{"<kb-id> (positional)"},
 		Examples: []string{
-			"keystone kb view kb_abc",
-			"keystone kb view kb_abc --jq .data.embedding_model_id",
+			"fmind kb view kb_abc",
+			"fmind kb view kb_abc --jq .data.embedding_model_id",
 		},
 		Output: "envelope.data is the KnowledgeBase object (id, name, type, embedding/summary model ids, chunk_count, ...)",
 	})

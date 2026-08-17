@@ -1,8 +1,8 @@
 {
-  "name": "keystone-miniprogram",
+  "name": "fmind-miniprogram",
   "version": "0.1.0",
   "private": true,
-  "description": "WeChat Mini Program plugin for Keystone",
+  "description": "WeChat Mini Program plugin for FMind",
   "scripts": {
     "test": "node --test ../tests/miniprogram/*.test.js"
   }

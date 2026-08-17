@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 func TestResolveImageForOllamaRejectsInternalURL(t *testing.T) {

@@ -1,5 +1,5 @@
 name: ❓ Question
-description: Ask a question about Keystone or seek help
+description: Ask a question about FMind or seek help
 title: "[Question]: "
 labels: ["question", "needs-triage"]
 body:
@@ -57,8 +57,8 @@ body:
       label: Other Environment Info
       description: Please provide other relevant environment information
       placeholder: |
-        - Keystone App Version: [concrete version from Settings → System Info, e.g., v0.6.0 — NOT "latest"]
-        - Keystone UI Version: [concrete version from Settings → System Info, e.g., v0.6.0]
+        - FMind App Version: [concrete version from Settings → System Info, e.g., v0.6.0 — NOT "latest"]
+        - FMind UI Version: [concrete version from Settings → System Info, e.g., v0.6.0]
         - Deployment: [e.g., Docker, build from source]
         - Other relevant info...
 

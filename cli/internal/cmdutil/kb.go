@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"regexp"
 
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
-// uuidPattern matches the canonical 8-4-4-4-12 UUID form. Keystone's KB ids
+// uuidPattern matches the canonical 8-4-4-4-12 UUID form. FMind's KB ids
 // are uuid.New().String() output stored as varchar(36); names are arbitrary
 // user-supplied strings, so format-detection is unambiguous.
 var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)

@@ -11,7 +11,7 @@ package chunkcmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
 )
 
 const chunkLong = `Manage and inspect document chunks.

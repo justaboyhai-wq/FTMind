@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/models/provider"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/models/provider"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // Reranker defines the interface for document reranking
@@ -94,7 +94,7 @@ type RerankerConfig struct {
 
 // ConfigFromModel 根据 types.Model 构造 RerankerConfig。
 // 生产路径（从 DB 拉起）和测试连接路径（临时表单）共享这份映射。
-// appID / appSecret 是已解密的 KeystoneCloud 凭证，调用方负责传入。
+// appID / appSecret 是已解密的 FMindCloud 凭证，调用方负责传入。
 func ConfigFromModel(m *types.Model, appID, appSecret string) *RerankerConfig {
 	if m == nil {
 		return nil
@@ -150,8 +150,8 @@ func newReranker(config *RerankerConfig) (Reranker, error) {
 		reranker, err = NewJinaReranker(config)
 	case provider.ProviderNvidia:
 		reranker, err = NewNvidiaReranker(config)
-	case provider.ProviderKeystoneCloud:
-		reranker, err = NewKeystoneCloudReranker(config)
+	case provider.ProviderFMindCloud:
+		reranker, err = NewFMindCloudReranker(config)
 	case provider.ProviderLKEAP:
 		reranker, err = NewLKEAPReranker(config)
 	default:

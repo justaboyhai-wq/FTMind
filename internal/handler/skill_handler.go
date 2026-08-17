@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/justaboyhai-wq/keystone/internal/errors"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/errors"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	"github.com/gin-gonic/gin"
 )
 
@@ -59,7 +59,7 @@ func (h *SkillHandler) ListSkills(c *gin.Context) {
 	}
 
 	// skills_available: true only when sandbox is enabled (docker or local), so frontend can hide/disable Skills UI
-	sandboxMode := os.Getenv("KEYSTONE_SANDBOX_MODE")
+	sandboxMode := os.Getenv("FMIND_SANDBOX_MODE")
 	skillsAvailable := sandboxMode != "" && sandboxMode != "disabled"
 
 	logger.Infof(ctx, "skills_available: %v, sandboxMode: %s", skillsAvailable, sandboxMode)

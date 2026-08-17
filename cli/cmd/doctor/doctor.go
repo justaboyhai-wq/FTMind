@@ -1,4 +1,4 @@
-// Package doctor implements `keystone doctor` - 4-item self-check.
+// Package doctor implements `fmind doctor` - 4-item self-check.
 //
 // Status semantics (4-tier):
 //
@@ -29,13 +29,13 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/build"
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/compat"
-	"github.com/justaboyhai-wq/keystone/cli/internal/config"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/secrets"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/build"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/compat"
+	"github.com/justaboyhai-wq/fmind/cli/internal/config"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/secrets"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // doctorFields enumerates the fields surfaced for `--format json` discovery on
@@ -94,7 +94,7 @@ type Services interface {
 	GetSystemInfo(ctx context.Context) (*sdk.SystemInfo, error)
 }
 
-// NewCmd builds `keystone doctor`.
+// NewCmd builds `fmind doctor`.
 func NewCmd(f *cmdutil.Factory) *cobra.Command {
 	opts := &Options{}
 	cmd := &cobra.Command{
@@ -124,15 +124,15 @@ func NewCmd(f *cmdutil.Factory) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().BoolVar(&opts.NoCache, "no-cache", false, "Bypass server-info cache (located at $XDG_CACHE_HOME/keystone/server-info.yaml); force re-probe")
+	cmd.Flags().BoolVar(&opts.NoCache, "no-cache", false, "Bypass server-info cache (located at $XDG_CACHE_HOME/fmind/server-info.yaml); force re-probe")
 	cmd.Flags().BoolVar(&opts.Offline, "offline", false, "Skip network checks; only verify local keyring/file storage (credential_storage check still runs)")
 	cmdutil.AddFormatFlag(cmd, doctorFields...)
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor: "run self-checks: base-url reachability, auth credential, server version, credential storage",
 		Examples: []string{
-			"keystone doctor",
-			"keystone doctor --offline",
-			"keystone doctor --no-cache --format json",
+			"fmind doctor",
+			"fmind doctor --offline",
+			"fmind doctor --no-cache --format json",
 		},
 		Output: "envelope.data is {summary:{all_passed,passed,warned,failed,skipped}, checks:[{name,status,details,hint?}]}",
 	})
@@ -175,7 +175,7 @@ func runChecks(ctx context.Context, opts *Options, svc Services, cliVer string) 
 		t0 := time.Now()
 		if err := svc.PingBaseURL(ctx); err != nil {
 			checks[0].Status = StatusFail
-			checks[0].Hint = "verify the host configured for the active profile (run `keystone profile list` / `keystone profile add <n> --host=...`) and network reachability"
+			checks[0].Hint = "verify the host configured for the active profile (run `fmind profile list` / `fmind profile add <n> --host=...`) and network reachability"
 			checks[0].Details = err.Error()
 		} else {
 			checks[0].Status = StatusOK
@@ -187,7 +187,7 @@ func runChecks(ctx context.Context, opts *Options, svc Services, cliVer string) 
 	if !cascade(&checks[1], opts.Offline, &checks[0]) {
 		if _, err := svc.GetCurrentUser(ctx); err != nil {
 			checks[1].Status = StatusFail
-			checks[1].Hint = "run `keystone auth login`"
+			checks[1].Hint = "run `fmind auth login`"
 			checks[1].Details = err.Error()
 		} else {
 			checks[1].Status = StatusOK
@@ -297,7 +297,7 @@ func fillCredentialStorageCheck(c *Check) {
 	if _, isFile := store.(*secrets.FileStore); isFile {
 		c.Status = StatusWarn
 		c.Details = "falling back to file store: keychain unavailable"
-		c.Hint = "secrets persist at 0600 under $XDG_CONFIG_HOME/keystone/secrets/; install / unlock keyring for OS-backed storage"
+		c.Hint = "secrets persist at 0600 under $XDG_CONFIG_HOME/fmind/secrets/; install / unlock keyring for OS-backed storage"
 		return
 	}
 	c.Status = StatusOK
@@ -389,7 +389,7 @@ func marker(s Status) string {
 //
 // Critically: this does NOT pre-resolve f.Client(). doctor's package promise
 // (top comment) is that credential_storage runs even when no auth is set up -
-// e.g. first-time `keystone doctor` to diagnose setup. Pre-resolving Client
+// e.g. first-time `fmind doctor` to diagnose setup. Pre-resolving Client
 // here would early-exit with auth.unauthenticated before any check runs,
 // contradicting the docs. Instead, GetCurrentUser / GetSystemInfo lazily
 // resolve and surface their own failure as a per-check StatusFail.
@@ -405,12 +405,12 @@ func buildServices(f *cmdutil.Factory) (Services, error) {
 // mirror the client builder (buildClientFromEnv) so doctor probes the host the
 // real commands actually connect to; tier 1 is a doctor-local test/dev knob:
 //
-//  1. KEYSTONE_BASE_URL — doctor-only probe override (used by tests); NOT read
+//  1. FMIND_BASE_URL — doctor-only probe override (used by tests); NOT read
 //     by the client builder, so setting it points doctor at a host no real
 //     command uses. Kept for test/dev harnesses; leave unset in normal use.
-//  2. KEYSTONE_HOST — when stateless env credentials (KEYSTONE_TOKEN /
-//     KEYSTONE_API_KEY) are in effect, i.e. the headless agent path. Without
-//     this, `KEYSTONE_API_KEY=… KEYSTONE_HOST=… keystone doctor` falsely reported
+//  2. FMIND_HOST — when stateless env credentials (FMIND_TOKEN /
+//     FMIND_API_KEY) are in effect, i.e. the headless agent path. Without
+//     this, `FMIND_API_KEY=… FMIND_HOST=… fmind doctor` falsely reported
 //     "no host configured" and exited 1 while every other command worked.
 //  3. active profile host — the configured default.
 func resolveDoctorHost(cfg *config.Config) string {
@@ -418,15 +418,15 @@ func resolveDoctorHost(cfg *config.Config) string {
 	if ctx, ok := cfg.Profiles[cfg.CurrentProfile]; ok {
 		host = ctx.Host
 	}
-	// Env credentials authenticate via KEYSTONE_HOST, bypassing the profile.
+	// Env credentials authenticate via FMIND_HOST, bypassing the profile.
 	// Honor it only when such creds are actually set, matching the client
-	// builder (a bare KEYSTONE_HOST without creds is ignored there too).
+	// builder (a bare FMIND_HOST without creds is ignored there too).
 	if envActive, _ := cmdutil.EnvCredential(); envActive {
-		if v := strings.TrimSpace(os.Getenv("KEYSTONE_HOST")); v != "" {
+		if v := strings.TrimSpace(os.Getenv("FMIND_HOST")); v != "" {
 			host = v
 		}
 	}
-	if v := os.Getenv("KEYSTONE_BASE_URL"); v != "" {
+	if v := os.Getenv("FMIND_BASE_URL"); v != "" {
 		host = v
 	}
 	return host

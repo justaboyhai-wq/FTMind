@@ -7,9 +7,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // AgentCheckResult is the deep-verification response for `agent check <id>`.
@@ -32,7 +32,7 @@ type AgentCheckService interface {
 
 var agentCheckFields = []string{"id", "reachable", "model_id", "kb_scope_all_reachable"}
 
-// NewCmdCheck builds `keystone agent check <id>`.
+// NewCmdCheck builds `fmind agent check <id>`.
 func NewCmdCheck(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "check <agent-id>",
@@ -44,11 +44,11 @@ Performs 1 + N HTTP calls:
   N   GET /kb/{kb_id} for each id in agent.config.knowledge_bases
       — sets kb_scope_all_reachable = true iff every probe succeeds
 
-Use 'keystone agent status <id>' for a fast read-only health snapshot
+Use 'fmind agent status <id>' for a fast read-only health snapshot
 (1 HTTP call, no KB probing). Use 'agent check' when you need to verify
 the agent's downstream dependencies are all reachable.`,
-		Example: `  keystone agent check ag_abc
-  keystone agent check ag_abc --format json`,
+		Example: `  fmind agent check ag_abc
+  fmind agent check ag_abc --format json`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			fopts, err := cmdutil.CheckFormatFlag(c)
@@ -71,7 +71,7 @@ the agent's downstream dependencies are all reachable.`,
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:       "verify a custom agent end-to-end: status plus kb_scope reachability",
 		RequiredFlags: []string{"<agent-id> (positional)"},
-		Examples:      []string{"keystone agent check agent_abc"},
+		Examples:      []string{"fmind agent check agent_abc"},
 		Output:        "envelope.data is {id, reachable, ...} with kb_scope reachability folded in",
 	})
 	return cmd

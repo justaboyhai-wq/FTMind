@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/xdg"
+	"github.com/justaboyhai-wq/fmind/cli/internal/xdg"
 )
 
 func TestPath_HonorsEnv(t *testing.T) {
@@ -17,7 +17,7 @@ func TestPath_HonorsEnv(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Path: %v", err)
 	}
-	want := filepath.Join(dir, "keystone", "config.yaml")
+	want := filepath.Join(dir, "fmind", "config.yaml")
 	if got != want {
 		t.Errorf("got %q, want %q", got, want)
 	}
@@ -32,8 +32,8 @@ func TestPath_FallsBackToHome(t *testing.T) {
 	if !filepath.IsAbs(got) {
 		t.Errorf("expected absolute path, got %q", got)
 	}
-	if !strings.Contains(got, ".cache") || !strings.Contains(got, "keystone") {
-		t.Errorf("expected ~/.cache/keystone prefix, got %q", got)
+	if !strings.Contains(got, ".cache") || !strings.Contains(got, "fmind") {
+		t.Errorf("expected ~/.cache/fmind prefix, got %q", got)
 	}
 }
 

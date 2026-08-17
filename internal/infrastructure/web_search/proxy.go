@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // ValidateProxyURL delegates to utils.ValidateURLForSSRF (only http/https pass that check).

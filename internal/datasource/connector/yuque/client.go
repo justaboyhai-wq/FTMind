@@ -10,14 +10,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/datasource"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/datasource"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
 )
 
 const (
 	defaultTimeout  = 30 * time.Second
 	defaultPageSize = 100
-	userAgent       = "Keystone-Yuque-Connector/1.0"
+	userAgent       = "FMind-Yuque-Connector/1.0"
 )
 
 // client wraps the Yuque Open API.

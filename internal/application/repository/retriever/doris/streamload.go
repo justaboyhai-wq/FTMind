@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
 )
 
 // Stream Load 相关常量。

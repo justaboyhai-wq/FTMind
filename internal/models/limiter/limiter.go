@@ -21,7 +21,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
@@ -74,7 +74,7 @@ const (
 	// Redis under contention.
 	defaultPollInterval = 200 * time.Millisecond
 	// keyPrefix namespaces the semaphore ZSETs in Redis.
-	keyPrefix = "keystone:modelsem:"
+	keyPrefix = "fmind:modelsem:"
 )
 
 // acquireScript atomically prunes expired leases, counts live holders, and

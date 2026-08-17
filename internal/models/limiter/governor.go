@@ -5,7 +5,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // The concurrency governor is process-wide, shared by every model-client layer

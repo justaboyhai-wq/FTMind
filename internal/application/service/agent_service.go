@@ -7,20 +7,20 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/justaboyhai-wq/keystone/internal/agent"
-	"github.com/justaboyhai-wq/keystone/internal/agent/approval"
-	"github.com/justaboyhai-wq/keystone/internal/agent/skills"
-	"github.com/justaboyhai-wq/keystone/internal/agent/tools"
-	"github.com/justaboyhai-wq/keystone/internal/config"
-	"github.com/justaboyhai-wq/keystone/internal/event"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/mcp"
-	"github.com/justaboyhai-wq/keystone/internal/models/chat"
-	"github.com/justaboyhai-wq/keystone/internal/models/rerank"
-	"github.com/justaboyhai-wq/keystone/internal/sandbox"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/agent"
+	"github.com/justaboyhai-wq/fmind/internal/agent/approval"
+	"github.com/justaboyhai-wq/fmind/internal/agent/skills"
+	"github.com/justaboyhai-wq/fmind/internal/agent/tools"
+	"github.com/justaboyhai-wq/fmind/internal/config"
+	"github.com/justaboyhai-wq/fmind/internal/event"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/mcp"
+	"github.com/justaboyhai-wq/fmind/internal/models/chat"
+	"github.com/justaboyhai-wq/fmind/internal/models/rerank"
+	"github.com/justaboyhai-wq/fmind/internal/sandbox"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 	"gorm.io/gorm"
 )
 
@@ -339,21 +339,21 @@ func (s *agentService) initializeSkillsManager(
 	toolRegistry *tools.ToolRegistry,
 ) (*skills.Manager, error) {
 	// Initialize sandbox manager based on environment variables
-	// KEYSTONE_SANDBOX_MODE: "docker", "local", "disabled" (default: "disabled")
-	// KEYSTONE_SANDBOX_TIMEOUT: timeout in seconds (default: 60)
-	// KEYSTONE_SANDBOX_DOCKER_IMAGE: custom Docker image (default: wechatopenai/keystone-sandbox:latest)
+	// FMIND_SANDBOX_MODE: "docker", "local", "disabled" (default: "disabled")
+	// FMIND_SANDBOX_TIMEOUT: timeout in seconds (default: 60)
+	// FMIND_SANDBOX_DOCKER_IMAGE: custom Docker image (default: wechatopenai/fmind-sandbox:latest)
 	var sandboxMgr sandbox.Manager
 	var err error
 
-	sandboxMode := os.Getenv("KEYSTONE_SANDBOX_MODE")
+	sandboxMode := os.Getenv("FMIND_SANDBOX_MODE")
 	if sandboxMode == "" {
 		sandboxMode = "disabled"
 	}
-	dockerImage := os.Getenv("KEYSTONE_SANDBOX_DOCKER_IMAGE")
+	dockerImage := os.Getenv("FMIND_SANDBOX_DOCKER_IMAGE")
 	if dockerImage == "" {
 		dockerImage = sandbox.DefaultDockerImage
 	}
-	sandboxTimeoutStr := os.Getenv("KEYSTONE_SANDBOX_TIMEOUT")
+	sandboxTimeoutStr := os.Getenv("FMIND_SANDBOX_TIMEOUT")
 	sandboxTimeout := 60
 	if sandboxTimeoutStr != "" {
 		if v, err := strconv.Atoi(sandboxTimeoutStr); err == nil && v > 0 {

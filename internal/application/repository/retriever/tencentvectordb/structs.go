@@ -11,8 +11,8 @@ const (
 	envTencentVectorDBDatabase   = "TENCENT_VECTORDB_DATABASE"
 	envTencentVectorDBCollection = "TENCENT_VECTORDB_COLLECTION"
 	envTencentVectorDBReplicaNum = "TENCENT_VECTORDB_REPLICA_NUMBER"
-	defaultDatabaseName          = "keystone"
-	defaultCollectionName        = "keystone_embeddings"
+	defaultDatabaseName          = "fmind"
+	defaultCollectionName        = "fmind_embeddings"
 	defaultReplicaNumber         = 1
 
 	fieldID              = "id"

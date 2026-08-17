@@ -25,10 +25,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/config"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/config"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	"github.com/robfig/cron/v3"
 	"gorm.io/gorm"
 )
@@ -76,7 +76,7 @@ func (h *HousekeepingService) Start(ctx context.Context) error {
 		return nil
 	}
 	if !housekeepingEnabled() {
-		logger.Infof(ctx, "[Housekeeping] disabled via KEYSTONE_HOUSEKEEPING_ENABLED=false")
+		logger.Infof(ctx, "[Housekeeping] disabled via FMIND_HOUSEKEEPING_ENABLED=false")
 		return nil
 	}
 	// Every 5 minutes — frequent enough that user-visible recovery latency
@@ -342,7 +342,7 @@ func housekeepingEnabled() bool {
 	// Default-on: missing/empty env enables the sweep. Operators must
 	// explicitly set "false" to opt out, matching the plan's commitment
 	// that no env change is required for the safety net to engage.
-	v := strings.TrimSpace(os.Getenv("KEYSTONE_HOUSEKEEPING_ENABLED"))
+	v := strings.TrimSpace(os.Getenv("FMIND_HOUSEKEEPING_ENABLED"))
 	if v == "" {
 		return true
 	}

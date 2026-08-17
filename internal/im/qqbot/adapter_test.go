@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/im"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/im"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 func withQQBotSSRFWhitelist(t *testing.T, whitelist string) {

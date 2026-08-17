@@ -17,8 +17,8 @@ import (
 	"github.com/opensearch-project/opensearch-go/v4"
 	osapi "github.com/opensearch-project/opensearch-go/v4/opensearchapi"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // ============================================================================
@@ -51,7 +51,7 @@ func newTestRepo(t *testing.T, handler http.HandlerFunc) (*Repository, *httptest
 	client := newTestClient(t, ts.URL)
 	repo := &Repository{
 		client:    client,
-		baseIndex: "keystone_test",
+		baseIndex: "fmind_test",
 		cfg: internalCfg{
 			shards: 1, replicas: 0,
 			knnEngine:          "lucene",
@@ -160,8 +160,8 @@ func TestIsTransientErr(t *testing.T) {
 func TestSanitizeIndexName_AcceptsValidNames(t *testing.T) {
 	t.Parallel()
 	cases := []string{
-		"keystone",
-		"keystone_abc123def456_768",
+		"fmind",
+		"fmind_abc123def456_768",
 		"a",
 		"1abc",
 		"foo-bar_baz",
@@ -944,7 +944,7 @@ func TestEnsureReady_ConcurrentCallers_SingleCreate(t *testing.T) {
 
 	repo := &Repository{
 		client:    newTestClient(t, ts.URL),
-		baseIndex: "keystone_test",
+		baseIndex: "fmind_test",
 		cfg:       internalCfg{shards: 1, replicas: 0, knnEngine: "lucene", hnswM: 16, hnswEFConstruction: 100, efSearch: 100},
 		once:      make(map[int]*sync.Once),
 		initErr:   make(map[int]error),
@@ -973,7 +973,7 @@ func TestEnsureReady_PerDimensionIsolation(t *testing.T) {
 
 	repo := &Repository{
 		client:    newTestClient(t, ts.URL),
-		baseIndex: "keystone_test",
+		baseIndex: "fmind_test",
 		cfg:       internalCfg{shards: 1, replicas: 0, knnEngine: "lucene", hnswM: 16, hnswEFConstruction: 100, efSearch: 100},
 		once:      make(map[int]*sync.Once),
 		initErr:   make(map[int]error),
@@ -1025,7 +1025,7 @@ func TestEnsureReady_TransientError_NotCached(t *testing.T) {
 
 	repo := &Repository{
 		client:    newTestClient(t, ts.URL),
-		baseIndex: "keystone_test",
+		baseIndex: "fmind_test",
 		cfg:       internalCfg{shards: 1, replicas: 0, knnEngine: "lucene", hnswM: 16, hnswEFConstruction: 100, efSearch: 100},
 		once:      make(map[int]*sync.Once),
 		initErr:   make(map[int]error),
@@ -1050,17 +1050,17 @@ func TestEnsureReady_TransientError_NotCached(t *testing.T) {
 
 func TestIndexAlias(t *testing.T) {
 	t.Parallel()
-	r := &Repository{baseIndex: "keystone_abc123def456"}
-	if got := r.indexAlias(768); got != "keystone_abc123def456_768" {
-		t.Errorf("indexAlias(768): want keystone_abc123def456_768, got %s", got)
+	r := &Repository{baseIndex: "fmind_abc123def456"}
+	if got := r.indexAlias(768); got != "fmind_abc123def456_768" {
+		t.Errorf("indexAlias(768): want fmind_abc123def456_768, got %s", got)
 	}
 }
 
 func TestKeywordsIndex(t *testing.T) {
 	t.Parallel()
-	r := &Repository{baseIndex: "keystone_abc123def456"}
-	if got := r.keywordsIndex(); got != "keystone_abc123def456_keywords" {
-		t.Errorf("keywordsIndex: want keystone_abc123def456_keywords, got %s", got)
+	r := &Repository{baseIndex: "fmind_abc123def456"}
+	if got := r.keywordsIndex(); got != "fmind_abc123def456_keywords" {
+		t.Errorf("keywordsIndex: want fmind_abc123def456_keywords, got %s", got)
 	}
 }
 

@@ -2,7 +2,7 @@
 
 # Show help
 help:
-	@echo "Keystone Makefile 帮助"
+	@echo "FMind Makefile 帮助"
 	@echo ""
 	@echo "基础命令:"
 	@echo "  build             构建应用"
@@ -11,9 +11,9 @@ help:
 	@echo "  clean             清理构建文件"
 	@echo ""
 	@echo "Docker 命令:"
-	@echo "  docker-build-app       构建应用 Docker 镜像 (wechatopenai/keystone-app)"
-	@echo "  docker-build-docreader 构建文档读取器镜像 (wechatopenai/keystone-docreader)"
-	@echo "  docker-build-frontend  构建前端镜像 (wechatopenai/keystone-ui)"
+	@echo "  docker-build-app       构建应用 Docker 镜像 (wechatopenai/fmind-app)"
+	@echo "  docker-build-docreader 构建文档读取器镜像 (wechatopenai/fmind-docreader)"
+	@echo "  docker-build-frontend  构建前端镜像 (wechatopenai/fmind-ui)"
 	@echo "  docker-build-all       构建所有 Docker 镜像"
 	@echo "  docker-run            运行 Docker 容器"
 	@echo "  docker-stop           停止 Docker 容器"
@@ -65,11 +65,11 @@ help:
 	@echo "  package-mac-app   构建并打包 macOS 桌面应用 (.app)"
 
 # Go related variables
-BINARY_NAME=Keystone
+BINARY_NAME=FMind
 MAIN_PATH=./cmd/server
 
 # Docker related variables
-DOCKER_IMAGE=wechatopenai/keystone-app
+DOCKER_IMAGE=wechatopenai/fmind-app
 DOCKER_TAG=latest
 
 # Platform detection
@@ -114,12 +114,12 @@ docker-build-app:
 
 # Build docreader Docker image
 docker-build-docreader:
-	docker build --platform $(PLATFORM) -f docker/Dockerfile.docreader -t wechatopenai/keystone-docreader:latest .
+	docker build --platform $(PLATFORM) -f docker/Dockerfile.docreader -t wechatopenai/fmind-docreader:latest .
 
 # Build frontend Docker image
 docker-build-frontend:
 	./scripts/build_frontend_dist.sh
-	docker build --platform $(PLATFORM) -f frontend/Dockerfile -t wechatopenai/keystone-ui:latest frontend/
+	docker build --platform $(PLATFORM) -f frontend/Dockerfile -t wechatopenai/fmind-ui:latest frontend/
 
 # Build all Docker images
 docker-build-all: docker-build-app docker-build-docreader docker-build-frontend
@@ -242,7 +242,7 @@ build-prod:
 	CGO_LDFLAGS="$$(if [ "$$(uname)" = 'Darwin' ]; then echo '-Wl,-no_warn_duplicate_libraries'; fi)" \
 	BUILD_TIME=$${BUILD_TIME:-unknown}; \
 	GO_VERSION=$${GO_VERSION:-unknown}; \
-	LDFLAGS="-X 'github.com/justaboyhai-wq/keystone/internal/handler.Version=$$VERSION' -X 'github.com/justaboyhai-wq/keystone/internal/handler.Edition=standard' -X 'github.com/justaboyhai-wq/keystone/internal/handler.CommitID=$$COMMIT_ID' -X 'github.com/justaboyhai-wq/keystone/internal/handler.BuildTime=$$BUILD_TIME' -X 'github.com/justaboyhai-wq/keystone/internal/handler.GoVersion=$$GO_VERSION' -X 'google.golang.org/protobuf/reflect/protoregistry.conflictPolicy=warn'"; \
+	LDFLAGS="-X 'github.com/justaboyhai-wq/fmind/internal/handler.Version=$$VERSION' -X 'github.com/justaboyhai-wq/fmind/internal/handler.Edition=standard' -X 'github.com/justaboyhai-wq/fmind/internal/handler.CommitID=$$COMMIT_ID' -X 'github.com/justaboyhai-wq/fmind/internal/handler.BuildTime=$$BUILD_TIME' -X 'github.com/justaboyhai-wq/fmind/internal/handler.GoVersion=$$GO_VERSION' -X 'google.golang.org/protobuf/reflect/protoregistry.conflictPolicy=warn'"; \
 	go build -ldflags="-w -s $$LDFLAGS" -o $(BINARY_NAME) $(MAIN_PATH)
 
 # Build Lite version (single binary, SQLite + in-memory queue)
@@ -283,14 +283,14 @@ download_spatial:
 
 clean-db:
 	@echo "Cleaning database..."
-	@if [ $$(docker volume ls -q -f name=keystone_postgres-data) ]; then \
-		docker volume rm keystone_postgres-data; \
+	@if [ $$(docker volume ls -q -f name=fmind_postgres-data) ]; then \
+		docker volume rm fmind_postgres-data; \
 	fi
-	@if [ $$(docker volume ls -q -f name=keystone_minio_data) ]; then \
-		docker volume rm keystone_minio_data; \
+	@if [ $$(docker volume ls -q -f name=fmind_minio_data) ]; then \
+		docker volume rm fmind_minio_data; \
 	fi
-	@if [ $$(docker volume ls -q -f name=keystone_redis_data) ]; then \
-		docker volume rm keystone_redis_data; \
+	@if [ $$(docker volume ls -q -f name=fmind_redis_data) ]; then \
+		docker volume rm fmind_redis_data; \
 	fi
 
 # Environment check

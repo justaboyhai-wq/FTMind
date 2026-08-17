@@ -6,8 +6,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/format"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/format"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // ProjectedEvent is the bounded event representation shared by

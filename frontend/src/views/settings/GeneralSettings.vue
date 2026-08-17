@@ -143,7 +143,7 @@
       >
         <template #message>
           <div>{{ $t('settings.memoryRequiresNeo4j') }}</div>
-          <t-link theme="primary" href="https://github.com/justaboyhai-wq/keystone/blob/main/docs/KnowledgeGraph.md" target="_blank">
+          <t-link theme="primary" href="https://github.com/justaboyhai-wq/fmind/blob/main/docs/KnowledgeGraph.md" target="_blank">
             {{ $t('settings.memoryHowToEnable') }}
           </t-link>
         </template>

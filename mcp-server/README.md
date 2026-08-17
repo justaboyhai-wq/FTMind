@@ -1,6 +1,6 @@
-# Keystone MCP Server
+# FMind MCP Server
 
-这是一个 Model Context Protocol (MCP) 服务器，提供对 Keystone 知识管理 API 的访问。
+这是一个 Model Context Protocol (MCP) 服务器，提供对 FMind 知识管理 API 的访问。
 
 ## 快速开始
 
@@ -14,16 +14,16 @@ pip install -r requirements.txt
 ### 2. 配置环境变量
 ```bash
 # Linux/macOS
-export KEYSTONE_BASE_URL="http://localhost:8080/api/v1"
-export KEYSTONE_API_KEY="your_api_key_here"
+export FMIND_BASE_URL="http://localhost:8080/api/v1"
+export FMIND_API_KEY="your_api_key_here"
 
 # Windows PowerShell
-$env:KEYSTONE_BASE_URL="http://localhost:8080/api/v1"
-$env:KEYSTONE_API_KEY="your_api_key_here"
+$env:FMIND_BASE_URL="http://localhost:8080/api/v1"
+$env:FMIND_API_KEY="your_api_key_here"
 
 # Windows CMD
-set KEYSTONE_BASE_URL=http://localhost:8080/api/v1
-set KEYSTONE_API_KEY=your_api_key_here
+set FMIND_BASE_URL=http://localhost:8080/api/v1
+set FMIND_API_KEY=your_api_key_here
 ```
 
 ### 3. 运行服务器
@@ -42,10 +42,10 @@ python run_server.py
 python run.py
 
 # 直接运行服务器模块
-python keystone_mcp_server.py
+python fmind_mcp_server.py
 
 # 作为 Python 模块运行
-python -m keystone_mcp_server
+python -m fmind_mcp_server
 ```
 
 ### 4. 命令行选项
@@ -65,9 +65,9 @@ pip install -e .
 
 安装后可以使用命令行工具：
 ```bash
-keystone-mcp-server
+fmind-mcp-server
 # 或
-keystone-server
+fmind-server
 ```
 
 ### 生产模式安装

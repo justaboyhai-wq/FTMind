@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 func TestRequireTaskProgressTenant_RejectsCrossTenant(t *testing.T) {

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 #
-# 本地构建 + 打包 Keystone Lite 发行包
+# 本地构建 + 打包 FMind Lite 发行包
 #
 # 用法:
 #   ./scripts/package-lite.sh              # 自动检测版本
@@ -25,10 +25,10 @@ fi
 
 GOOS=$(go env GOOS)
 GOARCH=$(go env GOARCH)
-ARCHIVE="Keystone-lite_${VERSION}_${GOOS}_${GOARCH}"
+ARCHIVE="FMind-lite_${VERSION}_${GOOS}_${GOARCH}"
 DIST_DIR="dist/${ARCHIVE}"
 
-echo "=== Keystone Lite Packager ==="
+echo "=== FMind Lite Packager ==="
 echo "  Version : ${VERSION}"
 echo "  Platform: ${GOOS}/${GOARCH}"
 echo "  Output  : dist/${ARCHIVE}.tar.gz"
@@ -51,7 +51,7 @@ if [ ! -f web/index.html ]; then
 fi
 
 # ── Step 2: Build Go binary ──
-echo ">> Building Keystone-lite binary..."
+echo ">> Building FMind-lite binary..."
 export EDITION=lite
 eval "$(./scripts/get_version.sh env)"
 LDFLAGS="-w -s $(./scripts/get_version.sh ldflags)"
@@ -60,14 +60,14 @@ if [ "$(uname)" = "Darwin" ]; then
     export CGO_LDFLAGS="-Wl,-no_warn_duplicate_libraries"
 fi
 CGO_ENABLED=1 go build -tags "sqlite_fts5" -ldflags="${LDFLAGS}" \
-    -o Keystone-lite ./cmd/server
+    -o FMind-lite ./cmd/server
 
 # ── Step 3: Assemble package ──
 echo ">> Assembling package..."
 rm -rf "${DIST_DIR}"
 mkdir -p "${DIST_DIR}/web"
 
-cp Keystone-lite "${DIST_DIR}/"
+cp FMind-lite "${DIST_DIR}/"
 if [ -d web ] && [ -f web/index.html ]; then
     cp -r web/* "${DIST_DIR}/web/"
 fi
@@ -80,8 +80,8 @@ if [ -d migrations/sqlite ]; then
     mkdir -p "${DIST_DIR}/migrations/sqlite"
     cp -r migrations/sqlite/* "${DIST_DIR}/migrations/sqlite/"
 fi
-if [ -f deploy/keystone-lite.service ]; then
-    cp deploy/keystone-lite.service "${DIST_DIR}/"
+if [ -f deploy/fmind-lite.service ]; then
+    cp deploy/fmind-lite.service "${DIST_DIR}/"
 fi
 
 # ── Step 4: Create tarball ──

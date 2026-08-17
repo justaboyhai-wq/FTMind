@@ -3,18 +3,18 @@ requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "keystone-mcp-server"
+name = "fmind-mcp-server"
 version = "1.0.0"
-description = "Keystone MCP Server - Model Context Protocol server for Keystone API"
+description = "FMind MCP Server - Model Context Protocol server for FMind API"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Keystone Team", email = "support@keystone.com"}
+    {name = "FMind Team", email = "support@fmind.com"}
 ]
 maintainers = [
-    {name = "Keystone Team", email = "support@keystone.com"}
+    {name = "FMind Team", email = "support@fmind.com"}
 ]
-keywords = ["mcp", "model-context-protocol", "keystone", "knowledge-management", "api-server"]
+keywords = ["mcp", "model-context-protocol", "fmind", "knowledge-management", "api-server"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -49,18 +49,18 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/NannaOlympicBroadcast/KeystoneMCP"
-Documentation = "https://docs.keystone.com"
-Repository = "https://github.com/NannaOlympicBroadcast/KeystoneMCP"
-"Bug Reports" = "https://github.com/NannaOlympicBroadcast/KeystoneMCP/issues"
-Changelog = "https://github.com/NannaOlympicBroadcast/KeystoneMCP/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/NannaOlympicBroadcast/FMindMCP"
+Documentation = "https://docs.fmind.com"
+Repository = "https://github.com/NannaOlympicBroadcast/FMindMCP"
+"Bug Reports" = "https://github.com/NannaOlympicBroadcast/FMindMCP/issues"
+Changelog = "https://github.com/NannaOlympicBroadcast/FMindMCP/blob/main/CHANGELOG.md"
 
 [project.scripts]
-keystone-mcp-server = "main:sync_main"
-keystone-server = "run_server:main"
+fmind-mcp-server = "main:sync_main"
+fmind-server = "run_server:main"
 
 [tool.setuptools]
-py-modules = ["keystone_mcp_server", "main", "run_server", "run", "test_module"]
+py-modules = ["fmind_mcp_server", "main", "run_server", "run", "test_module"]
 include-package-data = true
 
 [tool.setuptools.package-data]

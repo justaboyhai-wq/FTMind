@@ -1,8 +1,8 @@
 import { computed, onMounted, ref } from 'vue'
 import { getApiBaseUrl } from '@/utils/api-base'
 
-type KeystoneDesktopWindow = Window & {
-  __KEYSTONE_API_BASE__?: string
+type FMindDesktopWindow = Window & {
+  __FMIND_API_BASE__?: string
   go?: {
     main?: {
       App?: {
@@ -35,9 +35,9 @@ export function useApiBaseUrlDisplay() {
   })
 
   async function loadApiBaseUrl() {
-    const win = window as KeystoneDesktopWindow
+    const win = window as FMindDesktopWindow
     for (let i = 0; i < 40; i++) {
-      const injected = win.__KEYSTONE_API_BASE__
+      const injected = win.__FMIND_API_BASE__
       if (typeof injected === 'string' && injected.trim()) {
         wailsApiBaseURL.value = injected.trim().replace(/\/$/, '')
         return

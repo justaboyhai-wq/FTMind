@@ -68,7 +68,7 @@ EOF
         ;;
     "ldflags")
         # 输出Go ldflags格式
-        echo "-X 'github.com/justaboyhai-wq/keystone/internal/handler.Version=$VERSION' -X 'github.com/justaboyhai-wq/keystone/internal/handler.Edition=$EDITION' -X 'github.com/justaboyhai-wq/keystone/internal/handler.CommitID=$COMMIT_ID' -X 'github.com/justaboyhai-wq/keystone/internal/handler.BuildTime=$BUILD_TIME' -X 'github.com/justaboyhai-wq/keystone/internal/handler.GoVersion=$GO_VERSION'"
+        echo "-X 'github.com/justaboyhai-wq/fmind/internal/handler.Version=$VERSION' -X 'github.com/justaboyhai-wq/fmind/internal/handler.Edition=$EDITION' -X 'github.com/justaboyhai-wq/fmind/internal/handler.CommitID=$COMMIT_ID' -X 'github.com/justaboyhai-wq/fmind/internal/handler.BuildTime=$BUILD_TIME' -X 'github.com/justaboyhai-wq/fmind/internal/handler.GoVersion=$GO_VERSION'"
         ;;
     "info")
         # 输出信息格式

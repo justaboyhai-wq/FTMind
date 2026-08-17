@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 func TestCanViewIntegrationSecretsAdminRole(t *testing.T) {

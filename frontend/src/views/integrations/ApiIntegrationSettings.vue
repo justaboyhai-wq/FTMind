@@ -811,9 +811,9 @@ function formatApiKeyAccessModeLabel(key: TenantAPIKey): string {
 
 type PlaygroundStatus = '' | 'running' | 'success' | 'failed' | 'stopped'
 
-type KeystoneDesktopWindow = Window & {
-  __KEYSTONE_API_BASE__?: string
-  __KEYSTONE_API_LAN_BASE__?: string
+type FMindDesktopWindow = Window & {
+  __FMIND_API_BASE__?: string
+  __FMIND_API_LAN_BASE__?: string
   go?: {
     main?: {
       App?: {
@@ -976,14 +976,14 @@ func signExternalUserToken(hmacSecret, externalUserID string, tenantID uint64) (
 	claims := jwt.MapClaims{
 		"sub":       externalUserID, // e.g. "user_123"
 		"tenant_id": float64(tenantID),
-		"aud":       "keystone",
+		"aud":       "fmind",
 		"exp":       time.Now().Add(time.Hour).Unix(),
 	}
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).
 		SignedString([]byte(hmacSecret))
 }
 
-// Send on each Keystone API request:
+// Send on each FMind API request:
 //   ${headerName}: <JWT from signExternalUserToken>
 // Tenant ID for this workspace: ${tid}`
 })
@@ -1236,9 +1236,9 @@ async function copy(text: string) {
 }
 
 async function tryLoadWailsApiBaseURL() {
-  const win = window as KeystoneDesktopWindow
+  const win = window as FMindDesktopWindow
   for (let i = 0; i < 40; i++) {
-    const injected = win.__KEYSTONE_API_BASE__
+    const injected = win.__FMIND_API_BASE__
     if (typeof injected === 'string' && injected.trim()) {
       wailsApiBaseURL.value = injected.trim().replace(/\/$/, '')
       await tryLoadWailsLanHints(win)
@@ -1262,8 +1262,8 @@ async function tryLoadWailsApiBaseURL() {
   await tryLoadWailsLanHints(win)
 }
 
-async function tryLoadWailsLanHints(win: KeystoneDesktopWindow) {
-  const injectedLan = win.__KEYSTONE_API_LAN_BASE__
+async function tryLoadWailsLanHints(win: FMindDesktopWindow) {
+  const injectedLan = win.__FMIND_API_LAN_BASE__
   if (typeof injectedLan === 'string' && injectedLan.trim()) {
     wailsApiLanBaseURL.value = injectedLan.trim().replace(/\/$/, '')
   }
@@ -1288,12 +1288,12 @@ async function tryLoadWailsLanHints(win: KeystoneDesktopWindow) {
   }
 }
 
-function desktopPortBindingsAvailable(win: KeystoneDesktopWindow) {
+function desktopPortBindingsAvailable(win: FMindDesktopWindow) {
   const app = win.go?.main?.App
   return typeof app?.GetDesktopHTTPPortSetting === 'function' && typeof app?.SetDesktopHTTPPortSetting === 'function'
 }
 
-function desktopBindPublicBindingsAvailable(win: KeystoneDesktopWindow) {
+function desktopBindPublicBindingsAvailable(win: FMindDesktopWindow) {
   const app = win.go?.main?.App
   return (
     typeof app?.GetDesktopHTTPBindPublicSetting === 'function' &&
@@ -1302,7 +1302,7 @@ function desktopBindPublicBindingsAvailable(win: KeystoneDesktopWindow) {
 }
 
 async function loadDesktopApiPrefs() {
-  const win = window as KeystoneDesktopWindow
+  const win = window as FMindDesktopWindow
   if (desktopPortBindingsAvailable(win)) {
     showDesktopPortSetting.value = true
     try {
@@ -1325,7 +1325,7 @@ async function loadDesktopApiPrefs() {
 
 const onDesktopBindPublicChange = async (value: boolean) => {
   const next = value === true
-  const fn = (window as KeystoneDesktopWindow).go?.main?.App?.SetDesktopHTTPBindPublicSetting
+  const fn = (window as FMindDesktopWindow).go?.main?.App?.SetDesktopHTTPBindPublicSetting
   if (typeof fn !== 'function') return
   try {
     await Promise.resolve(fn(next))
@@ -1343,7 +1343,7 @@ const saveDesktopPort = async () => {
     MessagePlugin.warning(t('tenant.api.desktopPortInvalid'))
     return
   }
-  const fn = (window as KeystoneDesktopWindow).go?.main?.App?.SetDesktopHTTPPortSetting
+  const fn = (window as FMindDesktopWindow).go?.main?.App?.SetDesktopHTTPPortSetting
   if (typeof fn !== 'function') return
   try {
     await Promise.resolve(fn(port))
@@ -1354,7 +1354,7 @@ const saveDesktopPort = async () => {
 }
 
 function openApiDoc() {
-  window.open('https://github.com/justaboyhai-wq/keystone/blob/main/docs/api/README.md', '_blank')
+  window.open('https://github.com/justaboyhai-wq/fmind/blob/main/docs/api/README.md', '_blank')
 }
 
 function openCreateAPIKeyDialog() {

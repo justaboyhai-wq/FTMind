@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // Client calls Mattermost REST API v4.

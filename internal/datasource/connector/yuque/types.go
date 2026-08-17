@@ -1,6 +1,6 @@
-// Package yuque implements the Yuque (语雀) data source connector for Keystone.
+// Package yuque implements the Yuque (语雀) data source connector for FMind.
 //
-// It syncs documents from personal and group knowledge bases (books/repos) into Keystone
+// It syncs documents from personal and group knowledge bases (books/repos) into FMind
 // knowledge bases, preserving Markdown formatting.
 //
 // Yuque API docs:
@@ -25,8 +25,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/justaboyhai-wq/keystone/internal/datasource"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/datasource"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // DefaultBaseURL is the Yuque public cloud API base URL.

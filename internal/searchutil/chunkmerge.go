@@ -3,7 +3,7 @@ package searchutil
 import (
 	"sort"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // 这里实现 chunk 内容的「重叠拼接」公共逻辑，供文档重建（reconstructContent）、

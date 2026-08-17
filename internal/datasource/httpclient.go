@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // ValidateConnectorBaseURL checks a connector API base URL against the SSRF policy.

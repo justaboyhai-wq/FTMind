@@ -1,6 +1,6 @@
 package metric
 
-import "github.com/justaboyhai-wq/keystone/internal/types"
+import "github.com/justaboyhai-wq/fmind/internal/types"
 
 // reference: https://github.com/dd-Rebecca/rouge
 

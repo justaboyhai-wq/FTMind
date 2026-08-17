@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // ProviderName 模型服务商名称
@@ -69,7 +69,7 @@ const (
 func AllProviders() []ProviderName {
 	return []ProviderName{
 		ProviderGeneric,
-		ProviderKeystoneCloud,
+		ProviderFMindCloud,
 		ProviderAliyun,
 		ProviderZhipu,
 		ProviderVolcengine,
@@ -269,8 +269,8 @@ func DetectProvider(baseURL string) ProviderName {
 		return ProviderNvidia
 	case containsAny(baseURL, "api.novita.ai", "novita.ai"):
 		return ProviderNovita
-	case containsAny(baseURL, "keystone.weixin.qq.com"):
-		return ProviderKeystoneCloud
+	case containsAny(baseURL, "fmind.weixin.qq.com"):
+		return ProviderFMindCloud
 	default:
 		return ProviderGeneric
 	}

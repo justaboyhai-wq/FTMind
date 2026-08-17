@@ -4,7 +4,7 @@ import (
 	"context"
 	"math"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // ScoreNormalizer maps raw retriever scores to a common [0, 1] scale so that

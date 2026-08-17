@@ -6,9 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // docUpdateFields enumerates the fields surfaced for `--format json` discovery
@@ -34,7 +34,7 @@ type UpdateService interface {
 	UpdateKnowledge(ctx context.Context, k *sdk.Knowledge) error
 }
 
-// NewCmdUpdate builds `keystone doc update <doc-id>`. At least one of
+// NewCmdUpdate builds `fmind doc update <doc-id>`. At least one of
 // --title / --description must be provided.
 func NewCmdUpdate(f *cmdutil.Factory) *cobra.Command {
 	opts := &UpdateOptions{}
@@ -89,7 +89,7 @@ to the user first.`,
 			}
 			// Build a retry command from the flags the user actually passed so
 			// agents can re-invoke with -y after explicit human approval.
-			retryCmd := cmdutil.BuildRetryArgv(c, []string{"keystone", "doc", "update", id}, "title", "description", "format")
+			retryCmd := cmdutil.BuildRetryArgv(c, []string{"fmind", "doc", "update", id}, "title", "description", "format")
 			if err := cmdutil.ConfirmWrite(f.Prompter(), opts.Yes, fopts.WantsJSON(), "update", "document", id, "doc.update", retryCmd); err != nil {
 				return err
 			}
@@ -106,8 +106,8 @@ to the user first.`,
 		UsedFor:       "update a document's title or description (content is not editable — re-upload for that)",
 		RequiredFlags: []string{"<doc-id> (positional)", "--title or --description (at least one)"},
 		Examples: []string{
-			`keystone doc update doc_abc --title "Q3 Runbook" -y`,
-			`keystone doc update doc_abc --description "archived" --format json -y`,
+			`fmind doc update doc_abc --title "Q3 Runbook" -y`,
+			`fmind doc update doc_abc --description "archived" --format json -y`,
 		},
 		Output: "envelope.data is the Knowledge object with the new title/description",
 		Warnings: []string{

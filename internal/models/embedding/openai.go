@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // OpenAIEmbedder implements text vectorization functionality using OpenAI API

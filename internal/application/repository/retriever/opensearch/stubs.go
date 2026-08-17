@@ -3,7 +3,7 @@ package opensearch
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // This file holds the remaining stubs for methods whose real implementation

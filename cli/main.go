@@ -1,4 +1,4 @@
-// Command keystone is a CLI for Tencent Keystone knowledge bases.
+// Command fmind is a CLI for Tencent FMind knowledge bases.
 package main
 
 import (
@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/justaboyhai-wq/keystone/cli/cmd"
+	"github.com/justaboyhai-wq/fmind/cli/cmd"
 )
 
 func main() {

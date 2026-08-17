@@ -8,10 +8,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/text"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/text"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // promptPreviewWidth caps inline KV row prompt previews. Multi-line prompts
@@ -34,7 +34,7 @@ type ViewService interface {
 	GetAgent(ctx context.Context, agentID string) (*sdk.Agent, error)
 }
 
-// NewCmdView builds `keystone agent view <agent-id>`.
+// NewCmdView builds `fmind agent view <agent-id>`.
 func NewCmdView(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "view <agent-id>",
@@ -46,9 +46,9 @@ fields are omitted; sections with no set fields are suppressed entirely.
 
 Pass --format json for the bare SDK Agent object (config nested, not flattened).
 Use --jq to project specific fields or reach into nested config.`,
-		Example: `  keystone agent view ag_abc
-  keystone agent view ag_abc --format json --jq '{id, name, config}'   # top-level projection
-  keystone agent view ag_abc --format json --jq '.config.system_prompt'`,
+		Example: `  fmind agent view ag_abc
+  fmind agent view ag_abc --format json --jq '{id, name, config}'   # top-level projection
+  fmind agent view ag_abc --format json --jq '.config.system_prompt'`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			fopts, err := cmdutil.CheckFormatFlag(c)
@@ -67,7 +67,7 @@ Use --jq to project specific fields or reach into nested config.`,
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:       "fetch one custom agent's full configuration by id",
 		RequiredFlags: []string{"<agent-id> (positional)"},
-		Examples:      []string{"keystone agent view agent_abc"},
+		Examples:      []string{"fmind agent view agent_abc"},
 		Output:        "envelope.data is the custom agent (id, name, description, is_builtin, and a nested config object holding model/kb_scope/...)",
 	})
 	return cmd

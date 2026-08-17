@@ -3,7 +3,7 @@ package im
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // CommandAction represents a service-level side effect that a command requests.

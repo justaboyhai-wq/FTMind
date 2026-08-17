@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
 )
 
 // Middleware is a function that wraps an EventHandler

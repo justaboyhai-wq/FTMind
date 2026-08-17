@@ -1,4 +1,4 @@
-// Package skillparity contains the K6 drift guard: every keystone command and
+// Package skillparity contains the K6 drift guard: every fmind command and
 // long flag referenced in a bundled Agent Skill (cli/skills/**) must still
 // exist in the live cobra command tree. A skill that references a renamed or
 // removed flag/command is worse than no skill, so this fails CI on drift.
@@ -15,8 +15,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/justaboyhai-wq/keystone/cli/cmd"
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/cmd"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
 )
 
 var (
@@ -85,17 +85,17 @@ func TestSkillsReferenceLiveCommandsAndFlags(t *testing.T) {
 		}
 		// Normalize CRLF → LF before parsing: Windows CI checks out *.md with
 		// CRLF (git autocrlf), and the \n-anchored codeFence regex would never
-		// match ```keystone\r\n, resolving zero commands. Keep the tokenizer
+		// match ```fmind\r\n, resolving zero commands. Keep the tokenizer
 		// OS-independent rather than depend on checkout line endings.
 		content := strings.ReplaceAll(string(raw), "\r\n", "\n")
 		rel, _ := filepath.Rel(skillsRoot(t), path)
 		for _, block := range codeFence.FindAllStringSubmatch(content, -1) {
 			for _, line := range strings.Split(block[1], "\n") {
-				idx := strings.Index(line, "keystone ")
+				idx := strings.Index(line, "fmind ")
 				if idx < 0 {
 					continue
 				}
-				inv := line[idx+len("keystone"):]
+				inv := line[idx+len("fmind"):]
 				toks := strings.Fields(inv)
 				if len(toks) == 0 {
 					continue
@@ -112,7 +112,7 @@ func TestSkillsReferenceLiveCommandsAndFlags(t *testing.T) {
 						i++ // consume the value
 					}
 				}
-				// Placeholder command (e.g. `keystone <command> --help`) → skip.
+				// Placeholder command (e.g. `fmind <command> --help`) → skip.
 				if i < len(toks) && strings.HasPrefix(toks[i], "<") {
 					continue
 				}
@@ -140,7 +140,7 @@ func TestSkillsReferenceLiveCommandsAndFlags(t *testing.T) {
 		}
 	}
 	if !checkedAny {
-		t.Fatal("parser resolved no keystone commands from skills — check tokenizer")
+		t.Fatal("parser resolved no fmind commands from skills — check tokenizer")
 	}
 }
 

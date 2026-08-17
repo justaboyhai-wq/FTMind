@@ -7,11 +7,11 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
 )
 
-// TestSchema_Index: `keystone schema` lists every leaf command with its purpose.
+// TestSchema_Index: `fmind schema` lists every leaf command with its purpose.
 func TestSchema_Index(t *testing.T) {
 	out, _ := iostreams.SetForTest(t)
 	root := NewRootCmd(cmdutil.New())

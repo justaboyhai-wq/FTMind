@@ -3,7 +3,7 @@ package datasource
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // Connector is the interface that all external data source connectors must implement.

@@ -3,7 +3,7 @@ package embedding
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/tracing/langfuse"
+	"github.com/justaboyhai-wq/fmind/internal/tracing/langfuse"
 )
 
 // langfuseEmbedder wraps an Embedder and reports each call as a Langfuse

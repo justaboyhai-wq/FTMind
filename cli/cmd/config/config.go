@@ -1,4 +1,4 @@
-// Package configcmd holds the `keystone config` command tree.
+// Package configcmd holds the `fmind config` command tree.
 //
 // Currently a single read-only `view` subcommand that prints the resolved
 // CLI configuration and its resolution chain. No mutation, no network.
@@ -11,10 +11,10 @@ package configcmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
 )
 
-// NewCmd builds the `keystone config` parent command.
+// NewCmd builds the `fmind config` parent command.
 func NewCmd(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "config",

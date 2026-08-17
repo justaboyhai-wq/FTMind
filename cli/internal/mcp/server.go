@@ -1,6 +1,6 @@
-// Package mcp wires the curated keystone tool set to an
+// Package mcp wires the curated fmind tool set to an
 // modelcontextprotocol/go-sdk server. RunStdio is the entry point invoked
-// by `keystone mcp serve`.
+// by `fmind mcp serve`.
 //
 // Design notes:
 //
@@ -24,12 +24,12 @@ import (
 
 	mcpsdk "github.com/modelcontextprotocol/go-sdk/mcp"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/build"
+	"github.com/justaboyhai-wq/fmind/cli/internal/build"
 )
 
 // ServiceClient bundles the SDK methods the tool registry needs. *sdk.Client
 // satisfies it; tests substitute a fake to exercise the tool handlers
-// in-process without standing up a real Keystone server.
+// in-process without standing up a real FMind server.
 //
 // Embedding the full SDK Client would couple every tool test to every SDK
 // method; declaring the narrow surface here keeps the seam tight.
@@ -49,7 +49,7 @@ func RunStdio(ctx context.Context, svc ServiceClient) error {
 	v, _, _ := build.Info()
 	server := mcpsdk.NewServer(
 		&mcpsdk.Implementation{
-			Name:    "keystone",
+			Name:    "fmind",
 			Version: v,
 		},
 		nil,

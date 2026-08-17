@@ -3,10 +3,10 @@
         <!-- 展开时：Logo + 搜索/折叠按钮同行 -->
         <div class="logo_row" v-if="!uiStore.sidebarCollapsed">
             <div class="logo_box" @click="router.push('/platform/knowledge-bases')" style="cursor: pointer;">
-                <span class="keystone-mark" aria-label="Keystone">
-                    <span class="keystone-mark__glyph" aria-hidden="true">
+                <span class="fmind-mark" aria-label="FMind">
+                    <span class="fmind-mark__glyph" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
-                    </span><span class="keystone-mark__name">Keystone</span>
+                    </span><span class="fmind-mark__name">FMind</span>
                 </span>
                 <sup v-if="isLiteEdition" class="lite-badge">Lite</sup>
             </div>
@@ -408,7 +408,7 @@ const isMenuItemActive = (itemPath: string): boolean => {
     }
 };
 
-// Keystone 使用同一套 currentColor 线性图标；激活态只改变颜色和表面，
+// FMind 使用同一套 currentColor 线性图标；激活态只改变颜色和表面，
 // 不再切换成套的位图状态资源。
 const getMenuIconName = (item: MenuItem): string => {
     const iconByPath: Record<string, string> = {
@@ -1909,7 +1909,7 @@ html[theme-mode="dark"] .aside_box .menu_item_c_active .menu_icon .icon {
     opacity: 0.9;
 }
 
-// Active icons use the Keystone brand color inherited from the menu item.
+// Active icons use the FMind brand color inherited from the menu item.
 html[theme-mode="dark"] .aside_box .menu_item_active .menu_icon .icon {
     filter: none;
     opacity: 1;

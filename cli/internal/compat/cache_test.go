@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/compat"
+	"github.com/justaboyhai-wq/fmind/cli/internal/compat"
 )
 
 func TestCache_RoundTrip(t *testing.T) {
@@ -28,8 +28,8 @@ func TestCache_RoundTrip(t *testing.T) {
 		t.Errorf("ServerVersion = %v, want %q", got, want.ServerVersion)
 	}
 
-	// File should live at $XDG_CACHE_HOME/keystone/server-info.yaml
-	p := filepath.Join(dir, "keystone", "server-info.yaml")
+	// File should live at $XDG_CACHE_HOME/fmind/server-info.yaml
+	p := filepath.Join(dir, "fmind", "server-info.yaml")
 	if _, err := filepath.Abs(p); err != nil {
 		t.Errorf("path resolution: %v", err)
 	}

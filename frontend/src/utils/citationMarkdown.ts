@@ -198,7 +198,7 @@ export function preprocessCitationTags(
     })
 }
 
-const HTML_PLACEHOLDER_RE = /@@KEYSTONE_HTML_PLACEHOLDER_(\d+)@@/g
+const HTML_PLACEHOLDER_RE = /@@FMIND_HTML_PLACEHOLDER_(\d+)@@/g
 
 /** Protect citation HTML from markdown parser; restore after marked.parse. */
 export function extractCitationHtmlPlaceholders(
@@ -209,7 +209,7 @@ export function extractCitationHtmlPlaceholders(
   const storeHtml = (html: string): string => {
     const idx = htmlSnippets.length
     htmlSnippets.push(html)
-    return `@@KEYSTONE_HTML_PLACEHOLDER_${idx}@@`
+    return `@@FMIND_HTML_PLACEHOLDER_${idx}@@`
   }
 
   const content = contentStr

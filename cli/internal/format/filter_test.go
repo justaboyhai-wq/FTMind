@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/format"
+	"github.com/justaboyhai-wq/fmind/cli/internal/format"
 )
 
 // A malformed --jq expression must surface as *format.JQError so the cmdutil

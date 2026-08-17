@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/models/limiter"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/models/limiter"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // fakeChat is a minimal Chat whose stream emits continuously until ctx is done,

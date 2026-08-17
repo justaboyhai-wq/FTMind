@@ -9,10 +9,10 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/models/provider"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/models/provider"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -87,12 +87,12 @@ func NewRemoteAPIChat(chatConfig *ChatConfig) (*RemoteAPIChat, error) {
 			modelName = override
 		}
 	}
-	if providerName == provider.ProviderKeystoneCloud {
+	if providerName == provider.ProviderFMindCloud {
 		if chatConfig.AppID == "" {
-			return nil, fmt.Errorf("KeystoneCloud provider: AppID is required")
+			return nil, fmt.Errorf("FMindCloud provider: AppID is required")
 		}
 		if chatConfig.AppSecret == "" {
-			return nil, fmt.Errorf("KeystoneCloud provider: AppSecret is required")
+			return nil, fmt.Errorf("FMindCloud provider: AppSecret is required")
 		}
 	}
 

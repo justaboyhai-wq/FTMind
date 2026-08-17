@@ -10,9 +10,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 type fakeCreateSvc struct {
@@ -151,7 +151,7 @@ func TestParseParams(t *testing.T) {
 // withRootHarnessModel wraps a model subcommand under a synthetic root with the
 // global persistent flags so flag/enum validation and gating route correctly.
 func withRootHarnessModel(sub *cobra.Command, args ...string) *cobra.Command {
-	root := &cobra.Command{Use: "keystone"}
+	root := &cobra.Command{Use: "fmind"}
 	pf := root.PersistentFlags()
 	pf.BoolP("yes", "y", false, "")
 	pf.String("format", "", "")

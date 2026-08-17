@@ -1,0 +1,17 @@
+[Unit]
+Description=FMind first-boot initialization (runs once)
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+Before=fmind.service
+ConditionPathExists=/usr/local/sbin/fmind-firstboot.sh
+ConditionPathExists=!/opt/FMind/.firstboot.done
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/fmind-firstboot.sh
+RemainAfterExit=no
+TimeoutStartSec=900
+
+[Install]
+WantedBy=multi-user.target

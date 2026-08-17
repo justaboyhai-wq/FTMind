@@ -7,8 +7,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // MarkdownImageRegex matches Markdown image links: ![alt](url)

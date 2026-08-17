@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/models/limiter"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/models/limiter"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/panjf2000/ants/v2"
 )
 

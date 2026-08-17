@@ -213,8 +213,8 @@ func TestCheckFormatFlag_TextAccepted(t *testing.T) {
 	}
 }
 
-func TestFromEnv_AppliesKEYSTONE_FORMAT(t *testing.T) {
-	t.Setenv("KEYSTONE_FORMAT", "ndjson")
+func TestFromEnv_AppliesFMIND_FORMAT(t *testing.T) {
+	t.Setenv("FMIND_FORMAT", "ndjson")
 	o := &FormatOptions{}
 	o.FromEnv()
 	if o.Mode != FormatNDJSON {
@@ -223,7 +223,7 @@ func TestFromEnv_AppliesKEYSTONE_FORMAT(t *testing.T) {
 }
 
 func TestFromEnv_PrecedenceFlagOverridesEnv(t *testing.T) {
-	t.Setenv("KEYSTONE_FORMAT", "ndjson")
+	t.Setenv("FMIND_FORMAT", "ndjson")
 	o := &FormatOptions{Mode: FormatJSON}
 	o.FromEnv()
 	if o.Mode != FormatJSON {
@@ -232,7 +232,7 @@ func TestFromEnv_PrecedenceFlagOverridesEnv(t *testing.T) {
 }
 
 func TestFromEnv_InvalidValueIgnored(t *testing.T) {
-	t.Setenv("KEYSTONE_FORMAT", "yaml")
+	t.Setenv("FMIND_FORMAT", "yaml")
 	o := &FormatOptions{}
 	o.FromEnv()
 	if o.Mode != "" {
@@ -241,33 +241,33 @@ func TestFromEnv_InvalidValueIgnored(t *testing.T) {
 }
 
 // TestResolveDefault_AppliesEnv pins that ResolveDefault honours
-// KEYSTONE_FORMAT. Regression: commands call CheckFormatFlag + ResolveDefault
+// FMIND_FORMAT. Regression: commands call CheckFormatFlag + ResolveDefault
 // but (nearly) none called FromEnv, so the documented env var was silently
 // ignored on success output across the whole CLI until ResolveDefault folded
 // it in. This is the path every command's RunE actually takes.
 func TestResolveDefault_AppliesEnv(t *testing.T) {
-	t.Setenv("KEYSTONE_FORMAT", "text")
+	t.Setenv("FMIND_FORMAT", "text")
 	o := &FormatOptions{} // no --format → Mode empty, as after CheckFormatFlag
 	o.ResolveDefault(false)
 	if o.Mode != FormatText {
-		t.Errorf("KEYSTONE_FORMAT=text must drive ResolveDefault to text; got %v", o.Mode)
+		t.Errorf("FMIND_FORMAT=text must drive ResolveDefault to text; got %v", o.Mode)
 	}
 }
 
 // TestResolveDefault_FlagBeatsEnv pins precedence: an explicit --format
-// (Mode already set) wins over KEYSTONE_FORMAT.
+// (Mode already set) wins over FMIND_FORMAT.
 func TestResolveDefault_FlagBeatsEnv(t *testing.T) {
-	t.Setenv("KEYSTONE_FORMAT", "text")
+	t.Setenv("FMIND_FORMAT", "text")
 	o := &FormatOptions{Mode: FormatJSON} // --format json supplied
 	o.ResolveDefault(false)
 	if o.Mode != FormatJSON {
-		t.Errorf("explicit --format json must beat KEYSTONE_FORMAT=text; got %v", o.Mode)
+		t.Errorf("explicit --format json must beat FMIND_FORMAT=text; got %v", o.Mode)
 	}
 }
 
 // TestResolveDefault_NoEnvNoFlag_UsesDefault pins the fallback.
 func TestResolveDefault_NoEnvNoFlag_UsesDefault(t *testing.T) {
-	t.Setenv("KEYSTONE_FORMAT", "")
+	t.Setenv("FMIND_FORMAT", "")
 	o := &FormatOptions{}
 	o.ResolveDefault(false)
 	if o.Mode != DefaultFormatMode {

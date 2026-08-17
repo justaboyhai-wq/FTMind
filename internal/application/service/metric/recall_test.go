@@ -3,7 +3,7 @@ package metric
 import (
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 func TestRecallMetric_Compute(t *testing.T) {

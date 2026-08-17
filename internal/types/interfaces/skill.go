@@ -3,7 +3,7 @@ package interfaces
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/agent/skills"
+	"github.com/justaboyhai-wq/fmind/internal/agent/skills"
 )
 
 // SkillService defines the interface for skill business logic

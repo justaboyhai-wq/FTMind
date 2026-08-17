@@ -8,11 +8,11 @@ import (
 	"sync"
 	"time"
 
-	agenttools "github.com/justaboyhai-wq/keystone/internal/agent/tools"
-	"github.com/justaboyhai-wq/keystone/internal/event"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	agenttools "github.com/justaboyhai-wq/fmind/internal/agent/tools"
+	"github.com/justaboyhai-wq/fmind/internal/event"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // AgentStreamHandler handles agent events for SSE streaming

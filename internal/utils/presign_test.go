@@ -10,15 +10,15 @@ import (
 )
 
 func TestSignFileURL_RoundTrip(t *testing.T) {
-	t.Setenv("SYSTEM_AES_KEY", "keystone-test-aes-key-32bytes!!!")
+	t.Setenv("SYSTEM_AES_KEY", "fmind-test-aes-key-32bytes!!!")
 
-	baseURL := "https://keystone.example.com"
+	baseURL := "https://fmind.example.com"
 	filePath := "local://1/abc/img.png"
 	var tenantID uint64 = 1
 
 	signed, err := SignFileURL(baseURL, filePath, tenantID, 1*time.Hour)
 	require.NoError(t, err)
-	assert.Contains(t, signed, "https://keystone.example.com/api/v1/files/presigned")
+	assert.Contains(t, signed, "https://fmind.example.com/api/v1/files/presigned")
 	assert.Contains(t, signed, "file_path=")
 	assert.Contains(t, signed, "tenant_id=1")
 	assert.Contains(t, signed, "sig=")
@@ -33,7 +33,7 @@ func TestSignFileURL_NoKey(t *testing.T) {
 }
 
 func TestVerifyFileURLSig_Valid(t *testing.T) {
-	t.Setenv("SYSTEM_AES_KEY", "keystone-test-aes-key-32bytes!!!")
+	t.Setenv("SYSTEM_AES_KEY", "fmind-test-aes-key-32bytes!!!")
 
 	filePath := "local://42/knowledge/img.jpg"
 	var tenantID uint64 = 42
@@ -47,7 +47,7 @@ func TestVerifyFileURLSig_Valid(t *testing.T) {
 }
 
 func TestVerifyFileURLSig_Expired(t *testing.T) {
-	t.Setenv("SYSTEM_AES_KEY", "keystone-test-aes-key-32bytes!!!")
+	t.Setenv("SYSTEM_AES_KEY", "fmind-test-aes-key-32bytes!!!")
 
 	filePath := "local://1/img.png"
 	var tenantID uint64 = 1
@@ -61,7 +61,7 @@ func TestVerifyFileURLSig_Expired(t *testing.T) {
 }
 
 func TestVerifyFileURLSig_Tampered(t *testing.T) {
-	t.Setenv("SYSTEM_AES_KEY", "keystone-test-aes-key-32bytes!!!")
+	t.Setenv("SYSTEM_AES_KEY", "fmind-test-aes-key-32bytes!!!")
 
 	filePath := "local://1/img.png"
 	var tenantID uint64 = 1
@@ -112,10 +112,10 @@ func TestParseTenantIDFromStoragePath(t *testing.T) {
 		{"local://1/abc/img.png", 1},
 		{"local://42/knowledge/file.pdf", 42},
 		{"minio://bucket/1/abc/img.png", 1},
-		{"s3://bucket/keystone/1/abc/img.png", 1},
+		{"s3://bucket/fmind/1/abc/img.png", 1},
 		{"cos://bucket/region/prefix/1/abc/img.png", 1},
 		{"tos://bucket/1/abc/img.png", 1},
-		{"oss://bucket/keystone/1/abc/img.png", 1},
+		{"oss://bucket/fmind/1/abc/img.png", 1},
 		{"https://example.com/img.png", 0},
 		{"invalid", 0},
 		{"local://exports/file.csv", 0},

@@ -7,10 +7,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/format"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/output"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/format"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/output"
 )
 
 type ListOptions struct{}
@@ -29,9 +29,9 @@ type listEntry struct {
 	Current bool   `json:"current"`
 }
 
-// NewCmdList builds `keystone auth list`. Per-host enumeration: render one
+// NewCmdList builds `fmind auth list`. Per-host enumeration: render one
 // row per registered profile, marking the active one. Reads only
-// ~/.config/keystone/config.yaml - no network, no keyring touch.
+// ~/.config/fmind/config.yaml - no network, no keyring touch.
 func NewCmdList(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
@@ -50,7 +50,7 @@ func NewCmdList(f *cmdutil.Factory) *cobra.Command {
 	cmdutil.AddFormatFlag(cmd, authListFields...)
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:  "list configured profiles and their credential mode (bearer / api-key)",
-		Examples: []string{"keystone auth list", "keystone auth list --jq '.data[].name'"},
+		Examples: []string{"fmind auth list", "fmind auth list --jq '.data[].name'"},
 		Output:   "envelope.data is an array of profiles with name, host, mode, and which is active",
 	})
 	return cmd
@@ -78,7 +78,7 @@ func runList(fopts *cmdutil.FormatOptions, f *cmdutil.Factory) error {
 		return fopts.Emit(iostreams.IO.Out, entries, meta)
 	}
 	if len(entries) == 0 {
-		fmt.Fprintln(iostreams.IO.Out, "No profiles configured. Run `keystone auth login` to create one.")
+		fmt.Fprintln(iostreams.IO.Out, "No profiles configured. Run `fmind auth login` to create one.")
 		return nil
 	}
 	tw := tabwriter.NewWriter(iostreams.IO.Out, 0, 0, 2, ' ', 0)

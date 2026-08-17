@@ -5,8 +5,8 @@ import (
 	"log"
 	"sync"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // ResourceCleaner is a resource cleaner that can be used to clean up resources

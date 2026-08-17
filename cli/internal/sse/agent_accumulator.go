@@ -3,7 +3,7 @@ package sse
 import (
 	"strings"
 
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // AgentToolEvent captures one tool_call / tool_result event from an

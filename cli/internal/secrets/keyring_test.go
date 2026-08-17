@@ -63,5 +63,5 @@ func TestNewBestEffortStore(t *testing.T) {
 func TestKeyringStore_Ref(t *testing.T) {
 	k := NewKeyringStore()
 	got := k.Ref("prod", "access")
-	assert.Equal(t, "keychain://keystone/prod/access", got)
+	assert.Equal(t, "keychain://fmind/prod/access", got)
 }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# firstboot.sh - 由 keystone-firstboot.service 在新实例首次开机时自动执行。
+# firstboot.sh - 由 fmind-firstboot.service 在新实例首次开机时自动执行。
 # 任务: 生成随机密钥写入 .env -> 启动容器 -> 输出凭证 -> 标记完成 + 自禁用。
 #
 # 幂等性策略:
@@ -11,12 +11,12 @@
 #      凭证仍可在 ${ENV_FILE} 中查到。
 set -euo pipefail
 
-KEYSTONE_DIR="${KEYSTONE_DIR:-/opt/Keystone}"
-ENV_FILE="${KEYSTONE_DIR}/.env"
-ENV_TEMPLATE="${KEYSTONE_DIR}/.env.example"
-CRED_FILE="/root/keystone-credentials.txt"
-LOG_FILE="/var/log/keystone-firstboot.log"
-MARKER="${KEYSTONE_DIR}/.firstboot.done"
+FMIND_DIR="${FMIND_DIR:-/opt/FMind}"
+ENV_FILE="${FMIND_DIR}/.env"
+ENV_TEMPLATE="${FMIND_DIR}/.env.example"
+CRED_FILE="/root/fmind-credentials.txt"
+LOG_FILE="/var/log/fmind-firstboot.log"
+MARKER="${FMIND_DIR}/.firstboot.done"
 
 # 提前打开 LOG_FILE, 同时把 stderr 也复制一份到 systemd journal 方便调试
 # (单纯 exec >> LOG_FILE 时, 脚本一开始的失败会因为 stderr 已被吞掉而看不到)
@@ -30,7 +30,7 @@ if [[ -f "${MARKER}" ]]; then
 fi
 
 # cleanup.sh 不再保留 .env, 这里从 .env.example 拷贝模板再做替换。
-# 这样保证 firstboot 之前不会有任何含明文默认密码的 .env 让 keystone.service
+# 这样保证 firstboot 之前不会有任何含明文默认密码的 .env 让 fmind.service
 # 抢先把 postgres 数据卷用错的密码初始化掉。
 if [[ ! -f "${ENV_FILE}" ]]; then
   if [[ -f "${ENV_TEMPLATE}" ]]; then
@@ -79,15 +79,15 @@ replace SYSTEM_AES_KEY  "${SYS_AES}"
 replace TENANT_AES_KEY  "${TENANT_AES}"
 replace GIN_MODE        "release"
 
-# 把 prepare.sh 阶段记录在 .cloud-image-meta 里的 KEYSTONE_REF 还原为 .env 的
-# KEYSTONE_VERSION, 否则 docker compose 会落回 :latest 默认值, 导致镜像版本
+# 把 prepare.sh 阶段记录在 .cloud-image-meta 里的 FMIND_REF 还原为 .env 的
+# FMIND_VERSION, 否则 docker compose 会落回 :latest 默认值, 导致镜像版本
 # 与 prepare 时拉取的版本不一致。
-META_FILE="${KEYSTONE_DIR}/.cloud-image-meta"
+META_FILE="${FMIND_DIR}/.cloud-image-meta"
 if [[ -f "${META_FILE}" ]]; then
-  META_REF=$(grep -E '^KEYSTONE_REF=' "${META_FILE}" | tail -1 | cut -d= -f2- || true)
+  META_REF=$(grep -E '^FMIND_REF=' "${META_FILE}" | tail -1 | cut -d= -f2- || true)
   if [[ -n "${META_REF}" ]]; then
-    replace KEYSTONE_VERSION "${META_REF}"
-    echo "restored KEYSTONE_VERSION=${META_REF} from ${META_FILE}"
+    replace FMIND_VERSION "${META_REF}"
+    echo "restored FMIND_VERSION=${META_REF} from ${META_FILE}"
   fi
 fi
 
@@ -99,7 +99,7 @@ touch "${MARKER}"
 chmod 0600 "${MARKER}"
 
 echo "env updated, marker written, starting docker compose..."
-cd "${KEYSTONE_DIR}"
+cd "${FMIND_DIR}"
 "${DOCKER_BIN}" compose up -d
 
 # 尝试拿公网 IP, 失败就用内网
@@ -109,7 +109,7 @@ PUB_IP=$(curl -fsS --max-time 5 https://ifconfig.me 2>/dev/null \
 
 cat >"${CRED_FILE}" <<INFO
 ========================================
-  Keystone 实例初始化完成
+  FMind 实例初始化完成
   生成时间: $(date -Iseconds)
 ========================================
 
@@ -117,7 +117,7 @@ cat >"${CRED_FILE}" <<INFO
 
 注册后如需关闭后续注册, 编辑 ${ENV_FILE}:
     DISABLE_REGISTRATION=true
-然后执行:  cd ${KEYSTONE_DIR} && docker compose up -d
+然后执行:  cd ${FMIND_DIR} && docker compose up -d
 
 下列随机凭证已写入 ${ENV_FILE}, 请妥善保存(仅 root 可读):
   DB_PASSWORD     = ${DB_PWD}
@@ -136,7 +136,7 @@ INFO
 echo "credentials written to ${CRED_FILE}"
 
 # 仅停掉 unit, 不删 unit 文件 (否则当前正在运行的 oneshot 可能被 systemd 标记 failed)。
-# 下次重启时, keystone-firstboot.service 通过 ConditionPathExists=!${MARKER} 自动跳过。
-systemctl disable keystone-firstboot.service || true
+# 下次重启时, fmind-firstboot.service 通过 ConditionPathExists=!${MARKER} 自动跳过。
+systemctl disable fmind-firstboot.service || true
 
 echo "==== firstboot finished at $(date -Iseconds) ===="

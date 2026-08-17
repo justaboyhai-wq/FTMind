@@ -6,13 +6,13 @@ import (
 	"strings"
 )
 
-// EnvLanguage returns the KEYSTONE_LANGUAGE environment variable value, or empty string if unset.
+// EnvLanguage returns the FMIND_LANGUAGE environment variable value, or empty string if unset.
 func EnvLanguage() string {
-	return strings.TrimSpace(os.Getenv("KEYSTONE_LANGUAGE"))
+	return strings.TrimSpace(os.Getenv("FMIND_LANGUAGE"))
 }
 
 // DefaultLanguage returns the configured default language locale.
-// It reads the KEYSTONE_LANGUAGE environment variable; if unset, falls back to "zh-CN".
+// It reads the FMIND_LANGUAGE environment variable; if unset, falls back to "zh-CN".
 func DefaultLanguage() string {
 	if lang := EnvLanguage(); lang != "" {
 		return lang
@@ -159,7 +159,7 @@ func LanguageFromContext(ctx context.Context) (string, bool) {
 
 // LanguageNameFromContext returns the human-readable language name for use in prompts.
 // e.g. "zh-CN" -> "Chinese (Simplified)", "en-US" -> "English", "ko-KR" -> "Korean"
-// Falls back to DefaultLanguage() (KEYSTONE_LANGUAGE env, then "zh-CN").
+// Falls back to DefaultLanguage() (FMIND_LANGUAGE env, then "zh-CN").
 func LanguageNameFromContext(ctx context.Context) string {
 	lang, ok := LanguageFromContext(ctx)
 	if !ok {

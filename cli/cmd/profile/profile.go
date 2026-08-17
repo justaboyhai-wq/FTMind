@@ -1,4 +1,4 @@
-// Package profilecmd holds the `keystone profile` command tree
+// Package profilecmd holds the `fmind profile` command tree
 // (list / add / remove / use).
 //
 // Package name `profilecmd` (not `profile`) to keep the pattern consistent
@@ -9,10 +9,10 @@ package profilecmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
 )
 
-// NewCmd builds the `keystone profile` parent command.
+// NewCmd builds the `fmind profile` parent command.
 func NewCmd(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "profile",

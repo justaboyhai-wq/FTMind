@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // Define a test Plugin implementation

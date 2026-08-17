@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -59,11 +59,11 @@ func newOAuthStateStore(rdb *redis.Client) *oauthStateStore {
 }
 
 func (s *oauthStateStore) key(state string) string {
-	ns := strings.TrimSpace(os.Getenv("KEYSTONE_REDIS_NAMESPACE"))
+	ns := strings.TrimSpace(os.Getenv("FMIND_REDIS_NAMESPACE"))
 	if ns != "" {
-		return "keystone:mcp_oauth_state:" + ns + ":" + state
+		return "fmind:mcp_oauth_state:" + ns + ":" + state
 	}
-	return "keystone:mcp_oauth_state:" + state
+	return "fmind:mcp_oauth_state:" + state
 }
 
 // Put stores a state with a fixed TTL.

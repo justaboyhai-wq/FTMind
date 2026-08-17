@@ -3070,7 +3070,7 @@
       }
     },
     {
-      "id": "keystone_skill",
+      "id": "fmind_skill",
       "type": "rectangle",
       "x": 1655,
       "y": 2115,
@@ -3089,7 +3089,7 @@
       "versionNonce": 140203,
       "isDeleted": false,
       "groupIds": [
-        "keystone_skill_group"
+        "fmind_skill_group"
       ],
       "boundElements": null,
       "link": null,
@@ -3846,8 +3846,8 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "Keystone · 业务功能架构",
-      "originalText": "Keystone · 业务功能架构",
+      "text": "FMind · 业务功能架构",
+      "originalText": "FMind · 业务功能架构",
       "fontSize": 32,
       "fontFamily": 3,
       "textAlign": "left",
@@ -7184,7 +7184,7 @@
       "lineHeight": 1.18
     },
     {
-      "id": "keystone_skill_text",
+      "id": "fmind_skill_text",
       "type": "text",
       "x": 1667,
       "y": 2137,
@@ -7203,13 +7203,13 @@
       "versionNonce": 140204,
       "isDeleted": false,
       "groupIds": [
-        "keystone_skill_group"
+        "fmind_skill_group"
       ],
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "[外部安装] Keystone Skill\n文件 / URL / Markdown 导入 · 混合检索 · 浏览知识库",
-      "originalText": "[外部安装] Keystone Skill\n文件 / URL / Markdown 导入 · 混合检索 · 浏览知识库",
+      "text": "[外部安装] FMind Skill\n文件 / URL / Markdown 导入 · 混合检索 · 浏览知识库",
+      "originalText": "[外部安装] FMind Skill\n文件 / URL / Markdown 导入 · 混合检索 · 浏览知识库",
       "fontSize": 11,
       "fontFamily": 3,
       "textAlign": "center",

@@ -1,7 +1,7 @@
 // Package config reads and writes the user-level config at
-// $XDG_CONFIG_HOME/keystone/config.yaml. yaml.v3 directly; viper is
+// $XDG_CONFIG_HOME/fmind/config.yaml. yaml.v3 directly; viper is
 // intentionally not used. Multi-host profile map lives here;
-// the per-project link (.keystone/project.yaml) is handled by the
+// the per-project link (.fmind/project.yaml) is handled by the
 // projectlink package.
 package config
 
@@ -12,7 +12,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/xdg"
+	"github.com/justaboyhai-wq/fmind/cli/internal/xdg"
 )
 
 // Config is the on-disk schema. Empty zero-value is valid (returned when the

@@ -11,18 +11,18 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/application/service/retriever"
-	werrors "github.com/justaboyhai-wq/keystone/internal/errors"
-	"github.com/justaboyhai-wq/keystone/internal/infrastructure/chunker"
-	"github.com/justaboyhai-wq/keystone/internal/infrastructure/docparser"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/models/chat"
-	"github.com/justaboyhai-wq/keystone/internal/models/embedding"
-	"github.com/justaboyhai-wq/keystone/internal/searchutil"
-	"github.com/justaboyhai-wq/keystone/internal/tracing/langfuse"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/application/service/retriever"
+	werrors "github.com/justaboyhai-wq/fmind/internal/errors"
+	"github.com/justaboyhai-wq/fmind/internal/infrastructure/chunker"
+	"github.com/justaboyhai-wq/fmind/internal/infrastructure/docparser"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/models/chat"
+	"github.com/justaboyhai-wq/fmind/internal/models/embedding"
+	"github.com/justaboyhai-wq/fmind/internal/searchutil"
+	"github.com/justaboyhai-wq/fmind/internal/tracing/langfuse"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
 )
@@ -3263,15 +3263,15 @@ func (s *knowledgeService) resolveDocReader(ctx context.Context, engine, fileTyp
 	switch engine {
 	case docparser.SimpleEngineName:
 		return &docparser.SimpleFormatReader{}
-	case docparser.KeystoneCloudEngineName:
-		creds := s.tenantService.GetKeystoneCloudCredentials(ctx)
+	case docparser.FMindCloudEngineName:
+		creds := s.tenantService.GetFMindCloudCredentials(ctx)
 		if creds == nil {
-			logger.Warnf(ctx, "[resolveDocReader] KeystoneCloud: no tenant credentials (fileType=%s)", fileType)
+			logger.Warnf(ctx, "[resolveDocReader] FMindCloud: no tenant credentials (fileType=%s)", fileType)
 			return nil
 		}
-		reader, err := docparser.NewKeystoneCloudSignedDocumentReader(creds.AppID, creds.AppSecret)
+		reader, err := docparser.NewFMindCloudSignedDocumentReader(creds.AppID, creds.AppSecret)
 		if err != nil {
-			logger.Errorf(ctx, "[resolveDocReader] KeystoneCloud reader init failed: %v", err)
+			logger.Errorf(ctx, "[resolveDocReader] FMindCloud reader init failed: %v", err)
 			return nil
 		}
 		return reader

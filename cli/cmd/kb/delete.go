@@ -6,9 +6,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/prompt"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/prompt"
 )
 
 // kbDeleteFields enumerates the fields surfaced for `--format json` discovery
@@ -32,7 +32,7 @@ type deleteResult struct {
 	Deleted bool   `json:"deleted"`
 }
 
-// NewCmdDelete builds `keystone kb delete`. The global -y/--yes persistent
+// NewCmdDelete builds `fmind kb delete`. The global -y/--yes persistent
 // flag is the single skip-prompt switch for the destructive-write
 // confirmation pattern.
 func NewCmdDelete(f *cmdutil.Factory) *cobra.Command {
@@ -49,9 +49,9 @@ AI agents: This is a high-risk write. Without -y/--yes the CLI exits 10
 and writes input.confirmation_required to stderr. NEVER auto-pass -y
 without the user's explicit go-ahead — the exit-10 protocol exists
 exactly to guard against unintended deletes.`,
-		Example: `  keystone kb delete kb_abc                      # interactive confirm
-  keystone kb delete kb_abc -y                   # no prompt
-  keystone kb delete kb_abc -y --format json     # bare {id, deleted:true} JSON`,
+		Example: `  fmind kb delete kb_abc                      # interactive confirm
+  fmind kb delete kb_abc -y                   # no prompt
+  fmind kb delete kb_abc -y --format json     # bare {id, deleted:true} JSON`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			fopts, err := cmdutil.CheckFormatFlag(c)
@@ -83,8 +83,8 @@ exactly to guard against unintended deletes.`,
 		RequiredFlags: []string{"<kb-id> (positional)"},
 		Output:        "envelope.data is {id, deleted:true}",
 		Examples: []string{
-			"keystone kb delete kb_abc -y",
-			"keystone kb delete kb_abc -y --format json",
+			"fmind kb delete kb_abc -y",
+			"fmind kb delete kb_abc -y --format json",
 		},
 		Warnings: []string{
 			"Requires explicit user approval (exit 10 / input.confirmation_required); never auto-add -y.",
@@ -95,7 +95,7 @@ exactly to guard against unintended deletes.`,
 }
 
 func runDelete(ctx context.Context, opts *DeleteOptions, fopts *cmdutil.FormatOptions, svc DeleteService, p prompt.Prompter, id string) error {
-	if err := cmdutil.ConfirmDestructive(p, opts.Yes, fopts.WantsJSON(), "delete", "knowledge base", id, "kb.delete", []string{"keystone", "kb", "delete", id, "-y"}); err != nil {
+	if err := cmdutil.ConfirmDestructive(p, opts.Yes, fopts.WantsJSON(), "delete", "knowledge base", id, "kb.delete", []string{"fmind", "kb", "delete", id, "-y"}); err != nil {
 		return err
 	}
 

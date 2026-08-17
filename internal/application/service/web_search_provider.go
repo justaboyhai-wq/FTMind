@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	infra_web_search "github.com/justaboyhai-wq/keystone/internal/infrastructure/web_search"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	infra_web_search "github.com/justaboyhai-wq/fmind/internal/infrastructure/web_search"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 // webSearchProviderService implements interfaces.WebSearchProviderService

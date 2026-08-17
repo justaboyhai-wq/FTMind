@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
 )
 
 // TestAllReferencedCodesAreRegistered scans cli/cmd/ for every literal use of

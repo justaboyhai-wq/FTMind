@@ -22,9 +22,9 @@ func extractTenantIDFromPresignedURL(t *testing.T, presigned string) string {
 // from the storage path — which encodes the resource owner, so cross-tenant
 // shared resources resolve to the correct owning tenant's storage config.
 func TestLocalGetFileURL_TenantIDFromPath(t *testing.T) {
-	t.Setenv("SYSTEM_AES_KEY", "keystone-test-aes-key-32bytes!!!")
+	t.Setenv("SYSTEM_AES_KEY", "fmind-test-aes-key-32bytes!!!")
 
-	svc := NewLocalFileService("/data/files", "https://keystone.example.com")
+	svc := NewLocalFileService("/data/files", "https://fmind.example.com")
 
 	got, err := svc.GetFileURL(context.Background(), "local://7/abc/img.png")
 	require.NoError(t, err)

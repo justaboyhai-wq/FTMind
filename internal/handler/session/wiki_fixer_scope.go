@@ -3,9 +3,9 @@ package session
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 type wikiFixerKBLookup interface {

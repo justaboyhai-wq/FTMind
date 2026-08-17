@@ -40,8 +40,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/config"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/config"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // wireCase declares one row in the contract matrix. Optional fields:

@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/utils"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -82,7 +82,7 @@ type ModelParameters struct {
 	// process-wide model.max_concurrency". Interactive user-facing calls are
 	// never gated. Only chat / vlm / embedding honour this (see limiter.Gate).
 	MaxConcurrency int `yaml:"max_concurrency,omitempty" json:"max_concurrency,omitempty"`
-	// KeystoneCloud 厂商专用凭证
+	// FMindCloud 厂商专用凭证
 	AppID     string `yaml:"app_id,omitempty"     json:"app_id,omitempty"`
 	AppSecret string `yaml:"app_secret,omitempty" json:"app_secret,omitempty"` // AES-256 加密存储，实际承载上游 API Key
 }

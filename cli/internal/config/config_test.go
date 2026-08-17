@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/testutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/testutil"
 )
 
 func TestLoad_FileMissing(t *testing.T) {
@@ -26,7 +26,7 @@ func TestSaveLoad_RoundTrip(t *testing.T) {
 	in := &Config{
 		CurrentProfile: "prod",
 		Profiles: map[string]Profile{
-			"prod": {Host: "https://kb.example.com", TenantID: 7, APIKeyRef: "keychain://keystone/prod/access"},
+			"prod": {Host: "https://kb.example.com", TenantID: 7, APIKeyRef: "keychain://fmind/prod/access"},
 		},
 	}
 	require.NoError(t, Save(in))
@@ -51,7 +51,7 @@ func TestSaveLoad_RoundTrip(t *testing.T) {
 
 func TestLoad_Corrupt(t *testing.T) {
 	dir := testutil.XDGTempDir(t)
-	p := filepath.Join(dir, "keystone", "config.yaml")
+	p := filepath.Join(dir, "fmind", "config.yaml")
 	require.NoError(t, os.MkdirAll(filepath.Dir(p), 0o700))
 	require.NoError(t, os.WriteFile(p, []byte("not: valid: yaml: ::"), 0o600))
 
@@ -65,7 +65,7 @@ func TestPath_HonorsXDG(t *testing.T) {
 	t.Setenv("XDG_CONFIG_HOME", xdg)
 	p, err := Path()
 	require.NoError(t, err)
-	assert.Equal(t, filepath.Join(xdg, "keystone", "config.yaml"), p)
+	assert.Equal(t, filepath.Join(xdg, "fmind", "config.yaml"), p)
 }
 
 func TestPath_FallsBackToHome(t *testing.T) {
@@ -75,7 +75,7 @@ func TestPath_FallsBackToHome(t *testing.T) {
 	require.NoError(t, err)
 	// Compare via slash-normalized form so the assertion is platform-agnostic
 	// (Windows uses backslash; semantics here is "the relative tail").
-	assert.Contains(t, filepath.ToSlash(p), "/.config/keystone/config.yaml")
+	assert.Contains(t, filepath.ToSlash(p), "/.config/fmind/config.yaml")
 }
 
 func TestSave_AtomicReplace(t *testing.T) {
@@ -85,6 +85,6 @@ func TestSave_AtomicReplace(t *testing.T) {
 	out, err := Load()
 	require.NoError(t, err)
 	assert.Equal(t, "b", out.CurrentProfile)
-	matches, _ := filepath.Glob(filepath.Join(dir, "keystone", "*.tmp"))
+	matches, _ := filepath.Glob(filepath.Join(dir, "fmind", "*.tmp"))
 	assert.Empty(t, matches)
 }

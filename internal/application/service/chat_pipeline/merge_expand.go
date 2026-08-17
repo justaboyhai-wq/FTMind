@@ -3,7 +3,7 @@ package chatpipeline
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // expandShortContextWithNeighbors expands the short context with neighbors

@@ -11,16 +11,16 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/justaboyhai-wq/keystone/internal/config"
-	"github.com/justaboyhai-wq/keystone/internal/errors"
-	"github.com/justaboyhai-wq/keystone/internal/handler/dto"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/config"
+	"github.com/justaboyhai-wq/fmind/internal/errors"
+	"github.com/justaboyhai-wq/fmind/internal/handler/dto"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
-const oidcNonceCookieName = "keystone_oidc_nonce"
+const oidcNonceCookieName = "fmind_oidc_nonce"
 const oidcNonceCookieMaxAge = 600
 
 // AuthHandler implements HTTP request handlers for user authentication
@@ -116,7 +116,7 @@ func (h *AuthHandler) resolveDefaultTenantMode(ctx context.Context) types.Tenant
 		mode = h.systemSettingSvc.GetString(
 			ctx,
 			"auth.default_tenant_mode",
-			"KEYSTONE_AUTH_DEFAULT_TENANT_MODE",
+			"FMIND_AUTH_DEFAULT_TENANT_MODE",
 			def,
 		)
 	}
@@ -780,7 +780,7 @@ func (h *AuthHandler) AutoSetup(c *gin.Context) {
 		return
 	}
 
-	const defaultEmail = "admin@keystone.local"
+	const defaultEmail = "admin@fmind.local"
 
 	user, _ := h.userService.GetUserByEmail(ctx, defaultEmail)
 	if user == nil {

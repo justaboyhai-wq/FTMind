@@ -3,7 +3,7 @@ package event
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // EventBusAdapter adapts *EventBus to types.EventBusInterface

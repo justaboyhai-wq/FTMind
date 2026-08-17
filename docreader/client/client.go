@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/docreader/proto"
+	"github.com/justaboyhai-wq/fmind/docreader/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/resolver"
 )

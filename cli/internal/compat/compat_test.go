@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/compat"
+	"github.com/justaboyhai-wq/fmind/cli/internal/compat"
 )
 
 func TestCompat(t *testing.T) {

@@ -5,9 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	werrors "github.com/justaboyhai-wq/keystone/internal/errors"
-	"github.com/justaboyhai-wq/keystone/internal/infrastructure/chunker"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	werrors "github.com/justaboyhai-wq/fmind/internal/errors"
+	"github.com/justaboyhai-wq/fmind/internal/infrastructure/chunker"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/stretchr/testify/require"
 )
 

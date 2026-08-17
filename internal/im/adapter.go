@@ -106,7 +106,7 @@ const (
 	ChatTypeGroup  ChatType = "group"
 )
 
-// ReplyMessage is what Keystone sends back to the IM platform.
+// ReplyMessage is what FMind sends back to the IM platform.
 type ReplyMessage struct {
 	// Content is the text content (Markdown).
 	Content string

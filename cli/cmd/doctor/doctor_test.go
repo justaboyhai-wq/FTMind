@@ -8,12 +8,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/compat"
-	"github.com/justaboyhai-wq/keystone/cli/internal/config"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/secrets"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/compat"
+	"github.com/justaboyhai-wq/fmind/cli/internal/config"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/secrets"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // withCredStoreFactory swaps the package-level credStoreFactory hook for the
@@ -173,7 +173,7 @@ func TestDoctor_CacheHit_SkipsProbe(t *testing.T) {
 // TestDoctor_NoConfig_StillRunsCredentialStorage guards the package-doc
 // promise that credential_storage runs even with zero configuration. Round-4
 // reviewer surfaced that buildServices used to abort on f.Client() failure,
-// silently violating the doc for any first-time user running `keystone doctor`
+// silently violating the doc for any first-time user running `fmind doctor`
 // to diagnose setup. The lazy-resolve fix means missing auth surfaces as
 // auth_credential=fail, not a top-level command exit.
 func TestDoctor_NoConfig_StillRunsCredentialStorage(t *testing.T) {
@@ -510,10 +510,10 @@ func TestDoctor_RunE_WarnReturnsNil(t *testing.T) {
 }
 
 // TestResolveDoctorHost_EnvCredentials - doctor's base_url probe must honor
-// KEYSTONE_HOST when stateless env credentials are in effect (the headless
+// FMIND_HOST when stateless env credentials are in effect (the headless
 // agent path), mirroring buildClientFromEnv. Regression: doctor previously
-// read only the active profile host, so `KEYSTONE_API_KEY=... KEYSTONE_HOST=...
-// keystone doctor` reported "no host configured" and exited 1 while every
+// read only the active profile host, so `FMIND_API_KEY=... FMIND_HOST=...
+// fmind doctor` reported "no host configured" and exited 1 while every
 // other command worked.
 func TestResolveDoctorHost_EnvCredentials(t *testing.T) {
 	cfg := &config.Config{
@@ -521,39 +521,39 @@ func TestResolveDoctorHost_EnvCredentials(t *testing.T) {
 		Profiles:       map[string]config.Profile{"prod": {Host: "https://profile-host"}},
 	}
 
-	t.Run("env creds + KEYSTONE_HOST wins over profile", func(t *testing.T) {
-		t.Setenv("KEYSTONE_TOKEN", "")
-		t.Setenv("KEYSTONE_API_KEY", "sk-test")
-		t.Setenv("KEYSTONE_HOST", "https://env-host:8080")
-		t.Setenv("KEYSTONE_BASE_URL", "")
+	t.Run("env creds + FMIND_HOST wins over profile", func(t *testing.T) {
+		t.Setenv("FMIND_TOKEN", "")
+		t.Setenv("FMIND_API_KEY", "sk-test")
+		t.Setenv("FMIND_HOST", "https://env-host:8080")
+		t.Setenv("FMIND_BASE_URL", "")
 		if got := resolveDoctorHost(cfg); got != "https://env-host:8080" {
 			t.Errorf("want env host, got %q", got)
 		}
 	})
 
-	t.Run("env creds without KEYSTONE_HOST falls back to profile", func(t *testing.T) {
-		t.Setenv("KEYSTONE_API_KEY", "sk-test")
-		t.Setenv("KEYSTONE_HOST", "")
-		t.Setenv("KEYSTONE_BASE_URL", "")
+	t.Run("env creds without FMIND_HOST falls back to profile", func(t *testing.T) {
+		t.Setenv("FMIND_API_KEY", "sk-test")
+		t.Setenv("FMIND_HOST", "")
+		t.Setenv("FMIND_BASE_URL", "")
 		if got := resolveDoctorHost(cfg); got != "https://profile-host" {
 			t.Errorf("want profile host, got %q", got)
 		}
 	})
 
-	t.Run("no env creds ignores KEYSTONE_HOST (matches client builder)", func(t *testing.T) {
-		t.Setenv("KEYSTONE_TOKEN", "")
-		t.Setenv("KEYSTONE_API_KEY", "")
-		t.Setenv("KEYSTONE_HOST", "https://should-be-ignored")
-		t.Setenv("KEYSTONE_BASE_URL", "")
+	t.Run("no env creds ignores FMIND_HOST (matches client builder)", func(t *testing.T) {
+		t.Setenv("FMIND_TOKEN", "")
+		t.Setenv("FMIND_API_KEY", "")
+		t.Setenv("FMIND_HOST", "https://should-be-ignored")
+		t.Setenv("FMIND_BASE_URL", "")
 		if got := resolveDoctorHost(cfg); got != "https://profile-host" {
 			t.Errorf("want profile host, got %q", got)
 		}
 	})
 
-	t.Run("KEYSTONE_BASE_URL test override always wins", func(t *testing.T) {
-		t.Setenv("KEYSTONE_API_KEY", "sk-test")
-		t.Setenv("KEYSTONE_HOST", "https://env-host")
-		t.Setenv("KEYSTONE_BASE_URL", "https://base-url-override")
+	t.Run("FMIND_BASE_URL test override always wins", func(t *testing.T) {
+		t.Setenv("FMIND_API_KEY", "sk-test")
+		t.Setenv("FMIND_HOST", "https://env-host")
+		t.Setenv("FMIND_BASE_URL", "https://base-url-override")
 		if got := resolveDoctorHost(cfg); got != "https://base-url-override" {
 			t.Errorf("want base-url override, got %q", got)
 		}

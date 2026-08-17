@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/models/provider"
-	"github.com/justaboyhai-wq/keystone/internal/models/utils/ollama"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/models/provider"
+	"github.com/justaboyhai-wq/fmind/internal/models/utils/ollama"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // VLM defines the interface for Vision Language Model operations.
@@ -41,7 +41,7 @@ type Config struct {
 
 // ConfigFromModel 根据 types.Model 构造 vlm.Config。
 // 生产路径（从 DB 拉起）和测试连接路径（临时表单）共享这份映射。
-// appID / appSecret 是已解密的 KeystoneCloud 凭证，调用方负责传入。
+// appID / appSecret 是已解密的 FMindCloud 凭证，调用方负责传入。
 // InterfaceType 会根据 source / 模型参数自动回退到合理默认值。
 func ConfigFromModel(m *types.Model, appID, appSecret string) *Config {
 	if m == nil {
@@ -108,8 +108,8 @@ func newVLM(config *Config, ollamaService *ollama.OllamaService) (VLM, error) {
 	if providerName == "" {
 		providerName = provider.DetectProvider(config.BaseURL)
 	}
-	if providerName == provider.ProviderKeystoneCloud {
-		return NewKeystoneCloudVLM(config)
+	if providerName == provider.ProviderFMindCloud {
+		return NewFMindCloudVLM(config)
 	}
 
 	return NewRemoteAPIVLM(config)

@@ -2077,7 +2077,7 @@
       }
     },
     {
-      "id": "provider_keystonecloud",
+      "id": "provider_fmindcloud",
       "type": "rectangle",
       "x": 427,
       "y": 1410,
@@ -2096,7 +2096,7 @@
       "versionNonce": 120122,
       "isDeleted": false,
       "groupIds": [
-        "provider_keystonecloud_group"
+        "provider_fmindcloud_group"
       ],
       "boundElements": null,
       "link": null,
@@ -3636,8 +3636,8 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "Keystone · 系统架构",
-      "originalText": "Keystone · 系统架构",
+      "text": "FMind · 系统架构",
+      "originalText": "FMind · 系统架构",
       "fontSize": 32,
       "fontFamily": 3,
       "textAlign": "left",
@@ -3732,8 +3732,8 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "Keystone 核心应用 · Go / Gin · :8080",
-      "originalText": "Keystone 核心应用 · Go / Gin · :8080",
+      "text": "FMind 核心应用 · Go / Gin · :8080",
+      "originalText": "FMind 核心应用 · Go / Gin · :8080",
       "fontSize": 21,
       "fontFamily": 3,
       "textAlign": "left",
@@ -5482,7 +5482,7 @@
       "lineHeight": 1.15
     },
     {
-      "id": "provider_keystonecloud_text",
+      "id": "provider_fmindcloud_text",
       "type": "text",
       "x": 439,
       "y": 1423,
@@ -5501,13 +5501,13 @@
       "versionNonce": 120123,
       "isDeleted": false,
       "groupIds": [
-        "provider_keystonecloud_group"
+        "provider_fmindcloud_group"
       ],
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "KeystoneCloud\nQA · Emb · Rerank\nVision",
-      "originalText": "KeystoneCloud\nQA · Emb · Rerank\nVision",
+      "text": "FMindCloud\nQA · Emb · Rerank\nVision",
+      "originalText": "FMindCloud\nQA · Emb · Rerank\nVision",
       "fontSize": 13,
       "fontFamily": 3,
       "textAlign": "center",
@@ -6796,8 +6796,8 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "MCP Server · :8082→8000\n外部 Client → Keystone API",
-      "originalText": "MCP Server · :8082→8000\n外部 Client → Keystone API",
+      "text": "MCP Server · :8082→8000\n外部 Client → FMind API",
+      "originalText": "MCP Server · :8082→8000\n外部 Client → FMind API",
       "fontSize": 12,
       "fontFamily": 3,
       "textAlign": "center",
@@ -7306,8 +7306,8 @@
       "boundElements": null,
       "link": null,
       "locked": false,
-      "text": "可选 Profile；不替代 Keystone 主库、主 Redis 或对象存储",
-      "originalText": "可选 Profile；不替代 Keystone 主库、主 Redis 或对象存储",
+      "text": "可选 Profile；不替代 FMind 主库、主 Redis 或对象存储",
+      "originalText": "可选 Profile；不替代 FMind 主库、主 Redis 或对象存储",
       "fontSize": 12,
       "fontFamily": 3,
       "textAlign": "center",

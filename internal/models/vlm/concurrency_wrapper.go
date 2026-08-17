@@ -3,7 +3,7 @@ package vlm
 import (
 	"context"
 
-	"github.com/justaboyhai-wq/keystone/internal/models/limiter"
+	"github.com/justaboyhai-wq/fmind/internal/models/limiter"
 )
 
 // Multimodal enrichment (image OCR / caption) is a high-volume, slow background

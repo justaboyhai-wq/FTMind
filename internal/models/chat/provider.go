@@ -5,16 +5,16 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/models/provider"
-	modelutils "github.com/justaboyhai-wq/keystone/internal/models/utils"
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/models/provider"
+	modelutils "github.com/justaboyhai-wq/fmind/internal/models/utils"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/google/uuid"
 	"github.com/sashabaranov/go-openai"
 )
 
 // authCreds carries the credentials a providerAdapter needs to authenticate a
 // raw HTTP request. APIKey covers the common Bearer / api-key cases; AppID and
-// AppSecret are only used by signing providers (KeystoneCloud).
+// AppSecret are only used by signing providers (FMindCloud).
 type authCreds struct {
 	APIKey    string
 	AppID     string
@@ -78,19 +78,19 @@ func (baseProvider) ExtractToolCallMetadata(json.RawMessage) types.ToolCallMetad
 }
 func (baseProvider) InjectToolCallMetadata(map[string]any, types.ToolCallMetadata) {}
 
-// --- KeystoneCloud: custom endpoint + request signing + multi-content downgrade ---
+// --- FMindCloud: custom endpoint + request signing + multi-content downgrade ---
 
-type keystoneCloudProvider struct{ baseProvider }
+type fmindCloudProvider struct{ baseProvider }
 
-func (keystoneCloudProvider) Name() provider.ProviderName { return provider.ProviderKeystoneCloud }
+func (fmindCloudProvider) Name() provider.ProviderName { return provider.ProviderFMindCloud }
 
-func (keystoneCloudProvider) Endpoint(baseURL, _ string, _ bool) string {
+func (fmindCloudProvider) Endpoint(baseURL, _ string, _ bool) string {
 	return strings.TrimRight(baseURL, "/") + "/api/v1/chat/completions"
 }
 
-func (keystoneCloudProvider) ForceRawHTTP() bool { return true }
+func (fmindCloudProvider) ForceRawHTTP() bool { return true }
 
-func (keystoneCloudProvider) Auth(req *http.Request, creds authCreds, body []byte) {
+func (fmindCloudProvider) Auth(req *http.Request, creds authCreds, body []byte) {
 	requestID := uuid.NewString()
 	headers := modelutils.Sign(creds.AppID, creds.AppSecret, requestID, string(body))
 	for k, v := range headers {
@@ -100,7 +100,7 @@ func (keystoneCloudProvider) Auth(req *http.Request, creds authCreds, body []byt
 
 // TransformMessages downgrades MultiContent to plain text while preserving
 // tool_calls / tool_call_id / name so the function-calling protocol keeps working.
-func (keystoneCloudProvider) TransformMessages(messages []openai.ChatCompletionMessage) []openai.ChatCompletionMessage {
+func (fmindCloudProvider) TransformMessages(messages []openai.ChatCompletionMessage) []openai.ChatCompletionMessage {
 	result := make([]openai.ChatCompletionMessage, 0, len(messages))
 	for _, m := range messages {
 		msg := m
@@ -268,7 +268,7 @@ func shapeOpenAIReasoning(req *openai.ChatCompletionRequest) {
 // providerRegistry is ordered: more specific adapters (those with a real
 // Matches predicate) must precede the generic catch-all for the same provider.
 var providerRegistry = []providerAdapter{
-	keystoneCloudProvider{},
+	fmindCloudProvider{},
 	qwenThinkingProvider{},
 	lkeapProvider{},
 	deepseekProvider{},

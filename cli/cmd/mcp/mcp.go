@@ -1,10 +1,10 @@
-// Package mcpcmd holds the `keystone mcp` command tree.
+// Package mcpcmd holds the `fmind mcp` command tree.
 //
 // MCP (Model Context Protocol; https://spec.modelcontextprotocol.io/) is
 // the JSON-RPC 2.0 wire protocol agentic IDEs use to call external tools.
-// `keystone mcp serve` exposes a curated subset of the CLI as MCP tools so
+// `fmind mcp serve` exposes a curated subset of the CLI as MCP tools so
 // an IDE-side agent can list / view / search / chat against the user's
-// active Keystone profile without shelling out to the CLI per call. Most
+// active FMind profile without shelling out to the CLI per call. Most
 // tools are read-only; chat and session_ask create conversation/message
 // records.
 //
@@ -16,15 +16,15 @@ package mcpcmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
 )
 
-// NewCmd builds the `keystone mcp` parent. Called from cli/cmd/root.go.
+// NewCmd builds the `fmind mcp` parent. Called from cli/cmd/root.go.
 func NewCmd(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "mcp",
-		Short: "Run keystone as a Model Context Protocol server",
-		Long: `Exposes keystone's tool surface as MCP tools so any
+		Short: "Run fmind as a Model Context Protocol server",
+		Long: `Exposes fmind's tool surface as MCP tools so any
 MCP-compatible client can call them over JSON-RPC.
 
 Curated 10-tool surface: kb_list / kb_view / doc_list / doc_view /

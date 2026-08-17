@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 func TestDownloadFileFromURLBlocksRedirectToLoopback(t *testing.T) {

@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	"github.com/mark3labs/mcp-go/client/transport"
 	"github.com/redis/go-redis/v9"
 )
 
 // clientRegistrationName is sent as client_name during dynamic client
 // registration (RFC 7591).
-const clientRegistrationName = "Keystone"
+const clientRegistrationName = "FMind"
 
 // oauthCallbackTimeout bounds token exchange after the browser lands on the
 // public callback route. The Gin request context is canceled once the client

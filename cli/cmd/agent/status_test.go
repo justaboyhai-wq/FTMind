@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 type fakeAgentStatusSvc struct {

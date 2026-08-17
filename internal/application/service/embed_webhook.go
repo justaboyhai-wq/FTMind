@@ -15,9 +15,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 const embedWebhookTimeout = 5 * time.Second
@@ -91,11 +91,11 @@ func DispatchEmbedWebhook(ch *types.EmbedChannel, eventType, sessionID string, p
 			return
 		}
 		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("User-Agent", "Keystone-Embed-Webhook/1.0")
+		req.Header.Set("User-Agent", "FMind-Embed-Webhook/1.0")
 		if secret != "" {
 			mac := hmac.New(sha256.New, []byte(secret))
 			_, _ = mac.Write(raw)
-			req.Header.Set("X-Keystone-Signature", "sha256="+hex.EncodeToString(mac.Sum(nil)))
+			req.Header.Set("X-FMind-Signature", "sha256="+hex.EncodeToString(mac.Sum(nil)))
 		}
 		resp, err := newEmbedWebhookHTTPClient().Do(req)
 		if err != nil {

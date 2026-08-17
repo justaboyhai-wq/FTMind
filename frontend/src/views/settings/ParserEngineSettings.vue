@@ -166,11 +166,11 @@
         </section>
 
         <!--
-          Section 2 — 状态信息（DocReader 连接 / KeystoneCloud 凭证）
+          Section 2 — 状态信息（DocReader 连接 / FMindCloud 凭证）
           只有有内容时才渲染，避免空 section 空底部分隔线。
         -->
         <section
-          v-if="currentEngine.Name === 'builtin' || currentEngine.Name === 'keystonecloud'"
+          v-if="currentEngine.Name === 'builtin' || currentEngine.Name === 'fmindcloud'"
           class="setting-drawer__section"
         >
           <h4 class="setting-drawer__section-title">{{ $t('settings.parser.statusSection', '状态信息') }}</h4>
@@ -195,27 +195,27 @@
           </div>
 
           <!--
-            keystonecloud: 凭证状态 — 不再用大块卡片。已配置 / 加载中 / 未配置
+            fmindcloud: 凭证状态 — 不再用大块卡片。已配置 / 加载中 / 未配置
             统一用 inline alert：图标 + 一行文案 + 行尾跳转 link，体量
             匹配"一条信息"该有的样子。
           -->
-          <template v-if="currentEngine.Name === 'keystonecloud'">
+          <template v-if="currentEngine.Name === 'fmindcloud'">
             <div v-if="wkcState === 'configured'" class="inline-alert inline-alert--ok">
               <t-icon name="check-circle-filled" class="inline-alert__icon" />
-              <span>{{ $t('settings.keystoneCloud.credentialConfigured') }}</span>
+              <span>{{ $t('settings.fmindCloud.credentialConfigured') }}</span>
             </div>
             <div v-else-if="wkcState === 'loading'" class="inline-alert">
               <t-icon name="loading" class="inline-alert__icon spinning" />
-              <span>{{ $t('settings.keystoneCloud.checkingStatus') }}</span>
+              <span>{{ $t('settings.fmindCloud.checkingStatus') }}</span>
             </div>
             <div v-else class="inline-alert inline-alert--warn">
               <t-icon name="error-circle-filled" class="inline-alert__icon" />
               <span class="inline-alert__text">
-                <span v-if="wkcState === 'expired'">{{ $t('settings.keystoneCloud.credentialExpired') }}</span>
-                <span v-else>{{ $t('settings.keystoneCloud.unconfigured') }}</span>
+                <span v-if="wkcState === 'expired'">{{ $t('settings.fmindCloud.credentialExpired') }}</span>
+                <span v-else>{{ $t('settings.fmindCloud.unconfigured') }}</span>
               </span>
               <a class="inline-alert__action" @click="goToWkcSettings">
-                {{ $t('settings.keystoneCloud.goToSettings') }}
+                {{ $t('settings.fmindCloud.goToSettings') }}
                 <t-icon name="chevron-right" />
               </a>
             </div>
@@ -384,7 +384,7 @@ import {
   type ParserEngineInfo,
   type ParserEngineConfig,
 } from '@/api/system'
-import { getKeystoneCloudStatus } from '@/api/model'
+import { getFMindCloudStatus } from '@/api/model'
 
 const { t } = useI18n()
 const uiStore = useUIStore()
@@ -394,7 +394,7 @@ const CONFIGURABLE_ENGINES = new Set(['mineru', 'mineru_cloud', 'paddleocr_vl', 
 
 /** 各解析引擎的项目/官方文档地址 */
 const ENGINE_DOC_LINKS: Record<string, string> = {
-  keystonecloud: 'https://developers.weixin.qq.com/doc/aispeech/knowledge/atomic_capability/atomic_interface.html',
+  fmindcloud: 'https://developers.weixin.qq.com/doc/aispeech/knowledge/atomic_capability/atomic_interface.html',
   markitdown: 'https://github.com/microsoft/markitdown',
   mineru: 'https://github.com/opendatalab/MinerU',
   mineru_cloud: 'https://mineru.net/apiManage/docs',
@@ -523,7 +523,7 @@ function openDrawer(engine: ParserEngineInfo) {
 async function loadEngines() {
   try {
     const res = await getParserEngines()
-    engines.value = (res?.data ?? []).filter((engine) => engine.Name !== 'keystonecloud')
+    engines.value = (res?.data ?? []).filter((engine) => engine.Name !== 'fmindcloud')
     docreaderAddrEnv.value = res?.docreader_addr ?? ''
     const transport = (res?.docreader_transport ?? 'grpc').toLowerCase()
     docreaderTransport.value = transport === 'http' ? 'http' : 'grpc'
@@ -672,13 +672,13 @@ async function onSave() {
   }
 }
 
-// ---- KeystoneCloud 凭证状态 ----
+// ---- FMindCloud 凭证状态 ----
 const wkcState = ref<'loading' | 'unconfigured' | 'configured' | 'expired'>('loading')
 
 async function checkWkcStatus() {
   wkcState.value = 'loading'
   try {
-    const status = await getKeystoneCloudStatus()
+    const status = await getFMindCloudStatus()
     if (status.needs_reinit) {
       wkcState.value = 'expired'
     } else if (status.has_models) {
@@ -696,7 +696,7 @@ async function goToWkcSettings() {
     uiStore.closeSettings()
     await nextTick()
   }
-  uiStore.openSettings('keystonecloud')
+  uiStore.openSettings('fmindcloud')
 }
 
 onMounted(loadAll)
@@ -802,9 +802,9 @@ onMounted(loadAll)
   color: #0052D9;
 }
 
-// 解析引擎徽章配色 —— 内置引擎使用 Keystone 品牌色，外部工具保留各自识别色。
+// 解析引擎徽章配色 —— 内置引擎使用 FMind 品牌色，外部工具保留各自识别色。
 .engine-card--builtin .engine-card__badge,
-.engine-card--keystonecloud .engine-card__badge {
+.engine-card--fmindcloud .engine-card__badge {
   background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
   color: var(--td-brand-color);
 }
@@ -900,7 +900,7 @@ onMounted(loadAll)
 }
 
 // ---- 抽屉内容 — 与 ModelEditorDialog 同款约定 ----
-// .form-item / .form-label / .form-desc / .keystonecloud-hint / .api-test
+// .form-item / .form-label / .form-desc / .fmindcloud-hint / .api-test
 // 参照 frontend/src/components/ModelEditorDialog.vue 的命名与字号/间距
 .form-item {
   margin-bottom: 0;
@@ -998,7 +998,7 @@ onMounted(loadAll)
   letter-spacing: 0.02em;
 }
 
-// ---- Inline alert（替代之前的 .keystonecloud-hint 卡片） ----
+// ---- Inline alert（替代之前的 .fmindcloud-hint 卡片） ----
 // 一行内表达 "状态信号 + 一句话 + 跳转 link"，无外框/无 3px 左边，
 // 视觉重量与一行文字相当，section 内不会再被一个独立卡片打断。
 .inline-alert {
@@ -1153,7 +1153,7 @@ onMounted(loadAll)
 -->
 <style lang="less">
 .parser-engine-drawer--builtin .setting-drawer__header-icon,
-.parser-engine-drawer--keystonecloud .setting-drawer__header-icon {
+.parser-engine-drawer--fmindcloud .setting-drawer__header-icon {
   background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
   color: var(--td-brand-color);
 }

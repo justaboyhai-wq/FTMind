@@ -9,32 +9,32 @@ ParadeDB provides vector search and BM25 full-text search capabilities.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "keystone.fullname" . }}-postgres
+  name: {{ include "fmind.fullname" . }}-postgres
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "keystone.componentLabels" (dict "component" "database" "context" .) | nindent 4 }}
+    {{- include "fmind.componentLabels" (dict "component" "database" "context" .) | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "keystone.componentSelectorLabels" (dict "component" "database" "context" .) | nindent 6 }}
+      {{- include "fmind.componentSelectorLabels" (dict "component" "database" "context" .) | nindent 6 }}
   # Use Recreate strategy for database to avoid data corruption
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        {{- include "keystone.componentSelectorLabels" (dict "component" "database" "context" .) | nindent 8 }}
+        {{- include "fmind.componentSelectorLabels" (dict "component" "database" "context" .) | nindent 8 }}
     spec:
-      {{- include "keystone.imagePullSecrets" . | nindent 6 }}
-      serviceAccountName: {{ include "keystone.serviceAccountName" . }}
+      {{- include "fmind.imagePullSecrets" . | nindent 6 }}
+      serviceAccountName: {{ include "fmind.serviceAccountName" . }}
       {{- with .Values.global.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: postgres
-          image: {{ include "keystone.postgresql.image" . }}
+          image: {{ include "fmind.postgresql.image" . }}
           imagePullPolicy: IfNotPresent
           {{- with .Values.postgresql.securityContext }}
           securityContext:
@@ -48,17 +48,17 @@ spec:
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "keystone.secretName" . }}
+                  name: {{ include "fmind.secretName" . }}
                   key: DB_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "keystone.secretName" . }}
+                  name: {{ include "fmind.secretName" . }}
                   key: DB_PASSWORD
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "keystone.secretName" . }}
+                  name: {{ include "fmind.secretName" . }}
                   key: DB_NAME
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
@@ -91,7 +91,7 @@ spec:
         - name: postgres-data
           {{- if .Values.postgresql.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ .Values.postgresql.persistence.existingClaim | default (printf "%s-postgres" (include "keystone.fullname" .)) }}
+            claimName: {{ .Values.postgresql.persistence.existingClaim | default (printf "%s-postgres" (include "fmind.fullname" .)) }}
           {{- else }}
           emptyDir: {}
           {{- end }}
@@ -115,11 +115,11 @@ metadata:
   name: postgres
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "keystone.componentLabels" (dict "component" "database" "context" .) | nindent 4 }}
+    {{- include "fmind.componentLabels" (dict "component" "database" "context" .) | nindent 4 }}
 spec:
   type: ClusterIP
   selector:
-    {{- include "keystone.componentSelectorLabels" (dict "component" "database" "context" .) | nindent 4 }}
+    {{- include "fmind.componentSelectorLabels" (dict "component" "database" "context" .) | nindent 4 }}
   ports:
     - name: postgresql
       port: 5432

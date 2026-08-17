@@ -1,4 +1,4 @@
-// resume.go implements `keystone session resume` —
+// resume.go implements `fmind session resume` —
 // re-attach to an SSE event buffer for an in-progress or already-completed
 // assistant message under a known session_id.
 //
@@ -14,7 +14,7 @@
 //     After TTL the server returns an error which the CLI maps to
 //     local.sse_stream_aborted.
 //
-// Output shape matches `keystone chat` and `keystone session ask` NDJSON mode:
+// Output shape matches `fmind chat` and `fmind session ask` NDJSON mode:
 // one CLI-injected init line carrying {session_id, message_id, profile} at
 // stream head, then SDK StreamResponse events verbatim. The init line lets
 // agents thread the resume to the original message in their dedupe table
@@ -26,10 +26,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/output"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/output"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // resumeFields enumerates the NDJSON init-event + raw SDK event
@@ -54,7 +54,7 @@ type ResumeService interface {
 	ContinueStream(ctx context.Context, sessionID, messageID string, cb func(*sdk.StreamResponse) error) error
 }
 
-// NewCmdResume builds `keystone session resume <session-id> --message <id>`.
+// NewCmdResume builds `fmind session resume <session-id> --message <id>`.
 func NewCmdResume(f *cmdutil.Factory) *cobra.Command {
 	opts := &ResumeOptions{}
 	cmd := &cobra.Command{
@@ -90,8 +90,8 @@ regardless of --format value. The operator use case (incident response,
 debugging) always wants the raw event log; there is no human-text rendering.
 --format json and --format ndjson behave identically here; --format text is
 silently treated as NDJSON.`,
-		Example: `  keystone session resume sess_xyz --message msg_abc
-  keystone session resume sess_xyz -m msg_abc --format ndjson`,
+		Example: `  fmind session resume sess_xyz --message msg_abc
+  fmind session resume sess_xyz -m msg_abc --format ndjson`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			opts.SessionID = args[0]
@@ -113,10 +113,10 @@ silently treated as NDJSON.`,
 	cmdutil.AddFormatFlag(cmd, resumeFields...)
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:       "Resume an SSE event stream for an in-progress or completed assistant message. Produces an NDJSON event stream: init line (session_id, message_id) then raw SDK StreamResponse events.",
-		RequiredFlags: []string{"<session-id> (positional)", "--message (persisted assistant message id — get it from `keystone message list --session <id>`; a live stream's assistant_message_id is not resumable once the message persists)"},
+		RequiredFlags: []string{"<session-id> (positional)", "--message (persisted assistant message id — get it from `fmind message list --session <id>`; a live stream's assistant_message_id is not resumable once the message persists)"},
 		Examples: []string{
-			"keystone session resume sess_xyz --message msg_abc --format json",
-			"# Get the message id from: keystone message list --session <session-id> (the persisted assistant message)",
+			"fmind session resume sess_xyz --message msg_abc --format json",
+			"# Get the message id from: fmind message list --session <session-id> (the persisted assistant message)",
 		},
 		Output: "NDJSON stream: {type:init, session_id, message_id, profile} then SDK StreamResponse events (response_type, content, done, knowledge_references, assistant_message_id, ...)",
 		Warnings: []string{

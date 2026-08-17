@@ -5,16 +5,16 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/config"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/config"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
 )
 
 // profileUseFields enumerates fields surfaced for `--format json` discovery on
 // `profile use`.
 var profileUseFields = []string{"current_profile", "previous_profile"}
 
-// NewCmdUse builds the `keystone profile use <name>` command.
+// NewCmdUse builds the `fmind profile use <name>` command.
 func NewCmdUse(f *cmdutil.Factory) *cobra.Command {
 	var dryRun bool
 	cmd := &cobra.Command{
@@ -23,15 +23,15 @@ func NewCmdUse(f *cmdutil.Factory) *cobra.Command {
 		Long: `Switches the default profile written in config.yaml. Names are case-sensitive.
 
 The active profile is what every subsequent command uses for auth + host. The
-global --profile flag (e.g. keystone --profile staging kb list) overrides for
+global --profile flag (e.g. fmind --profile staging kb list) overrides for
 one command without writing to disk.
 
 AI agents: Do NOT switch the active profile unless the user explicitly asked
 you to. Profile selection is a user preference; one-shot overrides should use
 the global --profile flag instead, which writes nothing to disk.`,
-		Example: `  keystone profile use staging               # persist switch
-  keystone --profile staging kb list         # one-shot override (no disk write)
-  keystone profile use staging --format json        # {current_profile, previous_profile}`,
+		Example: `  fmind profile use staging               # persist switch
+  fmind --profile staging kb list         # one-shot override (no disk write)
+  fmind profile use staging --format json        # {current_profile, previous_profile}`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			fopts, err := cmdutil.CheckFormatFlag(c)
@@ -53,7 +53,7 @@ the global --profile flag instead, which writes nothing to disk.`,
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:       "switch the default profile for subsequent commands (persists to config)",
 		RequiredFlags: []string{"<name> (positional)"},
-		Examples:      []string{"keystone profile use staging"},
+		Examples:      []string{"fmind profile use staging"},
 		Output:        "envelope.data confirms the now-active profile",
 	})
 	return cmd
@@ -94,7 +94,7 @@ func notFoundError(name string, cfg *config.Config) error {
 		return &cmdutil.Error{
 			Code:    cmdutil.CodeLocalProfileNotFound,
 			Message: fmt.Sprintf("profile not found: %s", name),
-			Hint:    "no profiles registered - run `keystone auth login` first",
+			Hint:    "no profiles registered - run `fmind auth login` first",
 		}
 	}
 	keys := profileKeys(cfg.Profiles)

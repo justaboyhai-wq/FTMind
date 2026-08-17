@@ -17,7 +17,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/output"
+	"github.com/justaboyhai-wq/fmind/cli/internal/output"
 )
 
 // BatchOutcome is one per-target result preserving argv order. Err==nil ⇒ success.

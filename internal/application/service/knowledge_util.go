@@ -12,11 +12,11 @@ import (
 	"strings"
 	"time"
 
-	filesvc "github.com/justaboyhai-wq/keystone/internal/application/service/file"
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	filesvc "github.com/justaboyhai-wq/fmind/internal/application/service/file"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 // isValidFileType checks if a file type is supported
@@ -374,7 +374,7 @@ func downloadFileFromURL(ctx context.Context, fileURL string, payloadFileName, p
 	}
 
 	// Stream response body into a temp file, capped at maxFileURLSize
-	tmpFile, err := os.CreateTemp("", "keystone-fileurl-*")
+	tmpFile, err := os.CreateTemp("", "fmind-fileurl-*")
 	if err != nil {
 		return nil, fmt.Errorf("failed to create temp file: %w", err)
 	}

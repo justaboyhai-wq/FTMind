@@ -4,7 +4,7 @@ import (
 	"maps"
 	"slices"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // VectorEmbedding defines the Elasticsearch document structure for vector embeddings

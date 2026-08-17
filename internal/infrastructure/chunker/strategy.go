@@ -11,7 +11,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
 )
 
 // Strategy values for SplitterConfig.Strategy.

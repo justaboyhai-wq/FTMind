@@ -7,9 +7,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 type ConfigSetOptions struct {
@@ -28,7 +28,7 @@ type ConfigSetService interface {
 }
 
 // newKBModelWriteCmd builds the `kb config set` model-binding write command.
-// head is the argv prefix used for the risk action and retry_argv (keystone kb
+// head is the argv prefix used for the risk action and retry_argv (fmind kb
 // config set).
 func newKBModelWriteCmd(f *cmdutil.Factory, use string, head []string) *cobra.Command {
 	opts := &ConfigSetOptions{}
@@ -39,7 +39,7 @@ func newKBModelWriteCmd(f *cmdutil.Factory, use string, head []string) *cobra.Co
 		Long: `Bind already-registered models to a knowledge base so it can embed, retrieve,
 and generate. Both --chat-model (LLM, used for generation/summary) and
 --embedding-model (used for retrieval) are required; register models first with
-'keystone model create' and discover ids with 'keystone model list'.
+'fmind model create' and discover ids with 'fmind model list'.
 
 High-risk write: changing a KB's embedding model affects how its content is
 indexed and searched (the server refuses to CHANGE it once the KB has
@@ -87,16 +87,16 @@ applying the change.`,
 			return runConfigSet(c.Context(), opts, fopts, cli, kbID)
 		},
 	}
-	cmd.Flags().StringVar(&opts.ChatModel, "chat-model", "", "Chat / LLM model id or name for generation & summary (required) — see `keystone model list`")
-	cmd.Flags().StringVar(&opts.EmbeddingModel, "embedding-model", "", "Embedding model id or name for retrieval (required) — see `keystone model list`")
+	cmd.Flags().StringVar(&opts.ChatModel, "chat-model", "", "Chat / LLM model id or name for generation & summary (required) — see `fmind model list`")
+	cmd.Flags().StringVar(&opts.EmbeddingModel, "embedding-model", "", "Embedding model id or name for retrieval (required) — see `fmind model list`")
 	cmdutil.AddFormatFlag(cmd, kbConfigFields...)
 	cmdutil.AddDryRunFlag(cmd, &opts.DryRun)
 	cmdutil.SetRisk(cmd, action)
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
-		UsedFor:       "bind models to a KB so it becomes retrieval-ready. --chat-model and --embedding-model are required and accept a model id or name; discover them with `keystone model list`. Read the result back with `keystone kb config`.",
+		UsedFor:       "bind models to a KB so it becomes retrieval-ready. --chat-model and --embedding-model are required and accept a model id or name; discover them with `fmind model list`. Read the result back with `fmind kb config`.",
 		RequiredFlags: []string{"<kb-id> (positional)", "--chat-model", "--embedding-model"},
 		Examples: []string{
-			"keystone kb config set kb_abc --chat-model model_llm --embedding-model model_emb -y",
+			"fmind kb config set kb_abc --chat-model model_llm --embedding-model model_emb -y",
 		},
 		Output: "envelope.data is the resulting secret-free config view {retrieval_ready, embedding, llm, rerank, multimodal}",
 		Warnings: []string{
@@ -121,7 +121,7 @@ func validateConfigSetFlags(opts *ConfigSetOptions) error {
 	return &cmdutil.Error{
 		Code:    cmdutil.CodeInputMissingFlag,
 		Message: "kb config set requires " + strings.Join(missing, " and "),
-		Hint:    "discover model ids with `keystone model list` (or register one with `keystone model create`), then pass --chat-model <id> --embedding-model <id>",
+		Hint:    "discover model ids with `fmind model list` (or register one with `fmind model create`), then pass --chat-model <id> --embedding-model <id>",
 	}
 }
 

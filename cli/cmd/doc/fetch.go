@@ -1,4 +1,4 @@
-// Package doc — fetch.go implements `keystone doc fetch <url>`.
+// Package doc — fetch.go implements `fmind doc fetch <url>`.
 package doc
 
 import (
@@ -8,9 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // docFetchFields enumerates the fields surfaced for `--format json` discovery
@@ -45,7 +45,7 @@ type FetchService interface {
 	) (*sdk.Knowledge, error)
 }
 
-// NewCmdFetch builds `keystone doc fetch <url>`.
+// NewCmdFetch builds `fmind doc fetch <url>`.
 func NewCmdFetch(f *cmdutil.Factory) *cobra.Command {
 	opts := &FetchOptions{}
 	cmd := &cobra.Command{
@@ -53,7 +53,7 @@ func NewCmdFetch(f *cmdutil.Factory) *cobra.Command {
 		Short: "Fetch a remote document into a knowledge base",
 		Long: `Server fetches the document at the given URL and ingests it into the resolved
 knowledge base. KB resolution follows the standard 4-level chain:
---kb flag > KEYSTONE_KB_ID env > .keystone/project.yaml > error.
+--kb flag > FMIND_KB_ID env > .fmind/project.yaml > error.
 
 When the URL has a known file extension (.pdf, .docx, .md, .txt) the server
 automatically switches from web-page-crawl mode to file-download mode. Pass
@@ -71,10 +71,10 @@ Server-side ingestion knobs:
   --enable-multimodel      Toggle multimodal extraction (image-in-PDF → text).
                            Unset ⇒ server default; pass true or false to override.
   --channel <name>         Override the ingestion-channel tag (default "api").`,
-		Example: `  keystone doc fetch https://example.com/whitepaper.pdf
-  keystone doc fetch https://example.com/no-ext --file-type pdf --title "Whitepaper"
-  keystone doc fetch https://example.com/article.html --name "Q3 Article" --tag-id tag_abc
-  keystone doc fetch https://example.com/report.pdf --kb my-kb --enable-multimodel`,
+		Example: `  fmind doc fetch https://example.com/whitepaper.pdf
+  fmind doc fetch https://example.com/no-ext --file-type pdf --title "Whitepaper"
+  fmind doc fetch https://example.com/article.html --name "Q3 Article" --tag-id tag_abc
+  fmind doc fetch https://example.com/report.pdf --kb my-kb --enable-multimodel`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			opts.URL = args[0]
@@ -135,10 +135,10 @@ Server-side ingestion knobs:
 	cmdutil.AddFormatFlag(cmd, docFetchFields...)
 	cmdutil.AddDryRunFlag(cmd, &opts.DryRun)
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
-		UsedFor:       "Ingest a remote URL into the resolved knowledge base. KB resolved via --kb flag, KEYSTONE_KB_ID env, or project link. Emits the created Knowledge object with its id.",
-		RequiredFlags: []string{"<url> (positional)", "--kb (or KEYSTONE_KB_ID / project link)"},
+		UsedFor:       "Ingest a remote URL into the resolved knowledge base. KB resolved via --kb flag, FMIND_KB_ID env, or project link. Emits the created Knowledge object with its id.",
+		RequiredFlags: []string{"<url> (positional)", "--kb (or FMIND_KB_ID / project link)"},
 		Examples: []string{
-			`keystone doc fetch https://example.com/whitepaper.pdf --kb kb_eng`,
+			`fmind doc fetch https://example.com/whitepaper.pdf --kb kb_eng`,
 		},
 		Output: "envelope.data is the created Knowledge object with id, knowledge_base_id, source, parse_status",
 	})

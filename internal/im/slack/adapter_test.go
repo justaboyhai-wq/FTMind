@@ -3,7 +3,7 @@ package slack
 import (
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/im"
+	"github.com/justaboyhai-wq/fmind/internal/im"
 	slacklib "github.com/slack-go/slack"
 )
 

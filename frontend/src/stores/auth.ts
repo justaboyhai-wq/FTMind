@@ -132,7 +132,7 @@ export const useAuthStore = defineStore('auth', () => {
   // UI to a Viewer who switched into a tenant where they were a Viewer
   // — every gate above (`hasRole(...)`) returned the home-tenant role.
   //
-  // SECURITY: This value is read from localStorage (`keystone_memberships`)
+  // SECURITY: This value is read from localStorage (`fmind_memberships`)
   // and therefore MUST be treated as UI-rendering-only — any user can
   // tamper with localStorage and grant themselves "owner" here. All real
   // authorisation decisions live on the server (auth middleware resolves
@@ -188,7 +188,7 @@ export const useAuthStore = defineStore('auth', () => {
     const previousId = user.value?.id
     user.value = userData
     // 保存到localStorage
-    localStorage.setItem('keystone_user', JSON.stringify(userData))
+    localStorage.setItem('fmind_user', JSON.stringify(userData))
     if (previousId !== userData.id) {
       reloadUserPreferences()
     }
@@ -208,35 +208,35 @@ export const useAuthStore = defineStore('auth', () => {
   const setTenant = (tenantData: TenantInfo | null) => {
     tenant.value = tenantData
     if (tenantData) {
-      localStorage.setItem('keystone_tenant', JSON.stringify(tenantData))
+      localStorage.setItem('fmind_tenant', JSON.stringify(tenantData))
     } else {
-      localStorage.removeItem('keystone_tenant')
+      localStorage.removeItem('fmind_tenant')
       setSelectedTenant(null, null)
     }
   }
 
   const setToken = (tokenValue: string) => {
     token.value = tokenValue
-    localStorage.setItem('keystone_token', tokenValue)
+    localStorage.setItem('fmind_token', tokenValue)
   }
 
   const setRefreshToken = (refreshTokenValue: string) => {
     refreshToken.value = refreshTokenValue
-    localStorage.setItem('keystone_refresh_token', refreshTokenValue)
+    localStorage.setItem('fmind_refresh_token', refreshTokenValue)
   }
 
   const setKnowledgeBases = (kbList: KnowledgeBaseInfo[]) => {
     // 确保输入是数组
     knowledgeBases.value = Array.isArray(kbList) ? kbList : []
-    localStorage.setItem('keystone_knowledge_bases', JSON.stringify(knowledgeBases.value))
+    localStorage.setItem('fmind_knowledge_bases', JSON.stringify(knowledgeBases.value))
   }
 
   const setCurrentKnowledgeBase = (kb: KnowledgeBaseInfo | null) => {
     currentKnowledgeBase.value = kb
     if (kb) {
-      localStorage.setItem('keystone_current_kb', JSON.stringify(kb))
+      localStorage.setItem('fmind_current_kb', JSON.stringify(kb))
     } else {
-      localStorage.removeItem('keystone_current_kb')
+      localStorage.removeItem('fmind_current_kb')
     }
   }
 
@@ -248,9 +248,9 @@ export const useAuthStore = defineStore('auth', () => {
   // only on an actual tenant change, so logout / init paths are not touched.
   const clearTenantScopedClientState = () => {
     try {
-      localStorage.removeItem('keystone_last_chat_model_id')
-      localStorage.removeItem('keystone_current_kb')
-      const raw = localStorage.getItem('Keystone_settings')
+      localStorage.removeItem('fmind_last_chat_model_id')
+      localStorage.removeItem('fmind_current_kb')
+      const raw = localStorage.getItem('FMind_settings')
       if (raw) {
         const parsed = JSON.parse(raw)
         if (parsed && typeof parsed === 'object') {
@@ -266,7 +266,7 @@ export const useAuthStore = defineStore('auth', () => {
           parsed.selectedFiles = []
           parsed.selectedFileKbMap = {}
           parsed.knowledgeBaseId = ''
-          localStorage.setItem('Keystone_settings', JSON.stringify(parsed))
+          localStorage.setItem('FMind_settings', JSON.stringify(parsed))
         }
       }
     } catch (e) {
@@ -281,13 +281,13 @@ export const useAuthStore = defineStore('auth', () => {
     selectedTenantId.value = tenantId
     selectedTenantName.value = tenantName
     if (tenantId !== null) {
-      localStorage.setItem('keystone_selected_tenant_id', String(tenantId))
+      localStorage.setItem('fmind_selected_tenant_id', String(tenantId))
       if (tenantName) {
-        localStorage.setItem('keystone_selected_tenant_name', tenantName)
+        localStorage.setItem('fmind_selected_tenant_name', tenantName)
       }
     } else {
-      localStorage.removeItem('keystone_selected_tenant_id')
-      localStorage.removeItem('keystone_selected_tenant_name')
+      localStorage.removeItem('fmind_selected_tenant_id')
+      localStorage.removeItem('fmind_selected_tenant_name')
     }
     if (tenantChanged) {
       clearTenantScopedClientState()
@@ -302,7 +302,7 @@ export const useAuthStore = defineStore('auth', () => {
     list: Array<{ tenant_id: number; tenant_name?: string; role: string }>
   ) => {
     memberships.value = Array.isArray(list) ? list : []
-    localStorage.setItem('keystone_memberships', JSON.stringify(memberships.value))
+    localStorage.setItem('fmind_memberships', JSON.stringify(memberships.value))
   }
 
   // setPendingInvitationCount is the explicit setter used by the
@@ -392,9 +392,9 @@ export const useAuthStore = defineStore('auth', () => {
   const setLiteMode = (value: boolean) => {
     isLiteMode.value = value
     if (value) {
-      localStorage.setItem('keystone_lite_mode', 'true')
+      localStorage.setItem('fmind_lite_mode', 'true')
     } else {
-      localStorage.removeItem('keystone_lite_mode')
+      localStorage.removeItem('fmind_lite_mode')
     }
   }
 
@@ -415,19 +415,19 @@ export const useAuthStore = defineStore('auth', () => {
     clearSessionResourceCaches()
 
     // 清空localStorage
-    localStorage.removeItem('keystone_user')
-    localStorage.removeItem('keystone_tenant')
-    localStorage.removeItem('keystone_token')
-    localStorage.removeItem('keystone_refresh_token')
-    localStorage.removeItem('keystone_knowledge_bases')
-    localStorage.removeItem('keystone_current_kb')
-    localStorage.removeItem('keystone_selected_tenant_id')
-    localStorage.removeItem('keystone_selected_tenant_name')
-    localStorage.removeItem('keystone_memberships')
-    localStorage.removeItem('keystone_lite_mode')
+    localStorage.removeItem('fmind_user')
+    localStorage.removeItem('fmind_tenant')
+    localStorage.removeItem('fmind_token')
+    localStorage.removeItem('fmind_refresh_token')
+    localStorage.removeItem('fmind_knowledge_bases')
+    localStorage.removeItem('fmind_current_kb')
+    localStorage.removeItem('fmind_selected_tenant_id')
+    localStorage.removeItem('fmind_selected_tenant_name')
+    localStorage.removeItem('fmind_memberships')
+    localStorage.removeItem('fmind_lite_mode')
     isLiteMode.value = false
     try {
-      sessionStorage.removeItem('keystone_lite_last_path')
+      sessionStorage.removeItem('fmind_lite_last_path')
     } catch {
       /* ignore */
     }
@@ -436,14 +436,14 @@ export const useAuthStore = defineStore('auth', () => {
 
   const initFromStorage = () => {
     // 从localStorage恢复状态
-    const storedUser = localStorage.getItem('keystone_user')
-    const storedTenant = localStorage.getItem('keystone_tenant')
-    const storedToken = localStorage.getItem('keystone_token')
-    const storedRefreshToken = localStorage.getItem('keystone_refresh_token')
-    const storedKnowledgeBases = localStorage.getItem('keystone_knowledge_bases')
-    const storedCurrentKb = localStorage.getItem('keystone_current_kb')
-    const storedSelectedTenantId = localStorage.getItem('keystone_selected_tenant_id')
-    const storedSelectedTenantName = localStorage.getItem('keystone_selected_tenant_name')
+    const storedUser = localStorage.getItem('fmind_user')
+    const storedTenant = localStorage.getItem('fmind_tenant')
+    const storedToken = localStorage.getItem('fmind_token')
+    const storedRefreshToken = localStorage.getItem('fmind_refresh_token')
+    const storedKnowledgeBases = localStorage.getItem('fmind_knowledge_bases')
+    const storedCurrentKb = localStorage.getItem('fmind_current_kb')
+    const storedSelectedTenantId = localStorage.getItem('fmind_selected_tenant_id')
+    const storedSelectedTenantName = localStorage.getItem('fmind_selected_tenant_name')
 
     if (storedUser) {
       try {
@@ -504,7 +504,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
     }
 
-    const storedMemberships = localStorage.getItem('keystone_memberships')
+    const storedMemberships = localStorage.getItem('fmind_memberships')
     if (storedMemberships) {
       try {
         const parsed = JSON.parse(storedMemberships)
@@ -515,7 +515,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
     }
 
-    isLiteMode.value = localStorage.getItem('keystone_lite_mode') === 'true'
+    isLiteMode.value = localStorage.getItem('fmind_lite_mode') === 'true'
   }
 
   // 初始化时从localStorage恢复状态

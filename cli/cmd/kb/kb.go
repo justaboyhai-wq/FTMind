@@ -1,16 +1,16 @@
-// Package kb holds the `keystone kb` command tree: list / view / create /
+// Package kb holds the `fmind kb` command tree: list / view / create /
 // update / delete / pin / unpin. Verb set follows common CRUD vocabulary
 // (list/view/create/update/delete) plus pin/unpin. Bulk content deletion
-// is exposed via `keystone doc delete --all --kb=<id>`.
+// is exposed via `fmind doc delete --all --kb=<id>`.
 package kb
 
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
 )
 
-// NewCmd builds the `keystone kb` parent command.
+// NewCmd builds the `fmind kb` parent command.
 func NewCmd(f *cmdutil.Factory) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "kb",

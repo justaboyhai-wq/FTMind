@@ -9,7 +9,7 @@ import (
 
 	osapi "github.com/opensearch-project/opensearch-go/v4/opensearchapi"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // clusterHandler serves both GET / (version info) and /_cat/plugins, so the

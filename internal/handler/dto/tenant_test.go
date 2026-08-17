@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -66,7 +66,7 @@ func sampleSecretTenant() *types.Tenant {
 			ProxyURL: "http://proxy.internal:8080",
 		},
 		Credentials: &types.CredentialsConfig{
-			KeystoneCloud: &types.KeystoneCloudCredentials{
+			FMindCloud: &types.FMindCloudCredentials{
 				AppID:     "wk-app-id-abc",
 				AppSecret: "wk-app-secret-def",
 			},

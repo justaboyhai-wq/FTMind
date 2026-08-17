@@ -1,7 +1,7 @@
 package token
 
 import (
-	"github.com/justaboyhai-wq/keystone/internal/models/chat"
+	"github.com/justaboyhai-wq/fmind/internal/models/chat"
 )
 
 // DefaultContextThresholdRatio is the ratio of context window usage that triggers compression.

@@ -9,9 +9,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // EditService is the narrow SDK surface this command depends on. The fetch
@@ -92,13 +92,13 @@ with input.confirmation_required. Surface the prompt to the user and only
 retry with -y after explicit approval. Other failure codes: resource.not_found
 (agent id or KB id), auth.forbidden, input.invalid_argument (no flags, bad file).`
 
-const agentEditExample = `  keystone agent update ag_abc --name "Renamed" -y
-  keystone agent update ag_abc --description "" -y              # clear description
-  keystone agent update ag_abc --add-kb kb_new --remove-kb kb_old -y
-  keystone agent update ag_abc --system-prompt-file ./prompt.md -y
-  keystone agent update ag_abc --config-file ./tuned.yaml --temperature 0.9 -y`
+const agentEditExample = `  fmind agent update ag_abc --name "Renamed" -y
+  fmind agent update ag_abc --description "" -y              # clear description
+  fmind agent update ag_abc --add-kb kb_new --remove-kb kb_old -y
+  fmind agent update ag_abc --system-prompt-file ./prompt.md -y
+  fmind agent update ag_abc --config-file ./tuned.yaml --temperature 0.9 -y`
 
-// NewCmdEdit builds `keystone agent update <agent-id>`.
+// NewCmdEdit builds `fmind agent update <agent-id>`.
 func NewCmdEdit(f *cmdutil.Factory) *cobra.Command {
 	opts := &EditOptions{}
 	var systemPromptFile, configFile string
@@ -219,7 +219,7 @@ func NewCmdEdit(f *cmdutil.Factory) *cobra.Command {
 			// Build the retry command from the flags the user actually passed.
 			// --add-kb/--remove-kb/--system-prompt-file/--config-file are excluded
 			// (multi-value / file-based — a precise single argv is impractical).
-			retryCmd := cmdutil.BuildRetryArgv(cmd, []string{"keystone", "agent", "update", opts.AgentID},
+			retryCmd := cmdutil.BuildRetryArgv(cmd, []string{"fmind", "agent", "update", opts.AgentID},
 				"name", "description", "model", "system-prompt", "agent-mode",
 				"rerank-model", "temperature", "kb-selection-mode", "format")
 			if err := cmdutil.ConfirmWrite(f.Prompter(), yes, fopts.WantsJSON(), "update", "agent", opts.AgentID, "agent.update", retryCmd); err != nil {
@@ -271,9 +271,9 @@ func NewCmdEdit(f *cmdutil.Factory) *cobra.Command {
 		UsedFor:       "surgically update a custom agent's configuration",
 		RequiredFlags: []string{"<agent-id> (positional)", "at least one update flag (--name, --add-kb, etc.)"},
 		Examples: []string{
-			"keystone agent update ag_abc --name \"Renamed\"",
-			"keystone agent update ag_abc --add-kb kb_new --remove-kb kb_old",
-			"keystone agent update ag_abc --config-file ./tuned.yaml",
+			"fmind agent update ag_abc --name \"Renamed\"",
+			"fmind agent update ag_abc --add-kb kb_new --remove-kb kb_old",
+			"fmind agent update ag_abc --config-file ./tuned.yaml",
 		},
 		Output: "envelope.data is the updated Agent object (id, name, config) after the update is applied",
 		Warnings: []string{

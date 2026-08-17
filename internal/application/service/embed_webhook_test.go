@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	secutils "github.com/justaboyhai-wq/keystone/internal/utils"
+	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
 )
 
 func TestValidateEmbedWebhookURL(t *testing.T) {
@@ -15,7 +15,7 @@ func TestValidateEmbedWebhookURL(t *testing.T) {
 	if err := ValidateEmbedWebhookURL(""); err != nil {
 		t.Fatalf("empty URL should be allowed: %v", err)
 	}
-	if err := ValidateEmbedWebhookURL("https://hooks.example.com/keystone/events"); err != nil {
+	if err := ValidateEmbedWebhookURL("https://hooks.example.com/fmind/events"); err != nil {
 		t.Fatalf("whitelisted public https URL should pass: %v", err)
 	}
 	if err := ValidateEmbedWebhookURL("ftp://hooks.example.com/x"); err == nil {

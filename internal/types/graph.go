@@ -1,4 +1,4 @@
-// Package types defines the core data structures and interfaces used throughout the Keystone system.
+// Package types defines the core data structures and interfaces used throughout the FMind system.
 package types
 
 import "context"

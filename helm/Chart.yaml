@@ -1,16 +1,16 @@
 apiVersion: v2
-name: keystone
+name: fmind
 description: |
-  Keystone - AI-powered Knowledge RAG Platform for building intelligent knowledge bases
+  FMind - AI-powered Knowledge RAG Platform for building intelligent knowledge bases
   with document parsing, vector search, and LLM integration.
 type: application
 version: 0.1.0
 appVersion: "v0.6.3"
 kubeVersion: ">=1.25.0-0"
-home: https://github.com/justaboyhai-wq/keystone
-icon: https://raw.githubusercontent.com/justaboyhai-wq/keystone/main/docs/images/logo.png
+home: https://github.com/justaboyhai-wq/fmind
+icon: https://raw.githubusercontent.com/justaboyhai-wq/fmind/main/docs/images/logo.png
 sources:
-  - https://github.com/justaboyhai-wq/keystone
+  - https://github.com/justaboyhai-wq/fmind
 keywords:
   - ai
   - rag
@@ -20,7 +20,7 @@ keywords:
   - vector-search
   - chatbot
 maintainers:
-  - name: Keystone Community
-    url: https://github.com/justaboyhai-wq/keystone
+  - name: FMind Community
+    url: https://github.com/justaboyhai-wq/fmind
 annotations:
   artifacthub.io/license: MIT

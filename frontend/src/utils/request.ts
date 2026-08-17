@@ -34,7 +34,7 @@ instance.interceptors.request.use(
 
     // 嵌入渠道使用 Embed token；勿用本地 JWT 覆盖（否则调试页会 401）
     if (!isEmbedAuth) {
-      const token = localStorage.getItem('keystone_token');
+      const token = localStorage.getItem('fmind_token');
       if (token) {
         config.headers["Authorization"] = `Bearer ${token}`;
       }
@@ -46,14 +46,14 @@ instance.interceptors.request.use(
     // 添加跨空间访问请求头：只要 setSelectedTenant 写过激活空间，
     // 每个请求都要附 X-Tenant-ID。早期版本会 short-circuit
     // "selectedTenantId === defaultTenantId 时不附"以减少 header 体积，
-    // 但这条优化会被任何把 keystone_tenant 写成激活空间的代码（OIDC
+    // 但这条优化会被任何把 fmind_tenant 写成激活空间的代码（OIDC
     // 回调、UserMenu loadUserInfo、router hydrate）触发，导致后续请求
     // 静默丢失 header，前端"切换了"但实际仍跑在 home 空间里——把"切
     // 换之后只有第一批请求带 X-Tenant-ID"调成永久状态。
     // 后端 IsTenantAccessible 已经允许 header 指向 home 空间（自家），
     // 所以无脑附不会引入新风险。
     if (!isEmbedAuth && !isEmbedPath) {
-      const selectedTenantId = localStorage.getItem('keystone_selected_tenant_id');
+      const selectedTenantId = localStorage.getItem('fmind_selected_tenant_id');
       if (selectedTenantId) {
         config.headers["X-Tenant-ID"] = selectedTenantId;
       }
@@ -161,7 +161,7 @@ instance.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
       
-      const refreshToken = localStorage.getItem('keystone_refresh_token');
+      const refreshToken = localStorage.getItem('fmind_refresh_token');
       
       if (refreshToken) {
         try {
@@ -173,8 +173,8 @@ instance.interceptors.response.use(
             const { token, refreshToken: newRefreshToken } = response.data;
             
             // 更新localStorage中的token
-            localStorage.setItem('keystone_token', token);
-            localStorage.setItem('keystone_refresh_token', newRefreshToken);
+            localStorage.setItem('fmind_token', token);
+            localStorage.setItem('fmind_refresh_token', newRefreshToken);
             
             // 更新请求头
             originalRequest.headers['Authorization'] = 'Bearer ' + token;
@@ -188,10 +188,10 @@ instance.interceptors.response.use(
           }
         } catch (refreshError) {
           // 刷新失败，清除所有token并跳转到登录页
-          localStorage.removeItem('keystone_token');
-          localStorage.removeItem('keystone_refresh_token');
-          localStorage.removeItem('keystone_user');
-          localStorage.removeItem('keystone_tenant');
+          localStorage.removeItem('fmind_token');
+          localStorage.removeItem('fmind_refresh_token');
+          localStorage.removeItem('fmind_user');
+          localStorage.removeItem('fmind_tenant');
           
           processQueue(refreshError, null);
           
@@ -203,9 +203,9 @@ instance.interceptors.response.use(
         }
       } else {
         // 没有refresh token，直接跳转到登录页
-        localStorage.removeItem('keystone_token');
-        localStorage.removeItem('keystone_user');
-        localStorage.removeItem('keystone_tenant');
+        localStorage.removeItem('fmind_token');
+        localStorage.removeItem('fmind_user');
+        localStorage.removeItem('fmind_tenant');
         
         redirectToLogin();
         

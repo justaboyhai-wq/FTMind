@@ -9,7 +9,7 @@ import (
 	"mime/multipart"
 	"testing"
 
-	"github.com/justaboyhai-wq/keystone/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 )
 
 // countingFileService is a minimal FileService stub for cloneChunkImageInfo tests.

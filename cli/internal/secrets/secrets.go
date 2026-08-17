@@ -1,9 +1,9 @@
 // Package secrets stores and retrieves credentials. Production wires
 // KeyringStore (OS keychain, primary) with FileStore (0600 plaintext under
-// $XDG_CONFIG_HOME/keystone/secrets/, used as a fallback when no keyring
+// $XDG_CONFIG_HOME/fmind/secrets/, used as a fallback when no keyring
 // backend is available).
 //
-// Namespace convention: "keystone:<profile>:<key>" where key is "access",
+// Namespace convention: "fmind:<profile>:<key>" where key is "access",
 // "refresh", or "api_key".
 package secrets
 
@@ -14,7 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/xdg"
+	"github.com/justaboyhai-wq/fmind/cli/internal/xdg"
 )
 
 // ErrNotFound is returned when the requested secret does not exist.
@@ -23,7 +23,7 @@ var ErrNotFound = errors.New("secret: not found")
 // Store is the abstraction CLI commands depend on; tests inject in-memory impls.
 //
 // Ref returns a stable URI (e.g. file://<profile>/<key> or
-// keychain://keystone/<profile>/<key>) describing where a saved secret lives.
+// keychain://fmind/<profile>/<key>) describing where a saved secret lives.
 // Backends own their scheme so commands never need to type-assert the
 // concrete implementation.
 type Store interface {
@@ -33,14 +33,14 @@ type Store interface {
 	Ref(profile, key string) string
 }
 
-// FileStore writes 0600 plain-text files under $XDG_CONFIG_HOME/keystone/secrets/<profile>.
+// FileStore writes 0600 plain-text files under $XDG_CONFIG_HOME/fmind/secrets/<profile>.
 // It is the headless / CI default and the keychain fallback.
 type FileStore struct {
 	root string
 }
 
-// NewFileStore returns a FileStore rooted at $XDG_CONFIG_HOME/keystone/secrets
-// (or ~/.config/keystone/secrets if XDG_CONFIG_HOME is unset). Same convention
+// NewFileStore returns a FileStore rooted at $XDG_CONFIG_HOME/fmind/secrets
+// (or ~/.config/fmind/secrets if XDG_CONFIG_HOME is unset). Same convention
 // as config.Path - see that file for the rationale (CLI convention).
 func NewFileStore() (*FileStore, error) {
 	root, err := defaultRoot()

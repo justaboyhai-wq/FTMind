@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Keystone MCP Server 便捷启动脚本
+FMind MCP Server 便捷启动脚本
 
 这是一个简化的启动脚本，提供最基本的功能。
 对于更多选项，请使用 main.py
@@ -19,10 +19,10 @@ def main():
         sys.path.insert(0, str(current_dir))
 
     # 检查环境变量
-    base_url = os.getenv("KEYSTONE_BASE_URL", "http://localhost:8080/api/v1")
-    api_key = os.getenv("KEYSTONE_API_KEY", "")
+    base_url = os.getenv("FMIND_BASE_URL", "http://localhost:8080/api/v1")
+    api_key = os.getenv("FMIND_API_KEY", "")
 
-    print("Keystone MCP Server")
+    print("FMind MCP Server")
     print(f"Base URL: {base_url}")
     print(f"API Key: {'已设置' if api_key else '未设置'}")
     print("-" * 40)

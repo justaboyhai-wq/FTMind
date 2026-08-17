@@ -6,10 +6,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/text"
-	sdk "github.com/justaboyhai-wq/keystone/client"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/text"
+	sdk "github.com/justaboyhai-wq/fmind/client"
 )
 
 // docViewFields enumerates the fields surfaced for `--format json` discovery on
@@ -29,14 +29,14 @@ type ViewService interface {
 	GetKnowledge(ctx context.Context, id string) (*sdk.Knowledge, error)
 }
 
-// NewCmdView builds `keystone doc view <id>`.
+// NewCmdView builds `fmind doc view <id>`.
 func NewCmdView(f *cmdutil.Factory) *cobra.Command {
 	opts := &ViewOptions{}
 	cmd := &cobra.Command{
 		Use:   "view <doc-id>",
 		Short: "Show a document by ID",
-		Example: `  keystone doc view doc_abc
-  keystone doc view doc_abc --format json`,
+		Example: `  fmind doc view doc_abc
+  fmind doc view doc_abc --format json`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			fopts, err := cmdutil.CheckFormatFlag(c)
@@ -56,7 +56,7 @@ func NewCmdView(f *cmdutil.Factory) *cobra.Command {
 	cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{
 		UsedFor:       "fetch one document's metadata by id",
 		RequiredFlags: []string{"<doc-id> (positional)"},
-		Examples:      []string{"keystone doc view doc_abc", "keystone doc view doc_abc --jq .data.parse_status"},
+		Examples:      []string{"fmind doc view doc_abc", "fmind doc view doc_abc --jq .data.parse_status"},
 		Output:        "envelope.data is the document object (id, file_name, parse_status, ...)",
 	})
 	return cmd

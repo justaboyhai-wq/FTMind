@@ -1,13 +1,13 @@
-# Keystone Helm Chart
+# FMind Helm Chart
 
-[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/keystone)](https://artifacthub.io/packages/helm/keystone/keystone)
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/fmind)](https://artifacthub.io/packages/helm/fmind/fmind)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-Helm chart for deploying [Keystone](https://github.com/justaboyhai-wq/keystone) - an AI-powered Knowledge RAG Platform.
+Helm chart for deploying [FMind](https://github.com/justaboyhai-wq/fmind) - an AI-powered Knowledge RAG Platform.
 
 ## Overview
 
-Keystone is an intelligent knowledge base platform that combines:
+FMind is an intelligent knowledge base platform that combines:
 - Document parsing and understanding
 - Vector search with BM25 hybrid retrieval
 - LLM integration for conversational AI
@@ -24,8 +24,8 @@ Keystone is an intelligent knowledge base platform that combines:
 
 ```bash
 # Add required secrets
-helm install keystone ./helm \
-  --namespace keystone \
+helm install fmind ./helm \
+  --namespace fmind \
   --create-namespace \
   --set secrets.dbPassword=<your-db-password> \
   --set secrets.redisPassword=<your-redis-password> \
@@ -61,8 +61,8 @@ helm install keystone ./helm \
 ### Basic Installation
 
 ```bash
-helm install keystone ./helm \
-  --namespace keystone \
+helm install fmind ./helm \
+  --namespace fmind \
   --create-namespace \
   --set secrets.dbPassword=secure-password \
   --set secrets.redisPassword=secure-password \
@@ -72,13 +72,13 @@ helm install keystone ./helm \
 ### With Ingress
 
 ```bash
-helm install keystone ./helm \
-  --namespace keystone \
+helm install fmind ./helm \
+  --namespace fmind \
   --create-namespace \
   --set ingress.enabled=true \
-  --set ingress.host=keystone.example.com \
+  --set ingress.host=fmind.example.com \
   --set ingress.tls.enabled=true \
-  --set ingress.tls.secretName=keystone-tls \
+  --set ingress.tls.secretName=fmind-tls \
   --set secrets.dbPassword=secure-password \
   --set secrets.redisPassword=secure-password \
   --set secrets.jwtSecret=$(openssl rand -base64 32)
@@ -87,8 +87,8 @@ helm install keystone ./helm \
 ### With External LLM (Ollama)
 
 ```bash
-helm install keystone ./helm \
-  --namespace keystone \
+helm install fmind ./helm \
+  --namespace fmind \
   --create-namespace \
   --set app.extraEnv[0].name=OLLAMA_BASE_URL \
   --set app.extraEnv[0].value=http://ollama.ollama:11434 \
@@ -124,18 +124,18 @@ postgresql:
 
 ingress:
   enabled: true
-  host: keystone.company.com
+  host: fmind.company.com
   tls:
     enabled: true
-    secretName: keystone-tls
+    secretName: fmind-tls
 
 secrets:
-  existingSecret: keystone-secrets  # Use pre-created secret
+  existingSecret: fmind-secrets  # Use pre-created secret
 ```
 
 ```bash
-helm install keystone ./helm \
-  --namespace keystone \
+helm install fmind ./helm \
+  --namespace fmind \
   --create-namespace \
   -f values-production.yaml
 ```
@@ -165,7 +165,7 @@ helm install keystone ./helm \
 |-----------|-------------|---------|
 | `app.enabled` | Enable backend | `true` |
 | `app.replicaCount` | Number of replicas | `1` |
-| `app.image.repository` | Image repository | `wechatopenai/keystone-app` |
+| `app.image.repository` | Image repository | `wechatopenai/fmind-app` |
 | `app.image.tag` | Image tag | `""` (uses appVersion) |
 | `app.resources` | Resource limits | See values.yaml |
 | `app.env` | Environment variables | See values.yaml |
@@ -177,7 +177,7 @@ helm install keystone ./helm \
 |-----------|-------------|---------|
 | `frontend.enabled` | Enable frontend | `true` |
 | `frontend.replicaCount` | Number of replicas | `1` |
-| `frontend.image.repository` | Image repository | `wechatopenai/keystone-ui` |
+| `frontend.image.repository` | Image repository | `wechatopenai/fmind-ui` |
 | `frontend.image.tag` | Image tag | `latest` |
 
 ### PostgreSQL (ParadeDB)
@@ -206,7 +206,7 @@ helm install keystone ./helm \
 |-----------|-------------|---------|
 | `ingress.enabled` | Enable ingress | `false` |
 | `ingress.className` | Ingress class | `nginx` |
-| `ingress.host` | Hostname | `keystone.example.com` |
+| `ingress.host` | Hostname | `fmind.example.com` |
 | `ingress.tls.enabled` | Enable TLS | `false` |
 | `ingress.tls.secretName` | TLS secret name | `""` |
 
@@ -216,7 +216,7 @@ helm install keystone ./helm \
 |-----------|-------------|---------|
 | `secrets.dbUser` | Database username | `postgres` |
 | `secrets.dbPassword` | Database password | `""` (required) |
-| `secrets.dbName` | Database name | `keystone` |
+| `secrets.dbName` | Database name | `fmind` |
 | `secrets.redisPassword` | Redis password | `""` (required) |
 | `secrets.jwtSecret` | JWT signing secret | `""` (required) |
 | `secrets.existingSecret` | Use existing secret | `""` |
@@ -239,13 +239,13 @@ These map to docker-compose profiles:
 
 1. **Helm --set flags** (for testing)
    ```bash
-   helm install keystone ./helm --set secrets.dbPassword=xxx
+   helm install fmind ./helm --set secrets.dbPassword=xxx
    ```
 
 2. **External Secrets Operator** (recommended for production)
    ```yaml
    secrets:
-     existingSecret: keystone-external-secret
+     existingSecret: fmind-external-secret
    ```
 
 3. **Sealed Secrets** (for GitOps)
@@ -264,53 +264,53 @@ The chart follows CNCF security best practices:
 ## Upgrading
 
 ```bash
-helm upgrade keystone ./helm \
-  --namespace keystone \
+helm upgrade fmind ./helm \
+  --namespace fmind \
   --reuse-values
 ```
 
 ## Uninstalling
 
 ```bash
-helm uninstall keystone --namespace keystone
+helm uninstall fmind --namespace fmind
 
 # Optional: Remove PVCs
-kubectl delete pvc -n keystone -l app.kubernetes.io/instance=keystone
+kubectl delete pvc -n fmind -l app.kubernetes.io/instance=fmind
 ```
 
 ## Troubleshooting
 
 ### Check Pod Status
 ```bash
-kubectl get pods -n keystone
+kubectl get pods -n fmind
 ```
 
 ### View Logs
 ```bash
 # Backend logs
-kubectl logs -n keystone -l app.kubernetes.io/component=app -f
+kubectl logs -n fmind -l app.kubernetes.io/component=app -f
 
 # Frontend logs
-kubectl logs -n keystone -l app.kubernetes.io/component=frontend -f
+kubectl logs -n fmind -l app.kubernetes.io/component=frontend -f
 ```
 
 ### Common Issues
 
 **Pod stuck in Pending**
-- Check if PVCs are bound: `kubectl get pvc -n keystone`
+- Check if PVCs are bound: `kubectl get pvc -n fmind`
 - Verify storage class exists: `kubectl get sc`
 
 **Connection refused errors**
 - Wait for all pods to be Ready
-- Check service endpoints: `kubectl get endpoints -n keystone`
+- Check service endpoints: `kubectl get endpoints -n fmind`
 
 **Database connection errors**
 - Verify secrets are correct
-- Check PostgreSQL logs: `kubectl logs -n keystone -l app.kubernetes.io/component=database`
+- Check PostgreSQL logs: `kubectl logs -n fmind -l app.kubernetes.io/component=database`
 
 ## Contributing
 
-See [CONTRIBUTING.md](https://github.com/justaboyhai-wq/keystone/blob/main/CONTRIBUTING.md) in the main repository.
+See [CONTRIBUTING.md](https://github.com/justaboyhai-wq/fmind/blob/main/CONTRIBUTING.md) in the main repository.
 
 ## References
 
@@ -322,4 +322,4 @@ This Helm chart follows best practices from:
 
 ## License
 
-This chart is licensed under the MIT License - see the [LICENSE](https://github.com/justaboyhai-wq/keystone/blob/main/LICENSE) file for details.
+This chart is licensed under the MIT License - see the [LICENSE](https://github.com/justaboyhai-wq/fmind/blob/main/LICENSE) file for details.

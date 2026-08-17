@@ -10,17 +10,17 @@ Persistent Volume Claims for stateful components.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "keystone.fullname" . }}-postgres
+  name: {{ include "fmind.fullname" . }}-postgres
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "keystone.componentLabels" (dict "component" "database" "context" .) | nindent 4 }}
+    {{- include "fmind.componentLabels" (dict "component" "database" "context" .) | nindent 4 }}
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: {{ .Values.postgresql.persistence.size }}
-  {{- include "keystone.storageClass" . | nindent 2 }}
+  {{- include "fmind.storageClass" . | nindent 2 }}
 ---
 {{- end }}
 
@@ -29,17 +29,17 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "keystone.fullname" . }}-redis
+  name: {{ include "fmind.fullname" . }}-redis
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "keystone.componentLabels" (dict "component" "cache" "context" .) | nindent 4 }}
+    {{- include "fmind.componentLabels" (dict "component" "cache" "context" .) | nindent 4 }}
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: {{ .Values.redis.persistence.size }}
-  {{- include "keystone.storageClass" . | nindent 2 }}
+  {{- include "fmind.storageClass" . | nindent 2 }}
 ---
 {{- end }}
 
@@ -48,17 +48,17 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "keystone.fullname" . }}-neo4j
+  name: {{ include "fmind.fullname" . }}-neo4j
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "keystone.componentLabels" (dict "component" "graph" "context" .) | nindent 4 }}
+    {{- include "fmind.componentLabels" (dict "component" "graph" "context" .) | nindent 4 }}
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: {{ .Values.neo4j.persistence.size }}
-  {{- include "keystone.storageClass" . | nindent 2 }}
+  {{- include "fmind.storageClass" . | nindent 2 }}
 ---
 {{- end }}
 
@@ -67,15 +67,15 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "keystone.fullname" . }}-data-files
+  name: {{ include "fmind.fullname" . }}-data-files
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "keystone.componentLabels" (dict "component" "storage" "context" .) | nindent 4 }}
+    {{- include "fmind.componentLabels" (dict "component" "storage" "context" .) | nindent 4 }}
 spec:
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: {{ .Values.dataFiles.persistence.size }}
-  {{- include "keystone.storageClass" . | nindent 2 }}
+  {{- include "fmind.storageClass" . | nindent 2 }}
 {{- end }}

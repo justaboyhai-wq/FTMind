@@ -1,6 +1,6 @@
 package chat
 
-import "github.com/justaboyhai-wq/keystone/internal/types"
+import "github.com/justaboyhai-wq/fmind/internal/types"
 
 // thinkingEmitter owns the "reasoning then answer" hand-off that every
 // streaming Chat implementation shares: thinking chunks are forwarded as they

@@ -5,11 +5,11 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/justaboyhai-wq/keystone/cli/internal/cmdutil"
-	"github.com/justaboyhai-wq/keystone/cli/internal/config"
-	"github.com/justaboyhai-wq/keystone/cli/internal/iostreams"
-	"github.com/justaboyhai-wq/keystone/cli/internal/prompt"
-	"github.com/justaboyhai-wq/keystone/cli/internal/secrets"
+	"github.com/justaboyhai-wq/fmind/cli/internal/cmdutil"
+	"github.com/justaboyhai-wq/fmind/cli/internal/config"
+	"github.com/justaboyhai-wq/fmind/cli/internal/iostreams"
+	"github.com/justaboyhai-wq/fmind/cli/internal/prompt"
+	"github.com/justaboyhai-wq/fmind/cli/internal/secrets"
 )
 
 type RemoveOptions struct {
@@ -30,7 +30,7 @@ type removeResult struct {
 	WasCurrent bool   `json:"was_current"`
 }
 
-// NewCmdRemove builds `keystone profile remove`. Drops the entry from
+// NewCmdRemove builds `fmind profile remove`. Drops the entry from
 // config.yaml and best-effort clears keyring references. Removing a
 // non-current profile is low-friction (no prompt). Removing the *current*
 // profile triggers the destructive-write confirmation protocol (exit 10),
@@ -41,15 +41,15 @@ func NewCmdRemove(f *cmdutil.Factory) *cobra.Command {
 		Use:   "remove <name>",
 		Short: "Remove a profile (drops entry, clears keyring refs)",
 		Long: `Deletes the named profile from config.yaml and best-effort clears any
-keyring references it owned (matches ` + "`keystone auth logout`" + `).
+keyring references it owned (matches ` + "`fmind auth logout`" + `).
 
 Removing the current profile also clears CurrentProfile - subsequent commands
-will error until you select another with ` + "`keystone profile use <name>`" + ` or pick
+will error until you select another with ` + "`fmind profile use <name>`" + ` or pick
 one up via the global ` + "`--profile`" + ` flag. Because that change is observable in
 every later command, removing the current profile requires explicit -y/--yes
 in scripted / --format json invocations (exit code 10; see cli/README.md).`,
-		Example: `  keystone profile remove staging              # remove non-current → no prompt
-  keystone profile remove production -y        # remove current → confirm`,
+		Example: `  fmind profile remove staging              # remove non-current → no prompt
+  fmind profile remove production -y        # remove current → confirm`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(c *cobra.Command, args []string) error {
 			fopts, err := cmdutil.CheckFormatFlag(c)
@@ -92,8 +92,8 @@ in scripted / --format json invocations (exit code 10; see cli/README.md).`,
 		RequiredFlags: []string{"<name> (positional)"},
 		Output:        "envelope.data is {name, removed:true, was_current}",
 		Examples: []string{
-			"keystone profile remove staging",
-			"keystone profile remove production -y",
+			"fmind profile remove staging",
+			"fmind profile remove production -y",
 		},
 		Warnings: []string{
 			"Requires explicit user approval (exit 10 / input.confirmation_required); never auto-add -y.",
@@ -118,7 +118,7 @@ func runRemove(opts *RemoveOptions, fopts *cmdutil.FormatOptions, name string, s
 	// Confirmation only fires for removing the current profile - non-current
 	// remove uses the same low-friction policy as `auth logout`.
 	if wasCurrent {
-		if err := cmdutil.ConfirmDestructive(p, opts.Yes, jsonOut, "remove", "current profile", name, "profile.remove", []string{"keystone", "profile", "remove", name, "-y"}); err != nil {
+		if err := cmdutil.ConfirmDestructive(p, opts.Yes, jsonOut, "remove", "current profile", name, "profile.remove", []string{"fmind", "profile", "remove", name, "-y"}); err != nil {
 			return err
 		}
 	}
@@ -139,7 +139,7 @@ func runRemove(opts *RemoveOptions, fopts *cmdutil.FormatOptions, name string, s
 		return fopts.Emit(iostreams.IO.Out, result, nil)
 	}
 	if wasCurrent {
-		fmt.Fprintf(iostreams.IO.Out, "✓ Removed profile %s (current profile cleared - run `keystone profile use <name>` to pick another)\n", name)
+		fmt.Fprintf(iostreams.IO.Out, "✓ Removed profile %s (current profile cleared - run `fmind profile use <name>` to pick another)\n", name)
 	} else {
 		fmt.Fprintf(iostreams.IO.Out, "✓ Removed profile %s\n", name)
 	}

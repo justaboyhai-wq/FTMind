@@ -1,6 +1,6 @@
 package format
 
-import sdk "github.com/justaboyhai-wq/keystone/client"
+import sdk "github.com/justaboyhai-wq/fmind/client"
 
 // ReferenceIndex is the bounded citation pointer exposed by projected JSON,
 // text, and MCP output. ChunkID is the chunk the model cited; ParentChunkID is

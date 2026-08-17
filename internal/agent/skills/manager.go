@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/justaboyhai-wq/keystone/internal/sandbox"
+	"github.com/justaboyhai-wq/fmind/internal/sandbox"
 )
 
 // Manager manages skills lifecycle including discovery, loading, and script execution

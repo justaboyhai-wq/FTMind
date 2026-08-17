@@ -1,10 +1,10 @@
 <template>
-  <div ref="rootRef" class="keystone-auth-graph" aria-hidden="true">
-    <canvas ref="canvasRef" class="keystone-auth-graph__canvas" role="presentation"></canvas>
-    <div class="keystone-auth-graph__grid"></div>
-    <div class="keystone-auth-graph__aurora keystone-auth-graph__aurora--one"></div>
-    <div class="keystone-auth-graph__aurora keystone-auth-graph__aurora--two"></div>
-    <div ref="tooltipRef" class="keystone-auth-graph__tooltip">
+  <div ref="rootRef" class="fmind-auth-graph" aria-hidden="true">
+    <canvas ref="canvasRef" class="fmind-auth-graph__canvas" role="presentation"></canvas>
+    <div class="fmind-auth-graph__grid"></div>
+    <div class="fmind-auth-graph__aurora fmind-auth-graph__aurora--one"></div>
+    <div class="fmind-auth-graph__aurora fmind-auth-graph__aurora--two"></div>
+    <div ref="tooltipRef" class="fmind-auth-graph__tooltip">
       <strong>{{ tooltipTitle }}</strong>
       <span>{{ tooltipKind }}</span>
     </div>
@@ -53,7 +53,7 @@ const tooltipTitle = ref('')
 const tooltipKind = ref('')
 
 const labels = [
-  ['Keystone Core', 'Knowledge core'],
+  ['FMind Core', 'Knowledge core'],
   ['RAG', 'Retrieval'],
   ['Wiki', 'Knowledge page'],
   ['Agent', 'Intelligent agent'],
@@ -484,7 +484,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="less" scoped>
-.keystone-auth-graph {
+.fmind-auth-graph {
   position: absolute;
   inset: 0;
   overflow: hidden;
@@ -495,14 +495,14 @@ onBeforeUnmount(() => {
   isolation: isolate;
 }
 
-.keystone-auth-graph__canvas,
-.keystone-auth-graph__grid,
-.keystone-auth-graph__aurora {
+.fmind-auth-graph__canvas,
+.fmind-auth-graph__grid,
+.fmind-auth-graph__aurora {
   position: absolute;
   inset: 0;
 }
 
-.keystone-auth-graph__canvas {
+.fmind-auth-graph__canvas {
   z-index: 2;
   width: 100%;
   height: 100%;
@@ -514,7 +514,7 @@ onBeforeUnmount(() => {
   }
 }
 
-.keystone-auth-graph__grid {
+.fmind-auth-graph__grid {
   z-index: 1;
   pointer-events: none;
   opacity: 0.72;
@@ -525,7 +525,7 @@ onBeforeUnmount(() => {
   mask-image: radial-gradient(ellipse at 42% 50%, #000 12%, transparent 80%);
 }
 
-.keystone-auth-graph__aurora {
+.fmind-auth-graph__aurora {
   z-index: 0;
   pointer-events: none;
   filter: blur(58px);
@@ -533,13 +533,13 @@ onBeforeUnmount(() => {
   will-change: transform;
 }
 
-.keystone-auth-graph__aurora--one {
+.fmind-auth-graph__aurora--one {
   inset: -44% -18% -36% -26%;
   background: conic-gradient(from 122deg at 48% 46%, transparent 0 18%, rgba(52, 71, 255, 0.14) 28%, transparent 40% 59%, rgba(129, 140, 248, 0.12) 71%, transparent 84%);
   animation: authAuroraSpin 26s linear infinite;
 }
 
-.keystone-auth-graph__aurora--two {
+.fmind-auth-graph__aurora--two {
   width: 78vw;
   height: 78vw;
   left: -12vw;
@@ -549,7 +549,7 @@ onBeforeUnmount(() => {
   animation: authAuroraFloat 11s ease-in-out infinite alternate;
 }
 
-.keystone-auth-graph__tooltip {
+.fmind-auth-graph__tooltip {
   position: absolute;
   z-index: 4;
   visibility: hidden;
@@ -588,7 +588,7 @@ onBeforeUnmount(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .keystone-auth-graph__aurora {
+  .fmind-auth-graph__aurora {
     animation: none;
   }
 }
@@ -596,21 +596,21 @@ onBeforeUnmount(() => {
 
 <style lang="less">
 html[theme-mode='dark'] {
-  .keystone-auth-graph {
+  .fmind-auth-graph {
     background:
       radial-gradient(circle at 26% 48%, rgba(99, 102, 241, 0.18), transparent 40%),
       radial-gradient(circle at 76% 22%, rgba(129, 140, 248, 0.12), transparent 32%),
       #0c1020;
   }
 
-  .keystone-auth-graph__grid {
+  .fmind-auth-graph__grid {
     opacity: 0.58;
     background-image:
       linear-gradient(rgba(129, 140, 248, 0.07) 1px, transparent 1px),
       linear-gradient(90deg, rgba(129, 140, 248, 0.07) 1px, transparent 1px);
   }
 
-  .keystone-auth-graph__tooltip {
+  .fmind-auth-graph__tooltip {
     color: #aeb7d0;
     border-color: rgba(129, 140, 248, 0.28);
     background: rgba(18, 23, 45, 0.92);

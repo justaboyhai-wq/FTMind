@@ -13,9 +13,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/justaboyhai-wq/keystone/internal/logger"
-	"github.com/justaboyhai-wq/keystone/internal/types"
-	"github.com/justaboyhai-wq/keystone/internal/types/interfaces"
+	"github.com/justaboyhai-wq/fmind/internal/logger"
+	"github.com/justaboyhai-wq/fmind/internal/types"
+	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	"github.com/tencent/vectordatabase-sdk-go/tcvdbtext/encoder"
 	"github.com/tencent/vectordatabase-sdk-go/tcvectordb"
 )
@@ -429,7 +429,7 @@ func (r *repository) ensureCollection(ctx context.Context, dimension int) error 
 		collectionName,
 		uint32(r.shardsNum),
 		uint32(r.replicasNum),
-		fmt.Sprintf("Keystone embeddings collection with dimension %d", dimension),
+		fmt.Sprintf("FMind embeddings collection with dimension %d", dimension),
 		indexes,
 	)
 	if err != nil {
