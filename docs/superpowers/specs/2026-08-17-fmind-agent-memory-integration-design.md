@@ -47,7 +47,9 @@ Wiki 人工修订不得反向覆盖 MemoryCore 的 L0–L3 数据。
 
 ### 2.3 记忆 Wiki 不是 RAG 知识库
 
-审核通过的 L3 仅存入 Wiki 类型知识库，并标识为“记忆知识库”。它不进入普通 Raw/RAG 文件知识库，不触发 Docreader、普通文件切片、Embedding 或 RAG 索引任务。
+审核通过的 L3 仅存入 Wiki 类型知识库，并要求目标 KnowledgeBase 的
+`WikiConfig.IsMemoryWiki=true`，标识为“记忆知识库”。它不进入普通 Raw/RAG
+文件知识库，不触发 Docreader、普通文件切片、Embedding 或 RAG 索引任务。
 MemoryCore 自己的 L0/L1 向量/FTS/hybrid recall 以及 L2/L3 Profile write-through
 仍然保留；这套 Memory VectorDB 不得与 FMind RAG collection 混用。
 
