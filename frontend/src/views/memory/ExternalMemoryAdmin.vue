@@ -32,7 +32,7 @@
         <section class="memory-admin__section" aria-labelledby="reviews-title">
           <div class="section-heading section-heading--review">
             <div><h2 id="reviews-title">{{ $t('externalMemory.reviews.title') }}</h2><p>{{ $t('externalMemory.reviews.desc') }}</p></div>
-            <t-select v-model="reviewStatus" :options="reviewStatusOptions" clearable :placeholder="$t('externalMemory.reviews.allStatuses')" @change="loadReviews" />
+            <t-select v-model="reviewStatus" :options="reviewStatusOptions" clearable :placeholder="$t('externalMemory.reviews.allStatuses')" @change="loadReviews()" />
           </div>
           <t-table :data="reviews" :columns="reviewColumns" row-key="id" :loading="reviewLoading" :pagination="false" :empty="$t('externalMemory.reviews.empty')">
             <template #status="{ row }"><t-tag :theme="reviewTheme(row.status)">{{ statusLabel(row.status) }}</t-tag></template>
@@ -42,8 +42,8 @@
       </t-tab-panel>
     </t-tabs>
 
-    <t-dialog v-model:visible="createVisible" :header="$t('externalMemory.bindings.createTitle')" :confirm-btn="$t('externalMemory.bindings.create')" :cancel-btn="$t('common.cancel')" :confirm-loading="savingBinding" width="620px" @confirm="createBinding">
-      <t-form ref="bindingFormRef" :data="bindingForm" :rules="bindingRules" label-align="top" @submit="createBinding">
+    <t-dialog v-model:visible="createVisible" :header="$t('externalMemory.bindings.createTitle')" :confirm-btn="$t('externalMemory.bindings.create')" :cancel-btn="$t('common.cancel')" :confirm-loading="savingBinding" width="620px" @confirm="submitBindingForm">
+      <t-form ref="bindingFormRef" :data="bindingForm" :rules="bindingRules" label-align="top" @submit.prevent>
         <div class="form-grid"><t-form-item name="team_id" :label="$t('externalMemory.fields.teamId')"><t-input v-model="bindingForm.team_id" autocomplete="off" /></t-form-item><t-form-item name="agent_id" :label="$t('externalMemory.fields.agentId')"><t-input v-model="bindingForm.agent_id" autocomplete="off" /></t-form-item><t-form-item name="external_agent" :label="$t('externalMemory.fields.externalAgent')"><t-input v-model="bindingForm.external_agent" autocomplete="off" /></t-form-item><t-form-item name="connector_type" :label="$t('externalMemory.fields.connector')"><t-select v-model="bindingForm.connector_type" :options="connectorOptions" /></t-form-item></div>
         <t-form-item :label="$t('externalMemory.fields.userId')"><t-input v-model="bindingForm.user_id" readonly /></t-form-item>
         <t-form-item :label="$t('externalMemory.fields.capabilities')"><t-checkbox-group v-model="bindingForm.capability_scopes" :options="capabilityOptions" /></t-form-item>
@@ -71,10 +71,10 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { MessagePlugin } from 'tdesign-vue-next'
+import { MessagePlugin, type FormInstanceFunctions } from 'tdesign-vue-next'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
-import { allowedReviewActions } from '@/api/external-memory/presentation'
+import { allowedReviewActions, bindingAssetScopes } from '@/api/external-memory/presentation'
 import { createAgentBinding, getMemoryReview, listAgentBindings, listMemoryReviews, publishMemory, revokeAgentBinding, reviewMemory, rotateAgentBindingKey, type AgentBinding, type CreateAgentBindingRequest, type MemoryPublication } from '@/api/external-memory'
 
 const { t } = useI18n(); const authStore = useAuthStore()
@@ -83,6 +83,7 @@ const createVisible = ref(false); const savingBinding = ref(false); const secret
 const reviewVisible = ref(false); const selectedReview = ref<MemoryPublication | null>(null); const reviewStatus = ref(''); const decisionVisible = ref(false); const decision = ref<'approve' | 'reject' | 'request_changes'>('approve'); const decisionComment = ref(''); const deciding = ref(false); const assetScopesText = ref('')
 const emptyBinding = (): CreateAgentBindingRequest => ({ team_id: '', user_id: authStore.currentUserId, agent_id: '', external_agent: 'openclaw', connector_type: 'openclaw_plugin', capability_scopes: ['memory.context', 'memory.capture', 'memory.recall'], asset_scopes: [], capture_enabled: true, recall_enabled: true, l3_wiki_enabled: false, l3_review_required: true })
 const bindingForm = ref<CreateAgentBindingRequest>(emptyBinding())
+const bindingFormRef = ref<FormInstanceFunctions | null>(null)
 const bindingRules = { team_id: [{ required: true, message: t('externalMemory.validation.required'), trigger: 'blur' }], agent_id: [{ required: true, message: t('externalMemory.validation.required'), trigger: 'blur' }], external_agent: [{ required: true, message: t('externalMemory.validation.required'), trigger: 'blur' }] }
 const connectorOptions = ['openclaw_plugin', 'hermes_provider', 'openai_proxy', 'anthropic_proxy', 'generic_sdk'].map(value => ({ label: value, value }))
 const capabilityOptions = ['memory.context', 'memory.capture', 'memory.recall', 'memory.confirm', 'memory.l3.publish', 'knowledge.search', 'wiki.get', 'document.read', 'context.assemble'].map(value => ({ label: value, value }))
@@ -90,24 +91,24 @@ const reviewStatusOptions = ['pending_review', 'changes_requested', 'approved', 
 const bindingColumns = computed(() => [{ colKey: 'external_agent', title: t('externalMemory.columns.externalAgent'), ellipsis: true }, { colKey: 'connector_type', title: t('externalMemory.columns.connector') }, { colKey: 'team_id', title: t('externalMemory.columns.team'), ellipsis: true }, { colKey: 'policy', title: t('externalMemory.columns.policy'), width: 210 }, { colKey: 'status', title: t('externalMemory.columns.status'), width: 105 }, { colKey: 'actions', title: t('externalMemory.columns.actions'), width: 150 }])
 const reviewColumns = computed(() => [{ colKey: 'title', title: t('externalMemory.columns.title'), ellipsis: true }, { colKey: 'team_id', title: t('externalMemory.columns.team'), ellipsis: true }, { colKey: 'agent_id', title: t('externalMemory.columns.agent'), ellipsis: true }, { colKey: 'status', title: t('externalMemory.columns.status'), width: 125 }, { colKey: 'actions', title: t('externalMemory.columns.actions'), width: 90 }])
 const canReview = computed(() => !!selectedReview.value && allowedReviewActions(selectedReview.value.status).some(action => action !== 'publish')); const canPublish = computed(() => !!selectedReview.value && allowedReviewActions(selectedReview.value.status).includes('publish')); const decisionTitle = computed(() => t(`externalMemory.actions.${decision.value === 'request_changes' ? 'requestChanges' : decision.value}`))
-function unwrap<T>(value: T | { data?: T }): T { return (value as { data?: T }).data ?? value as T }
 function statusLabel(status: string) { return t(`externalMemory.status.${status}`, status) }
 function reviewTheme(status: string): 'success' | 'warning' | 'danger' | 'primary' | 'default' { if (status === 'approved' || status === 'published') return 'success'; if (status === 'pending_review' || status === 'changes_requested' || status === 'publishing') return 'warning'; if (status === 'rejected' || status === 'revoked') return 'danger'; return 'default' }
-async function loadBindings() { loading.value = true; try { bindings.value = unwrap(await listAgentBindings()) } catch (error: any) { MessagePlugin.error(error?.message || t('externalMemory.error.load')) } finally { loading.value = false } }
-async function loadReviews() { reviewLoading.value = true; try { reviews.value = unwrap(await listMemoryReviews(reviewStatus.value || undefined)) } catch (error: any) { MessagePlugin.error(error?.message || t('externalMemory.error.load')) } finally { reviewLoading.value = false } }
+async function loadBindings() { loading.value = true; try { bindings.value = await listAgentBindings() } catch (error: any) { MessagePlugin.error(error?.message || t('externalMemory.error.load')) } finally { loading.value = false } }
+async function loadReviews() { reviewLoading.value = true; try { reviews.value = await listMemoryReviews(reviewStatus.value || undefined) } catch (error: any) { MessagePlugin.error(error?.message || t('externalMemory.error.load')) } finally { reviewLoading.value = false } }
 function reload() { loadBindings(); loadReviews() }
 function openCreate() { bindingForm.value = emptyBinding(); assetScopesText.value = ''; createVisible.value = true }
-async function createBinding() { savingBinding.value = true; try { const capabilityScopes = [...bindingForm.value.capability_scopes]; if (bindingForm.value.l3_wiki_enabled && !capabilityScopes.includes('memory.l3.publish')) capabilityScopes.push('memory.l3.publish'); bindingForm.value.asset_scopes = assetScopesText.value.split(/[\n,]/).map(value => value.trim()).filter(Boolean); const result = unwrap(await createAgentBinding({ ...bindingForm.value, capability_scopes: capabilityScopes, l3_review_required: bindingForm.value.l3_wiki_enabled || bindingForm.value.l3_review_required })); createVisible.value = false; connectorSecret.value = result.connector_secret; secretVisible.value = true; await loadBindings() } catch (error: any) { MessagePlugin.error(error?.message || t('externalMemory.error.save')) } finally { savingBinding.value = false } }
+async function submitBindingForm() { if (savingBinding.value) return; const valid = await bindingFormRef.value?.validate(); if (valid !== true) return; await createBinding() }
+async function createBinding() { savingBinding.value = true; try { const capabilityScopes = [...bindingForm.value.capability_scopes]; if (bindingForm.value.l3_wiki_enabled && !capabilityScopes.includes('memory.l3.publish')) capabilityScopes.push('memory.l3.publish'); const assetScopes = bindingAssetScopes(bindingForm.value.team_id, assetScopesText.value.split(/[\n,]/)); const result = await createAgentBinding({ ...bindingForm.value, team_id: bindingForm.value.team_id.trim(), agent_id: bindingForm.value.agent_id.trim(), external_agent: bindingForm.value.external_agent.trim(), capability_scopes: capabilityScopes, asset_scopes: assetScopes, l3_review_required: bindingForm.value.l3_wiki_enabled || bindingForm.value.l3_review_required }); createVisible.value = false; connectorSecret.value = result.connector_secret; secretVisible.value = true; await loadBindings() } catch (error: any) { MessagePlugin.error(error?.message || t('externalMemory.error.save')) } finally { savingBinding.value = false } }
 function closeSecret() { connectorSecret.value = ''; secretVisible.value = false }
 async function copySecret() { try { await navigator.clipboard.writeText(connectorSecret.value); MessagePlugin.success(t('externalMemory.secret.copied')) } catch { MessagePlugin.warning(t('externalMemory.secret.copyFailed')) } }
 function confirmRevoke(binding: AgentBinding) { selectedBinding.value = binding; revokeVisible.value = true }
 async function revoke() { if (!selectedBinding.value) return; revoking.value = true; try { await revokeAgentBinding(selectedBinding.value.id); revokeVisible.value = false; MessagePlugin.success(t('externalMemory.bindings.revoked')); await loadBindings() } catch (error: any) { MessagePlugin.error(error?.message || t('externalMemory.error.save')) } finally { revoking.value = false } }
-async function rotate(binding: AgentBinding) { try { const result = unwrap(await rotateAgentBindingKey(binding.id)); connectorSecret.value = result.connector_secret; secretVisible.value = true; MessagePlugin.success(t('externalMemory.bindings.rotated')) } catch (error: any) { MessagePlugin.error(error?.message || t('externalMemory.error.save')) } }
-async function openReview(review: MemoryPublication) { try { selectedReview.value = unwrap(await getMemoryReview(review.id)).publication; reviewVisible.value = true } catch (error: any) { MessagePlugin.error(error?.message || t('externalMemory.error.load')) } }
+async function rotate(binding: AgentBinding) { try { const result = await rotateAgentBindingKey(binding.id); connectorSecret.value = result.connector_secret; secretVisible.value = true; MessagePlugin.success(t('externalMemory.bindings.rotated')) } catch (error: any) { MessagePlugin.error(error?.message || t('externalMemory.error.save')) } }
+async function openReview(review: MemoryPublication) { try { selectedReview.value = (await getMemoryReview(review.id)).publication; reviewVisible.value = true } catch (error: any) { MessagePlugin.error(error?.message || t('externalMemory.error.load')) } }
 function openDecision(next: 'approve' | 'reject' | 'request_changes') { decision.value = next; decisionComment.value = ''; decisionVisible.value = true }
 async function submitDecision() { if (!selectedReview.value) return; if (decision.value === 'request_changes' && !decisionComment.value.trim()) { MessagePlugin.warning(t('externalMemory.reviews.commentRequired')); return } deciding.value = true; try { await reviewMemory(selectedReview.value.id, decision.value, decisionComment.value.trim()); decisionVisible.value = false; MessagePlugin.success(t('externalMemory.actions.saved')); await refreshSelectedReview() } catch (error: any) { MessagePlugin.error(error?.message || t('externalMemory.error.save')) } finally { deciding.value = false } }
 async function publish() { if (!selectedReview.value) return; deciding.value = true; try { await publishMemory(selectedReview.value.id); MessagePlugin.success(t('externalMemory.actions.published')); await refreshSelectedReview() } catch (error: any) { MessagePlugin.error(error?.message || t('externalMemory.error.save')) } finally { deciding.value = false } }
-async function refreshSelectedReview() { if (!selectedReview.value) return; selectedReview.value = unwrap(await getMemoryReview(selectedReview.value.id)).publication; await loadReviews() }
+async function refreshSelectedReview() { if (!selectedReview.value) return; selectedReview.value = (await getMemoryReview(selectedReview.value.id)).publication; await loadReviews() }
 watch(() => bindingForm.value.l3_wiki_enabled, enabled => { if (enabled) bindingForm.value.l3_review_required = true })
 onMounted(reload)
 </script>
