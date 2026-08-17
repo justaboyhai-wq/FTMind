@@ -48,6 +48,7 @@ import (
 	tencentVectorDBRepo "github.com/justaboyhai-wq/fmind/internal/application/repository/retriever/tencentvectordb"
 	weaviateRepo "github.com/justaboyhai-wq/fmind/internal/application/repository/retriever/weaviate"
 	"github.com/justaboyhai-wq/fmind/internal/application/service"
+	"github.com/justaboyhai-wq/fmind/internal/application/service/agentbinding"
 	chatpipeline "github.com/justaboyhai-wq/fmind/internal/application/service/chat_pipeline"
 	"github.com/justaboyhai-wq/fmind/internal/application/service/file"
 	memoryService "github.com/justaboyhai-wq/fmind/internal/application/service/memory"
@@ -141,6 +142,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(repository.NewTenantRepository))
 	must(container.Provide(repository.NewTenantAPIKeyRepository))
 	must(container.Provide(repository.NewAgentBindingRepository))
+	must(container.Provide(repository.NewAgentBindingKeyRepository))
 	must(container.Provide(repository.NewTenantMemberRepository))
 	must(container.Provide(repository.NewTenantInvitationRepository))
 	must(container.Provide(repository.NewAuditLogRepository))
@@ -204,6 +206,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(service.NewUserService))
 	must(container.Provide(service.NewSystemSettingService))
 	must(container.Provide(service.NewFMindCloudService))
+	must(container.Provide(agentbinding.NewService))
 
 	// Extract services - register individual extracters with names
 	must(container.Provide(service.NewChunkExtractService, dig.Name("chunkExtractor")))
