@@ -5,7 +5,7 @@ WORKDIR /app
 
 # 通过构建参数接收敏感信息
 ARG GOPRIVATE_ARG
-ARG GOPROXY_ARG
+ARG GOPROXY_ARG=https://goproxy.cn,direct
 ARG GOSUMDB_ARG=off
 ARG APK_MIRROR_ARG
 
@@ -28,7 +28,7 @@ RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate
 COPY go.mod go.sum ./
 RUN --mount=type=cache,target=/go/pkg/mod go mod download
 COPY cmd/download cmd/download
-RUN go run cmd/download/duckdb/duckdb.go
+RUN --mount=type=cache,target=/go/pkg/mod go run cmd/download/duckdb/duckdb.go
 COPY . .
 
 # Get version and commit info for build injection
