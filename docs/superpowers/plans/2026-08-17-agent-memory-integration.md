@@ -22,6 +22,33 @@
 
 FMind's existing `enable_memory` preference, Neo4j memory service, and knowledge-base Agent memory path are outside the change set.
 
+## Task 0: Freeze the PRD delta and existing-capability matrix
+
+**Files:**
+- Create: `docs/superpowers/specs/2026-08-17-prd-mvp-alignment.md`
+- Create: `docs/superpowers/specs/2026-08-17-fmind-capability-matrix.md`
+
+- [ ] **Step 1: Record approved PRD overrides**
+
+State unambiguously: only reviewed L3 publishes to a memory Wiki; L2 remains in MemoryCore and is not published; memory Wiki does not create Raw/RAG assets; FMind internal memory remains unchanged.
+
+- [ ] **Step 2: Map every PRD P0 function**
+
+For each `FR-ORG-*`, `FR-AGT-*`, `FR-MEM-*`, `FR-RAW-*`, `FR-PAR-*`, `FR-RAG-*`, `FR-WIKI-*`, `FR-SKL-*`, `FR-GOV-*`, and `FR-OPS-*`, record `existing/reuse`, `adapt`, `new`, or `deferred`, exact FMind file/service, test evidence, and delivery task.
+
+- [ ] **Step 3: Freeze MVP exclusions**
+
+Move Skill execution to its own follow-on plan unless product review restores it to this memory-integration release. Keep Cognition MCP contracts in this plan because they are required for Agent consumption.
+
+- [ ] **Step 4: Review and commit**
+
+Verify no PRD P0 row lacks an owner or explicit deferral.
+
+```bash
+git add docs/superpowers/specs/2026-08-17-prd-mvp-alignment.md docs/superpowers/specs/2026-08-17-fmind-capability-matrix.md
+git commit -m "docs: align memory integration with PRD MVP"
+```
+
 ## Task 1: Persist organization-scoped Agent bindings
 
 **Files:**
@@ -55,7 +82,7 @@ Expected: compilation failure because binding types and repository do not exist.
 
 - [ ] **Step 3: Implement entities**
 
-Define `AgentBinding`, `AgentBindingKey`, `AgentBindingSession`, and `AgentBindingAudit`. Required fields include tenant, department, team, user, Agent, connector type, capture/recall/L3-Wiki flags, status, policy version, key hash/prefix/expiry/revocation, external session, last seen, and timestamps.
+Define `AgentBinding`, `AgentBindingKey`, `AgentBindingSession`, and `AgentBindingAudit`. Required fields include tenant, department, workspace, project, team, user, Agent, task, connector type, capture/recall/L3-Wiki flags, capability scopes, asset scopes, status, policy version, key hash/prefix/expiry/revocation, external session, last seen, and timestamps.
 
 ```go
 type AgentBinding struct {
@@ -63,6 +90,8 @@ type AgentBinding struct {
     TenantID       uint64 `gorm:"not null;index:idx_binding_scope,priority:1"`
     DepartmentID   string `gorm:"size:64;index:idx_binding_scope,priority:2"`
     TeamID         string `gorm:"size:64;not null;index:idx_binding_scope,priority:3"`
+    WorkspaceID    string `gorm:"size:64;index"`
+    ProjectID      string `gorm:"size:64;index"`
     UserID         string `gorm:"size:64;not null"`
     AgentID        string `gorm:"size:64;not null"`
     ConnectorType  string `gorm:"size:32;not null"`
@@ -177,7 +206,7 @@ Use `X-FMind-Timestamp`, `X-FMind-Nonce`, and `X-FMind-Signature`, a ±300 secon
 POST /internal/v1/agent-bindings/introspect
 ```
 
-Input contains the Binding Key. Output is a five-minute signed Context containing binding, tenant, department, team, user, Agent, capture/recall/L3 policy, policy version, and expiry. Do not echo the key.
+Input contains the Connector Secret. Output is a five-minute Binding Token plus signed Context containing binding, tenant, department, workspace, project, team, user, Agent, task, roles, capability/asset scopes, capture/recall/L3 policy, policy version, token ID, and expiry. Do not echo the secret. The Connector Secret never enters Prompt or tool context.
 
 - [ ] **Step 5: Verify and commit**
 
@@ -214,7 +243,7 @@ Expected: FAIL because FMind binding client does not exist.
 
 - [ ] **Step 3: Implement client and bounded cache**
 
-Read Binding Key from the proxy credential position, call FMind introspection, verify Context signature and expiry, and cache by key hash/prefix for no longer than five minutes. Never log plaintext key or full Context.
+Read Connector Secret from the proxy credential position, exchange it for a short-lived Binding Token, verify Context signature and expiry, and cache no longer than the token lifetime. Never log plaintext secret, token, or full Context.
 
 - [ ] **Step 4: Replace identity resolution**
 
@@ -335,7 +364,33 @@ Run from MemoryCore: `npm test -- --run src/gateway && npm run build:plugin`
 
 Expected: PASS.
 
-## Task 8: Persist L3 review and publication state
+## Task 8: Implement L0-L2 governance and privacy lifecycle
+
+**Files:**
+- Create: `internal/application/service/external_memory/governance.go`
+- Create: `internal/application/service/external_memory/governance_test.go`
+- Create: `internal/handler/external_memory_governance.go`
+- Create: `internal/handler/external_memory_governance_test.go`
+- Modify: `internal/types/external_memory.go`
+- Modify: `E:/worktest/TencentDB-Agent-Memory/MemoryCore/src/gateway/v2-router.ts`
+
+- [ ] **Step 1: Write lifecycle tests**
+
+Cover pre-capture redaction, L0 visibility, retention expiry, legal deletion, L1 correct/confirm/revoke, L2 confirm scope/evidence/result, conflict/supersede/expire, and propagation to recall plus derived candidates.
+
+- [ ] **Step 2: Implement governance APIs**
+
+Add scoped endpoints for L1 correction and withdrawal, L2 confirmation and rejection, conflict resolution, retention policy, and deletion request. Every mutation records actor, reason, before/after version, source evidence impact, and trace ID.
+
+- [ ] **Step 3: Preserve MemoryCore algorithms**
+
+Use existing MemoryCore mutation mechanisms where available and add adapters where absent; do not reimplement extraction. A deleted/revoked source must stop future recall and mark dependent L3/Wiki content for review.
+
+- [ ] **Step 4: Verify and commit**
+
+Run focused Go and MemoryCore tests. Expected: PASS.
+
+## Task 9: Persist L3 review and publication state
 
 **Files:**
 - Create: `internal/types/external_memory.go`
@@ -358,7 +413,7 @@ Run: `go test ./internal/application/repository -run ExternalMemory -count=1`
 
 Expected: PASS.
 
-## Task 9: Emit and receive signed L3 lifecycle events
+## Task 10: Emit and receive signed L3 lifecycle events
 
 **Files:**
 - Create: `E:/worktest/TencentDB-Agent-Memory/MemoryCore/src/integrations/fmind/l3-events.ts`
@@ -373,7 +428,7 @@ Cover matured, updated, conflicted, revoked, duplicate delivery, transient retry
 
 - [ ] **Step 2: Implement MemoryCore sender**
 
-Send only after native L3 commit. Callback failure is observable/retryable and never rolls back L3.
+Write a durable outbox record in the same committed unit as native L3. An independent worker delivers it to FMind; callback failure is observable/retryable and never rolls back L3.
 
 - [ ] **Step 3: Implement FMind intake**
 
@@ -383,7 +438,7 @@ Add `POST /internal/v1/memory/events`; validate service signature, schema, Bindi
 
 Run focused Go and Vitest suites. Expected: PASS.
 
-## Task 10: Implement L3 review and memory Wiki publication
+## Task 11: Implement L3 review and memory Wiki publication
 
 **Files:**
 - Create: `internal/application/service/external_memory/review.go`
@@ -397,7 +452,7 @@ Run focused Go and Vitest suites. Expected: PASS.
 
 - [ ] **Step 1: Write state and Wiki invariant tests**
 
-Test no publication before approval, approve/reject/request-changes, one memory Wiki per team, one page per memory, revision per version, duplicate checksum no-op, revoke to deprecated, and zero Raw/document/chunk creation.
+Test no publication before approval, approve/reject/request-changes, one memory Wiki per team, one page per memory, revision per version, duplicate checksum no-op, revoke to deprecated, claim-level evidence coverage of 100%, and zero Raw/document/chunk creation.
 
 - [ ] **Step 2: Implement review API**
 
@@ -411,13 +466,13 @@ POST /api/v1/external-memory/l3/reviews/:id/request-changes
 
 - [ ] **Step 3: Implement memory Wiki publisher**
 
-Create `<team> · 记忆知识库` with `type=wiki`, `wiki_source=memory`; render `fmind.cognition/v1` Markdown; store source memory/binding/review/revision provenance. Never call Docreader, chunking, embedding, or document ingestion.
+Create `<team> · 记忆知识库` with `type=wiki`, `wiki_source=memory`; render `fmind.cognition/v1` Markdown; store source memory/binding/review/revision provenance plus paragraph/claim-to-evidence locators. Reject formal publication when any factual claim lacks valid evidence. Never call Docreader, chunking, embedding, or document ingestion.
 
 - [ ] **Step 4: Verify and commit**
 
 Run focused service/handler tests. Expected: PASS.
 
-## Task 11: Add durable jobs and recovery
+## Task 12: Add durable jobs and recovery
 
 **Files:**
 - Create: `internal/task/external_memory_publication.go`
@@ -439,7 +494,34 @@ Run: `go test ./internal/task ./internal/container -run ExternalMemory -count=1`
 
 Expected: PASS.
 
-## Task 12: Build the FMind Agent access and memory UI
+## Task 13: Add Cognition MCP and Context Package contract
+
+**Files:**
+- Create: `internal/mcpserver/cognition/server.go`
+- Create: `internal/mcpserver/cognition/server_test.go`
+- Create: `internal/types/context_package.go`
+- Modify: `internal/container/container.go`
+- Modify: `internal/router/router.go`
+
+- [ ] **Step 1: Write MCP contract tests**
+
+Cover `memory_get_context`, `memory_search`, `memory_capture_turn`, `memory_confirm_candidate`, `knowledge_search`, `wiki_get_page`, `document_read`, and `context_assemble`; verify final-user identity, project/task scope, Agent capabilities, asset policy, risk flags, trace IDs, and denial behavior.
+
+- [ ] **Step 2: Implement atomic tools**
+
+Reuse existing FMind knowledge/document services and MemoryCore adapter. `memory_capture_turn` is an explicit connector/repair tool, not an L1-L3 extraction trigger.
+
+- [ ] **Step 3: Implement Context Package**
+
+Return separate Memory/RAG/Wiki/Raw/Skill sections with per-source Token budgets, provenance, conflicts, partial-failure warnings, permission decisions, and used asset/version IDs. Do not merge storage or search engines.
+
+- [ ] **Step 4: Verify and commit**
+
+Run: `go test ./internal/mcpserver/cognition -count=1`
+
+Expected: PASS.
+
+## Task 14: Build the FMind Agent access and memory UI
 
 **Files:**
 - Create: `frontend/src/api/agent-binding/index.ts`
@@ -467,7 +549,7 @@ Provide connector choice, organization/department/team/user/Agent binding, captu
 
 - [ ] **Step 3: Implement external memory and review pages**
 
-Support L0-L3 browse, evidence-summary permission, review actions, publication status/retry, and bidirectional L3/Wiki navigation. Keep existing General Settings memory toggle unchanged.
+Support L0-L3 browse, L1 correction, L2 confirmation, conflict/supersede/expiry handling, evidence permissions, review actions, publication status/retry, privacy/deletion status, and bidirectional L3/Wiki navigation. Keep existing General Settings memory toggle unchanged.
 
 - [ ] **Step 4: Verify and commit**
 
@@ -475,7 +557,7 @@ Run from frontend: `npm test && npm run type-check && npm run build`
 
 Expected: PASS.
 
-## Task 13: Source-build and deploy MemoryProxy plus MemoryCore
+## Task 15: Source-build and deploy MemoryProxy plus MemoryCore
 
 **Files:**
 - Create: `E:/worktest/TencentDB-Agent-Memory/MemoryCore/Dockerfile`
@@ -506,7 +588,7 @@ Expected: valid configuration and successful local-source builds without downloa
 
 Do not include unrelated dirty-worktree files in either commit.
 
-## Task 14: End-to-end acceptance and rollout
+## Task 16: End-to-end acceptance, metrics, and rollout
 
 **Files:**
 - Create: `tests/integration/external_agent_memory_flow_test.go`
@@ -522,13 +604,15 @@ For OpenClaw, Hermes, OpenAI Proxy, and Anthropic Proxy: create binding, use key
 
 Attempt forged tenant/team/user/Agent fields, cross-team recall, expired key, rotated key, revoked key, stale Proxy cache, disabled capture, disabled recall, and disabled L3 Wiki policy.
 
+Also test workspace/project/task scope, capability/asset intersections, Connector Secret exclusion from Prompt/logs, short-lived token expiry, L0 redaction/retention/deletion, L1 correction, L2 confirmation, and derived-memory invalidation.
+
 - [ ] **Step 3: Test L3 knowledge projection**
 
 Deliver matured L3, verify no Wiki before review, approve, verify memory Wiki revision and provenance, verify no Raw/document/chunk records, resend event, and verify idempotency.
 
 - [ ] **Step 4: Run regression gates**
 
-Run FMind `go test ./...`, frontend `npm test && npm run type-check && npm run build`, MemoryCore `npm test && npm run build:plugin`, MemoryProxy `npm test`, and Compose smoke tests.
+Run FMind `go test ./...`, frontend `npm test && npm run type-check && npm run build`, MemoryCore `npm test && npm run build:plugin`, MemoryProxy `npm test`, and Compose smoke tests. Assert L0 capture success ≥99% in the soak fixture, Context Package P95 ≤4s, authorization violations = 0, claim evidence coverage = 100%, and end-to-end trace identifiers on every sampled flow.
 
 Expected: PASS; FMind existing memory behavior remains unchanged.
 

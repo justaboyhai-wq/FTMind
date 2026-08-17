@@ -1,7 +1,7 @@
 # FMind 与 TencentDB Agent Memory 融合设计
 
-- 状态：已确认，按 1.1 版规划实施
-- 版本：1.1
+- 状态：已确认，按 1.2 版规划实施
+- 版本：1.2
 - 日期：2026-08-17
 - 适用阶段：第一阶段服务融合；兼顾第二阶段 Go 原生化演进
 
@@ -50,6 +50,8 @@ Wiki 人工修订不得反向覆盖 MemoryCore 的 L0–L3 数据。
 审核通过的 L3 仅存入 Wiki 类型知识库，并标识为“记忆知识库”。它不进入普通 Raw/RAG 文件知识库，不触发 Docreader、普通文件切片、Embedding 或 RAG 索引任务。
 
 标准 Markdown 是 Wiki 页面的内容格式和导出格式，不代表 Raw 文件资产。
+
+本设计以 L3 为唯一知识化入口。L2 仍按 MemoryCore 原机制生成、确认、更新和召回，但不直接发布为记忆 Wiki。该决策覆盖原 PRD 中“L2/L3 发布 Raw”的旧描述。
 
 ### 2.4 两阶段演进
 
@@ -198,13 +200,16 @@ FMind tenant_id ↔ MemoryCore team_id
 FMind team_id   ↔ 记忆 Wiki 归属
 FMind user_id   ↔ MemoryCore user_id
 FMind agent_id  ↔ MemoryCore agent_id
+workspace_id    ↔ 工作空间
+project_id      ↔ 项目范围
+task_id         ↔ 当前任务
 session_id      ↔ 外部 Agent 会话
 binding_id      ↔ 一次可审计的外部 Agent 绑定
 ```
 
 关联必须使用稳定内部 ID。邮箱、名称和显示标签不得作为关联主键。
 
-所有查询、事件、审核任务和 Wiki 投影至少包含 `tenant_id`、`team_id` 与 `binding_id`。组织模型支持 `department_id`；部门权限规则分阶段落地，但字段从首次捕获开始保留。
+所有查询、事件、审核任务和 Wiki 投影至少包含 `tenant_id`、`team_id` 与 `binding_id`。捕获和召回上下文同时保留 `department_id`、`workspace_id`、`project_id` 和 `task_id`。权限计算遵循“用户权限 ∩ 项目范围 ∩ Agent 能力 ∩ 资产策略”。
 
 ## 7. 外部 Agent 接入中心与自动提取
 
@@ -212,7 +217,7 @@ binding_id      ↔ 一次可审计的外部 Agent 绑定
 
 每个绑定关联 `tenant_id`、`department_id`、`team_id`、`user_id`、`agent_id`、连接器类型和策略。客户端提交的同名身份字段均不可信，运行时身份只能由 Binding Key 解析。
 
-Binding Key 仅在创建时显示一次，数据库只保存哈希。Key 支持到期、轮换、撤销、来源限制、最后使用时间和审计。停用绑定立即停止新的捕获与召回，但不删除历史记忆。
+Binding Key 是安装阶段的 Connector Secret，只在创建时显示一次，数据库只保存哈希。它只能保存在插件、Provider、代理或受控密钥存储中，不得进入 Agent Prompt、工具上下文或业务日志。运行时 Connector Secret 先换取短期 Binding Token，再访问 MemoryProxy/MemoryCore。Secret 支持到期、轮换、撤销、来源限制、最后使用时间和审计。停用绑定立即停止新的捕获与召回，但不删除历史记忆。
 
 ### 7.2 接入类型
 
@@ -224,7 +229,7 @@ Binding Key 仅在创建时显示一次，数据库只保存哈希。Key 支持�
 
 ### 7.3 绑定解析
 
-外部 Agent 携带 Binding Key。MemoryProxy/Plugin 首次使用时调用 FMind 内部 introspection，将 Key 换取短期签名的 Binding Context：
+连接器携带 Connector Secret。MemoryProxy/Plugin 首次使用时调用 FMind 内部 token exchange/introspection，将 Secret 换取最长五分钟的短期 Binding Token 与签名 Binding Context：
 
 ```json
 {
@@ -232,8 +237,14 @@ Binding Key 仅在创建时显示一次，数据库只保存哈希。Key 支持�
   "tenant_id": 1,
   "department_id": "department_uuid",
   "team_id": "team_uuid",
+  "workspace_id": "workspace_uuid",
+  "project_id": "project_uuid",
+  "task_id": "task_uuid",
   "user_id": "user_uuid",
   "agent_id": "agent_uuid",
+  "role_ids": ["role_uuid"],
+  "capability_scopes": ["memory:recall", "memory:capture"],
+  "asset_scopes": ["team:team_uuid"],
   "capture_enabled": true,
   "recall_enabled": true,
   "l3_wiki_enabled": true,
@@ -242,9 +253,15 @@ Binding Key 仅在创建时显示一次，数据库只保存哈希。Key 支持�
 }
 ```
 
-MemoryProxy 可短期缓存 Context。FMind 通过较短 TTL、策略版本和主动撤销事件使缓存失效。高风险操作必须实时 introspection。
+MemoryProxy 可在 Token 有效期内缓存 Context。FMind 通过短 TTL、策略版本和主动撤销事件使缓存失效。高风险操作必须实时 introspection。外部请求体中的组织和权限字段一律忽略。
 
-### 7.4 自动捕获和提取
+### 7.4 记忆治理
+
+MemoryCore 保持原有提取策略，FMind 增加治理入口：L1 可由授权用户纠正、确认或撤回；L2 可确认适用范围、结果与证据；L3 由团队管理员或审核员审核。冲突记忆并列显示，不静默覆盖；替代、失效、撤销和删除均保留审计与证据影响记录。
+
+L0 捕获前执行敏感信息规则；L0 支持用户可见、按保留期清理和合法删除。删除或撤回事件必须传播到 MemoryCore 召回状态及其派生候选，已发布记忆 Wiki 转入复核，不直接物理删除。
+
+### 7.5 自动捕获和提取
 
 ```text
 Agent 完成一轮对话
@@ -259,7 +276,7 @@ Agent 完成一轮对话
 
 Agent 不调用提取 API。通用 Conversation API 仅作为连接器内部传输、补录和测试协议。
 
-### 7.5 自动召回
+### 7.6 自动召回
 
 ```text
 Agent 构造提示词或发起模型请求
@@ -271,9 +288,13 @@ Agent 构造提示词或发起模型请求
 
 FMind 业务服务不进入每次模型推理热路径。FMind 只处理绑定控制、策略同步、审计和管理查询。
 
-### 7.6 管理与兼容接口
+### 7.7 管理、MCP 与兼容接口
 
-FMind 提供 AgentBinding 创建、轮换、停用、连接测试、状态和审计接口；提供只读的 L0–L3 管理查询。Conversation 写入接口保留给连接器、SDK、历史导入和自动化测试，不能暴露“提取 L1/L2/L3”操作。
+FMind 提供 AgentBinding 创建、轮换、停用、连接测试、状态和审计接口，并提供 L0–L3 管理与治理。Conversation 写入接口保留给连接器、SDK、历史导入和自动化测试，不能暴露“提取 L1/L2/L3”操作。
+
+首批 Cognition MCP 固定为 `memory_get_context`、`memory_search`、`memory_capture_turn`、`memory_confirm_candidate`、`knowledge_search`、`wiki_get_page`、`document_read` 和 `context_assemble`。自动捕获仍走 Hook/Provider/Proxy；MCP 的 capture 仅用于显式工具接入和补录。所有 MCP 调用透传最终用户、项目、Agent、任务和 trace ID。
+
+`context_assemble` 只定义统一 Context Package 契约，不合并记忆与 Wiki 的存储或检索路径。返回内容保留来源类型、权限决策、冲突标识、Token 配额和所使用的 Memory/Wiki/Chunk ID。
 
 连接器内部对话事件的最小字段：
 
@@ -490,25 +511,31 @@ content_checksum: sha256:...
 
 ### 11.2 AgentBinding 与 AgentBindingKey
 
-`AgentBinding` 记录组织、用户、Agent、连接器、捕获/召回/L3 Wiki 策略、状态与 policy version。
+`AgentBinding` 记录组织、部门、Workspace、Project、用户、Agent、连接器、捕获/召回/L3 Wiki 策略、能力范围、资产范围、状态与 policy version。
 
 `AgentBindingKey` 记录 key prefix、密钥哈希、到期时间、轮换关系、撤销时间、最后使用时间和来源限制。明文 Key 不落库。
 
-### 11.3 AgentBindingSession
+### 11.3 BindingToken 与 ContextPackage
+
+`BindingToken` 是短期签名凭证，绑定主体、动作范围、项目、Agent、policy version 和过期时间。服务端只保存撤销与审计所需的 token ID，不保存可重放明文。
+
+`ContextPackage` 是运行时组合合同，分别装载 Memory、RAG、Wiki、Raw Citation 和 Skill 结果，并记录每类 Token 预算、来源、权限决定、冲突与降级信息。
+
+### 11.4 AgentBindingSession
 
 替代 MemoryProxy 原长期 BindingRepo，记录 `binding_id + external_session_id` 到内部 user/team/agent/task 的稳定映射。MemoryProxy Redis 只保存可丢失缓存。
 
-### 11.4 MemoryL3Snapshot
+### 11.5 MemoryL3Snapshot
 
 保存收到的 L3 内容快照，确保审核和发布不依赖 MemoryCore 临时在线状态。
 
 关键字段：`memory_id`、`memory_version`、`tenant_id`、`team_id`、`agent_id`、`title`、`summary`、`content_markdown`、`confidence`、`sensitivity`、`evidence_refs`、`content_checksum`、`source_event_id`。
 
-### 11.5 MemoryReviewTask
+### 11.6 MemoryReviewTask
 
 保存审核状态、审核内容快照、审核人、意见和状态变更历史。
 
-### 11.6 MemoryWikiPublication
+### 11.7 MemoryWikiPublication
 
 记录记忆版本与 Wiki 资产的血缘：
 
@@ -520,9 +547,13 @@ wiki_id + wiki_page_id + wiki_revision_id
 
 同时保存发布状态、checksum、发布时间、失败阶段和最后一次错误。
 
-### 11.7 MemoryIntegrationEvent
+### 11.8 WikiClaimEvidence
 
-保存入站事件、幂等状态、处理次数和最终结果，用于审计、防重放和故障恢复。
+保存 Wiki 修订中声明或段落到 L3/L2/L1/L0 证据的定位关系。正式记忆 Wiki 发布要求所有事实性声明均绑定至少一个有效证据引用。
+
+### 11.9 MemoryIntegrationEvent 与 Outbox
+
+保存入站事件、幂等状态、处理次数和最终结果，用于审计、防重放和故障恢复。MemoryCore 的 L3 生命周期事件必须先写 durable outbox，再由独立 worker 投递 FMind，避免 L3 提交成功但事件丢失。
 
 ## 12. 任务与异常恢复
 
@@ -579,6 +610,9 @@ FMind 增加独立的“外部记忆”管理模块，避免与现有知识库 A
 - 审核通过、驳回和要求修改；
 - 选择或确认目标团队记忆 Wiki；
 - 查看 L3 与 Wiki Revision 的版本关系；
+- L1 纠正、确认和撤回；
+- L2 适用范围、结果和证据确认；
+- 冲突、替代、失效和删除影响查看；
 - 查看任务失败原因并执行有权限的人工重试；
 - 从记忆跳转 Wiki，从 Wiki 追溯来源记忆。
 
@@ -607,6 +641,8 @@ redis
 - 模型密钥只保存在 FMind 模型管理侧；
 - 日志不得记录完整对话、模型密钥或原始敏感证据；
 - 所有审核、发布、撤销和重试操作写入审计日志；
+- Connector Secret 不进入 Agent Prompt；运行请求仅使用短期 Binding Token；
+- L0 捕获执行脱敏、保留期和合法删除策略；
 - 事件体、Markdown 和证据摘要设置大小上限；
 - Binding Key 实施哈希存储、轮换、撤销、来源限制和租户级限流；
 - 外部 Agent 捕获实施请求大小限制、会话并发限制和幂等保护。
@@ -675,6 +711,15 @@ Plugin、Provider 或 MemoryProxy 根据 Binding Context 直接调用 MemoryCore
 - FMind 原有 Neo4j 记忆；
 - 登录、租户上下文和模型管理；
 - Compose 启动、健康检查和升级回滚。
+
+### 16.6 指标与性能门槛
+
+- L0 捕获成功率不低于 99%；
+- L1/L2 人工采纳率具备可统计事件，试点目标不低于 70%；
+- Context Package P95 不高于 4 秒；
+- 权限越权测试结果为 0；
+- 正式记忆 Wiki 声明级证据绑定率为 100%；
+- 每次调用贯穿 trace_id、request_id、job_id、principal 和 memory/wiki version。
 
 ## 17. 第一阶段验收标准
 
