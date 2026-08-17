@@ -161,6 +161,10 @@ func NewRouter(params RouterParams) *gin.Engine {
 	// Web embed 公开路由（使用 publish token 鉴权，不走全局 Auth）
 	RegisterEmbedPublicRoutes(r, params.EmbedChannelHandler, params.EmbedChannelService, params.TenantService, params.RedisClient, params.FileService)
 
+	// Connector introspection is intentionally registered before user Auth. Its
+	// sole credential is the connector secret and it has a narrow IP limiter.
+	RegisterBindingIntrospectionRoutes(r, params.BindingIntrospectionHandler)
+
 	// 认证中间件
 	r.Use(middleware.Auth(params.TenantService, params.UserService, params.TenantMemberService, params.TenantAPIKeyService, params.Config))
 
@@ -185,7 +189,6 @@ func NewRouter(params RouterParams) *gin.Engine {
 	r.Use(middleware.AuditServiceProvider(params.AuditLogService))
 
 	// 需要认证的API路由
-	handler.RegisterBindingIntrospectionRoutes(r, params.BindingIntrospectionHandler)
 	v1 := r.Group("/api/v1")
 	{
 		// rbacGuards bundles the role-gating middleware factories so each
@@ -239,7 +242,7 @@ func NewRouter(params RouterParams) *gin.Engine {
 		RegisterWebSearchProviderRoutes(v1, params.WebSearchProviderHandler, params.WebSearchCredentialsHandler, rbacGuards)
 		RegisterVectorStoreRoutes(v1, params.VectorStoreHandler, rbacGuards)
 		RegisterCustomAgentRoutes(v1, params.CustomAgentHandler, rbacGuards)
-		handler.RegisterAgentBindingRoutes(v1, params.AgentBindingHandler)
+		RegisterAgentBindingRoutes(v1, params.AgentBindingHandler, rbacGuards)
 		handler.RegisterMemoryWikiRoutes(v1, params.MemoryWikiHandler)
 		RegisterUserFavoriteRoutes(v1, params.UserFavoriteHandler, rbacGuards)
 		RegisterSkillRoutes(v1, params.SkillHandler, rbacGuards)
@@ -259,6 +262,21 @@ func NewRouter(params RouterParams) *gin.Engine {
 	}
 
 	return r
+}
+
+// RegisterAgentBindingRoutes treats bindings and connector keys as
+// tenant-wide infrastructure: every read and mutation requires Admin+.
+func RegisterAgentBindingRoutes(r *gin.RouterGroup, h *handler.AgentBindingHandler, g *rbacGuards) {
+	bindings := r.Group("/agent-bindings")
+	bindings.POST("", g.Admin(), h.Create)
+	bindings.GET("", g.Admin(), h.List)
+	bindings.GET("/:id", g.Admin(), h.Get)
+	bindings.POST("/:id/revoke", g.Admin(), h.Revoke)
+	bindings.POST("/:id/keys/rotate", g.Admin(), h.Rotate)
+}
+
+func RegisterBindingIntrospectionRoutes(r *gin.Engine, h *handler.BindingIntrospectionHandler) {
+	r.POST("/internal/v1/agent-bindings/introspect", middleware.PublicAuthRateLimit(), h.Introspect)
 }
 
 // RegisterChunkerDebugRoutes wires the read-only chunker preview endpoint

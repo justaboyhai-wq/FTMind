@@ -9,7 +9,7 @@ var sensitiveFieldRegex = regexp.MustCompile(
 		`refresh[_-]?token|id[_-]?token|bearer[_-]?token|auth[_-]?token|authorization|` +
 		`proxy[_-]?authorization|api[_-]?key|api[_-]?secret|secret[_-]?access[_-]?key|` +
 		`access[_-]?key[_-]?id|access[_-]?key|secret[_-]?key|client[_-]?secret|` +
-		`private[_-]?key|credentials?|secret)")\s*:\s*"[^"]*"`,
+		`connector[_-]?secret|binding[_-]?token|private[_-]?key|credentials?|secret)")\s*:\s*"[^"]*"`,
 )
 
 // sanitizeBody 清理敏感信息。

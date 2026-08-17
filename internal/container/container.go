@@ -208,6 +208,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(service.NewUserService))
 	must(container.Provide(service.NewSystemSettingService))
 	must(container.Provide(service.NewFMindCloudService))
+	must(container.Provide(agentbinding.NewScopeValidator))
 	must(container.Provide(agentbinding.NewService))
 	must(container.Provide(memorywiki.NewService))
 

@@ -8,6 +8,7 @@ type AgentBindingKey struct {
 	ID         string     `json:"id" gorm:"type:varchar(36);primaryKey"`
 	BindingID  string     `json:"binding_id" gorm:"type:varchar(36);not null;index"`
 	TenantID   uint64     `json:"tenant_id" gorm:"not null;index"`
+	KeyPrefix  string     `json:"key_prefix" gorm:"type:varchar(24);not null;index"`
 	KeyHash    string     `json:"-" gorm:"type:varchar(64);not null;uniqueIndex"`
 	CreatedBy  string     `json:"created_by,omitempty" gorm:"type:varchar(36)"`
 	ExpiresAt  *time.Time `json:"expires_at,omitempty"`

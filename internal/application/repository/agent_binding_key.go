@@ -35,3 +35,8 @@ func (r *agentBindingKeyRepository) RevokeAgentBindingKeys(ctx context.Context, 
 	now := time.Now()
 	return r.db.WithContext(ctx).Model(&types.AgentBindingKey{}).Where("tenant_id = ? AND binding_id = ? AND revoked_at IS NULL", tenantID, bindingID).Updates(map[string]any{"revoked_at": now, "updated_at": now}).Error
 }
+
+func (r *agentBindingKeyRepository) TouchAgentBindingKey(ctx context.Context, id string, usedAt time.Time) error {
+	return r.db.WithContext(ctx).Model(&types.AgentBindingKey{}).Where("id = ?", id).
+		Updates(map[string]any{"last_used_at": usedAt, "updated_at": usedAt}).Error
+}

@@ -19,6 +19,12 @@ const (
 )
 
 // loggerResponseBodyWriter 自定义ResponseWriter用于捕获响应内容（用于logger中间件）
+func isSensitiveBodyLoggingPath(path string) bool {
+	return path == "/internal/v1/agent-bindings/introspect" ||
+		path == "/api/v1/agent-bindings" ||
+		strings.HasPrefix(path, "/api/v1/agent-bindings/")
+}
+
 type loggerResponseBodyWriter struct {
 	gin.ResponseWriter
 	body *bytes.Buffer
@@ -121,20 +127,25 @@ func Logger() gin.HandlerFunc {
 			c.Next()
 			return
 		}
+		skipBodyLogging := isSensitiveBodyLoggingPath(path)
 
 		// 读取请求体（在Next之前读取，因为Next会消费body）
 		var requestBody string
-		if c.Request.Method == "POST" || c.Request.Method == "PUT" || c.Request.Method == "PATCH" {
+		if !skipBodyLogging && (c.Request.Method == "POST" || c.Request.Method == "PUT" || c.Request.Method == "PATCH") {
 			requestBody = readRequestBody(c)
 		}
 
 		// 创建响应体捕获器
-		responseBody := &bytes.Buffer{}
-		responseWriter := &loggerResponseBodyWriter{
-			ResponseWriter: c.Writer,
-			body:           responseBody,
+		// Binding bodies may contain one-time connector secrets and signed tokens.
+		// Keep request metadata, but do not cache either body for logging.
+		var responseBody *bytes.Buffer
+		if !skipBodyLogging {
+			responseBody = &bytes.Buffer{}
+			c.Writer = &loggerResponseBodyWriter{
+				ResponseWriter: c.Writer,
+				body:           responseBody,
+			}
 		}
-		c.Writer = responseWriter
 
 		// Process request
 		c.Next()
@@ -163,7 +174,7 @@ func Logger() gin.HandlerFunc {
 
 		// 读取响应体
 		responseBodyStr := ""
-		if responseBody.Len() > 0 {
+		if responseBody != nil && responseBody.Len() > 0 {
 			contentType := c.Writer.Header().Get("Content-Type")
 			if strings.Contains(contentType, "text/event-stream") {
 				responseBodyStr = "[SSE流式响应，已跳过]"

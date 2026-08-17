@@ -16,12 +16,12 @@ func NewBindingIntrospectionHandler(service interfaces.AgentBindingService) *Bin
 func (h *BindingIntrospectionHandler) Introspect(c *gin.Context) {
 	secret := c.GetHeader("X-FMind-Connector-Secret")
 	if secret == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "connector secret required"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid connector credentials"})
 		return
 	}
 	result, err := h.service.Introspect(c, secret)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired connector secret"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid connector credentials"})
 		return
 	}
 	c.JSON(http.StatusOK, result)
