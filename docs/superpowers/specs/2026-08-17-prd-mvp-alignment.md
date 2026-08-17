@@ -17,6 +17,8 @@ L0–L3 原生记忆链路
 ```
 
 L2 不直接发布为记忆 Wiki，也不触发普通 Raw/RAG、Docreader、Chunk、Embedding 或索引任务。
+Memory 动态数据整体不进入 FMind RAG 体系；L0/L1 及 L2/L3 profile 只保留在
+MemoryCore 自己的存储与召回向量库中，并与 FMind RAG collection 完全隔离。
 
 普通 Raw 资产、文件知识库和 RAG 仍按 FMind 现有能力及 PRD 独立运行；后续如需要将 L3 作为正式原件或 RAG 数据源，另立发布策略，不属于本轮默认路径。
 

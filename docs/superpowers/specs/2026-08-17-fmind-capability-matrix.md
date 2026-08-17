@@ -66,5 +66,7 @@
 - L3 正式 Wiki 声明级证据覆盖率为 100%；
 - L3 未审核不得成为记忆 Wiki 当前版本；
 - Memory Wiki 不创建 Raw、Document、Chunk、Embedding 或普通 RAG 索引；
+- MemoryCore 的 L0/L1 向量召回和 L2/L3 Profile write-through 必须保留，
+  但与 FMind RAG collection、生命周期、权限和索引完全隔离；
 - FMind 原有记忆开关和 Neo4j 路径回归不受影响；
 - L3 事件必须通过 durable outbox，不能因进程崩溃丢失。
