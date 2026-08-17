@@ -12,10 +12,11 @@ import (
 type Service struct {
 	repo interfaces.MemoryWikiPublicationRepository
 	wiki interfaces.WikiPageService
+	kb   interfaces.KnowledgeBaseService
 }
 
-func NewService(repo interfaces.MemoryWikiPublicationRepository, wiki interfaces.WikiPageService) *Service {
-	return &Service{repo: repo, wiki: wiki}
+func NewService(repo interfaces.MemoryWikiPublicationRepository, wiki interfaces.WikiPageService, kb interfaces.KnowledgeBaseService) *Service {
+	return &Service{repo: repo, wiki: wiki, kb: kb}
 }
 func (s *Service) Submit(ctx context.Context, p *types.MemoryWikiPublication) error {
 	if p == nil || p.TenantID == 0 || p.MemoryID == "" || p.Markdown == "" {
@@ -55,6 +56,10 @@ func (s *Service) PublishApproved(ctx context.Context, tenantID uint64, id, know
 	}
 	if p.Status != types.MemoryWikiApproved {
 		return nil, errors.New("memory wiki publication requires approved L3 status")
+	}
+	kb, err := s.kb.GetKnowledgeBaseByID(ctx, knowledgeBaseID)
+	if err != nil || kb == nil || kb.TenantID != tenantID || kb.Type != types.KnowledgeBaseTypeWiki || kb.WikiConfig == nil || !kb.WikiConfig.IsMemoryWiki {
+		return nil, errors.New("target knowledge base must be a tenant-scoped memory wiki")
 	}
 	slug := "memory/" + strings.Trim(strings.ToLower(p.MemoryID), "/")
 	page, err := s.wiki.CreatePage(ctx, &types.WikiPage{TenantID: tenantID, KnowledgeBaseID: knowledgeBaseID, Slug: slug, Title: p.Title, PageType: types.WikiPageTypeSummary, Status: types.WikiPageStatusPublished, Content: p.Markdown, Summary: p.Title, SourceRefs: types.StringArray{"memory:" + p.MemoryID}})
