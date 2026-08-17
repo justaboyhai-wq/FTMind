@@ -237,7 +237,7 @@ func TestAgentBindingCreateUsesPepperedHMACAndIntrospectionCarriesSignedPolicy(t
 		t.Fatal(err)
 	}
 	c := result.Context
-	if c.TenantID != 42 || c.DepartmentID != "department-1" || c.TeamID != "team-1" || c.WorkspaceID != "workspace-1" || c.ProjectID != "project-1" || c.UserID != "user-1" || c.AgentID != "agent-1" || c.TaskID != "task-1" || c.ConnectorType != "openclaw_plugin" {
+	if c.TenantID != 42 || c.DepartmentID != "department-1" || c.TeamID != "team-1" || c.WorkspaceID != "workspace-1" || c.ProjectID != "project-1" || c.UserID != "user-1" || c.AgentID != "agent-1" || c.TaskID != "task-1" || c.ExternalAgent != "openclaw" || c.ConnectorType != "openclaw_plugin" {
 		t.Fatalf("incomplete identity context: %+v", c)
 	}
 	if !c.CaptureEnabled || !c.RecallEnabled || !c.L3WikiEnabled || !c.L3ReviewRequired || c.PolicyVersion != 1 {
@@ -253,7 +253,7 @@ func TestAgentBindingCreateUsesPepperedHMACAndIntrospectionCarriesSignedPolicy(t
 	if err != nil {
 		t.Fatal(err)
 	}
-	if verified.BindingID != created.Binding.ID || verified.TokenID != c.TokenID || verified.PolicyVersion != 1 || verified.TeamID != c.TeamID || verified.UserID != c.UserID || verified.AgentID != c.AgentID || len(verified.CapabilityScopes) != 9 || len(verified.AssetScopes) != 5 {
+	if verified.BindingID != created.Binding.ID || verified.TokenID != c.TokenID || verified.PolicyVersion != 1 || verified.TeamID != c.TeamID || verified.UserID != c.UserID || verified.AgentID != c.AgentID || verified.ExternalAgent != "openclaw" || len(verified.CapabilityScopes) != 9 || len(verified.AssetScopes) != 5 {
 		t.Fatalf("verified claims differ from introspection: %+v", verified)
 	}
 }
@@ -301,9 +301,15 @@ func TestAgentBindingSecretsRequireAtLeast32NonWhitespaceBytes(t *testing.T) {
 func TestAgentBindingCreateFailsClosedOnIdentityScopeAndPepperValidation(t *testing.T) {
 	svc, _, _, ctx := newBindingService(t)
 	for name, mutate := range map[string]func(*interfaces.AgentBindingCreateRequest){
-		"team":               func(r *interfaces.AgentBindingCreateRequest) { r.TeamID = "" },
-		"user":               func(r *interfaces.AgentBindingCreateRequest) { r.UserID = "" },
-		"agent":              func(r *interfaces.AgentBindingCreateRequest) { r.AgentID = "" },
+		"team":  func(r *interfaces.AgentBindingCreateRequest) { r.TeamID = "" },
+		"user":  func(r *interfaces.AgentBindingCreateRequest) { r.UserID = "" },
+		"agent": func(r *interfaces.AgentBindingCreateRequest) { r.AgentID = "" },
+		"external agent path injection": func(r *interfaces.AgentBindingCreateRequest) {
+			r.ExternalAgent = "openclaw/../premium"
+		},
+		"external agent uppercase ambiguity": func(r *interfaces.AgentBindingCreateRequest) {
+			r.ExternalAgent = "OpenClaw"
+		},
 		"unknown capability": func(r *interfaces.AgentBindingCreateRequest) { r.CapabilityScopes = []string{"memory.root"} },
 		"blank asset":        func(r *interfaces.AgentBindingCreateRequest) { r.AssetScopes = []string{" "} },
 		"capture flag without capability": func(r *interfaces.AgentBindingCreateRequest) {
@@ -487,6 +493,31 @@ func TestVerifyBindingTokenRejectsServerRoleChange(t *testing.T) {
 	validator.roles = types.StringArray{"tenant:viewer", "organization:viewer"}
 	if _, err := svc.VerifyBindingToken(context.Background(), issued.BindingToken); err == nil {
 		t.Fatal("token retained elevated roles after authoritative membership changed")
+	}
+}
+
+func TestVerifyBindingTokenRejectsExternalAgentClaimMismatch(t *testing.T) {
+	svc, _, _, ctx := newBindingService(t)
+	created, err := svc.Create(ctx, validCreateRequest())
+	if err != nil {
+		t.Fatal(err)
+	}
+	issued, err := svc.Introspect(context.Background(), created.ConnectorSecret)
+	if err != nil {
+		t.Fatal(err)
+	}
+	claims := &bindingTokenClaims{}
+	if _, _, err := jwt.NewParser().ParseUnverified(issued.BindingToken, claims); err != nil {
+		t.Fatal(err)
+	}
+	claims.ExternalAgent = "premium"
+	tampered, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).
+		SignedString([]byte("test-signing-secret-at-least-32-bytes"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if verified, err := svc.VerifyBindingToken(context.Background(), tampered); err == nil || verified != nil {
+		t.Fatalf("accepted token routed to a different external agent: verified=%+v err=%v", verified, err)
 	}
 }
 

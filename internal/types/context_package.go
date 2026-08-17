@@ -13,6 +13,7 @@ type BindingContext struct {
 	UserID           string      `json:"user_id"`
 	AgentID          string      `json:"agent_id"`
 	TaskID           string      `json:"task_id,omitempty"`
+	ExternalAgent    string      `json:"external_agent"`
 	ConnectorType    string      `json:"connector_type"`
 	Roles            StringArray `json:"roles"`
 	CapabilityScopes StringArray `json:"capability_scopes"`

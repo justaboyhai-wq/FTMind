@@ -54,7 +54,8 @@ var (
 		"tenant": {}, "team": {}, "department": {}, "workspace": {},
 		"project": {}, "task": {}, "knowledge_base": {}, "wiki_page": {}, "document": {},
 	}
-	assetScopeIDPattern = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$`)
+	assetScopeIDPattern  = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$`)
+	externalAgentPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9._-]{0,127}$`)
 )
 
 type Service struct {
@@ -223,6 +224,7 @@ type bindingTokenClaims struct {
 	UserID           string            `json:"user_id"`
 	AgentID          string            `json:"agent_id"`
 	TaskID           string            `json:"task_id,omitempty"`
+	ExternalAgent    string            `json:"external_agent"`
 	ConnectorType    string            `json:"connector_type"`
 	Roles            types.StringArray `json:"roles"`
 	CapabilityScopes types.StringArray `json:"capability_scopes"`
@@ -243,7 +245,8 @@ func signBindingToken(value types.BindingContext, issuedAt time.Time) (string, e
 	claims := bindingTokenClaims{
 		BindingID: value.BindingID, TenantID: value.TenantID, DepartmentID: value.DepartmentID,
 		TeamID: value.TeamID, WorkspaceID: value.WorkspaceID, ProjectID: value.ProjectID,
-		UserID: value.UserID, AgentID: value.AgentID, TaskID: value.TaskID, ConnectorType: value.ConnectorType,
+		UserID: value.UserID, AgentID: value.AgentID, TaskID: value.TaskID,
+		ExternalAgent: value.ExternalAgent, ConnectorType: value.ConnectorType,
 		Roles:            value.Roles,
 		CapabilityScopes: value.CapabilityScopes, AssetScopes: value.AssetScopes,
 		CaptureEnabled: value.CaptureEnabled, RecallEnabled: value.RecallEnabled,
@@ -273,14 +276,14 @@ func (s *Service) VerifyBindingToken(ctx context.Context, tokenString string) (*
 	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}), jwt.WithIssuer(bindingTokenIssuer),
 		jwt.WithAudience(bindingTokenAudience), jwt.WithExpirationRequired(), jwt.WithIssuedAt(), jwt.WithLeeway(bindingTokenClockSkew))
 	if err != nil || !token.Valid || !validBindingTokenTimes(claims, time.Now().UTC()) || claims.ID == "" || claims.Subject != claims.BindingID || claims.BindingID == "" || claims.TenantID == 0 ||
-		claims.TeamID == "" || claims.UserID == "" || claims.AgentID == "" || claims.ConnectorType == "" {
+		claims.TeamID == "" || claims.UserID == "" || claims.AgentID == "" || claims.ExternalAgent == "" || claims.ConnectorType == "" {
 		return nil, ErrInvalidBinding
 	}
 	verified := &types.BindingContext{
 		TokenID: claims.ID, BindingID: claims.BindingID, TenantID: claims.TenantID,
 		DepartmentID: claims.DepartmentID, TeamID: claims.TeamID, WorkspaceID: claims.WorkspaceID,
 		ProjectID: claims.ProjectID, UserID: claims.UserID, AgentID: claims.AgentID,
-		TaskID: claims.TaskID, ConnectorType: claims.ConnectorType,
+		TaskID: claims.TaskID, ExternalAgent: claims.ExternalAgent, ConnectorType: claims.ConnectorType,
 		Roles:            claims.Roles,
 		CapabilityScopes: claims.CapabilityScopes, AssetScopes: claims.AssetScopes,
 		CaptureEnabled: claims.CaptureEnabled, RecallEnabled: claims.RecallEnabled,
@@ -310,7 +313,7 @@ func bindingContext(binding *types.AgentBinding, roles types.StringArray, tokenI
 		TokenID: tokenID, BindingID: binding.ID, TenantID: binding.TenantID,
 		DepartmentID: binding.DepartmentID, TeamID: binding.TeamID, WorkspaceID: binding.WorkspaceID,
 		ProjectID: binding.ProjectID, UserID: binding.UserID, AgentID: binding.AgentID,
-		TaskID: binding.TaskID, ConnectorType: binding.ConnectorType,
+		TaskID: binding.TaskID, ExternalAgent: binding.ExternalAgent, ConnectorType: binding.ConnectorType,
 		Roles:            append(types.StringArray(nil), roles...),
 		CapabilityScopes: append(types.StringArray(nil), binding.CapabilityScopes...),
 		AssetScopes:      append(types.StringArray(nil), binding.AssetScopes...),
@@ -324,7 +327,7 @@ func bindingContextsEqual(left, right types.BindingContext) bool {
 	return left.TokenID == right.TokenID && left.BindingID == right.BindingID && left.TenantID == right.TenantID &&
 		left.DepartmentID == right.DepartmentID && left.TeamID == right.TeamID && left.WorkspaceID == right.WorkspaceID &&
 		left.ProjectID == right.ProjectID && left.UserID == right.UserID && left.AgentID == right.AgentID &&
-		left.TaskID == right.TaskID && left.ConnectorType == right.ConnectorType && stringArraysEqual(left.Roles, right.Roles) &&
+		left.TaskID == right.TaskID && left.ExternalAgent == right.ExternalAgent && left.ConnectorType == right.ConnectorType && stringArraysEqual(left.Roles, right.Roles) &&
 		stringArraysEqual(left.CapabilityScopes, right.CapabilityScopes) && stringArraysEqual(left.AssetScopes, right.AssetScopes) &&
 		left.CaptureEnabled == right.CaptureEnabled && left.RecallEnabled == right.RecallEnabled &&
 		left.L3WikiEnabled == right.L3WikiEnabled && left.L3ReviewRequired == right.L3ReviewRequired &&
@@ -363,6 +366,9 @@ func validateCreateRequest(req *interfaces.AgentBindingCreateRequest) error {
 		if field.value == "" || len(field.value) > field.max {
 			return fmt.Errorf("%s is required and must be at most %d bytes", name, field.max)
 		}
+	}
+	if !externalAgentPattern.MatchString(req.ExternalAgent) {
+		return errors.New("external_agent must be a lowercase route identifier")
 	}
 	for name, field := range map[string]struct {
 		value string
@@ -542,7 +548,7 @@ func bindingExpired(binding *types.AgentBinding, now time.Time) bool {
 }
 
 func bindingIdentityComplete(binding *types.AgentBinding) bool {
-	return binding.TenantID != 0 && binding.TeamID != "" && binding.UserID != "" && binding.AgentID != "" && binding.ConnectorType != ""
+	return binding.TenantID != 0 && binding.TeamID != "" && binding.UserID != "" && binding.AgentID != "" && binding.ExternalAgent != "" && binding.ConnectorType != ""
 }
 
 func tenantFromContext(ctx context.Context) (uint64, error) {
