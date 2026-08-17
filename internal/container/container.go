@@ -143,6 +143,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(repository.NewTenantAPIKeyRepository))
 	must(container.Provide(repository.NewAgentBindingRepository))
 	must(container.Provide(repository.NewAgentBindingKeyRepository))
+	must(container.Provide(repository.NewMemoryWikiPublicationRepository))
 	must(container.Provide(repository.NewTenantMemberRepository))
 	must(container.Provide(repository.NewTenantInvitationRepository))
 	must(container.Provide(repository.NewAuditLogRepository))
