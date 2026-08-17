@@ -52,6 +52,7 @@ import (
 	chatpipeline "github.com/justaboyhai-wq/fmind/internal/application/service/chat_pipeline"
 	"github.com/justaboyhai-wq/fmind/internal/application/service/file"
 	memoryService "github.com/justaboyhai-wq/fmind/internal/application/service/memory"
+	"github.com/justaboyhai-wq/fmind/internal/application/service/memorywiki"
 	"github.com/justaboyhai-wq/fmind/internal/application/service/retriever"
 	"github.com/justaboyhai-wq/fmind/internal/common"
 	"github.com/justaboyhai-wq/fmind/internal/config"
@@ -208,6 +209,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(service.NewSystemSettingService))
 	must(container.Provide(service.NewFMindCloudService))
 	must(container.Provide(agentbinding.NewService))
+	must(container.Provide(memorywiki.NewService))
 
 	// Extract services - register individual extracters with names
 	must(container.Provide(service.NewChunkExtractService, dig.Name("chunkExtractor")))
