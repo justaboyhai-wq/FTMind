@@ -105,17 +105,21 @@ func (s *Service) Introspect(ctx context.Context, secret string) (*types.Binding
 	}
 	exp := time.Now().UTC().Add(5 * time.Minute)
 	c := types.BindingContext{TokenID: uuid.NewString(), BindingID: b.ID, TenantID: b.TenantID, DepartmentID: b.DepartmentID, WorkspaceID: b.WorkspaceID, ProjectID: b.ProjectID, AgentID: b.AgentID, CapabilityScopes: b.CapabilityScopes, AssetScopes: b.AssetScopes, CaptureEnabled: true, RecallEnabled: true, L3ReviewRequired: true, PolicyVersion: 1, ExpiresAt: exp}
+	secretKey, err := bindingTokenSecret()
+	if err != nil {
+		return nil, err
+	}
 	body := fmt.Sprintf("%s|%d|%s|%s", c.TokenID, c.TenantID, c.BindingID, exp.Format(time.RFC3339Nano))
-	mac := hmac.New(sha256.New, []byte(bindingTokenSecret()))
+	mac := hmac.New(sha256.New, []byte(secretKey))
 	_, _ = mac.Write([]byte(body))
 	token := base64.RawURLEncoding.EncodeToString([]byte(body + "|" + hex.EncodeToString(mac.Sum(nil))))
 	return &types.BindingIntrospectionResult{BindingToken: token, Context: c}, nil
 }
-func bindingTokenSecret() string {
+func bindingTokenSecret() (string, error) {
 	if s := os.Getenv("FMIND_BINDING_TOKEN_SECRET"); s != "" {
-		return s
+		return s, nil
 	}
-	return "change-me-binding-token-secret"
+	return "", errors.New("FMIND_BINDING_TOKEN_SECRET is required")
 }
 
 func (s *Service) persistKey(ctx context.Context, b *types.AgentBinding, secret string) error {
