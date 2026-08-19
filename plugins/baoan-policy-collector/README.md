@@ -20,8 +20,9 @@ Validation commands:
 ```powershell
 go test ./...
 go vet ./...
-go test -tags=live ./internal/collector -run TestLiveBaoanIndex
+go test -tags=live ./internal/collector -run TestLiveProtocol
 .\scripts\verify-run.ps1 -DataDir .\baoan-policy-data
+.\scripts\quality-report.ps1 -DataDir .\baoan-policy-data
 ```
 
 Use `daemon` for the built-in scheduled mode. It handles Ctrl+C/SIGTERM and

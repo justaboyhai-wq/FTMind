@@ -133,14 +133,22 @@ type OfficialFacts struct {
 }
 
 type StructuredPolicy struct {
-	ID                                                                    int64 `json:"id"`
-	Title, DocumentNumber, SourceURL, FinalURL                            string
-	Abstract, Markdown                                                    string
-	Official                                                              OfficialFacts `json:"official"`
-	PublishedAt, EffectiveAt, ExpiresAt, ApplicationStart, ApplicationEnd string
-	OfficialListed                                                        bool            `json:"official_listed"`
-	LocalApplicationStatus                                                string          `json:"local_application_status"`
-	Conflicts                                                             []FieldConflict `json:"conflicts,omitempty"`
+	ID                     int64           `json:"id"`
+	Title                  string          `json:"title"`
+	DocumentNumber         string          `json:"document_number"`
+	SourceURL              string          `json:"source_url"`
+	FinalURL               string          `json:"final_url"`
+	Abstract               string          `json:"abstract"`
+	Markdown               string          `json:"markdown"`
+	Official               OfficialFacts   `json:"official"`
+	PublishedAt            string          `json:"published_at"`
+	EffectiveAt            string          `json:"effective_at"`
+	ExpiresAt              string          `json:"expires_at"`
+	ApplicationStart       string          `json:"application_start"`
+	ApplicationEnd         string          `json:"application_end"`
+	OfficialListed         bool            `json:"official_listed"`
+	LocalApplicationStatus string          `json:"local_application_status"`
+	Conflicts              []FieldConflict `json:"conflicts,omitempty"`
 }
 
 type Package struct {
@@ -152,19 +160,34 @@ type Package struct {
 }
 
 type Manifest struct {
-	SchemaVersion  string    `json:"schema_version"`
-	PackageID      string    `json:"package_id"`
-	ExternalID     string    `json:"external_id"`
-	SnapshotID     string    `json:"snapshot_id"`
-	CanonicalURL   string    `json:"canonical_url"`
-	FinalURL       string    `json:"final_url"`
-	FetchedAt      time.Time `json:"fetched_at"`
-	SnapshotSHA256 string    `json:"snapshot_sha256"`
-	Files          []string  `json:"files"`
+	SchemaVersion  string               `json:"schema_version"`
+	PackageID      string               `json:"package_id"`
+	ExternalID     string               `json:"external_id"`
+	SnapshotID     string               `json:"snapshot_id"`
+	CanonicalURL   string               `json:"canonical_url"`
+	FinalURL       string               `json:"final_url"`
+	FetchedAt      time.Time            `json:"fetched_at"`
+	SnapshotSHA256 string               `json:"snapshot_sha256"`
+	Files          []string             `json:"files"`
+	Attachments    []AttachmentManifest `json:"attachments,omitempty"`
+}
+
+type AttachmentManifest struct {
+	Name         string `json:"name"`
+	URL          string `json:"url"`
+	MIME         string `json:"mime,omitempty"`
+	DeclaredSize int64  `json:"declared_size,omitempty"`
+	ActualSize   int64  `json:"actual_size"`
+	SHA256       string `json:"sha256"`
+	StoragePath  string `json:"storage_path"`
 }
 
 type Failure struct {
-	RunID, URL, Stage, Reason string
-	Attempts                  int
-	NextRetryAt               time.Time
+	RunID       string    `json:"run_id"`
+	ExternalID  string    `json:"external_id"`
+	URL         string    `json:"url"`
+	Stage       string    `json:"stage"`
+	Reason      string    `json:"reason"`
+	Attempts    int       `json:"attempts"`
+	NextRetryAt time.Time `json:"next_retry_at,omitempty"`
 }

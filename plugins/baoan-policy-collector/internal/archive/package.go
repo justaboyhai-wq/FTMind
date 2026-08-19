@@ -14,19 +14,27 @@ import (
 	"time"
 
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/model"
+	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/schema"
 )
 
 var safeName = regexp.MustCompile(`[^a-zA-Z0-9._-]+`)
 
 type Package = model.Package
 type PublishResult struct {
-	SnapshotID string
-	Created    bool
+	SnapshotID     string
+	SnapshotSHA256 string
+	Created        bool
 }
 
 func Publish(root string, pkg Package) (PublishResult, error) {
 	if pkg.ExternalID == "" {
 		return PublishResult{}, errors.New("external id is required")
+	}
+	if err := schema.Validate("structured.schema.json", pkg.Structured); err != nil {
+		return PublishResult{}, err
+	}
+	if err := schema.Validate("relations.schema.json", pkg.Relations); err != nil {
+		return PublishResult{}, err
 	}
 	name := safeName.ReplaceAllString(pkg.ExternalID, "_")
 	base := filepath.Join(root, "policies", name)
@@ -39,7 +47,7 @@ func Publish(root string, pkg Package) (PublishResult, error) {
 		return PublishResult{}, err
 	}
 	if existing != "" {
-		return PublishResult{SnapshotID: existing}, nil
+		return PublishResult{SnapshotID: existing, SnapshotSHA256: snapshotHash}, nil
 	}
 	snapshotID := time.Now().UTC().Format("20060102T150405Z") + "-" + snapshotHash[:12]
 	staging := filepath.Join(root, ".staging", name, snapshotID)
@@ -56,6 +64,9 @@ func Publish(root string, pkg Package) (PublishResult, error) {
 		if int64(len(a.Body)) != a.ActualSize {
 			return PublishResult{}, fmt.Errorf("attachment %s size mismatch", a.Name)
 		}
+		if a.Size > 0 && a.Size != a.ActualSize {
+			return PublishResult{}, fmt.Errorf("attachment %s declared size %d differs from actual %d", a.Name, a.Size, a.ActualSize)
+		}
 		if len(a.SHA256) < 12 {
 			return PublishResult{}, fmt.Errorf("attachment %s has invalid sha256", a.Name)
 		}
@@ -68,11 +79,17 @@ func Publish(root string, pkg Package) (PublishResult, error) {
 		files[path] = a.Body
 	}
 	manifest := model.Manifest{SchemaVersion: "baoan.raw/v1", PackageID: name, ExternalID: pkg.ExternalID, SnapshotID: snapshotID, FetchedAt: time.Now().UTC(), SnapshotSHA256: snapshotHash}
+	for _, a := range pkg.Attachments {
+		manifest.Attachments = append(manifest.Attachments, model.AttachmentManifest{Name: a.Name, URL: a.URL, MIME: a.MIME, DeclaredSize: a.Size, ActualSize: a.ActualSize, SHA256: a.SHA256, StoragePath: a.StoragePath})
+	}
 	for path := range files {
 		manifest.Files = append(manifest.Files, path)
 	}
 	sortStrings(manifest.Files)
 	manifestBody, _ := json.MarshalIndent(manifest, "", "  ")
+	if err := schema.Validate("manifest.schema.json", manifestBody); err != nil {
+		return PublishResult{}, err
+	}
 	if err := writeChecked(staging, "manifest.json", manifestBody); err != nil {
 		return PublishResult{}, err
 	}
@@ -88,7 +105,7 @@ func Publish(root string, pkg Package) (PublishResult, error) {
 	if err := atomicWrite(filepath.Join(base, "latest.json"), latest); err != nil {
 		return PublishResult{}, err
 	}
-	return PublishResult{SnapshotID: snapshotID, Created: true}, nil
+	return PublishResult{SnapshotID: snapshotID, SnapshotSHA256: snapshotHash, Created: true}, nil
 }
 
 func Verify(root string) error {
@@ -103,6 +120,33 @@ func Verify(root string) error {
 		if entry.IsDir() || entry.Name() != "checksums.sha256" {
 			return nil
 		}
+		packageDir := filepath.Dir(path)
+		manifestBody, err := os.ReadFile(filepath.Join(packageDir, "manifest.json"))
+		if err != nil {
+			return err
+		}
+		if err := schema.Validate("manifest.schema.json", manifestBody); err != nil {
+			return err
+		}
+		var manifest model.Manifest
+		if err := json.Unmarshal(manifestBody, &manifest); err != nil {
+			return err
+		}
+		for _, file := range manifest.Files {
+			if err := validateRelative(file); err != nil {
+				return err
+			}
+		}
+		if body, err := os.ReadFile(filepath.Join(packageDir, "structured.json")); err != nil {
+			return err
+		} else if err := schema.Validate("structured.schema.json", body); err != nil {
+			return err
+		}
+		if body, err := os.ReadFile(filepath.Join(packageDir, "relations.json")); err != nil {
+			return err
+		} else if err := schema.Validate("relations.schema.json", body); err != nil {
+			return err
+		}
 		f, err := os.Open(path)
 		if err != nil {
 			return err
@@ -112,9 +156,12 @@ func Verify(root string) error {
 		for scanner.Scan() {
 			parts := strings.SplitN(scanner.Text(), "  ", 2)
 			if len(parts) != 2 {
-				continue
+				return fmt.Errorf("invalid checksum line in %s", path)
 			}
-			body, err := os.ReadFile(filepath.Join(filepath.Dir(path), parts[1]))
+			if err := validateRelative(parts[1]); err != nil {
+				return err
+			}
+			body, err := os.ReadFile(filepath.Join(packageDir, parts[1]))
 			if err != nil {
 				return err
 			}
@@ -125,6 +172,13 @@ func Verify(root string) error {
 		}
 		return scanner.Err()
 	})
+}
+
+func validateRelative(rel string) error {
+	if rel == "" || filepath.IsAbs(rel) || strings.Contains(rel, "..") {
+		return fmt.Errorf("unsafe archive path %q", rel)
+	}
+	return nil
 }
 
 func packageHash(pkg Package) string {
@@ -165,7 +219,7 @@ func findSnapshot(base, hash string) (string, error) {
 	return "", nil
 }
 func writeChecked(root, rel string, body []byte) error {
-	if filepath.IsAbs(rel) || strings.Contains(rel, "..") {
+	if err := validateRelative(rel); err != nil {
 		return errors.New("unsafe archive path")
 	}
 	path := filepath.Join(root, rel)

@@ -57,3 +57,12 @@ func TestClientRetries503(t *testing.T) {
 		t.Fatalf("got=%+v err=%v count=%d", got, err, count)
 	}
 }
+
+func TestClientRejectsPermanentHTTPError(t *testing.T) {
+	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { http.Error(w, "no", http.StatusNotFound) }))
+	defer s.Close()
+	c := New(Options{AllowedHosts: []string{hostOf(s.URL)}, MaxBytes: 100, AllowPrivateNetworks: true, Interval: time.Nanosecond})
+	if _, err := c.Get(context.Background(), s.URL); err == nil {
+		t.Fatal("expected non-2xx error")
+	}
+}

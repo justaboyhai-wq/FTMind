@@ -11,12 +11,15 @@ import (
 )
 
 type Relation struct {
-	SourceID                                        int64  `json:"source_id"`
-	RelationType                                    string `json:"relation_type"`
-	TargetID                                        int64  `json:"target_id,omitempty"`
-	TargetURL, SourceCode, SourceLabel, TargetTitle string
-	AssignmentSource                                string `json:"assignment_source"`
-	RuleVersion                                     string `json:"rule_version"`
+	SourceID         int64  `json:"source_id"`
+	RelationType     string `json:"relation_type"`
+	TargetID         int64  `json:"target_id,omitempty"`
+	TargetURL        string `json:"target_url"`
+	SourceCode       string `json:"source_code"`
+	SourceLabel      string `json:"source_label"`
+	TargetTitle      string `json:"target_title"`
+	AssignmentSource string `json:"assignment_source"`
+	RuleVersion      string `json:"rule_version"`
 }
 
 type Normalized struct {
@@ -37,7 +40,7 @@ func Policy(d detail.Decoded, now time.Time) (Normalized, error) {
 	start := time.Unix(d.Extension.ApplicationStart, 0)
 	end := time.Unix(d.Extension.ApplicationEnd, 0)
 	status := applicationStatus(d.Extension.ApplicationStart, d.Extension.ApplicationEnd, d.GKML.ExpiredAt, now)
-	structured := model.StructuredPolicy{ID: d.ID, Title: d.Title, DocumentNumber: first(d.Extension.DocumentNumber, d.GKML.DocumentNumber), SourceURL: d.URL, FinalURL: d.URL, Abstract: d.Abstract, Markdown: md, Official: model.OfficialFacts{ServiceObjects: d.Extension.ServiceObjects, IssuingAuthority: first(d.Extension.IssuingAuthority, d.GKML.Publisher), Theme: first(d.Extension.Theme, d.GKML.ClassifyThemeName), CarrierType: first(d.Extension.CarrierType, d.GKML.ClassifyMainName), DocumentGenre: d.GKML.ClassifyGenreName}, ApplicationStart: formatTime(start), ApplicationEnd: formatTime(end), LocalApplicationStatus: status, Conflicts: d.Conflicts}
+	structured := model.StructuredPolicy{ID: d.ID, Title: d.Title, DocumentNumber: first(d.Extension.DocumentNumber, d.GKML.DocumentNumber), SourceURL: d.URL, FinalURL: d.URL, Abstract: d.Abstract, Markdown: md, PublishedAt: d.PublishedAt, EffectiveAt: formatTime(start), ExpiresAt: formatTime(time.Unix(d.GKML.ExpiredAt, 0)), Official: model.OfficialFacts{ServiceObjects: d.Extension.ServiceObjects, IssuingAuthority: first(d.Extension.IssuingAuthority, d.GKML.Publisher), Theme: first(d.Extension.Theme, d.GKML.ClassifyThemeName), CarrierType: first(d.Extension.CarrierType, d.GKML.ClassifyMainName), DocumentGenre: d.GKML.ClassifyGenreName}, ApplicationStart: formatTime(start), ApplicationEnd: formatTime(end), OfficialListed: true, LocalApplicationStatus: status, Conflicts: d.Conflicts}
 	return Normalized{Structured: structured, Markdown: md, Relations: relations(d)}, nil
 }
 

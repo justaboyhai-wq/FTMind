@@ -84,17 +84,13 @@ func Decode(body []byte) (Decoded, error) {
 	if err := json.Unmarshal(body, &raw); err != nil {
 		return Decoded{}, fmt.Errorf("decode detail: %w", err)
 	}
-	var ext map[string]json.RawMessage
-	if raw.JSONExt != "" {
-		if err := json.Unmarshal([]byte(raw.JSONExt), &ext); err != nil {
-			return Decoded{}, fmt.Errorf("decode json_ext: %w", err)
-		}
+	ext, err := nestedObject(raw.JSONExt, "json_ext")
+	if err != nil {
+		return Decoded{}, err
 	}
-	var g map[string]json.RawMessage
-	if raw.GKMLData != "" {
-		if err := json.Unmarshal([]byte(raw.GKMLData), &g); err != nil {
-			return Decoded{}, fmt.Errorf("decode gkml_data: %w", err)
-		}
+	g, err := nestedObject(raw.GKMLData, "gkml_data")
+	if err != nil {
+		return Decoded{}, err
 	}
 	d := Decoded{Raw: append([]byte(nil), body...), ID: raw.ID, Title: raw.Title, Abstract: raw.Abstract, ContentHTML: raw.Content, Source: raw.Source, Date: raw.Date, URL: raw.URL, OriginURL: raw.OriginURL, GKMLURL: raw.GKMLURL, Attachments: raw.Attachment, RelatedPosts: raw.RelatedPosts, ExpiredAt: raw.ExpiredAt, Updated: raw.Updated}
 	d.PublishedAt = unixString(raw.PublishTime)
@@ -105,6 +101,25 @@ func Decode(body []byte) (Decoded, error) {
 	d.GKML = GKML{DocumentNumber: pickString(g, "document_number"), Publisher: pickString(g, "publisher"), ClassifyMainName: pickString(g, "classify_main_name"), ClassifyGenreName: pickString(g, "classify_genre_name"), ClassifyThemeName: pickString(g, "classify_theme_name"), ExpiredAt: pickInt(g, "expired_time"), IsExpired: int(pickInt(g, "is_expired"))}
 	d.Conflicts = conflicts(ext, raw)
 	return d, nil
+}
+
+func nestedObject(value, field string) (map[string]json.RawMessage, error) {
+	if strings.TrimSpace(value) == "" || strings.TrimSpace(value) == "null" {
+		return nil, nil
+	}
+	trimmed := strings.TrimSpace(value)
+	if !json.Valid([]byte(trimmed)) {
+		return nil, fmt.Errorf("decode %s: invalid JSON", field)
+	}
+	if trimmed[0] != '{' {
+		// The live site uses [] when no extension metadata exists.
+		return nil, nil
+	}
+	var out map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(trimmed), &out); err != nil {
+		return nil, fmt.Errorf("decode %s: %w", field, err)
+	}
+	return out, nil
 }
 
 func unixString(seconds int64) string {

@@ -3,9 +3,11 @@ package state
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	_ "modernc.org/sqlite"
@@ -14,6 +16,9 @@ import (
 )
 
 type Store struct{ db *sql.DB }
+
+var ErrLocked = errors.New("collector run is already locked")
+
 type Run struct {
 	ID, Status                                                 string
 	Full                                                       bool
@@ -38,7 +43,41 @@ func Open(path string) (*Store, error) {
 }
 func (s *Store) Close() error { return s.db.Close() }
 func (s *Store) migrate() error {
-	_, err := s.db.Exec(`CREATE TABLE IF NOT EXISTS runs(id TEXT PRIMARY KEY,status TEXT NOT NULL,full_run INTEGER NOT NULL,started_at TEXT NOT NULL,completed_at TEXT,index_count INTEGER NOT NULL DEFAULT 0,unique_ids INTEGER NOT NULL DEFAULT 0,created_count INTEGER NOT NULL DEFAULT 0,updated_count INTEGER NOT NULL DEFAULT 0,unchanged_count INTEGER NOT NULL DEFAULT 0,failed_count INTEGER NOT NULL DEFAULT 0);CREATE TABLE IF NOT EXISTS failures(id INTEGER PRIMARY KEY AUTOINCREMENT,run_id TEXT NOT NULL,url TEXT NOT NULL,stage TEXT NOT NULL,reason TEXT NOT NULL,attempts INTEGER NOT NULL DEFAULT 0,next_retry_at TEXT,done INTEGER NOT NULL DEFAULT 0);CREATE TABLE IF NOT EXISTS records(external_id TEXT PRIMARY KEY,index_hash TEXT NOT NULL,last_snapshot TEXT,missing_runs INTEGER NOT NULL DEFAULT 0,source_state TEXT NOT NULL DEFAULT 'active')`)
+	_, err := s.db.Exec(`CREATE TABLE IF NOT EXISTS runs(id TEXT PRIMARY KEY,status TEXT NOT NULL,full_run INTEGER NOT NULL,started_at TEXT NOT NULL,completed_at TEXT,index_count INTEGER NOT NULL DEFAULT 0,unique_ids INTEGER NOT NULL DEFAULT 0,created_count INTEGER NOT NULL DEFAULT 0,updated_count INTEGER NOT NULL DEFAULT 0,unchanged_count INTEGER NOT NULL DEFAULT 0,failed_count INTEGER NOT NULL DEFAULT 0);CREATE TABLE IF NOT EXISTS failures(id INTEGER PRIMARY KEY AUTOINCREMENT,run_id TEXT NOT NULL,external_id TEXT NOT NULL DEFAULT '',url TEXT NOT NULL,stage TEXT NOT NULL,reason TEXT NOT NULL,attempts INTEGER NOT NULL DEFAULT 0,next_retry_at TEXT,done INTEGER NOT NULL DEFAULT 0);CREATE TABLE IF NOT EXISTS records(external_id TEXT PRIMARY KEY,index_hash TEXT NOT NULL,last_snapshot TEXT,missing_runs INTEGER NOT NULL DEFAULT 0,source_state TEXT NOT NULL DEFAULT 'active');CREATE TABLE IF NOT EXISTS locks(name TEXT PRIMARY KEY,acquired_at INTEGER NOT NULL)`)
+	if err != nil {
+		return err
+	}
+	// Keep databases created by the first collector build forward compatible.
+	if _, alterErr := s.db.Exec(`ALTER TABLE failures ADD COLUMN external_id TEXT NOT NULL DEFAULT ''`); alterErr != nil && !strings.Contains(strings.ToLower(alterErr.Error()), "duplicate column") {
+		return alterErr
+	}
+	return err
+}
+func (s *Store) AcquireLock(ctx context.Context, name string, ttl time.Duration) (bool, error) {
+	now := time.Now().Unix()
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return false, err
+	}
+	defer tx.Rollback()
+	if _, err := tx.ExecContext(ctx, `DELETE FROM locks WHERE name=? AND acquired_at<?`, name, now-int64(ttl.Seconds())); err != nil {
+		return false, err
+	}
+	res, err := tx.ExecContext(ctx, `INSERT OR IGNORE INTO locks(name,acquired_at) VALUES(?,?)`, name, now)
+	if err != nil {
+		return false, err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	if err := tx.Commit(); err != nil {
+		return false, err
+	}
+	return n == 1, nil
+}
+func (s *Store) ReleaseLock(ctx context.Context, name string) error {
+	_, err := s.db.ExecContext(ctx, `DELETE FROM locks WHERE name=?`, name)
 	return err
 }
 func (s *Store) StartRun(ctx context.Context, id string, full bool) (Run, error) {
@@ -55,11 +94,11 @@ func (s *Store) RecordFailure(ctx context.Context, f model.Failure) error {
 	if !f.NextRetryAt.IsZero() {
 		next = f.NextRetryAt.UTC().Format(time.RFC3339Nano)
 	}
-	_, err := s.db.ExecContext(ctx, `INSERT INTO failures(run_id,url,stage,reason,attempts,next_retry_at) VALUES(?,?,?,?,?,?)`, f.RunID, f.URL, f.Stage, f.Reason, f.Attempts, next)
+	_, err := s.db.ExecContext(ctx, `INSERT INTO failures(run_id,external_id,url,stage,reason,attempts,next_retry_at) VALUES(?,?,?,?,?,?,?)`, f.RunID, f.ExternalID, f.URL, f.Stage, f.Reason, f.Attempts, next)
 	return err
 }
 func (s *Store) ListRetryable(ctx context.Context, limit int) ([]model.Failure, error) {
-	rows, err := s.db.QueryContext(ctx, `SELECT run_id,url,stage,reason,attempts,next_retry_at FROM failures WHERE done=0 AND (next_retry_at IS NULL OR next_retry_at<=?) ORDER BY id LIMIT ?`, time.Now().UTC().Format(time.RFC3339Nano), limit)
+	rows, err := s.db.QueryContext(ctx, `SELECT run_id,external_id,url,stage,reason,attempts,next_retry_at FROM failures WHERE done=0 AND (next_retry_at IS NULL OR next_retry_at<=?) ORDER BY id LIMIT ?`, time.Now().UTC().Format(time.RFC3339Nano), limit)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +107,7 @@ func (s *Store) ListRetryable(ctx context.Context, limit int) ([]model.Failure, 
 	for rows.Next() {
 		var f model.Failure
 		var next sql.NullString
-		if err := rows.Scan(&f.RunID, &f.URL, &f.Stage, &f.Reason, &f.Attempts, &next); err != nil {
+		if err := rows.Scan(&f.RunID, &f.ExternalID, &f.URL, &f.Stage, &f.Reason, &f.Attempts, &next); err != nil {
 			return nil, err
 		}
 		if next.Valid {
@@ -77,6 +116,10 @@ func (s *Store) ListRetryable(ctx context.Context, limit int) ([]model.Failure, 
 		out = append(out, f)
 	}
 	return out, rows.Err()
+}
+func (s *Store) MarkFailureDone(ctx context.Context, f model.Failure) error {
+	_, err := s.db.ExecContext(ctx, `UPDATE failures SET done=1 WHERE run_id=? AND external_id=? AND url=? AND done=0`, f.RunID, f.ExternalID, f.URL)
+	return err
 }
 func (s *Store) UpsertRecord(ctx context.Context, id, hash, snapshot string) error {
 	_, err := s.db.ExecContext(ctx, `INSERT INTO records(external_id,index_hash,last_snapshot,source_state) VALUES(?,?,?,'active') ON CONFLICT(external_id) DO UPDATE SET index_hash=excluded.index_hash,last_snapshot=excluded.last_snapshot,missing_runs=0,source_state='active'`, id, hash, snapshot)

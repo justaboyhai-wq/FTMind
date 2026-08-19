@@ -57,6 +57,11 @@ func TestCollectEndToEndPublishesPackage(t *testing.T) {
 	})
 	mux.HandleFunc("/postmeta/p/12/12846/12846556.json", func(w http.ResponseWriter, r *http.Request) {
 		body := strings.ReplaceAll(string(detailJSON), "https://www.baoan.gov.cn", srv.URL)
+		body = strings.ReplaceAll(body, "/xxgk/fgk/qbmwj/content/post_12846556.html", "/policy.html")
+		body = strings.ReplaceAll(body, `"size":"205216"`, `"size":"3"`)
+		body = strings.ReplaceAll(body, `"size":"65536"`, `"size":"3"`)
+		body = strings.ReplaceAll(body, `"size":"49152"`, `"size":"3"`)
+		body = strings.ReplaceAll(body, `"size":"30208"`, `"size":"3"`)
 		_, _ = w.Write([]byte(body))
 	})
 	mux.HandleFunc("/policy.html", func(w http.ResponseWriter, r *http.Request) { _, _ = w.Write(policyHTML) })
@@ -84,5 +89,67 @@ func TestCollectEndToEndPublishesPackage(t *testing.T) {
 	}
 	if err := archive.Verify(cfg.DataDir); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestRetryProcessesOnlyFailedRecord(t *testing.T) {
+	detailJSON, err := os.ReadFile("../../testdata/detail-12846556.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	policyHTML, err := os.ReadFile("../../testdata/policy-12846556.html")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var srv *httptest.Server
+	policyHits := 0
+	mux := http.NewServeMux()
+	mux.HandleFunc("/xxk/", func(w http.ResponseWriter, r *http.Request) {
+		_, _ = w.Write([]byte("<script src=\"/zcfg.js\"></script>"))
+	})
+	mux.HandleFunc("/zcfg.js", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, `var allData = [{"id":"12846556","title":"policy","url":%q}];`, srv.URL+"/policy.html")
+	})
+	mux.HandleFunc("/postmeta/p/12/12846/12846556.json", func(w http.ResponseWriter, r *http.Request) {
+		body := strings.ReplaceAll(string(detailJSON), "https://www.baoan.gov.cn", srv.URL)
+		body = strings.ReplaceAll(body, "/xxgk/fgk/qbmwj/content/post_12846556.html", "/policy.html")
+		body = strings.ReplaceAll(body, `"size":"205216"`, `"size":"3"`)
+		body = strings.ReplaceAll(body, `"size":"65536"`, `"size":"3"`)
+		body = strings.ReplaceAll(body, `"size":"49152"`, `"size":"3"`)
+		body = strings.ReplaceAll(body, `"size":"30208"`, `"size":"3"`)
+		_, _ = w.Write([]byte(body))
+	})
+	mux.HandleFunc("/policy.html", func(w http.ResponseWriter, r *http.Request) {
+		policyHits++
+		if policyHits == 1 {
+			http.Error(w, "temporary", http.StatusInternalServerError)
+			return
+		}
+		_, _ = w.Write(policyHTML)
+	})
+	mux.HandleFunc("/attachment/", func(w http.ResponseWriter, r *http.Request) { _, _ = w.Write([]byte("pdf")) })
+	srv = httptest.NewServer(mux)
+	defer srv.Close()
+	cfg := config.Default()
+	cfg.SeedURL, cfg.SourceBaseURL, cfg.DataDir = srv.URL+"/xxk/", srv.URL, t.TempDir()
+	cfg.AllowedHosts, cfg.RetryCount = []string{testHost(srv.URL)}, 0
+	client := httpclient.New(httpclient.Options{AllowedHosts: cfg.AllowedHosts, AllowPrivateNetworks: true, MaxBytes: cfg.HTMLMaxBytes, Interval: time.Nanosecond, Retries: 0})
+	store, err := state.Open(filepath.Join(cfg.DataDir, "state", "collector.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer store.Close()
+	c := New(cfg, client, store)
+	first, err := c.Collect(context.Background(), false, 0)
+	if err != nil || first.Status != "partial" || first.Failed != 1 {
+		t.Fatalf("first=%+v err=%v", first, err)
+	}
+	second, err := c.Retry(context.Background())
+	if err != nil || second.Failed != 0 || second.Created != 1 {
+		t.Fatalf("retry=%+v err=%v", second, err)
+	}
+	items, err := store.ListRetryable(context.Background(), 10)
+	if err != nil || len(items) != 0 {
+		t.Fatalf("retry queue=%+v err=%v", items, err)
 	}
 }

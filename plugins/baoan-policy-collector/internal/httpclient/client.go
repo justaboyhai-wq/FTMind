@@ -87,7 +87,9 @@ func (c *Client) Get(ctx context.Context, rawURL string) (Response, error) {
 }
 
 func (c *Client) GetWithMaxBytes(ctx context.Context, rawURL string, maxBytes int64) (Response, error) {
-	if maxBytes <= 0 { maxBytes = c.opts.MaxBytes }
+	if maxBytes <= 0 {
+		maxBytes = c.opts.MaxBytes
+	}
 	return c.get(ctx, rawURL, maxBytes)
 }
 
@@ -109,6 +111,9 @@ func (c *Client) get(ctx context.Context, rawURL string, maxBytes int64) (Respon
 		}
 		resp, err := c.do(ctx, rawURL, maxBytes)
 		if err == nil && !retryStatus(resp.StatusCode) {
+			if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+				return Response{}, fmt.Errorf("unexpected HTTP status %d", resp.StatusCode)
+			}
 			return resp, nil
 		}
 		if err != nil {

@@ -10,14 +10,13 @@ import (
 	"os/signal"
 	"path/filepath"
 	"syscall"
-	"time"
 
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/archive"
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/collector"
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/config"
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/httpclient"
+	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/scheduler"
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/state"
-	"github.com/robfig/cron/v3"
 )
 
 func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
@@ -124,10 +123,6 @@ func run(args []string, out, errOut io.Writer) int {
 }
 
 func daemon(cfg config.Config, errOut io.Writer) int {
-	c := cron.New(
-		cron.WithLocation(time.FixedZone("Asia/Shanghai", 8*60*60)),
-		cron.WithChain(cron.SkipIfStillRunning(cron.DefaultLogger)),
-	)
 	run := func(full bool) {
 		store, err := state.Open(filepath.Join(cfg.DataDir, "state", "collector.db"))
 		if err != nil {
@@ -138,20 +133,12 @@ func daemon(cfg config.Config, errOut io.Writer) int {
 		client := httpclient.New(httpclient.Options{AllowedHosts: cfg.AllowedHosts, MaxBytes: cfg.HTMLMaxBytes, Interval: cfg.RequestInterval, Timeout: cfg.RequestTimeout, Retries: cfg.RetryCount})
 		_, _ = collector.New(cfg, client, store).Collect(context.Background(), full, 0)
 	}
-	if _, err := c.AddFunc(cfg.IncrementalCron, func() { run(false) }); err != nil {
-		fmt.Fprintln(errOut, err)
-		return 1
-	}
-	if _, err := c.AddFunc(cfg.FullCron, func() { run(true) }); err != nil {
-		fmt.Fprintln(errOut, err)
-		return 1
-	}
-	c.Start()
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	<-ctx.Done()
-	stopCtx := c.Stop()
-	<-stopCtx.Done()
+	if err := scheduler.Run(ctx, cfg, func(_ context.Context, full bool) { run(full) }); err != nil {
+		fmt.Fprintln(errOut, err)
+		return 1
+	}
 	return 0
 }
 func exportManifest(args []string, dataDir string, out, errOut io.Writer) int {

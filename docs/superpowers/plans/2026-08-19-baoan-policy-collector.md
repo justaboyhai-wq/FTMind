@@ -582,3 +582,14 @@ Expected: 占位词扫描无输出，diff、vet、测试通过。
 - 快照不可变，可用 SHA-256 和 JSON Schema 独立校验。
 - Windows、Linux、Docker 可独立运行，不依赖 FMind、数据库服务或浏览器。
 - 本阶段不直接导入 Wiki；Raw Package 稳定后再制定 Wiki Schema/Importer 计划。
+
+## 实施审计（2026-08-19）
+
+- [x] 独立 Go 模块、受限 HTTP、`zcfg.js` 安全解析、详情/正文/附件采集已实现。
+- [x] 官网事实字段、动态申报状态、官方关系 code、原始 URL 和原始响应已落盘。
+- [x] JSON Schema 已通过 `schema/embed.go` 嵌入并在发布与校验阶段实际执行；SHA-256 校验同步执行。
+- [x] SQLite 运行状态、失败队列、锁、增量统计、三次缺失确认和定向 retry 已实现。
+- [x] CLI、Asia/Shanghai scheduler、SIGTERM 停止、Dockerfile、校验脚本和质量报告已实现。
+- [x] 本地端到端采集、增量 unchanged、2 条 dry-run、官网 seed/index/首中尾详情 live smoke 已验证。
+- [ ] Windows 当前没有 gcc，因此 `go test -race` 无法在本机执行；普通测试、`go vet` 和构建已通过。
+- [ ] Docker 构建所需 Go 依赖下载受本机 TLS/代理证书错误影响；Dockerfile 本身已准备，需在网络证书正常的 Linux/服务器环境构建。
