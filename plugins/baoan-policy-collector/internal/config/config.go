@@ -4,6 +4,7 @@ import "time"
 
 type Config struct {
 	SeedURL            string
+	SourceBaseURL      string
 	DataDir            string
 	AllowedHosts       []string
 	RequestInterval    time.Duration
@@ -19,6 +20,7 @@ type Config struct {
 func Default() Config {
 	return Config{
 		SeedURL: "https://www.baoan.gov.cn/xxgk/fgk/",
+		SourceBaseURL: "https://www.baoan.gov.cn",
 		DataDir: "./baoan-policy-data",
 		AllowedHosts: []string{"www.baoan.gov.cn"},
 		RequestInterval: time.Second,

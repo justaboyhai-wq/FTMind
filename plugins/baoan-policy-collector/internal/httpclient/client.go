@@ -83,6 +83,15 @@ func New(opts Options) *Client {
 }
 
 func (c *Client) Get(ctx context.Context, rawURL string) (Response, error) {
+	return c.get(ctx, rawURL, c.opts.MaxBytes)
+}
+
+func (c *Client) GetWithMaxBytes(ctx context.Context, rawURL string, maxBytes int64) (Response, error) {
+	if maxBytes <= 0 { maxBytes = c.opts.MaxBytes }
+	return c.get(ctx, rawURL, maxBytes)
+}
+
+func (c *Client) get(ctx context.Context, rawURL string, maxBytes int64) (Response, error) {
 	if err := c.validateURL(ctx, mustParse(rawURL)); err != nil {
 		return Response{}, err
 	}
@@ -98,7 +107,7 @@ func (c *Client) Get(ctx context.Context, rawURL string) (Response, error) {
 		if err := c.wait(ctx); err != nil {
 			return Response{}, err
 		}
-		resp, err := c.do(ctx, rawURL)
+		resp, err := c.do(ctx, rawURL, maxBytes)
 		if err == nil && !retryStatus(resp.StatusCode) {
 			return resp, nil
 		}
@@ -126,7 +135,7 @@ func (c *Client) Get(ctx context.Context, rawURL string) (Response, error) {
 	return Response{}, last
 }
 
-func (c *Client) do(ctx context.Context, rawURL string) (Response, error) {
+func (c *Client) do(ctx context.Context, rawURL string, maxBytes int64) (Response, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, rawURL, nil)
 	if err != nil {
 		return Response{}, err
@@ -140,12 +149,12 @@ func (c *Client) do(ctx context.Context, rawURL string) (Response, error) {
 	if r.StatusCode < 200 || r.StatusCode >= 300 {
 		return Response{URL: r.Request.URL.String(), StatusCode: r.StatusCode, ETag: r.Header.Get("ETag"), LastModified: r.Header.Get("Last-Modified"), RetryAfter: r.Header.Get("Retry-After")}, nil
 	}
-	limited := io.LimitReader(r.Body, c.opts.MaxBytes+1)
+	limited := io.LimitReader(r.Body, maxBytes+1)
 	body, err := io.ReadAll(limited)
 	if err != nil {
 		return Response{}, err
 	}
-	if int64(len(body)) > c.opts.MaxBytes {
+	if int64(len(body)) > maxBytes {
 		return Response{}, ErrBodyTooLarge
 	}
 	sum := sha256.Sum256(body)

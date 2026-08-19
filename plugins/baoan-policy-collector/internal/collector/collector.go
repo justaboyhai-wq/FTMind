@@ -94,7 +94,7 @@ func (c *Collector) Collect(ctx context.Context, full bool, maxItems int) (Summa
 }
 
 func (c *Collector) collectRecord(ctx context.Context, runID string, record model.IndexRecord, summary *Summary) error {
-	detailURL, err := detail.URLForID("https://www.baoan.gov.cn", record.ID)
+	detailURL, err := detail.URLForID(c.Config.SourceBaseURL, record.ID)
 	if err != nil {
 		return err
 	}

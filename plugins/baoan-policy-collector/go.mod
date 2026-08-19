@@ -4,6 +4,7 @@ go 1.26.0
 
 require (
 	github.com/JohannesKaufmann/html-to-markdown/v2 v2.5.1
+	github.com/robfig/cron/v3 v3.0.1
 	modernc.org/sqlite v1.56.0
 )
 
