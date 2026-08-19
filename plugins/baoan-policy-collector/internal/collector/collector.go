@@ -58,6 +58,7 @@ func (c *Collector) Collect(ctx context.Context, full bool, maxItems int) (Summa
 			r := state.Run{ID: runID, Status: run.Status, Full: full, IndexCount: run.IndexCount, UniqueIDs: run.UniqueIDs, Created: run.Created, Updated: run.Updated, Unchanged: run.Unchanged, Failed: run.Failed}
 			_ = c.Store.FinishRun(ctx, r)
 		}
+		_ = writeRunManifest(c.Config.DataDir, run, full, err)
 		return run, err
 	}
 	seed, err := c.Client.Get(ctx, c.Config.SeedURL)
@@ -102,6 +103,34 @@ func (c *Collector) Collect(ctx context.Context, full bool, maxItems int) (Summa
 		}
 	}
 	return finish(nil)
+}
+
+func writeRunManifest(root string, summary Summary, full bool, runErr error) error {
+	dir := filepath.Join(root, "runs", summary.RunID)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+	status := ""
+	if runErr != nil {
+		status = runErr.Error()
+	}
+	payload := map[string]any{
+		"run_id": summary.RunID, "full": full, "status": summary.Status,
+		"index_count": summary.IndexCount, "unique_ids": summary.UniqueIDs,
+		"created": summary.Created, "updated": summary.Updated, "unchanged": summary.Unchanged,
+		"failed": summary.Failed, "attachments_declared": summary.AttachmentsDeclared,
+		"attachments_saved": summary.AttachmentsSaved, "error": status,
+		"completed_at": time.Now().UTC(),
+	}
+	b, err := json.MarshalIndent(payload, "", "  ")
+	if err != nil {
+		return err
+	}
+	tmp := filepath.Join(dir, "run-manifest.json.tmp")
+	if err := os.WriteFile(tmp, b, 0o644); err != nil {
+		return err
+	}
+	return os.Rename(tmp, filepath.Join(dir, "run-manifest.json"))
 }
 
 func (c *Collector) collectRecord(ctx context.Context, runID string, record model.IndexRecord, summary *Summary) error {
