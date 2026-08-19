@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/model"
 	"github.com/yuin/goldmark"
@@ -89,7 +90,7 @@ func ExportAll(root, outputDir string) (ExportReport, error) {
 			report.Failures[entry.Name()] = err.Error()
 			continue
 		}
-		target := filepath.Join(outputDir, entry.Name()+".md")
+		target := filepath.Join(outputDir, doc.ExportFilename())
 		temporary := target + ".tmp"
 		if err := os.WriteFile(temporary, []byte(doc.Markdown()), 0o644); err != nil {
 			return report, err
@@ -103,6 +104,37 @@ func ExportAll(root, outputDir string) (ExportReport, error) {
 		report.Failures = nil
 	}
 	return report, nil
+}
+
+// ExportFilename keeps exported knowledge documents recognizable to people
+// while retaining the immutable package ID needed to prevent collisions.
+func (d Document) ExportFilename() string {
+	const maxBytes = 180
+	suffix := "（" + d.PackageID + "）.md"
+	title := strings.TrimSpace(d.Structured.Title)
+	if title == "" {
+		title = "未命名政策"
+	}
+	var cleaned strings.Builder
+	for _, r := range title {
+		if unicode.IsControl(r) || strings.ContainsRune(`<>:"/\|?*`, r) {
+			continue
+		}
+		cleaned.WriteRune(r)
+	}
+	title = strings.TrimRight(strings.TrimSpace(cleaned.String()), ". ")
+	if title == "" {
+		title = "未命名政策"
+	}
+	limit := maxBytes - len(suffix)
+	var truncated strings.Builder
+	for _, r := range title {
+		if truncated.Len()+len(string(r)) > limit {
+			break
+		}
+		truncated.WriteRune(r)
+	}
+	return truncated.String() + suffix
 }
 
 func prepareOutputDir(outputDir string) error {

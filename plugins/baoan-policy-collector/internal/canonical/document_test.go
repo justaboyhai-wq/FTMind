@@ -105,11 +105,11 @@ func TestExportAllWritesCanonicalMarkdownOnly(t *testing.T) {
 	if report.Exported != 1 || len(report.Failures) != 0 {
 		t.Fatalf("report=%+v", report)
 	}
-	body, err := os.ReadFile(filepath.Join(out, "post_9.md"))
+	doc, err := LoadLatest(root, "post_9")
 	if err != nil {
 		t.Fatal(err)
 	}
-	doc, err := LoadLatest(root, "post_9")
+	body, err := os.ReadFile(filepath.Join(out, doc.ExportFilename()))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -118,6 +118,16 @@ func TestExportAllWritesCanonicalMarkdownOnly(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(out, "post_9.structured.json")); !os.IsNotExist(err) {
 		t.Fatalf("sidecar must not be exported as a second knowledge document")
+	}
+}
+
+func TestExportFilenameUsesSanitizedTitleAndPackageID(t *testing.T) {
+	doc := Document{
+		PackageID:  "post_42",
+		Structured: model.StructuredPolicy{Title: `  Education/Policy?*  `},
+	}
+	if got, want := doc.ExportFilename(), "EducationPolicy（post_42）.md"; got != want {
+		t.Fatalf("ExportFilename() = %q, want %q", got, want)
 	}
 }
 
