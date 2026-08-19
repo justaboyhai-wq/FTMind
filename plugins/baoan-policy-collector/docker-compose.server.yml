@@ -1,0 +1,16 @@
+services:
+  collector:
+    container_name: FMind-baoan-policy-collector
+
+  rss:
+    container_name: FMind-baoan-policy-rss
+    networks:
+      default: {}
+      fmind:
+        aliases:
+          - baoan-policy-rss
+
+networks:
+  fmind:
+    name: ${FMIND_DOCKER_NETWORK:-fmind_FMind-network}
+    external: true
