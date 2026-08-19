@@ -278,6 +278,7 @@ baoan-policy-data/
 │       └── snapshots/<snapshot-id>/
 │           ├── manifest.json
 │           ├── source.html
+│           ├── source-detail.json
 │           ├── normalized.md
 │           ├── structured.json
 │           ├── relations.json
@@ -336,6 +337,19 @@ baoan-policy-data/
 ### 10.5 `relations.json`
 
 只保存确定性关系：附件、显式解读、意见征集/反馈、政策咨询、申报指南、网页中明确链接的修订/废止/引用。只有正文相似或标题相似但无明确证据的关系不进入 Raw v1。
+
+### 10.6 详情 JSON 的分层解析
+
+详情 `/postmeta/p/.../<id>.json` 是单篇政策的主结构化数据源，但必须同时归档未经改写的原始响应，例如保存为 `source-detail.json`。解析分为四层：
+
+1. 顶层发布字段：`id`、标题、摘要、`content`、来源、关键词、URL、发布时间、更新时间等。`content` 是正文 HTML，可确定性转换为 `normalized.md`，但原始 HTML 字符串必须保留。
+2. 顶层扩展字段：`EXT_*`、`zxdz`、`zxdh`、`wjlx`、`sbks`、`sbjs`，用于文号、机构、主题、文件类别、咨询方式、服务对象和申报窗口。
+3. `json_ext`：其值是 JSON 字符串，二次解析后与顶层扩展字段逐字段对账。两层值一致时保留共同事实和双重证据；不一致时不得静默覆盖，应保存双方原值并产生 `duplicate_field_conflict`。
+4. `gkml_data`：其值也是 JSON 字符串，二次解析后提供政府信息公开标识、有效性、有效期、文号、发布机构以及 `classify_main/genre/theme` 的代码和名称。原始字符串与解析对象均须保留。
+
+所有 Unix 时间戳按“秒”保存原值，并另行生成 `Asia/Shanghai` ISO-8601 表示；不得只保留格式化日期。`first_publish_time`、`display_publish_time`、`publish_time`、`create_time`、`updated`、成文日期、生效日期、有效期、申报起止时间语义不同，不得合并成单一 `date`。
+
+`attachment[]` 直接进入附件下载队列，同时核对声明的 `id/name/type/mime/size/url`、实际响应 MIME、实际字节数和 SHA-256。`related_posts[]` 原样进入关系证据层；官网当前脚本把 `related_classify=2` 显示为“相关文件”、`3` 显示为“文字解读”、`4` 显示为“图文解读”、`5` 显示为“视频解读”，而 `7` 还会根据标题显示为申报公告、操作规程或意见征集等。由于 `7` 的细分包含官网前端标题规则，Raw 中必须同时保存数值代码、标题、目标 URL、官网显示标签和规则版本，不能只保存归一化关系。
 
 ## 11. 状态库与不可变档案
 
