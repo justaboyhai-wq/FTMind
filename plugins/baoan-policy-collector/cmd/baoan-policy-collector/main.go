@@ -23,7 +23,7 @@ func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
 
 func run(args []string, out, errOut io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(errOut, "usage: collect --full|--incremental | retry --failed | verify --all | export-manifest --run ID | daemon")
+		fmt.Fprintln(errOut, "usage: collect --full|--incremental | retry --failed | unlock | verify --all | export-manifest --run ID | daemon")
 		return 2
 	}
 	cfg := config.Default()
@@ -89,11 +89,26 @@ func run(args []string, out, errOut io.Writer) int {
 		payload, _ := json.Marshal(summary)
 		fmt.Fprintln(out, string(payload))
 		if err != nil {
+			fmt.Fprintln(errOut, err)
 			return 1
 		}
 		if summary.Status == "partial" {
 			return 3
 		}
+		return 0
+	}
+	if args[0] == "unlock" {
+		store, err := state.Open(filepath.Join(dataDir, "state", "collector.db"))
+		if err != nil {
+			fmt.Fprintln(errOut, err)
+			return 1
+		}
+		defer store.Close()
+		if err := store.ReleaseLock(context.Background(), "collector"); err != nil {
+			fmt.Fprintln(errOut, err)
+			return 1
+		}
+		fmt.Fprintln(out, "collector lock released")
 		return 0
 	}
 	if args[0] != "collect" {
@@ -114,6 +129,7 @@ func run(args []string, out, errOut io.Writer) int {
 	payload, _ := json.Marshal(summary)
 	fmt.Fprintln(out, string(payload))
 	if err != nil {
+		fmt.Fprintln(errOut, err)
 		return 1
 	}
 	if summary.Status == "partial" || summary.Status == "sampled" {

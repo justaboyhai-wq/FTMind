@@ -49,20 +49,20 @@ type rawDetail struct {
 	Title, Abstract, Content, Source, Date, URL                   string
 	OriginURL                                                     string `json:"origin_url"`
 	GKMLURL                                                       string `json:"gkml_url"`
-	FirstPublishTime, PublishTime, DisplayPublishTime, CreateTime int64
+	FirstPublishTime, PublishTime, DisplayPublishTime, CreateTime json.RawMessage
 	Updated                                                       string
 	Attachment                                                    []model.Attachment  `json:"attachment"`
 	RelatedPosts                                                  []model.RelatedPost `json:"related_posts"`
 	JSONExt                                                       string              `json:"json_ext"`
 	GKMLData                                                      string              `json:"gkml_data"`
-	ExpiredAt                                                     int64               `json:"expired_time"`
+	ExpiredAt                                                     json.RawMessage     `json:"expired_time"`
 	EXTWH                                                         string              `json:"EXT_wh"`
 	EXTFBJG                                                       string              `json:"EXT_fbjg"`
 	EXTZTFL                                                       string              `json:"EXT_ztfl"`
 	EXTWJLB                                                       string              `json:"EXT_wjlb"`
-	WJLX                                                          []string            `json:"wjlx"`
-	SBKS                                                          int64               `json:"sbks"`
-	SBJS                                                          int64               `json:"sbjs"`
+	WJLX                                                          json.RawMessage     `json:"wjlx"`
+	SBKS                                                          json.RawMessage     `json:"sbks"`
+	SBJS                                                          json.RawMessage     `json:"sbjs"`
 }
 
 func URLForID(base, id string) (string, error) {
@@ -92,15 +92,39 @@ func Decode(body []byte) (Decoded, error) {
 	if err != nil {
 		return Decoded{}, err
 	}
-	d := Decoded{Raw: append([]byte(nil), body...), ID: raw.ID, Title: raw.Title, Abstract: raw.Abstract, ContentHTML: raw.Content, Source: raw.Source, Date: raw.Date, URL: raw.URL, OriginURL: raw.OriginURL, GKMLURL: raw.GKMLURL, Attachments: raw.Attachment, RelatedPosts: raw.RelatedPosts, ExpiredAt: raw.ExpiredAt, Updated: raw.Updated}
-	d.PublishedAt = unixString(raw.PublishTime)
-	d.FirstPublishedAt = unixString(raw.FirstPublishTime)
-	d.DisplayPublishedAt = unixString(raw.DisplayPublishTime)
-	d.CreatedAt = unixString(raw.CreateTime)
-	d.Extension = Extension{DocumentNumber: pickStringFallback(ext, "EXT_wh", raw.EXTWH), IssuingAuthority: pickStringFallback(ext, "EXT_fbjg", raw.EXTFBJG), Theme: pickStringFallback(ext, "EXT_ztfl", raw.EXTZTFL), CarrierType: pickStringFallback(ext, "EXT_wjlb", raw.EXTWJLB), ServiceObjects: pickStringsFallback(ext, "wjlx", raw.WJLX), ConsultationAddress: pickString(ext, "zxdz"), ConsultationPhone: pickString(ext, "zxdh"), ApplicationStart: pickIntFallback(ext, "sbks", raw.SBKS), ApplicationEnd: pickIntFallback(ext, "sbjs", raw.SBJS)}
+	d := Decoded{Raw: append([]byte(nil), body...), ID: raw.ID, Title: raw.Title, Abstract: raw.Abstract, ContentHTML: raw.Content, Source: raw.Source, Date: raw.Date, URL: raw.URL, OriginURL: raw.OriginURL, GKMLURL: raw.GKMLURL, Attachments: raw.Attachment, RelatedPosts: raw.RelatedPosts, ExpiredAt: rawInt(raw.ExpiredAt), Updated: raw.Updated}
+	d.PublishedAt = unixString(rawInt(raw.PublishTime))
+	d.FirstPublishedAt = unixString(rawInt(raw.FirstPublishTime))
+	d.DisplayPublishedAt = unixString(rawInt(raw.DisplayPublishTime))
+	d.CreatedAt = unixString(rawInt(raw.CreateTime))
+	d.Extension = Extension{DocumentNumber: pickStringFallback(ext, "EXT_wh", raw.EXTWH), IssuingAuthority: pickStringFallback(ext, "EXT_fbjg", raw.EXTFBJG), Theme: pickStringFallback(ext, "EXT_ztfl", raw.EXTZTFL), CarrierType: pickStringFallback(ext, "EXT_wjlb", raw.EXTWJLB), ServiceObjects: pickStringsFallback(ext, "wjlx", rawStrings(raw.WJLX)), ConsultationAddress: pickString(ext, "zxdz"), ConsultationPhone: pickString(ext, "zxdh"), ApplicationStart: pickIntFallback(ext, "sbks", rawInt(raw.SBKS)), ApplicationEnd: pickIntFallback(ext, "sbjs", rawInt(raw.SBJS))}
 	d.GKML = GKML{DocumentNumber: pickString(g, "document_number"), Publisher: pickString(g, "publisher"), ClassifyMainName: pickString(g, "classify_main_name"), ClassifyGenreName: pickString(g, "classify_genre_name"), ClassifyThemeName: pickString(g, "classify_theme_name"), ExpiredAt: pickInt(g, "expired_time"), IsExpired: int(pickInt(g, "is_expired"))}
 	d.Conflicts = conflicts(ext, raw)
 	return d, nil
+}
+
+func rawInt(raw json.RawMessage) int64 {
+	var n int64
+	if json.Unmarshal(raw, &n) == nil {
+		return n
+	}
+	var s string
+	if json.Unmarshal(raw, &s) == nil {
+		n, _ = strconv.ParseInt(s, 10, 64)
+	}
+	return n
+}
+
+func rawStrings(raw json.RawMessage) []string {
+	var out []string
+	if json.Unmarshal(raw, &out) == nil {
+		return out
+	}
+	var one string
+	if json.Unmarshal(raw, &one) == nil && one != "" {
+		return []string{one}
+	}
+	return nil
 }
 
 func nestedObject(value, field string) (map[string]json.RawMessage, error) {
