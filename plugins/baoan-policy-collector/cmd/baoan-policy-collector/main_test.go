@@ -14,7 +14,7 @@ func TestRunRejectsMissingCommand(t *testing.T) {
 }
 func TestRunParsesVerify(t *testing.T) {
 	var out, err bytes.Buffer
-	if code := run([]string{"verify", "--all", "--data-dir", t.TempDir()}, &out, &err); code != 0 || !strings.Contains(out.String(), "verification") {
+	if code := run([]string{"verify", "--all", "--data-dir", t.TempDir()}, &out, &err); code != 0 || !strings.Contains(out.String(), "verified") {
 		t.Fatalf("code=%d out=%q err=%q", code, out.String(), err.String())
 	}
 }
