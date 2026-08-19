@@ -6,15 +6,18 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/archive"
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/collector"
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/config"
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/httpclient"
+	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/rssserver"
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/scheduler"
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/state"
 )
@@ -23,7 +26,7 @@ func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
 
 func run(args []string, out, errOut io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(errOut, "usage: collect --full|--incremental | retry --failed | unlock | verify --all | export-manifest --run ID | daemon")
+		fmt.Fprintln(errOut, "usage: collect --full|--incremental | retry --failed | unlock | verify --all | export-manifest --run ID | daemon | serve-rss")
 		return 2
 	}
 	cfg := config.Default()
@@ -31,6 +34,8 @@ func run(args []string, out, errOut io.Writer) int {
 	maxItems := 0
 	all := false
 	runID := ""
+	addr := ":18320"
+	baseURL := ""
 	fs := flag.NewFlagSet(args[0], flag.ContinueOnError)
 	fs.SetOutput(errOut)
 	full := args[0] == "collect"
@@ -49,6 +54,10 @@ func run(args []string, out, errOut io.Writer) int {
 	if args[0] == "export-manifest" {
 		fs.StringVar(&runID, "run", "", "run id")
 	}
+	if args[0] == "serve-rss" {
+		fs.StringVar(&addr, "addr", addr, "HTTP listen address")
+		fs.StringVar(&baseURL, "base-url", baseURL, "public base URL used in feed links")
+	}
 	if args[0] != "collect" {
 		fs.StringVar(&dataDir, "data-dir", dataDir, "data directory")
 	}
@@ -58,6 +67,15 @@ func run(args []string, out, errOut io.Writer) int {
 	cfg.DataDir = dataDir
 	if args[0] == "daemon" {
 		return daemon(cfg, errOut)
+	}
+	if args[0] == "serve-rss" {
+		server := rssserver.New(rssserver.Config{DataDir: dataDir, BaseURL: baseURL})
+		fmt.Fprintf(out, "RSS gateway listening on %s (feed: %s/feed.xml)\n", addr, strings.TrimRight(baseURL, "/"))
+		if err := http.ListenAndServe(addr, server.Handler()); err != nil && err != http.ErrServerClosed {
+			fmt.Fprintln(errOut, err)
+			return 1
+		}
+		return 0
 	}
 	if args[0] == "verify" {
 		if err := archive.Verify(dataDir); err != nil {
