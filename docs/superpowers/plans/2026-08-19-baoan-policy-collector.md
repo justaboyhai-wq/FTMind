@@ -587,6 +587,7 @@ Expected: 占位词扫描无输出，diff、vet、测试通过。
 
 - [x] 独立 Go 模块、受限 HTTP、`zcfg.js` 安全解析、详情/正文/附件采集已实现。
 - [x] 官网事实字段、动态申报状态、官方关系 code、原始 URL 和原始响应已落盘。
+- [x] 每次索引采集生成带源 SHA-256 的官方维度字典快照（服务对象/机构/主题/载体）。
 - [x] JSON Schema 已通过 `schema/embed.go` 嵌入并在发布与校验阶段实际执行；SHA-256 校验同步执行。
 - [x] SQLite 运行状态、失败队列、锁、增量统计、三次缺失确认和定向 retry 已实现。
 - [x] CLI、Asia/Shanghai scheduler、SIGTERM 停止、Dockerfile、校验脚本和质量报告已实现。
