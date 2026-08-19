@@ -1,6 +1,11 @@
 package model
 
-import "time"
+import (
+	"bytes"
+	"encoding/json"
+	"strconv"
+	"time"
+)
 
 type IndexRecord struct {
 	ID               string   `json:"id"`
@@ -20,11 +25,81 @@ type IndexRecord struct {
 	ExpiredAt        int64    `json:"expired_time,omitempty"`
 }
 
+// UnmarshalJSON accepts the site's mixed number/string timestamp representation.
+func (r *IndexRecord) UnmarshalJSON(data []byte) error {
+	type plain IndexRecord
+	var aux struct {
+		*plain
+		ApplicationStart json.RawMessage `json:"sbks"`
+		ApplicationEnd   json.RawMessage `json:"sbjs"`
+		ExpiredAt        json.RawMessage `json:"expired_time"`
+		ServiceObjects   json.RawMessage `json:"wjlx"`
+	}
+	aux.plain = (*plain)(r)
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	var err error
+	if r.ApplicationStart, err = parseInt(aux.ApplicationStart); err != nil {
+		return err
+	}
+	if r.ApplicationEnd, err = parseInt(aux.ApplicationEnd); err != nil {
+		return err
+	}
+	if r.ExpiredAt, err = parseInt(aux.ExpiredAt); err != nil {
+		return err
+	}
+	if len(bytes.TrimSpace(aux.ServiceObjects)) > 0 && !bytes.Equal(bytes.TrimSpace(aux.ServiceObjects), []byte("null")) {
+		if err := json.Unmarshal(aux.ServiceObjects, &r.ServiceObjects); err != nil {
+			var one string
+			if err := json.Unmarshal(aux.ServiceObjects, &one); err != nil {
+				return err
+			}
+			r.ServiceObjects = []string{one}
+		}
+	}
+	return nil
+}
+
+func parseInt(raw json.RawMessage) (int64, error) {
+	if len(bytes.TrimSpace(raw)) == 0 || bytes.Equal(bytes.TrimSpace(raw), []byte("null")) {
+		return 0, nil
+	}
+	var n int64
+	if err := json.Unmarshal(raw, &n); err == nil {
+		return n, nil
+	}
+	var s string
+	if err := json.Unmarshal(raw, &s); err != nil {
+		return 0, err
+	}
+	if s == "" {
+		return 0, nil
+	}
+	return strconv.ParseInt(s, 10, 64)
+}
+
 type Attachment struct {
 	ID                    int64 `json:"id"`
 	Name, Type, MIME, URL string
 	Size                  int64 `json:"size,string,omitempty"`
 }
+
+func (a *Attachment) UnmarshalJSON(data []byte) error {
+	type plain Attachment
+	var aux struct {
+		*plain
+		Size json.RawMessage `json:"size"`
+	}
+	aux.plain = (*plain)(a)
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	n, err := parseInt(aux.Size)
+	a.Size = n
+	return err
+}
+
 type DownloadedAttachment struct {
 	Attachment
 	ActualSize  int64
