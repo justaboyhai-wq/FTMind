@@ -1,0 +1,12 @@
+{
+  "schema_version": "baoan.protocol/v1",
+  "captured_at": "2026-08-19",
+  "host": "www.baoan.gov.cn",
+  "requests": [
+    {"id":"seed-html","method":"GET","path":"/xxgk/fgk/","purpose":"discover zcfg.js","response":"HTML"},
+    {"id":"index-script","method":"GET","path":"/zcfg.js","purpose":"allData index","response":"JavaScript literal"},
+    {"id":"detail-json","method":"GET","path":"/postmeta/p/{id/1000000}/{id/1000}/{id}.json","purpose":"policy detail","response":"JSON"},
+    {"id":"hot-json","method":"GET","path":"/postmeta/hot/{id}.json","purpose":"supplementary popular policies","response":"JSON"},
+    {"id":"attachment","method":"GET","path":"/attachment/...","purpose":"official attachment","response":"binary"}
+  ]
+}
