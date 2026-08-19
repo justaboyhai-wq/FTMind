@@ -124,7 +124,10 @@ func run(args []string, out, errOut io.Writer) int {
 }
 
 func daemon(cfg config.Config, errOut io.Writer) int {
-	c := cron.New(cron.WithLocation(time.FixedZone("Asia/Shanghai", 8*60*60)))
+	c := cron.New(
+		cron.WithLocation(time.FixedZone("Asia/Shanghai", 8*60*60)),
+		cron.WithChain(cron.SkipIfStillRunning(cron.DefaultLogger)),
+	)
 	run := func(full bool) {
 		store, err := state.Open(filepath.Join(cfg.DataDir, "state", "collector.db"))
 		if err != nil {
@@ -144,7 +147,12 @@ func daemon(cfg config.Config, errOut io.Writer) int {
 		return 1
 	}
 	c.Start()
-	select {}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	<-ctx.Done()
+	stopCtx := c.Stop()
+	<-stopCtx.Done()
+	return 0
 }
 func exportManifest(args []string, dataDir string, out, errOut io.Writer) int {
 	fs := flag.NewFlagSet("export-manifest", flag.ContinueOnError)

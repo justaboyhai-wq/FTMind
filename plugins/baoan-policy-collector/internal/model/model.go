@@ -77,12 +77,15 @@ type Package struct {
 }
 
 type Manifest struct {
-	SchemaVersion                     string    `json:"schema_version"`
-	PackageID, ExternalID, SnapshotID string    `json:"package_id"`
-	CanonicalURL, FinalURL            string    `json:"canonical_url"`
-	FetchedAt                         time.Time `json:"fetched_at"`
-	SnapshotSHA256                    string    `json:"snapshot_sha256"`
-	Files                             []string  `json:"files"`
+	SchemaVersion  string    `json:"schema_version"`
+	PackageID      string    `json:"package_id"`
+	ExternalID     string    `json:"external_id"`
+	SnapshotID     string    `json:"snapshot_id"`
+	CanonicalURL   string    `json:"canonical_url"`
+	FinalURL       string    `json:"final_url"`
+	FetchedAt      time.Time `json:"fetched_at"`
+	SnapshotSHA256 string    `json:"snapshot_sha256"`
+	Files          []string  `json:"files"`
 }
 
 type Failure struct {
