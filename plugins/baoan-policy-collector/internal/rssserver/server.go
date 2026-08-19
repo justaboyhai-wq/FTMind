@@ -30,6 +30,13 @@ type policy struct {
 
 type structured struct {
 	Title, SourceURL, FinalURL, Abstract, PublishedAt, EffectiveAt, ExpiresAt string
+	Official                                                                  struct {
+		ServiceObjects   []string `json:"service_objects"`
+		IssuingAuthority string   `json:"issuing_authority"`
+		Theme            string   `json:"theme"`
+		CarrierType      string   `json:"carrier_type"`
+		DocumentGenre    string   `json:"document_genre"`
+	} `json:"official"`
 }
 
 type feed struct {
@@ -134,7 +141,12 @@ func (s *Server) packagePage(w http.ResponseWriter, r *http.Request) {
 	title := firstNonEmpty(p.Title, id)
 	// Keep the original markdown intact inside a readable HTML document. The
 	// FMind RSS connector extracts the article page and converts it to Markdown.
-	body := "<!doctype html><html><head><meta charset=\"utf-8\"><title>" + html.EscapeString(title) + "</title></head><body><article><h1>" + html.EscapeString(title) + "</h1><p>来源：" + html.EscapeString(firstNonEmpty(p.SourceURL, p.FinalURL)) + "</p><pre>" + html.EscapeString(string(markdown)) + "</pre></article></body></html>"
+	metadata := "<section><p>来源 URL：" + html.EscapeString(firstNonEmpty(p.SourceURL, p.FinalURL)) + "</p>"
+	metadata += "<p>服务对象：" + html.EscapeString(strings.Join(p.Official.ServiceObjects, "、")) + "</p>"
+	metadata += "<p>发文机构：" + html.EscapeString(p.Official.IssuingAuthority) + "</p>"
+	metadata += "<p>主题：" + html.EscapeString(p.Official.Theme) + "</p>"
+	metadata += "<p>文件载体：" + html.EscapeString(p.Official.CarrierType) + "</p></section>"
+	body := "<!doctype html><html><head><meta charset=\"utf-8\"><title>" + html.EscapeString(title) + "</title></head><body><article><h1>" + html.EscapeString(title) + "</h1>" + metadata + "<pre>" + html.EscapeString(string(markdown)) + "</pre></article></body></html>"
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	_, _ = w.Write([]byte(body))
 }
