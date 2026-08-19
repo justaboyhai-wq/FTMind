@@ -7,7 +7,8 @@ go run ./cmd/baoan-policy-collector collect --full --data-dir ./baoan-policy-dat
 go run ./cmd/baoan-policy-collector collect --incremental --data-dir ./baoan-policy-data
 go run ./cmd/baoan-policy-collector retry --failed --data-dir ./baoan-policy-data
 go run ./cmd/baoan-policy-collector verify --all --data-dir ./baoan-policy-data
-go run ./cmd/baoan-policy-collector daemon --data-dir ./baoan-policy-data
+go run ./cmd/baoan-policy-collector export-raw --data-dir ./baoan-policy-data --output-dir ./raw-export
+go run ./cmd/baoan-policy-collector daemon --data-dir ./baoan-policy-data --incremental-cron "0 2 * * *" --full-cron "0 3 * * 0"
 go run ./cmd/baoan-policy-collector serve-rss --data-dir ./baoan-policy-data --addr :18320 --base-url https://collector.example.com
 ```
 
@@ -37,20 +38,48 @@ container and mount the data directory as persistent storage.
 `<data-dir>` is already the immutable `baoan.raw/v1` package store. It is not a
 folder that FMind's document uploader imports recursively as one transaction;
 uploading every JSON sidecar would create noisy independent documents. For a
-one-time document import, export one Markdown document plus its structured
-sidecar per policy:
+one-time document import, export exactly one `baoan.canonical-md/v1` Markdown
+document per policy:
 
 ```powershell
 .\scripts\export-raw.ps1 -DataDir .\baoan-policy-data -OutputDir .\raw-export
 ```
 
+The exporter marks its output directory as managed and refuses to mix with an
+unmanaged non-empty directory. Re-running it replaces only generated Markdown
+files, preventing stale JSON sidecars or deleted policies from remaining in the
+knowledge-base upload set.
+
 For ongoing synchronization, run `serve-rss` against the persistent data
 directory. Configure FMind's RSS/Atom data source with
 `http://<host>:18320/feed.xml` (or the public reverse-proxy URL) and set its
-normal sync schedule. Each RSS item links to a readable policy page generated
-from `normalized.md`; the source JSON, relation graph, manifest, and
-attachments remain in the raw package for audit and later Wiki transformation.
+normal sync schedule. Raw export and RSS both use the same canonical assembler.
+Each document contains official dimensions, application dates/status, source
+URLs, official relations, archived/missing attachment inventory, original
+policy body, snapshot ID and audit path. Source JSON, HTML, downloaded files and
+checksums remain in the raw package for audit and later Wiki transformation.
 The gateway is read-only and reflects each package's `latest.json`, so a later
 incremental collector run automatically changes the next RSS sync.
+`/healthz` assembles every latest package and returns HTTP 503 if any document
+cannot be rendered; `/feed.xml` also fails closed instead of silently omitting a
+bad package.
+
+## Standalone Docker deployment
+
+The project ships as a two-service stack: `collector` performs scheduled writes
+and `rss` serves a read-only view over the same `./data` bind mount. Copy an
+existing small data set into `./data` before deployment if the feed must be
+available immediately; later incremental jobs continue from its SQLite state.
+
+```bash
+cp .env.example .env
+# Set BAOAN_RSS_BASE_URL to the externally reachable HTTPS URL.
+docker compose up -d --build
+docker compose logs -f collector rss
+```
+
+Only RSS port 18320 is bound, and it defaults to loopback. Put it behind the
+server's existing Nginx, then configure FMind with the proxied `/feed.xml` URL.
+The collector has no public port. Cron expressions use Asia/Shanghai.
 
 完整 run 会从入口 HTML 重新发现 `/zcfg.js`，不会固化当前 881 个 ID。生产下载默认每主机 1 req/s，HTML 10 MiB，单附件 100 MiB，单政策附件合计 500 MiB。

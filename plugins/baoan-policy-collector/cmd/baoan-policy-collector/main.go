@@ -14,6 +14,7 @@ import (
 	"syscall"
 
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/archive"
+	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/canonical"
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/collector"
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/config"
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/httpclient"
@@ -26,7 +27,7 @@ func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
 
 func run(args []string, out, errOut io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(errOut, "usage: collect --full|--incremental | retry --failed | unlock | verify --all | export-manifest --run ID | daemon | serve-rss")
+		fmt.Fprintln(errOut, "usage: collect --full|--incremental | retry --failed | unlock | verify --all | export-raw | export-manifest --run ID | daemon | serve-rss")
 		return 2
 	}
 	cfg := config.Default()
@@ -36,6 +37,7 @@ func run(args []string, out, errOut io.Writer) int {
 	runID := ""
 	addr := ":18320"
 	baseURL := ""
+	outputDir := ""
 	fs := flag.NewFlagSet(args[0], flag.ContinueOnError)
 	fs.SetOutput(errOut)
 	full := args[0] == "collect"
@@ -57,6 +59,13 @@ func run(args []string, out, errOut io.Writer) int {
 	if args[0] == "serve-rss" {
 		fs.StringVar(&addr, "addr", addr, "HTTP listen address")
 		fs.StringVar(&baseURL, "base-url", baseURL, "public base URL used in feed links")
+	}
+	if args[0] == "export-raw" {
+		fs.StringVar(&outputDir, "output-dir", outputDir, "canonical Markdown output directory")
+	}
+	if args[0] == "daemon" {
+		fs.StringVar(&cfg.IncrementalCron, "incremental-cron", cfg.IncrementalCron, "incremental collection cron (Asia/Shanghai)")
+		fs.StringVar(&cfg.FullCron, "full-cron", cfg.FullCron, "full reconciliation cron (Asia/Shanghai)")
 	}
 	if args[0] != "collect" {
 		fs.StringVar(&dataDir, "data-dir", dataDir, "data directory")
@@ -82,7 +91,28 @@ func run(args []string, out, errOut io.Writer) int {
 			fmt.Fprintln(errOut, err)
 			return 1
 		}
+		if err := canonical.VerifyAll(dataDir); err != nil {
+			fmt.Fprintln(errOut, err)
+			return 1
+		}
 		fmt.Fprintf(out, "verified %s\n", dataDir)
+		return 0
+	}
+	if args[0] == "export-raw" {
+		if outputDir == "" {
+			fmt.Fprintln(errOut, "--output-dir is required")
+			return 2
+		}
+		report, err := canonical.ExportAll(dataDir, outputDir)
+		payload, _ := json.Marshal(report)
+		fmt.Fprintln(out, string(payload))
+		if err != nil {
+			fmt.Fprintln(errOut, err)
+			return 1
+		}
+		if len(report.Failures) > 0 {
+			return 3
+		}
 		return 0
 	}
 	if args[0] == "export-manifest" {

@@ -1,0 +1,36 @@
+name: baoan-policy-rss
+
+services:
+  collector:
+    build: .
+    image: fmind-baoan-policy-collector:local
+    command:
+      - daemon
+      - --data-dir
+      - /data
+      - --incremental-cron
+      - ${BAOAN_INCREMENTAL_CRON:-0 2 * * *}
+      - --full-cron
+      - ${BAOAN_FULL_CRON:-0 3 * * 0}
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+
+  rss:
+    image: fmind-baoan-policy-collector:local
+    command:
+      - serve-rss
+      - --data-dir
+      - /data
+      - --addr
+      - :18320
+      - --base-url
+      - ${BAOAN_RSS_BASE_URL:-http://127.0.0.1:18320}
+    ports:
+      - 127.0.0.1:${BAOAN_RSS_PORT:-18320}:18320
+    volumes:
+      - ./data:/data:ro
+    depends_on:
+      - collector
+    restart: unless-stopped
+

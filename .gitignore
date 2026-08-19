@@ -59,3 +59,7 @@ fix-docker.sh
 miniprogram/project.private.config.json
 # Local Baoan policy collector output (large, generated Raw Packages)
 /baoan-policy-data-first-batch/
+/baoan-policy-raw-first-batch/
+/baoan-policy-raw-first-batch-test*/
+/baoan-policy-canonical-first-batch/
+/plugins/baoan-policy-collector/data/

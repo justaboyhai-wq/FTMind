@@ -78,7 +78,11 @@ func Publish(root string, pkg Package) (PublishResult, error) {
 		pkg.Attachments[i].StoragePath = path
 		files[path] = a.Body
 	}
-	manifest := model.Manifest{SchemaVersion: "baoan.raw/v1", PackageID: name, ExternalID: pkg.ExternalID, SnapshotID: snapshotID, FetchedAt: time.Now().UTC(), SnapshotSHA256: snapshotHash}
+	var structured model.StructuredPolicy
+	if err := json.Unmarshal(pkg.Structured, &structured); err != nil {
+		return PublishResult{}, fmt.Errorf("decode structured policy for manifest: %w", err)
+	}
+	manifest := model.Manifest{SchemaVersion: "baoan.raw/v1", PackageID: name, ExternalID: pkg.ExternalID, SnapshotID: snapshotID, CanonicalURL: structured.SourceURL, FinalURL: structured.FinalURL, FetchedAt: time.Now().UTC(), SnapshotSHA256: snapshotHash}
 	for _, a := range pkg.Attachments {
 		manifest.Attachments = append(manifest.Attachments, model.AttachmentManifest{Name: a.Name, URL: a.URL, MIME: a.MIME, DeclaredSize: a.Size, ActualSize: a.ActualSize, SHA256: a.SHA256, StoragePath: a.StoragePath})
 	}

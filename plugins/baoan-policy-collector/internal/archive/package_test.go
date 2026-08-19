@@ -1,7 +1,10 @@
 package archive
 
 import (
+	"encoding/json"
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/model"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -18,6 +21,26 @@ func TestPublishIsImmutableAndIdempotent(t *testing.T) {
 	}
 	if a.SnapshotID != b.SnapshotID || b.Created {
 		t.Fatalf("a=%+v b=%+v", a, b)
+	}
+}
+
+func TestPublishCopiesCanonicalURLsIntoManifest(t *testing.T) {
+	root := t.TempDir()
+	pkg := Package{ExternalID: "post_1", DetailRaw: []byte(`{"id":1}`), SourceHTML: []byte(`<p>正文</p>`), Markdown: "正文", Structured: []byte(`{"id":1,"title":"政策","source_url":"https://www.baoan.gov.cn/source.html","final_url":"https://www.baoan.gov.cn/final.html","markdown":"正文","official":{}}`), Relations: []byte(`[]`)}
+	result, err := Publish(root, pkg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body, err := os.ReadFile(filepath.Join(root, "policies", "post_1", "snapshots", result.SnapshotID, "manifest.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var manifest model.Manifest
+	if err := json.Unmarshal(body, &manifest); err != nil {
+		t.Fatal(err)
+	}
+	if manifest.CanonicalURL != "https://www.baoan.gov.cn/source.html" || manifest.FinalURL != "https://www.baoan.gov.cn/final.html" {
+		t.Fatalf("manifest URLs not populated: %+v", manifest)
 	}
 }
 

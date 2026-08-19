@@ -3,7 +3,7 @@ package rssserver
 import (
 	"encoding/json"
 	"encoding/xml"
-	"html"
+	"fmt"
 	"net/http"
 	"net/url"
 	"os"
@@ -11,9 +11,10 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/canonical"
 )
 
-// Config controls the read-only RSS gateway over a baoan.raw/v1 data directory.
 type Config struct {
 	DataDir  string
 	BaseURL  string
@@ -21,23 +22,6 @@ type Config struct {
 }
 
 type Server struct{ cfg Config }
-
-type policy struct {
-	ID, Title, SourceURL, Markdown, Abstract string
-	Snapshot                                 string
-	Updated                                  time.Time
-}
-
-type structured struct {
-	Title, SourceURL, FinalURL, Abstract, PublishedAt, EffectiveAt, ExpiresAt string
-	Official                                                                  struct {
-		ServiceObjects   []string `json:"service_objects"`
-		IssuingAuthority string   `json:"issuing_authority"`
-		Theme            string   `json:"theme"`
-		CarrierType      string   `json:"carrier_type"`
-		DocumentGenre    string   `json:"document_genre"`
-	} `json:"official"`
-}
 
 type feed struct {
 	XMLName xml.Name `xml:"rss"`
@@ -75,11 +59,18 @@ func (s *Server) Handler() http.Handler {
 
 func (s *Server) health(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	_, _ = w.Write([]byte(`{"status":"ok","schema_version":"baoan.raw/v1"}`))
+	documents, err := s.loadDocuments()
+	response := map[string]any{"status": "ok", "raw_schema_version": "baoan.raw/v1", "document_schema_version": canonical.SchemaVersion, "policy_count": len(documents)}
+	if err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		response["status"] = "degraded"
+		response["error"] = err.Error()
+	}
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 func (s *Server) feed(w http.ResponseWriter, r *http.Request) {
-	items, err := s.loadPolicies()
+	documents, err := s.loadDocuments()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -88,18 +79,24 @@ func (s *Server) feed(w http.ResponseWriter, r *http.Request) {
 	if base == "" {
 		base = scheme(r) + "://" + r.Host
 	}
-	entries := make([]item, 0, len(items))
-	for _, p := range items {
+	entries := make([]item, 0, len(documents))
+	for _, doc := range documents {
+		updated := doc.FetchedAt
+		if updated.IsZero() {
+			updated = time.Unix(0, 0).UTC()
+		}
 		entries = append(entries, item{
-			Title:       p.Title,
-			Link:        base + "/packages/" + url.PathEscape(p.ID),
-			GUID:        "baoan-policy:" + p.ID + ":" + p.Snapshot,
-			Description: firstNonEmpty(p.Abstract, "宝安区政策原文；详情页包含标准化原文、来源 URL 和结构化字段。"),
-			PubDate:     p.Updated.UTC().Format(time.RFC1123Z),
+			Title:       doc.Structured.Title,
+			Link:        base + "/packages/" + url.PathEscape(doc.PackageID),
+			GUID:        "baoan-policy:" + doc.PackageID + ":" + doc.SnapshotID,
+			Description: firstNonEmpty(doc.Structured.Abstract, "宝安区政策完整规范化文档"),
+			PubDate:     updated.UTC().Format(time.RFC1123Z),
 		})
 	}
-	channelLink := base + s.cfg.FeedPath
-	out, err := xml.Marshal(feed{Version: "2.0", Channel: channel{Title: "宝安政策原文（FMind Raw）", Link: channelLink, Description: "来源于宝安区政策法规库的 baoan.raw/v1 政策包。", Items: entries}})
+	out, err := xml.Marshal(feed{Version: "2.0", Channel: channel{
+		Title: "宝安政策原文（FMind Canonical）", Link: base + s.cfg.FeedPath,
+		Description: "由 baoan.raw/v1 统一组装为 baoan.canonical-md/v1 的政策文档。", Items: entries,
+	}})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -110,97 +107,49 @@ func (s *Server) feed(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) packagePage(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimPrefix(r.URL.Path, "/packages/")
-	id, err := url.PathUnescape(id)
+	id, err := url.PathUnescape(strings.TrimPrefix(r.URL.Path, "/packages/"))
 	if err != nil || id == "" || strings.ContainsAny(id, `/\\`) || id == "." || id == ".." {
 		http.NotFound(w, r)
 		return
 	}
-	base := filepath.Join(s.cfg.DataDir, "policies", id)
-	latestBody, err := os.ReadFile(filepath.Join(base, "latest.json"))
+	doc, err := canonical.LoadLatest(s.cfg.DataDir, id)
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
-	var latest struct {
-		SnapshotID string `json:"snapshot_id"`
-	}
-	if json.Unmarshal(latestBody, &latest) != nil || latest.SnapshotID == "" || strings.ContainsAny(latest.SnapshotID, `/\\`) {
-		http.NotFound(w, r)
-		return
-	}
-	snapshot := filepath.Join(base, "snapshots", latest.SnapshotID)
-	structuredBody, _ := os.ReadFile(filepath.Join(snapshot, "structured.json"))
-	var p structured
-	_ = json.Unmarshal(structuredBody, &p)
-	markdown, err := os.ReadFile(filepath.Join(snapshot, "normalized.md"))
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-	title := firstNonEmpty(p.Title, id)
-	// Keep the original markdown intact inside a readable HTML document. The
-	// FMind RSS connector extracts the article page and converts it to Markdown.
-	metadata := "<section><p>来源 URL：" + html.EscapeString(firstNonEmpty(p.SourceURL, p.FinalURL)) + "</p>"
-	metadata += "<p>服务对象：" + html.EscapeString(strings.Join(p.Official.ServiceObjects, "、")) + "</p>"
-	metadata += "<p>发文机构：" + html.EscapeString(p.Official.IssuingAuthority) + "</p>"
-	metadata += "<p>主题：" + html.EscapeString(p.Official.Theme) + "</p>"
-	metadata += "<p>文件载体：" + html.EscapeString(p.Official.CarrierType) + "</p></section>"
-	body := "<!doctype html><html><head><meta charset=\"utf-8\"><title>" + html.EscapeString(title) + "</title></head><body><article><h1>" + html.EscapeString(title) + "</h1>" + metadata + "<pre>" + html.EscapeString(string(markdown)) + "</pre></article></body></html>"
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	_, _ = w.Write([]byte(body))
+	w.Header().Set("ETag", `"`+doc.SnapshotSHA256+`"`)
+	_, _ = w.Write([]byte(doc.HTML()))
 }
 
-func (s *Server) loadPolicies() ([]policy, error) {
-	root := filepath.Join(s.cfg.DataDir, "policies")
-	entries, err := os.ReadDir(root)
+func (s *Server) loadDocuments() ([]canonical.Document, error) {
+	entries, err := os.ReadDir(filepath.Join(s.cfg.DataDir, "policies"))
 	if err != nil {
 		return nil, err
 	}
-	out := make([]policy, 0, len(entries))
+	documents := make([]canonical.Document, 0, len(entries))
+	var failures []string
 	for _, entry := range entries {
 		if !entry.IsDir() {
 			continue
 		}
-		base := filepath.Join(root, entry.Name())
-		latestBody, err := os.ReadFile(filepath.Join(base, "latest.json"))
+		doc, err := canonical.LoadLatest(s.cfg.DataDir, entry.Name())
 		if err != nil {
+			failures = append(failures, entry.Name()+": "+err.Error())
 			continue
 		}
-		var latest struct {
-			SnapshotID string `json:"snapshot_id"`
-		}
-		if json.Unmarshal(latestBody, &latest) != nil || latest.SnapshotID == "" || strings.ContainsAny(latest.SnapshotID, `/\\`) {
-			continue
-		}
-		snapshot := filepath.Join(base, "snapshots", latest.SnapshotID)
-		body, err := os.ReadFile(filepath.Join(snapshot, "structured.json"))
-		if err != nil {
-			continue
-		}
-		var p structured
-		if json.Unmarshal(body, &p) != nil {
-			continue
-		}
-		markdown, err := os.ReadFile(filepath.Join(snapshot, "normalized.md"))
-		if err != nil {
-			continue
-		}
-		updated := time.Time{}
-		if manifest, err := os.ReadFile(filepath.Join(snapshot, "manifest.json")); err == nil {
-			var m struct {
-				FetchedAt time.Time `json:"fetched_at"`
-			}
-			_ = json.Unmarshal(manifest, &m)
-			updated = m.FetchedAt
-		}
-		if updated.IsZero() {
-			updated = time.Now().UTC()
-		}
-		out = append(out, policy{ID: entry.Name(), Title: firstNonEmpty(p.Title, entry.Name()), SourceURL: p.SourceURL, Markdown: string(markdown), Abstract: p.Abstract, Snapshot: latest.SnapshotID, Updated: updated})
+		documents = append(documents, doc)
 	}
-	sort.Slice(out, func(i, j int) bool { return out[i].Updated.After(out[j].Updated) })
-	return out, nil
+	sort.Slice(documents, func(i, j int) bool {
+		if documents[i].FetchedAt.Equal(documents[j].FetchedAt) {
+			return documents[i].PackageID < documents[j].PackageID
+		}
+		return documents[i].FetchedAt.After(documents[j].FetchedAt)
+	})
+	if len(failures) > 0 {
+		return nil, fmt.Errorf("canonical assembly failed: %s", strings.Join(failures, "; "))
+	}
+	return documents, nil
 }
 
 func scheme(r *http.Request) string {
@@ -211,9 +160,9 @@ func scheme(r *http.Request) string {
 }
 
 func firstNonEmpty(values ...string) string {
-	for _, v := range values {
-		if strings.TrimSpace(v) != "" {
-			return strings.TrimSpace(v)
+	for _, value := range values {
+		if strings.TrimSpace(value) != "" {
+			return strings.TrimSpace(value)
 		}
 	}
 	return ""
