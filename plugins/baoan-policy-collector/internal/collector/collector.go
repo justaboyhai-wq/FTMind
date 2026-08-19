@@ -34,6 +34,8 @@ func New(cfg config.Config, client *httpclient.Client, store *state.Store) *Coll
 	return &Collector{Config: cfg, Client: client, Store: store, Now: time.Now}
 }
 
+func (c *Collector) Retry(ctx context.Context) (Summary, error) { return c.Collect(ctx, false, 0) }
+
 func (c *Collector) Collect(ctx context.Context, full bool, maxItems int) (Summary, error) {
 	runID := c.Now().UTC().Format("20060102T150405.000000000Z")
 	run := Summary{RunID: runID, Status: "discovering"}
@@ -90,6 +92,15 @@ func (c *Collector) Collect(ctx context.Context, full bool, maxItems int) (Summa
 			}
 		}
 	}
+	if full && run.Failed == 0 && c.Store != nil {
+		seen := make([]string, 0, len(records))
+		for _, r := range records {
+			seen = append(seen, r.ID)
+		}
+		if err := c.Store.ReconcileMissing(ctx, seen); err != nil {
+			return finish(err)
+		}
+	}
 	return finish(nil)
 }
 
@@ -139,15 +150,28 @@ func (c *Collector) collectRecord(ctx context.Context, runID string, record mode
 	}
 	structured, _ := json.Marshal(p.Structured)
 	relations, _ := json.Marshal(p.Relations)
-	_, err = archive.Publish(c.Config.DataDir, archive.Package{ExternalID: "post_" + strconv.FormatInt(d.ID, 10), DetailRaw: rawResp.Body, SourceHTML: htmlResp.Body, Markdown: p.Markdown, Structured: structured, Relations: relations, Attachments: attachments})
+	externalID := "post_" + strconv.FormatInt(d.ID, 10)
+	existed := false
+	if c.Store != nil {
+		existed, _ = c.Store.HasRecord(ctx, record.ID)
+	}
+	published, err := archive.Publish(c.Config.DataDir, archive.Package{ExternalID: externalID, DetailRaw: rawResp.Body, SourceHTML: htmlResp.Body, Markdown: p.Markdown, Structured: structured, Relations: relations, Attachments: attachments})
 	if err != nil {
 		return err
 	}
 	if c.Store != nil {
 		hash, _ := discovery.RecordHash(record)
-		_ = c.Store.UpsertRecord(ctx, record.ID, hash, d.URL)
+		if err := c.Store.UpsertRecord(ctx, record.ID, hash, d.URL); err != nil {
+			return err
+		}
 	}
-	summary.Created++
+	if !published.Created {
+		summary.Unchanged++
+	} else if existed {
+		summary.Updated++
+	} else {
+		summary.Created++
+	}
 	return nil
 }
 

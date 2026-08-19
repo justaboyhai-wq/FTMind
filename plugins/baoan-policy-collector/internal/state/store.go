@@ -3,7 +3,6 @@ package state
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -83,10 +82,32 @@ func (s *Store) UpsertRecord(ctx context.Context, id, hash, snapshot string) err
 	_, err := s.db.ExecContext(ctx, `INSERT INTO records(external_id,index_hash,last_snapshot,source_state) VALUES(?,?,?,'active') ON CONFLICT(external_id) DO UPDATE SET index_hash=excluded.index_hash,last_snapshot=excluded.last_snapshot,missing_runs=0,source_state='active'`, id, hash, snapshot)
 	return err
 }
-func (s *Store) MarkMissing(ctx context.Context, ids []string) error {
-	b, _ := json.Marshal(ids)
-	_ = b
-	return nil
+func (s *Store) HasRecord(ctx context.Context, id string) (bool, error) {
+	var n int
+	err := s.db.QueryRowContext(ctx, `SELECT COUNT(1) FROM records WHERE external_id=?`, id).Scan(&n)
+	return n > 0, err
+}
+func (s *Store) ReconcileMissing(ctx context.Context, seen []string) error {
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if _, err = tx.ExecContext(ctx, `CREATE TEMP TABLE IF NOT EXISTS seen_ids(id TEXT PRIMARY KEY)`); err != nil {
+		return err
+	}
+	if _, err = tx.ExecContext(ctx, `DELETE FROM seen_ids`); err != nil {
+		return err
+	}
+	for _, id := range seen {
+		if _, err = tx.ExecContext(ctx, `INSERT OR IGNORE INTO seen_ids(id) VALUES(?)`, id); err != nil {
+			return err
+		}
+	}
+	if _, err = tx.ExecContext(ctx, `UPDATE records SET missing_runs=missing_runs+1,source_state=CASE WHEN missing_runs+1>=3 THEN 'source_removed_candidate' ELSE 'missing' END WHERE external_id NOT IN (SELECT id FROM seen_ids)`); err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 func boolInt(v bool) int {
 	if v {

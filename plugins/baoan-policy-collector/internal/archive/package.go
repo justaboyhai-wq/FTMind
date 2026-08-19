@@ -1,6 +1,7 @@
 package archive
 
 import (
+	"bufio"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -88,6 +89,42 @@ func Publish(root string, pkg Package) (PublishResult, error) {
 		return PublishResult{}, err
 	}
 	return PublishResult{SnapshotID: snapshotID, Created: true}, nil
+}
+
+func Verify(root string) error {
+	base := filepath.Join(root, "policies")
+	if _, err := os.Stat(base); os.IsNotExist(err) {
+		return nil
+	}
+	return filepath.WalkDir(base, func(path string, entry os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if entry.IsDir() || entry.Name() != "checksums.sha256" {
+			return nil
+		}
+		f, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		scanner := bufio.NewScanner(f)
+		for scanner.Scan() {
+			parts := strings.SplitN(scanner.Text(), "  ", 2)
+			if len(parts) != 2 {
+				continue
+			}
+			body, err := os.ReadFile(filepath.Join(filepath.Dir(path), parts[1]))
+			if err != nil {
+				return err
+			}
+			sum := sha256.Sum256(body)
+			if hex.EncodeToString(sum[:]) != parts[0] {
+				return fmt.Errorf("checksum mismatch: %s", parts[1])
+			}
+		}
+		return scanner.Err()
+	})
 }
 
 func packageHash(pkg Package) string {
