@@ -44,6 +44,7 @@ plugins/baoan-policy-collector/
 │   ├── discover/
 │   ├── extract/
 │   ├── httpclient/
+│   ├── protocol/
 │   ├── reconcile/
 │   ├── scheduler/
 │   ├── state/
@@ -61,6 +62,8 @@ plugins/baoan-policy-collector/
 
 ```text
 官网分类页与列表页
+        ↓
+入口 HTML 静态分析 + 公开请求协议目录
         ↓
 分类字典快照 + URL 全量发现
         ↓
@@ -80,6 +83,40 @@ Schema、哈希和引用完整性校验
 ```
 
 采集和 Wiki 生成必须是两条独立流水线。采集器只回答“官网当时发布了什么”；Wiki Transformer 才回答“如何面向具体应用组织这些事实”。
+
+## 4.1 入口 HTML 与公开请求协议发现
+
+采集器不能把浏览器逐项点击当成生产抓取方式。对每个 seed URL，必须先下载完整静态 HTML，建立页面请求目录，再使用已验证的公开 HTTP 请求直接完成分页、筛选、详情和附件采集。
+
+静态分析范围：
+
+- 页面内全部 `<a href>`、`<form action>`、`<script src>`、`<link href>`、`<iframe src>`、图片和附件 URL。
+- inline script 中的公开配置、栏目 ID、分页参数、接口 base URL、JSON 数据和请求模板。
+- 外部 JavaScript 中可静态识别的 `fetch`、XHR、axios、JSONP 和分页 URL 模板。
+- HTML meta、canonical、data-* 属性以及页面源码中出现的栏目/分类 code。
+- 首次协议核对时浏览器加载该页面实际产生的公开网络请求，包括方法、路径、query/body 参数、响应 Content-Type、分页字段和响应含义。
+
+输出 `protocol/request-catalog.json`，每条请求定义至少包含：
+
+- `request_id`：稳定标识。
+- `discovered_from`：HTML 元素、inline script、external script 或 browser trace。
+- `method`、`url_template`、允许的 host。
+- query/body 参数名、类型、必填性、示例值和语义。
+- 响应格式、字符集、分页字段、记录 ID 字段和错误信号。
+- 用途：分类字典、政策列表、详情、解读、附件或咨询。
+- 验证时间、来源文件 SHA-256 和协议版本。
+
+请求目录中的“新请求”必须逐项解释含义，不能因为页面发起了请求就全部跟随。统计、广告、埋点、字体、图片、地图、分享和无关推荐请求标为 `ignored` 并记录理由；只有能够产生政策事实或发现政策 URL 的请求进入采集白名单。
+
+生产执行顺序：
+
+1. 直接 GET seed HTML 并计算结构指纹。
+2. 使用当前协议目录解析静态链接和公开数据请求。
+3. 直接发送分类、分页、详情和附件 HTTP 请求，不模拟点击。
+4. 对照静态页面链接与请求响应记录，合并去重并做数量守恒。
+5. HTML 结构指纹或请求协议发生变化时暂停使用不匹配的请求模板，将 run 标为 partial，并生成协议差异报告。
+
+浏览器网络跟踪只用于以下情况：首次建立协议目录、HTML/JavaScript 无法静态解释请求参数、网站改版导致协议指纹失配。跟踪完成后必须把请求语义固化成版本化协议目录；日常定时任务不得依赖浏览器、坐标点击或 DOM 点击循环。
 
 ## 5. 官网事实、计算结果与未来模型数据的边界
 
@@ -318,6 +355,8 @@ Docker 仅运行同一二进制并挂载 `/data` 和只读配置，不引入额�
 
 ### 13.1 全量
 
+- 下载 seed HTML，输出静态资源/请求统计和版本化 request catalog 差异。
+- 只执行 request catalog 中标为 policy-data 的公开请求，跳过 ignored 请求。
 - 抓取五维官网字典。
 - 遍历全部列表分页和分类入口。
 - 合并 canonical URL 和 `post_<id>` 去重。
@@ -351,6 +390,8 @@ Docker 仅运行同一二进制并挂载 `/data` 和只读配置，不引入额�
 
 配置文件只包含非秘密参数：数据目录、seed URL、官方主机白名单、请求间隔、大小上限、cron、时区、重试次数、closing-soon 天数和是否启用浏览器降级。
 
+浏览器降级默认关闭。启用时只允许生成一次网络协议观察结果，不允许作为长期逐页点击采集器；观察到的新 host 和请求模板必须经过白名单与语义审核后才能进入下次生产 run。
+
 官网当前无需认证。若未来增加认证，秘密只能由环境变量或挂载 secret 提供，禁止写入配置样例、Raw Package 和日志。
 
 ## 16. 完整性账本
@@ -370,6 +411,7 @@ Docker 仅运行同一二进制并挂载 `/data` 和只读配置，不引入额�
 ## 17. 测试策略
 
 - 单元测试：URL、安全客户端、分页、DOM/JSON 解析、日期、标签映射、状态机、哈希、路径和 Schema。
+- 协议测试：静态 HTML/JavaScript 请求枚举、请求用途分类、参数类型、分页终止、响应 Schema、协议指纹变化和 ignored 请求隔离。
 - 夹具契约测试：真实公开网页的脱敏/原始夹具，覆盖五维分类、原文、文字/图文解读、咨询和附件。
 - 端到端测试：本地 `httptest` 模拟分页、重定向、429、503、附件变化、字典变化和三轮缺失。
 - 故障注入：写盘失败、磁盘空间不足、进程中断、SQLite 锁、损坏 staging 和哈希不一致。
@@ -382,6 +424,7 @@ Docker 仅运行同一二进制并挂载 `/data` 和只读配置，不引入额�
 
 - 独立模块可以在没有 FMind app、PostgreSQL、Redis 和 MinIO 的环境运行。
 - 可一次性完整下载政策原文、原始 HTML、附件和显式关联页面。
+- 能对入口 HTML 和加载协议生成完整请求目录，说明每个数据请求的用途，并通过直接 HTTP 请求完成生产采集，不依赖逐项点击。
 - 可按计划自动增量运行，失败可重试，重启可续跑。
 - Raw Package 全部通过 JSON Schema、路径和 SHA-256 校验。
 - 五个官网分类入口 reported/captured 数量一致。
@@ -394,4 +437,3 @@ Docker 仅运行同一二进制并挂载 `/data` 和只读配置，不引入额�
 ## 19. 后续接口
 
 下一阶段单独建设 `Policy Wiki Transformer`：读取 `baoan.raw/v1`，按照版本化 Wiki Schema 生成 Wiki 页面、标签、目录和关系。该阶段可以引入模型创建官网没有的新维度，但必须写入 `derived_ai`，不能覆盖 Raw Package 中的 `official` 和 `computed`。
-
