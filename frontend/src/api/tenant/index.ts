@@ -87,6 +87,7 @@ export type TenantAPIKeyCapability =
 
 export interface TenantAPIKey {
   id: number
+  user_id?: string
   name: string
   api_key: string
   full_access: boolean
@@ -94,6 +95,7 @@ export interface TenantAPIKey {
   capabilities?: TenantAPIKeyCapability[]
   last_used_at?: string
   expires_at?: string
+  revoked_at?: string
   created_at: string
 }
 

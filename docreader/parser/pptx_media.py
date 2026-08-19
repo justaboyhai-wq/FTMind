@@ -13,6 +13,12 @@ import uuid
 import zipfile
 from typing import Dict, List, Tuple
 
+from docreader.utils.archive import (
+    ArchiveLimits,
+    DEFAULT_ARCHIVE_LIMITS,
+    validate_zip_archive,
+)
+
 logger = logging.getLogger(__name__)
 
 _MARKDOWN_IMAGE = re.compile(r"!\[([^\]]*)\]\(([^)]+)\)")
@@ -89,8 +95,22 @@ def rasterize_media_bytes(name: str, data: bytes) -> bytes | None:
     return _rasterize_with_imagemagick(data, ext or ".bin")
 
 
-def list_pptx_media(pptx_bytes: bytes) -> List[Tuple[str, bytes]]:
+def list_pptx_media(
+    pptx_bytes: bytes,
+    max_uncompressed_bytes: int = DEFAULT_ARCHIVE_LIMITS.max_total_bytes,
+) -> List[Tuple[str, bytes]]:
     """Return (zip path, raw bytes) for each file under ppt/media/, in archive order."""
+    validate_zip_archive(
+        pptx_bytes,
+        ArchiveLimits(
+            max_members=DEFAULT_ARCHIVE_LIMITS.max_members,
+            max_member_bytes=min(
+                DEFAULT_ARCHIVE_LIMITS.max_member_bytes, max_uncompressed_bytes
+            ),
+            max_total_bytes=max_uncompressed_bytes,
+            max_ratio=DEFAULT_ARCHIVE_LIMITS.max_ratio,
+        ),
+    )
     items: List[Tuple[str, bytes]] = []
     with zipfile.ZipFile(io.BytesIO(pptx_bytes)) as archive:
         for name in archive.namelist():

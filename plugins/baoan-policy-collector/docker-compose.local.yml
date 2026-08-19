@@ -1,0 +1,8 @@
+services:
+  collector:
+    volumes:
+      - ../../baoan-policy-data-first-batch:/data
+
+  rss:
+    volumes:
+      - ../../baoan-policy-data-first-batch:/data:ro

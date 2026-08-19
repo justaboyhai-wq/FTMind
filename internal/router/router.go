@@ -18,6 +18,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/dig"
 
+	"github.com/justaboyhai-wq/fmind/internal/authz"
 	"github.com/justaboyhai-wq/fmind/internal/config"
 	"github.com/justaboyhai-wq/fmind/internal/handler"
 	"github.com/justaboyhai-wq/fmind/internal/handler/session"
@@ -83,8 +84,10 @@ type RouterParams struct {
 	MemoryWikiHandler            *handler.MemoryWikiHandler
 	InternalMemoryEventHandler   *handler.InternalMemoryEventHandler
 	UserFavoriteHandler          *handler.UserResourceFavoriteHandler
+	AnswerFeedbackHandler        *handler.AnswerFeedbackHandler
 	SkillHandler                 *handler.SkillHandler
 	OrganizationHandler          *handler.OrganizationHandler
+	TeamHandler                  *handler.TeamHandler
 	IMHandler                    *handler.IMHandler
 	EmbedChannelHandler          *handler.EmbedChannelHandler
 	EmbedChannelService          interfaces.EmbedChannelService
@@ -94,6 +97,7 @@ type RouterParams struct {
 	FMindCloudHandler            *handler.FMindCloudHandler
 	WikiPageHandler              *handler.WikiPageHandler
 	CognitionServer              *cognition.Server
+	AuthorizationService         *authz.Service
 }
 
 // NewRouter 创建新的路由
@@ -167,11 +171,35 @@ func NewRouter(params RouterParams) *gin.Engine {
 	// Connector introspection is intentionally registered before user Auth. Its
 	// sole credential is the connector secret and it has a narrow IP limiter.
 	RegisterBindingIntrospectionRoutes(r, params.BindingIntrospectionHandler)
+	RegisterBindingSetupRoutes(r, params.AgentBindingHandler)
 	RegisterInternalMemoryEventRoutes(r, params.InternalMemoryEventHandler)
 	RegisterCognitionMCPRoutes(r, params.CognitionServer)
 
 	// 认证中间件
 	r.Use(middleware.Auth(params.TenantService, params.UserService, params.TenantMemberService, params.TenantAPIKeyService, params.Config))
+	// Assemble the authoritative access context after authentication has
+	// resolved the current user, tenant and role. This context is rebuilt per
+	// request and is never populated from request JSON.
+	if params.AuthorizationService != nil {
+		r.Use(func(c *gin.Context) {
+			// Authentication endpoints and other tenant-less surfaces are
+			// intentionally allowed to complete before a tenant is selected.
+			// Tenant-scoped routes still receive a freshly rebuilt context and
+			// therefore fail closed when membership/resource resolution fails.
+			if _, ok := types.TenantIDFromContext(c.Request.Context()); !ok {
+				c.Next()
+				return
+			}
+			resolved, err := params.AuthorizationService.ResolveContext(c.Request.Context())
+			if err != nil {
+				c.JSON(http.StatusForbidden, gin.H{"error": "forbidden: authorization context unavailable"})
+				c.Abort()
+				return
+			}
+			c.Request = c.Request.WithContext(resolved)
+			c.Next()
+		})
+	}
 
 	// 文件服务：统一代理本地/MinIO/COS/TOS存储后端（需要认证）
 	serveFiles(r, params.FileService)
@@ -223,6 +251,7 @@ func NewRouter(params RouterParams) *gin.Engine {
 		v1.Use(rbacGuards.apiKeyAuthorizer.Middleware())
 
 		RegisterAuthRoutes(v1, params.AuthHandler, rbacGuards)
+		RegisterAuthorizationRoutes(v1, params.AuthorizationService)
 		RegisterTenantRoutes(v1, params.TenantHandler, params.TenantMemberHandler, params.TenantInvitationHandler, params.AuditLogHandler, rbacGuards)
 		RegisterMyInvitationRoutes(v1, params.TenantInvitationHandler)
 		RegisterKnowledgeBaseRoutes(v1, params.KBHandler, rbacGuards)
@@ -250,8 +279,10 @@ func NewRouter(params RouterParams) *gin.Engine {
 		RegisterAgentBindingRoutes(v1, params.AgentBindingHandler, rbacGuards)
 		RegisterMemoryWikiReviewRoutes(v1, params.MemoryWikiHandler, rbacGuards)
 		RegisterUserFavoriteRoutes(v1, params.UserFavoriteHandler, rbacGuards)
+		RegisterAnswerFeedbackRoutes(v1, params.AnswerFeedbackHandler, rbacGuards)
 		RegisterSkillRoutes(v1, params.SkillHandler, rbacGuards)
 		RegisterOrganizationRoutes(v1, params.OrganizationHandler, rbacGuards)
+		RegisterTeamRoutes(v1, params.TeamHandler, rbacGuards)
 		RegisterIMChannelRoutes(v1, params.IMHandler, rbacGuards)
 		RegisterEmbedChannelRoutes(v1, params.EmbedChannelHandler, rbacGuards)
 		RegisterDataSourceRoutes(v1, params.DataSourceHandler, params.DataSourceCredentialsHandler, rbacGuards)
@@ -269,6 +300,36 @@ func NewRouter(params RouterParams) *gin.Engine {
 	return r
 }
 
+func RegisterAuthorizationRoutes(r *gin.RouterGroup, s *authz.Service) {
+	if s == nil {
+		return
+	}
+	r.GET("/auth/permissions", func(c *gin.Context) {
+		ctx := c.Request.Context()
+		if _, err := authz.FromContext(ctx); err != nil {
+			resolved, resolveErr := s.ResolveContext(ctx)
+			if resolveErr != nil {
+				c.JSON(http.StatusForbidden, gin.H{"error": "forbidden: authorization context unavailable"})
+				return
+			}
+			ctx = resolved
+		}
+		menus := s.GetMenuPermissions(ctx)
+		capabilities := s.GetEffectiveCapabilities(ctx)
+		access, _ := authz.FromContext(ctx)
+		tenantID, _ := types.TenantIDFromContext(ctx)
+		role := types.TenantRoleFromContext(ctx)
+		c.JSON(http.StatusOK, gin.H{"success": true, "data": gin.H{
+			"tenant":       gin.H{"id": tenantID, "role": role},
+			"organization": gin.H{"department_ids": access.DepartmentIDs, "team_ids": access.TeamIDs, "team_roles": access.TeamRoles},
+			"capabilities": capabilities,
+			"menus":        menus.Menus,
+			"role_matrix":  menus.RoleMatrix,
+			"resources":    gin.H{"knowledge_base_ids": access.KnowledgeBaseIDs, "memory_wiki_ids": access.MemoryWikiIDs, "agent_ids": access.AgentIDs},
+		}})
+	})
+}
+
 // RegisterAgentBindingRoutes treats bindings and connector keys as
 // tenant-wide infrastructure: every read and mutation requires Admin+.
 func RegisterAgentBindingRoutes(r *gin.RouterGroup, h *handler.AgentBindingHandler, g *rbacGuards) {
@@ -278,6 +339,7 @@ func RegisterAgentBindingRoutes(r *gin.RouterGroup, h *handler.AgentBindingHandl
 	bindings.GET("/:id", g.Admin(), h.Get)
 	bindings.POST("/:id/revoke", g.Admin(), h.Revoke)
 	bindings.POST("/:id/keys/rotate", g.Admin(), h.Rotate)
+	bindings.GET("/:id/setup-status", g.Admin(), h.SetupStatus)
 }
 
 // Memory L3 payloads and evidence are tenant-sensitive governance data. Until
@@ -285,17 +347,25 @@ func RegisterAgentBindingRoutes(r *gin.RouterGroup, h *handler.AgentBindingHandl
 // the service repeats this check so disabling router RBAC cannot bypass it.
 func RegisterMemoryWikiReviewRoutes(r *gin.RouterGroup, h *handler.MemoryWikiHandler, g *rbacGuards) {
 	reviews := r.Group("/external-memory/l3/reviews")
-	reviews.GET("", g.Admin(), h.ListReviews)
-	reviews.GET("/:id", g.Admin(), h.GetReview)
+	reviews.GET("", g.Viewer(), h.ListReviews)
+	reviews.GET("/:id", g.Viewer(), h.GetReview)
 	reviews.POST("/:id/approve", g.Admin(), h.Approve)
 	reviews.POST("/:id/reject", g.Admin(), h.Reject)
 	reviews.POST("/:id/request-changes", g.Admin(), h.RequestChanges)
 	reviews.POST("/:id/publish", g.Admin(), h.Publish)
+	reviews.POST("/:id/revoke", g.Admin(), h.Revoke)
 }
 
 func RegisterBindingIntrospectionRoutes(r *gin.Engine, h *handler.BindingIntrospectionHandler) {
 	r.POST("/internal/v1/agent-bindings/introspect", middleware.PublicAuthRateLimit(), h.Introspect)
 	r.POST("/internal/v1/agent-bindings/verify", middleware.PublicAuthRateLimit(), h.Verify)
+}
+
+func RegisterBindingSetupRoutes(r *gin.Engine, h *handler.AgentBindingHandler) {
+	if h == nil {
+		return
+	}
+	r.POST("/internal/v1/agent-bindings/setup", middleware.PublicAuthRateLimit(), h.Setup)
 }
 
 func RegisterInternalMemoryEventRoutes(r *gin.Engine, h *handler.InternalMemoryEventHandler) {
@@ -1330,6 +1400,24 @@ func RegisterOrganizationRoutes(r *gin.RouterGroup, orgHandler *handler.Organiza
 	g.apiKeyRoute(r, http.MethodPost, "/shared-agents/disabled", apiKeyManageSpaces(apiKeyFullAccess()), g.Admin(), orgHandler.SetSharedAgentDisabledByMe)
 }
 
+// RegisterTeamRoutes exposes tenant-scoped department/team membership APIs.
+func RegisterTeamRoutes(r *gin.RouterGroup, h *handler.TeamHandler, g *rbacGuards) {
+	o := r.Group("/organization")
+	o.GET("/departments", g.Admin(), h.ListDepartments)
+	o.POST("/departments", g.Admin(), h.CreateDepartment)
+	o.GET("/teams", g.Admin(), h.ListTeams)
+	o.POST("/teams", g.Admin(), h.CreateTeam)
+	teams := o.Group("/teams/:id")
+	teams.PUT("", g.Admin(), h.UpdateTeam)
+	teams.DELETE("", g.Admin(), h.DeleteTeam)
+	teams.GET("/members", g.Admin(), h.ListMembers)
+	teams.POST("/members", g.Admin(), h.AddMember)
+	teams.DELETE("/members/:user_id", g.Admin(), h.RemoveMember)
+	teams.GET("/agents", g.Admin(), h.ListAgents)
+	teams.POST("/agents", g.Admin(), h.AddAgent)
+	teams.DELETE("/agents/:agent_id", g.Admin(), h.RemoveAgent)
+}
+
 // RegisterEmbedPublicRoutes registers anonymous embed endpoints secured by publish tokens.
 func RegisterEmbedPublicRoutes(
 	r *gin.Engine,
@@ -1354,6 +1442,10 @@ func RegisterEmbedPublicRoutes(
 		embed.GET("/messages/:session_id/load", embedHandler.EmbedLoadMessages)
 		embed.POST("/sessions/:session_id/stop", embedHandler.EmbedStopSession)
 		embed.GET("/sessions/:session_id/messages/:message_id/suggestions", embedHandler.EmbedGetMessageSuggestions)
+		embed.POST("/sessions/:session_id/messages/:message_id/feedback", embedHandler.EmbedSubmitFeedback)
+		embed.GET("/sessions/:session_id/messages/:message_id/feedback", embedHandler.EmbedGetFeedback)
+		embed.POST("/sessions/:session_id/feedback/:id/comments", embedHandler.EmbedCommentFeedback)
+		embed.POST("/sessions/:session_id/feedback/:id/reopen", embedHandler.EmbedReopenFeedback)
 		embed.POST("/sessions/:session_id/messages/:message_id/suggestions", embedHandler.EmbedEnsureMessageSuggestions)
 		embed.POST("/sessions/:session_id/suggestion-events", embedHandler.EmbedRecordSuggestionEvent)
 		embed.POST("/sessions/:session_id/events", embedHandler.EmbedRelayWebhookEvent)

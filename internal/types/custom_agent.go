@@ -28,6 +28,8 @@ const (
 	BuiltinWikiResearcherID = "builtin-wiki-researcher"
 	// BuiltinWikiFixerID is the ID for the built-in wiki fixer agent
 	BuiltinWikiFixerID = "builtin-wiki-fixer"
+	// BuiltinBaoanPolicyQAID is the ID for the Bao'an policy Q&A agent.
+	BuiltinBaoanPolicyQAID = "builtin-baoan-policy-qa"
 )
 
 // AgentMode constants for agent running mode
@@ -510,6 +512,7 @@ var BuiltinAgentRegistry = map[string]func(uint64) *CustomAgent{}
 var builtinAgentIDsOrdered = []string{
 	BuiltinQuickAnswerID,
 	BuiltinSmartReasoningID,
+	BuiltinBaoanPolicyQAID,
 	BuiltinWikiResearcherID,
 	BuiltinDeepResearcherID,
 	BuiltinDataAnalystID,

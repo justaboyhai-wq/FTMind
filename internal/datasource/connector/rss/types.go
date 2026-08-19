@@ -173,6 +173,10 @@ func feedSignalFingerprint(item *gofeed.Item, feedContent string) string {
 	b.WriteByte('\n')
 	b.WriteString(item.Title)
 	b.WriteByte('\n')
+	for _, category := range normalizeOfficialTagNames(item.Categories) {
+		b.WriteString(category)
+		b.WriteByte('\n')
+	}
 	if item.UpdatedParsed != nil && !item.UpdatedParsed.IsZero() {
 		b.WriteString(item.UpdatedParsed.UTC().Format(time.RFC3339))
 	}
@@ -184,6 +188,33 @@ func feedSignalFingerprint(item *gofeed.Item, feedContent string) string {
 	b.WriteString(feedContent)
 	sum := sha256.Sum256([]byte(b.String()))
 	return "s:" + hex.EncodeToString(sum[:])[:16]
+}
+
+// feedContentSignal tracks all feed-visible fields except categories. It lets
+// the datasource service recognize a category-only Baoan policy update even
+// when historical file_hash values were changed by post-processing.
+func feedContentSignal(item *gofeed.Item, feedContent string) string {
+	if item == nil {
+		return ""
+	}
+	var b strings.Builder
+	b.WriteString(item.GUID)
+	b.WriteByte('\n')
+	b.WriteString(item.Link)
+	b.WriteByte('\n')
+	b.WriteString(item.Title)
+	b.WriteByte('\n')
+	if item.UpdatedParsed != nil && !item.UpdatedParsed.IsZero() {
+		b.WriteString(item.UpdatedParsed.UTC().Format(time.RFC3339))
+	}
+	b.WriteByte('\n')
+	if item.PublishedParsed != nil && !item.PublishedParsed.IsZero() {
+		b.WriteString(item.PublishedParsed.UTC().Format(time.RFC3339))
+	}
+	b.WriteByte('\n')
+	b.WriteString(feedContent)
+	sum := sha256.Sum256([]byte(b.String()))
+	return "c:" + hex.EncodeToString(sum[:])[:16]
 }
 
 func copyFeedCursor(dst, prev *rssCursor, feedURL string) {
@@ -246,4 +277,23 @@ func sanitizeFileName(name string) string {
 		}
 	}
 	return result
+}
+
+// rssItemFileName gives Baoan policy records a stable human-readable name that
+// retains the post identifier used by RSS incremental ownership.
+func rssItemFileName(title, itemID string) string {
+	const prefix = "baoan-policy:post_"
+	if !strings.HasPrefix(itemID, prefix) {
+		return sanitizeFileName(title) + ".md"
+	}
+	policyID := strings.TrimPrefix(itemID, "baoan-policy:")
+	if policyID == "post_" {
+		return sanitizeFileName(title) + ".md"
+	}
+	for _, r := range strings.TrimPrefix(policyID, "post_") {
+		if r < '0' || r > '9' {
+			return sanitizeFileName(title) + ".md"
+		}
+	}
+	return sanitizeFileName(title) + "\uff08" + policyID + "\uff09.md"
 }

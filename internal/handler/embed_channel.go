@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/justaboyhai-wq/fmind/internal/application/service"
 	apperrors "github.com/justaboyhai-wq/fmind/internal/errors"
 	"github.com/justaboyhai-wq/fmind/internal/handler/session"
@@ -20,7 +21,6 @@ import (
 	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
-	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -30,9 +30,11 @@ type EmbedChannelHandler struct {
 	sessionService    interfaces.SessionService
 	sessionHandler    *session.Handler
 	messageHandler    *MessageHandler
+	messageService    interfaces.MessageService
 	suggestionHandler *MessageSuggestionHandler
 	mcpOAuthHandler   *MCPOAuthHandler
 	mcpServiceHandler *MCPServiceHandler
+	feedbackService   interfaces.AnswerFeedbackService
 	redis             *redis.Client
 }
 
@@ -41,9 +43,11 @@ func NewEmbedChannelHandler(
 	sessionService interfaces.SessionService,
 	sessionHandler *session.Handler,
 	messageHandler *MessageHandler,
+	messageService interfaces.MessageService,
 	suggestionHandler *MessageSuggestionHandler,
 	mcpOAuthHandler *MCPOAuthHandler,
 	mcpServiceHandler *MCPServiceHandler,
+	feedbackService interfaces.AnswerFeedbackService,
 	redisClient *redis.Client,
 ) *EmbedChannelHandler {
 	return &EmbedChannelHandler{
@@ -51,11 +55,100 @@ func NewEmbedChannelHandler(
 		sessionService:    sessionService,
 		sessionHandler:    sessionHandler,
 		messageHandler:    messageHandler,
+		messageService:    messageService,
 		suggestionHandler: suggestionHandler,
 		mcpOAuthHandler:   mcpOAuthHandler,
 		mcpServiceHandler: mcpServiceHandler,
+		feedbackService:   feedbackService,
 		redis:             redisClient,
 	}
+}
+
+func (h *EmbedChannelHandler) EmbedSubmitFeedback(c *gin.Context) {
+	if err := h.ensureEmbedSession(c); err != nil {
+		return
+	}
+	ch, _ := middleware.EmbedChannelFromContext(c.Request.Context())
+	sid, mid := c.Param("session_id"), c.Param("message_id")
+	sess, err := h.sessionService.GetSessionByID(c.Request.Context(), ch.TenantID, sid)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "session not found"})
+		return
+	}
+	msg, err := h.messageService.GetMessage(c.Request.Context(), sid, mid)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "message not found"})
+		return
+	}
+	var req types.AnswerFeedbackRequest
+	if c.ShouldBindJSON(&req) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid feedback body"})
+		return
+	}
+	reporter := types.EmbedSessionPrincipal(ch.TenantID, ch.ID, sid).StorageID()
+	f, err := h.feedbackService.Submit(c.Request.Context(), ch.TenantID, reporter, "embed", sess, msg, req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": f})
+}
+
+func (h *EmbedChannelHandler) EmbedGetFeedback(c *gin.Context) {
+	if err := h.ensureEmbedSession(c); err != nil {
+		return
+	}
+	ch, _ := middleware.EmbedChannelFromContext(c.Request.Context())
+	if _, err := h.messageService.GetMessage(c.Request.Context(), c.Param("session_id"), c.Param("message_id")); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "message not found"})
+		return
+	}
+	reporter := types.EmbedSessionPrincipal(ch.TenantID, ch.ID, c.Param("session_id")).StorageID()
+	f, err := h.feedbackService.GetMineForMessage(c.Request.Context(), ch.TenantID, reporter, c.Param("message_id"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true, "data": f})
+}
+
+func (h *EmbedChannelHandler) EmbedCommentFeedback(c *gin.Context) {
+	if err := h.ensureEmbedSession(c); err != nil {
+		return
+	}
+	ch, _ := middleware.EmbedChannelFromContext(c.Request.Context())
+	var body struct {
+		Comment string `json:"comment"`
+	}
+	if c.ShouldBindJSON(&body) != nil || strings.TrimSpace(body.Comment) == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "comment is required"})
+		return
+	}
+	reporter := types.EmbedSessionPrincipal(ch.TenantID, ch.ID, c.Param("session_id")).StorageID()
+	err := h.feedbackService.Comment(c.Request.Context(), ch.TenantID, reporter, "embed", c.Param("id"), body.Comment)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true})
+}
+
+func (h *EmbedChannelHandler) EmbedReopenFeedback(c *gin.Context) {
+	if err := h.ensureEmbedSession(c); err != nil {
+		return
+	}
+	ch, _ := middleware.EmbedChannelFromContext(c.Request.Context())
+	var body struct {
+		Comment string `json:"comment"`
+	}
+	_ = c.ShouldBindJSON(&body)
+	reporter := types.EmbedSessionPrincipal(ch.TenantID, ch.ID, c.Param("session_id")).StorageID()
+	err := h.feedbackService.Reopen(c.Request.Context(), ch.TenantID, reporter, c.Param("id"), body.Comment)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
 type embedChannelRequest struct {

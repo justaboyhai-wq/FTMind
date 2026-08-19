@@ -2,7 +2,33 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 const { createKnowledgeFromURL, knowledgeChat, listKnowledgeBases } = require("../../miniprogram/utils/request");
 const { collectAnswerFromSSE, parseSSE } = require("../../miniprogram/utils/sse");
-const { normalizeBaseUrl } = require("../../miniprogram/utils/config");
+const {
+  getPublicSettings,
+  getSettings,
+  normalizeBaseUrl,
+  saveSettings
+} = require("../../miniprogram/utils/config");
+
+test("API key stays in memory and is never persisted or refilled", () => {
+  let persisted;
+  global.wx = {
+    getStorageSync() {
+      return persisted || {};
+    },
+    setStorageSync(_key, value) {
+      persisted = value;
+    }
+  };
+
+  saveSettings({ baseUrl: "https://fmind.example.com", apiKey: "sk-secret" });
+
+  assert.deepEqual(persisted, {
+    baseUrl: "https://fmind.example.com",
+    selectedKnowledgeBaseId: ""
+  });
+  assert.equal(getSettings().apiKey, "sk-secret");
+  assert.equal(getPublicSettings().apiKey, "");
+});
 
 test("parseSSE extracts event payloads", () => {
   const events = parseSSE('event: message\ndata: {"content":"hi"}\n\n');

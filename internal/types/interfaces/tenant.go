@@ -64,6 +64,7 @@ type TenantRepository interface {
 
 type TenantAPIKeyCreateRequest struct {
 	TenantID         uint64
+	UserID           string
 	Name             string
 	FullAccess       bool
 	KnowledgeBaseIDs []string

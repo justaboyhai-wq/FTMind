@@ -13,8 +13,8 @@ output, not prose. Read this skill before any task-specific `fmind-*` skill.
 
 ## 1. Authenticate (do this first — order matters)
 
-**Agents usually skip profiles entirely:** set `FMIND_API_KEY` (or
-`FMIND_TOKEN`) + `FMIND_HOST` and every command authenticates statelessly and
+**Agents usually skip profiles entirely:** set `FMIND_USER_API_KEY` (or the
+legacy `FMIND_API_KEY`, or `FMIND_TOKEN`) + `FMIND_HOST` and every command authenticates statelessly and
 zero-disk — no `profile add` / `auth login` needed. `auth token` echoes that env
 credential; `auth status` / `doctor` confirm it. The steps below set up a
 **persistent named profile** instead (interactive / multi-environment use).
@@ -26,7 +26,7 @@ Authentication is a **two-step sequence**. `fmind auth login` operates on the
 # 1. register a connection target and make it active
 fmind profile add prod --host https://kb.example.com --use
 # 2a. API key (agent default — pipe the key on stdin, non-interactive):
-echo "$FMIND_API_KEY" | fmind auth login --with-token
+echo "${FMIND_USER_API_KEY:-$FMIND_API_KEY}" | fmind auth login --with-token
 # 2b. OR email+password (interactive prompt only — no flags; not for agents)
 fmind auth login
 
@@ -43,6 +43,18 @@ fmind auth status          # verify: who am I, which tenant
   profile registered** (re-auth later with `auth login`); use `profile remove`
   to delete the profile entirely.
 - `fmind doctor` runs 4 health checks (reachability, credential, version, storage).
+
+## 1a. FMind unified credential boundary
+
+`FMIND_USER_API_KEY` is the canonical name for a user-scoped FMind API key.
+The CLI accepts `FMIND_API_KEY` as a compatibility alias, but a user key only
+identifies the user and never elevates tenant, team, knowledge-base, or memory
+permissions. External-agent memory is a separate data plane: do not point the
+CLI at MemoryCore and do not put an Agent Binding runtime key in normal
+Knowledge API calls. Agents that need L0-L2 recall or Memory Wiki access must
+use the FMind/MemoryProxy gateway and carry the runtime key in the gateway's
+dedicated header. The gateway re-checks the user's role, binding capabilities,
+asset scopes, and resource state on every request.
 
 ## 2. Selecting a knowledge base (`--kb`)
 

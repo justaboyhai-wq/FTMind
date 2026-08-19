@@ -27,8 +27,15 @@ func main() { os.Exit(run(os.Args[1:], os.Stdout, os.Stderr)) }
 
 func run(args []string, out, errOut io.Writer) int {
 	if len(args) == 0 {
-		fmt.Fprintln(errOut, "usage: collect --full|--incremental | retry --failed | unlock | verify --all | export-raw | export-manifest --run ID | daemon | serve-rss")
+		fmt.Fprintln(errOut, "usage: collect --full|--incremental | retry --failed | unlock | verify --all | export-raw | export-manifest --run ID | migrate | daemon | serve-rss")
 		return 2
+	}
+	if args[0] == "migrate" {
+		if err := runMigrate(args[1:]); err != nil {
+			fmt.Fprintln(errOut, err)
+			return 1
+		}
+		return 0
 	}
 	cfg := config.Default()
 	dataDir := cfg.DataDir

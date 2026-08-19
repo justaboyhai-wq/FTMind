@@ -147,11 +147,13 @@ type tenantAPIKeyResponse struct {
 	ID               uint64            `json:"id"`
 	Name             string            `json:"name"`
 	APIKey           string            `json:"api_key"`
+	UserID           string            `json:"user_id,omitempty"`
 	FullAccess       bool              `json:"full_access"`
 	KnowledgeBaseIDs types.StringArray `json:"knowledge_base_ids"`
 	Capabilities     types.StringArray `json:"capabilities"`
 	LastUsedAt       *time.Time        `json:"last_used_at,omitempty"`
 	ExpiresAt        *time.Time        `json:"expires_at,omitempty"`
+	RevokedAt        *time.Time        `json:"revoked_at,omitempty"`
 	CreatedAt        time.Time         `json:"created_at"`
 }
 
@@ -655,7 +657,7 @@ func (h *TenantHandler) ListAPIKeys(c *gin.Context) {
 	}
 	resp := make([]tenantAPIKeyResponse, 0, len(keys))
 	for _, key := range keys {
-		resp = append(resp, tenantAPIKeyForResponse(key))
+		resp = append(resp, tenantAPIKeyForResponse(key, false))
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": resp})
 }
@@ -700,7 +702,7 @@ func (h *TenantHandler) CreateAPIKey(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{
 		"success": true,
 		"data": tenantAPIKeyCreateResponse{
-			tenantAPIKeyResponse: tenantAPIKeyForResponse(result.APIKey),
+			tenantAPIKeyResponse: tenantAPIKeyForResponse(result.APIKey, true),
 			Token:                result.Token,
 		},
 	})
@@ -725,19 +727,26 @@ func (h *TenantHandler) DeleteAPIKey(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"success": true})
 }
 
-func tenantAPIKeyForResponse(key *types.TenantAPIKey) tenantAPIKeyResponse {
+func tenantAPIKeyForResponse(key *types.TenantAPIKey, exposeToken bool) tenantAPIKeyResponse {
 	if key == nil {
 		return tenantAPIKeyResponse{}
 	}
 	return tenantAPIKeyResponse{
-		ID:               key.ID,
-		Name:             key.Name,
-		APIKey:           key.APIKey,
+		ID:   key.ID,
+		Name: key.Name,
+		APIKey: func() string {
+			if exposeToken {
+				return key.APIKey
+			}
+			return ""
+		}(),
+		UserID:           key.UserID,
 		FullAccess:       key.FullAccess,
 		KnowledgeBaseIDs: key.KnowledgeBaseIDs,
 		Capabilities:     types.NormalizeAPIKeyCapabilities(key.Capabilities),
 		LastUsedAt:       key.LastUsedAt,
 		ExpiresAt:        key.ExpiresAt,
+		RevokedAt:        key.RevokedAt,
 		CreatedAt:        key.CreatedAt,
 	}
 }

@@ -64,6 +64,16 @@ export function buildCommands(ctx: CommandContext): CmdkCommand[] {
       },
     },
     {
+      id: 'open-external-memory',
+      label: t('menu.externalMemory'),
+      icon: 'layers',
+      keywords: ['memory', 'agent access', 'l3', 'wiki', '外部记忆', '记忆', '接入', '审核'],
+      run: () => {
+        close()
+        router.push('/platform/external-memory')
+      },
+    },
+    {
       id: 'open-organizations',
       label: t('commandPalette.quick.organizations'),
       icon: 'usergroup',

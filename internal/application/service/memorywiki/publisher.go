@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/justaboyhai-wq/fmind/internal/application/repository"
+	"github.com/justaboyhai-wq/fmind/internal/authz"
 	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
@@ -20,7 +21,7 @@ func (s *Service) PublishApproved(ctx context.Context, tenantID uint64, id, know
 	if tenantID == 0 {
 		return nil, ErrInvalidMemoryWikiTarget
 	}
-	if err := requireMemoryWikiReviewer(ctx, tenantID); err != nil {
+	if err := s.requireMemoryWikiAction(ctx, tenantID, authz.ActionPublish); err != nil {
 		return nil, err
 	}
 	publication, err := s.repo.GetMemoryWikiPublication(ctx, tenantID, id)

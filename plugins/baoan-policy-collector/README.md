@@ -12,6 +12,46 @@ go run ./cmd/baoan-policy-collector daemon --data-dir ./baoan-policy-data --incr
 go run ./cmd/baoan-policy-collector serve-rss --data-dir ./baoan-policy-data --addr :18320 --base-url https://collector.example.com
 ```
 
+## Existing FMind knowledge migration
+
+The migration command is intentionally dry-run by default. It loads canonical
+packages, validates the `post_<id>` mapping against the target knowledge base
+when `DATABASE_URL` is available, writes a complete rollback manifest, and
+updates only title/file name/metadata/tag relations when `--apply` is used.
+Knowledge IDs, chunks, vectors and physical storage paths are not rewritten.
+
+```powershell
+go run ./cmd/baoan-policy-collector migrate `
+  --kb-id e3cfbfb3-a90e-49c0-82c2-f95e7f595d54 `
+  --feed-url http://115.191.64.43:18320/feed.xml `
+  --data-dir .\baoan-policy-data `
+  --db-url "$env:DATABASE_URL" `
+  --datasource-id "$env:BAOAN_DATASOURCE_ID" `
+  --dry-run `
+  --rollback-file .\baoan-policy-migration-rollback.json
+
+go run ./cmd/baoan-policy-collector migrate `
+  --kb-id e3cfbfb3-a90e-49c0-82c2-f95e7f595d54 `
+  --feed-url http://115.191.64.43:18320/feed.xml `
+  --data-dir .\baoan-policy-data `
+  --db-url "$env:DATABASE_URL" `
+  --datasource-id "$env:BAOAN_DATASOURCE_ID" `
+  --apply `
+  --rollback-file .\baoan-policy-migration-rollback.json
+```
+
+`--apply` stops on missing or duplicate policy IDs and runs in one PostgreSQL
+transaction. Keep the rollback manifest and a database backup until RSS first
+sync has been verified.
+
+To restore the captured names/metadata after pausing the RSS source:
+
+```powershell
+go run ./cmd/baoan-policy-collector migrate --rollback `
+  --rollback-file .\baoan-policy-migration-rollback.json `
+  --db-url "$env:DATABASE_URL"
+```
+
 The collector is an independent Go module. It discovers `zcfg.js` from the seed
 HTML on every run, downloads detail JSON, original HTML, attachments, and
 official relationship metadata, then writes immutable packages under

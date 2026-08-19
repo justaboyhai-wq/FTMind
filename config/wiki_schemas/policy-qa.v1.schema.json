@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://fmind.local/schemas/wiki/policy-qa.v1.schema.json",
+  "title": "FMind 政策问答 Wiki Schema v1",
+  "description": "从 baoan.raw/v1 生成 FMind Wiki 页面及可追溯事实。official、computed、derived_ai 禁止互相覆盖。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "generated_at", "source_snapshot", "pages", "statements", "operation_log"],
+  "properties": {
+    "schema_version": { "const": "fmind.policy-qa-wiki/v1" },
+    "generated_at": { "$ref": "#/$defs/dateTime" },
+    "source_snapshot": { "$ref": "#/$defs/sourceSnapshot" },
+    "pages": { "type": "array", "items": { "$ref": "#/$defs/wikiPage" } },
+    "statements": { "type": "array", "items": { "$ref": "#/$defs/statement" } },
+    "operation_log": { "type": "array", "items": { "$ref": "#/$defs/operation" } },
+    "quality_issues": { "type": "array", "items": { "$ref": "#/$defs/qualityIssue" }, "default": [] }
+  },
+  "$defs": {
+    "dateTime": { "type": "string", "format": "date-time" },
+    "nonEmptyString": { "type": "string", "minLength": 1 },
+    "stringList": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+    "sourceSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["raw_schema_version", "run_id", "snapshot_ids", "input_hash"],
+      "properties": {
+        "raw_schema_version": { "const": "baoan.raw/v1" },
+        "run_id": { "$ref": "#/$defs/nonEmptyString" },
+        "dictionary_snapshot_id": { "type": "string" },
+        "snapshot_ids": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyString" } },
+        "input_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "wikiPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug", "title", "page_type", "status", "content", "summary", "source_refs", "chunk_refs", "page_metadata"],
+      "properties": {
+        "slug": { "type": "string", "pattern": "^[a-z0-9][a-z0-9/_-]*$" },
+        "title": { "$ref": "#/$defs/nonEmptyString" },
+        "page_type": { "description": "兼容 FMind 原生页面类型；政策领域类型存入 page_metadata.domain_type。", "enum": ["summary", "entity", "concept", "synthesis", "comparison"] },
+        "status": { "enum": ["draft", "published", "archived"] },
+        "content": { "type": "string" },
+        "summary": { "type": "string" },
+        "aliases": { "$ref": "#/$defs/stringList" },
+        "parent_slug": { "type": "string" },
+        "category_path": { "type": "array", "maxItems": 3, "items": { "$ref": "#/$defs/nonEmptyString" } },
+        "source_refs": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyString" } },
+        "chunk_refs": { "$ref": "#/$defs/stringList" },
+        "page_metadata": { "$ref": "#/$defs/pageMetadata" }
+      }
+    },
+    "pageMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain", "domain_type", "official", "computed", "derived_ai", "statement_ids", "evidence_refs", "raw_snapshot_id"],
+      "properties": {
+        "domain": { "const": "government_policy" },
+        "domain_type": { "enum": ["policy_original", "policy_interpretation", "application_guide", "opinion_solicitation", "solicitation_result", "policy_consultation", "attachment", "issuing_authority", "service_object", "policy_topic", "policy_collection", "policy_comparison", "policy_timeline", "writing_material"] },
+        "external_id": { "type": "string" },
+        "canonical_url": { "type": "string", "format": "uri", "pattern": "^https://www\\.baoan\\.gov\\.cn/" },
+        "official": { "$ref": "#/$defs/officialPolicy" },
+        "computed": { "$ref": "#/$defs/computedPolicy" },
+        "derived_ai": { "$ref": "#/$defs/derivedAI" },
+        "statement_ids": { "$ref": "#/$defs/stringList" },
+        "evidence_refs": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyString" } },
+        "raw_snapshot_id": { "$ref": "#/$defs/nonEmptyString" }
+      }
+    },
+    "officialValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "source", "observed_at", "extraction_method", "evidence_refs"],
+      "properties": {
+        "value": true,
+        "source": { "enum": ["zcfg.js", "detail_json", "gkml_data", "detail_html", "official_attachment", "official_taxonomy"] },
+        "observed_at": { "$ref": "#/$defs/dateTime" },
+        "extraction_method": { "enum": ["official_json", "official_html", "official_attachment", "manual_verified"] },
+        "evidence_refs": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyString" } }
+      }
+    },
+    "officialPolicy": {
+      "description": "仅保存官网明确值；缺失字段应省略，禁止模型补写。所有字段统一使用 officialValue 包装。",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": { "$ref": "#/$defs/officialValue" },
+        "document_number": { "$ref": "#/$defs/officialValue" },
+        "issuing_authorities": { "$ref": "#/$defs/officialValue" },
+        "publish_date": { "$ref": "#/$defs/officialValue" },
+        "document_date": { "$ref": "#/$defs/officialValue" },
+        "effective_date": { "$ref": "#/$defs/officialValue" },
+        "expiry_date": { "$ref": "#/$defs/officialValue" },
+        "validity_status": { "$ref": "#/$defs/officialValue" },
+        "application_listing": { "$ref": "#/$defs/officialValue" },
+        "application_start": { "$ref": "#/$defs/officialValue" },
+        "application_end": { "$ref": "#/$defs/officialValue" },
+        "service_object_tags": { "$ref": "#/$defs/officialValue" },
+        "issuing_authority_tags": { "$ref": "#/$defs/officialValue" },
+        "theme_tags": { "$ref": "#/$defs/officialValue" },
+        "carrier_type_tags": { "$ref": "#/$defs/officialValue" },
+        "feature_tags": { "$ref": "#/$defs/officialValue" },
+        "consultation": { "$ref": "#/$defs/officialValue" },
+        "keywords": { "$ref": "#/$defs/officialValue" },
+        "attachments": { "$ref": "#/$defs/officialValue" },
+        "related_posts": { "$ref": "#/$defs/officialValue" },
+        "unknown_official_values": { "type": "array", "items": { "$ref": "#/$defs/unknownOfficialValue" }, "default": [] }
+      }
+    },
+    "unknownOfficialValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field", "raw_value", "evidence_refs"],
+      "properties": {
+        "field": { "$ref": "#/$defs/nonEmptyString" },
+        "raw_value": true,
+        "evidence_refs": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/nonEmptyString" } }
+      }
+    },
+    "computedPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "application_status": { "$ref": "#/$defs/applicationStatus" },
+        "normalized_url": { "type": "string", "format": "uri" },
+        "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "applicationStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "basis", "calculated_at", "algorithm_version", "input_evidence_refs"],
+      "properties": {
+        "value": { "enum": ["not_started", "open", "closing_soon", "closed", "rolling", "official_open_date_unknown", "unknown"] },
+        "basis": { "enum": ["official_and_date", "official_listing", "date_calculation", "long_term_text", "insufficient_evidence"] },
+        "days_remaining": { "type": ["integer", "null"] },
+        "calculated_at": { "$ref": "#/$defs/dateTime" },
+        "algorithm_version": { "$ref": "#/$defs/nonEmptyString" },
+        "input_evidence_refs": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyString" } },
+        "conflict_codes": { "type": "array", "uniqueItems": true, "items": { "enum": ["official_date_conflict", "duplicate_field_conflict"] } }
+      }
+    },
+    "derivedFact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "confidence", "evidence_refs", "model_id", "prompt_version", "generated_at", "review_status"],
+      "properties": {
+        "value": true,
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "evidence_refs": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmptyString" } },
+        "model_id": { "$ref": "#/$defs/nonEmptyString" },
+        "prompt_version": { "$ref": "#/$defs/nonEmptyString" },
+        "generated_at": { "$ref": "#/$defs/dateTime" },
+        "review_status": { "enum": ["unreviewed", "accepted", "rejected"] }
+      }
+    },
+    "derivedAI": {
+      "description": "只能创建官网没有的新分析维度，不能覆盖 official 同名字段。",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "policy_tools": { "$ref": "#/$defs/derivedFact" },
+        "support_methods": { "$ref": "#/$defs/derivedFact" },
+        "eligible_industries": { "$ref": "#/$defs/derivedFact" },
+        "eligibility_conditions": { "$ref": "#/$defs/derivedFact" },
+        "required_materials": { "$ref": "#/$defs/derivedFact" },
+        "application_process": { "$ref": "#/$defs/derivedFact" },
+        "risk_notes": { "$ref": "#/$defs/derivedFact" },
+        "speech_topics": { "$ref": "#/$defs/derivedFact" },
+        "custom_dimensions": { "type": "object", "additionalProperties": { "$ref": "#/$defs/derivedFact" } }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidence_ref", "source_url", "raw_snapshot_id", "locator", "content_hash"],
+      "properties": {
+        "evidence_ref": { "$ref": "#/$defs/nonEmptyString" },
+        "source_url": { "type": "string", "format": "uri" },
+        "raw_snapshot_id": { "$ref": "#/$defs/nonEmptyString" },
+        "locator": { "$ref": "#/$defs/nonEmptyString" },
+        "quote": { "type": "string" },
+        "content_hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "statement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["statement_id", "subject", "predicate", "object", "origin", "rank", "status", "references", "observed_at"],
+      "properties": {
+        "statement_id": { "$ref": "#/$defs/nonEmptyString" },
+        "subject": { "$ref": "#/$defs/nonEmptyString" },
+        "predicate": { "$ref": "#/$defs/nonEmptyString" },
+        "object": true,
+        "qualifiers": { "type": "object", "additionalProperties": true },
+        "origin": { "enum": ["official", "calculated", "llm_inferred", "human_curated"] },
+        "rank": { "enum": ["preferred", "normal", "deprecated"] },
+        "status": { "enum": ["active", "superseded", "invalidated", "disputed"] },
+        "valid_from": { "type": ["string", "null"], "format": "date-time" },
+        "valid_until": { "type": ["string", "null"], "format": "date-time" },
+        "observed_at": { "$ref": "#/$defs/dateTime" },
+        "references": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evidence" } },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "model_id": { "type": "string" },
+        "prompt_version": { "type": "string" },
+        "supersedes_statement_id": { "type": "string" }
+      },
+      "allOf": [{ "if": { "properties": { "origin": { "const": "llm_inferred" } }, "required": ["origin"] }, "then": { "required": ["confidence", "model_id", "prompt_version"] } }]
+    },
+    "operation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operation_id", "operation", "started_at", "finished_at", "status", "input_refs", "output_refs", "actor"],
+      "properties": {
+        "operation_id": { "$ref": "#/$defs/nonEmptyString" },
+        "operation": { "enum": ["ingest_source", "parse_document", "extract_official_metadata", "calculate_application_status", "extract_statements", "resolve_entity", "create_page", "update_page", "merge_page", "supersede_statement", "invalidate_statement", "rebuild_links", "regenerate_summary", "lint", "publish", "rollback"] },
+        "started_at": { "$ref": "#/$defs/dateTime" },
+        "finished_at": { "$ref": "#/$defs/dateTime" },
+        "status": { "enum": ["succeeded", "failed", "partial", "skipped"] },
+        "input_refs": { "$ref": "#/$defs/stringList" },
+        "output_refs": { "$ref": "#/$defs/stringList" },
+        "actor": { "enum": ["collector", "transformer", "llm", "human", "system"] },
+        "model_id": { "type": "string" },
+        "prompt_version": { "type": "string" },
+        "error": { "type": "string" }
+      }
+    },
+    "qualityIssue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "severity", "message", "related_refs", "status"],
+      "properties": {
+        "code": { "enum": ["missing_required_official_field", "missing_evidence", "unknown_official_value", "duplicate_field_conflict", "official_date_conflict", "broken_source_url", "broken_wiki_link", "orphan_page", "statement_conflict", "stale_generated_page", "schema_violation"] },
+        "severity": { "enum": ["info", "warning", "error"] },
+        "message": { "$ref": "#/$defs/nonEmptyString" },
+        "related_refs": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/nonEmptyString" } },
+        "status": { "enum": ["open", "accepted", "resolved"] }
+      }
+    }
+  },
+  "x-fmind-runtime": {
+    "authoritative_layer": "official",
+    "immutable_input": "baoan.raw/v1",
+    "merge_policy": "Never overwrite official with computed or derived_ai. Supersede or invalidate old statements; never erase history.",
+    "publish_gates": ["schema_valid", "official_values_have_evidence", "statements_have_references", "no_error_quality_issues"],
+    "retrieval_priority": ["official", "human_curated", "calculated", "llm_inferred"],
+    "answer_policy": "Policy answers cite source_url and locator; dynamic application status includes calculation time and basis; conflicts and insufficient evidence are disclosed."
+  }
+}

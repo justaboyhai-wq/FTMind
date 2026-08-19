@@ -1,14 +1,13 @@
 <template>
   <div class="login-layout login-layout--gateway">
-    <FMindAuthGraph />
-
     <header class="auth-topbar">
-      <div class="header-logo" title="FMind">
-        <img :src="brandLogo" class="logo-image" alt="波粒二象 WAVE-PARTICLE DUALITY" />
+      <div class="header-logo" title="FTMind">
+        <img :src="brandLogo" class="logo-image" alt="FTMind" />
+        <span class="logo-wordmark">FTMind</span>
       </div>
 
       <div class="auth-system">
-        <span class="auth-system__gateway">FMIND AUTH GATEWAY · 01</span>
+        <span class="auth-system__gateway">FTMIND AUTH GATEWAY · 01</span>
         <span class="auth-system__status"><i></i>SYSTEM READY</span>
         <div class="language-switch">
           <button @click="toggleLanguageMenu" class="header-link" :title="currentLangOption?.label">
@@ -199,7 +198,7 @@
         </div>
       </div>
     </div>
-    <footer class="auth-footer">FMind · Intelligent Knowledge System</footer>
+    <footer class="auth-footer">FTMind · Intelligent Knowledge System</footer>
   </div>
 </template>
 
@@ -209,8 +208,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { useRoleLabel } from '@/composables/useRoleLabel'
 import { notifyLoginSuccess } from '@/utils/loginNotify'
-import FMindAuthGraph from '@/components/auth/FMindAuthGraph.vue'
-import brandLogo from '@/assets/img/brand/wave-particle-duality-logo.png'
+import brandLogo from '@/assets/img/brand/sf-logo-alone.png'
 import {
   login,
   register,
@@ -598,7 +596,10 @@ onMounted(async () => {
     return
   }
 
-  if (authStore.isLoggedIn) {
+  // Do not trust a stale in-memory Pinia token after the request interceptor
+  // has invalidated the persisted session. Otherwise /login immediately
+  // redirects back to the protected shell and the router can visibly bounce.
+  if (authStore.isLoggedIn && localStorage.getItem('fmind_token')) {
     router.replace('/platform/knowledge-bases')
     return
   }
@@ -1607,6 +1608,387 @@ onMounted(async () => {
 </style>
 
 <style lang="less">
+/* Final login-only overrides: keep the new composition above legacy scoped rules. */
+.login-layout.login-layout--gateway {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 100vh !important;
+  padding: 96px 24px 72px !important;
+  background: #f4f8ff !important;
+}
+.login-layout.login-layout--gateway::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 44vh;
+  background: linear-gradient(135deg, #003cab, #0052d9 58%, #1677ff);
+  clip-path: polygon(0 0, 100% 0, 100% 72%, 78% 88%, 48% 76%, 19% 91%, 0 78%);
+}
+.login-layout .auth-topbar {
+  position: absolute !important;
+  inset: 0 0 auto !important;
+  height: 84px !important;
+  padding: 0 42px !important;
+  z-index: 5 !important;
+}
+.login-layout .header-logo {
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 10px;
+  color: #fff !important;
+}
+.login-layout .header-logo .logo-image {
+  width: 34px !important;
+  height: 34px !important;
+  object-fit: contain;
+  filter: none !important;
+}
+.login-layout .header-logo .logo-wordmark {
+  color: #fff !important;
+  font-size: 22px;
+  font-weight: 750;
+}
+.login-layout .showcase-section,
+.login-layout .showcase-content,
+.login-layout .graph-meta,
+.login-layout .feature-tags { display: none !important; }
+.login-layout .form-section {
+  position: relative !important;
+  z-index: 2 !important;
+  display: block !important;
+  width: min(460px, 100%) !important;
+  flex: none !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+}
+.login-layout .form-panel { width: 100% !important; max-width: none !important; margin: 0 !important; }
+.login-layout .form-card {
+  padding: 42px 40px 34px !important;
+  background: rgb(255 255 255 / 98%) !important;
+  border: 1px solid #dbe8fb !important;
+  border-radius: 18px !important;
+  box-shadow: 0 24px 70px rgb(0 48 130 / 18%), 0 4px 12px rgb(0 48 130 / 8%) !important;
+}
+.login-layout .form-header { text-align: left !important; }
+.login-layout .form-title { color: #0b2b5c !important; font-size: 30px !important; font-weight: 760 !important; }
+.login-layout .form-content .t-input { min-height: 48px; border-color: #cbdaf0 !important; border-radius: 9px; }
+.login-layout .form-content .t-input:hover,
+.login-layout .form-content .t-input:focus-within { border-color: #1677ff !important; box-shadow: 0 0 0 3px rgb(22 119 255 / 12%) !important; }
+.login-layout .submit-button { min-height: 48px; border-radius: 9px !important; background: #0052d9 !important; box-shadow: 0 8px 18px rgb(0 82 217 / 22%); }
+.login-layout > .auth-footer { position: absolute !important; bottom: 24px; z-index: 2; color: #7890b3 !important; }
+@media (max-width: 680px) {
+  .login-layout .auth-topbar { padding: 0 20px !important; }
+  .login-layout .auth-system__gateway, .login-layout .auth-system__status { display: none !important; }
+  .login-layout .form-card { padding: 32px 24px 28px !important; }
+}
+:root[theme-mode="dark"] .login-layout.login-layout--gateway { background: #091a33 !important; }
+:root[theme-mode="dark"] .login-layout.login-layout--gateway::before { background: linear-gradient(135deg, #001b4d, #003cab 62%, #0b5bd3); }
+:root[theme-mode="dark"] .login-layout .form-card { background: #10233d !important; border-color: #234872 !important; }
+:root[theme-mode="dark"] .login-layout .form-title { color: #f3f8ff !important; }
+.login-layout.login-layout--gateway::before { z-index: 0 !important; }
+.login-layout.login-layout--gateway > .form-section {
+  grid-area: auto !important;
+  position: relative !important;
+  z-index: 2 !important;
+  display: block !important;
+  width: min(460px, 100%) !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+  overflow: visible !important;
+}
+.login-layout.login-layout--gateway > .auth-topbar { z-index: 3 !important; }
+.login-layout.login-layout--gateway > .auth-footer { z-index: 2 !important; }
+#app .login-layout.login-layout--gateway > .form-section {
+  grid-area: auto !important;
+  display: block !important;
+  width: 460px !important;
+  max-width: calc(100% - 48px) !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+  overflow: visible !important;
+}
+#app .login-layout.login-layout--gateway::before { z-index: 0 !important; }
+#app .login-layout.login-layout--gateway > .showcase-section { display: none !important; }
+#app .login-layout.login-layout--gateway > .auth-topbar { background: transparent !important; border-bottom: 0 !important; }
+#app .login-layout.login-layout--gateway { background: linear-gradient(to bottom, #0052d9 0, #0052d9 84px, #f4f8ff 84px, #f4f8ff 100%) !important; }
+#app .login-layout.login-layout--gateway .header-logo .logo-image { width: 34px !important; height: 34px !important; max-height: 34px !important; filter: brightness(0) invert(1) !important; }
+</style>
+
+<style lang="less">
+/* Standalone FMind sign-in surface. This intentionally replaces the former
+ * graph/showcase treatment without changing the authentication flow. */
+.login-layout.login-layout--gateway {
+  position: relative;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 96px 24px 72px !important;
+  background: #f4f8ff !important;
+}
+
+.login-layout.login-layout--gateway::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 46vh;
+  background: linear-gradient(135deg, #003cab 0%, #0052d9 56%, #1677ff 100%);
+  clip-path: polygon(0 0, 100% 0, 100% 70%, 78% 84%, 46% 74%, 18% 92%, 0 78%);
+}
+
+.login-layout.login-layout--gateway::after {
+  content: '';
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  right: -180px;
+  top: -210px;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 50%;
+  box-shadow: 0 0 0 42px rgb(255 255 255 / 5%), 0 0 0 84px rgb(255 255 255 / 4%);
+}
+
+.login-layout .auth-topbar {
+  position: absolute !important;
+  inset: 0 0 auto;
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 42px;
+  z-index: 5;
+}
+
+.login-layout .header-logo {
+  position: static !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  cursor: default;
+}
+
+.login-layout .header-logo .logo-image {
+  width: 34px !important;
+  height: 34px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.login-layout .header-logo .logo-wordmark {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 750;
+  letter-spacing: -.04em;
+}
+
+.login-layout .auth-system {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.login-layout .auth-system__gateway {
+  color: rgb(255 255 255 / 78%);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .12em;
+}
+
+.login-layout .auth-system__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: rgb(255 255 255 / 88%);
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: .08em;
+}
+
+.login-layout .auth-system__status i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #7de3b2;
+  box-shadow: 0 0 0 4px rgb(125 227 178 / 18%);
+}
+
+.login-layout .language-switch .header-link {
+  min-height: 38px;
+  padding: 8px 12px;
+  color: #fff;
+  background: rgb(255 255 255 / 12%);
+  border: 1px solid rgb(255 255 255 / 24%);
+  border-radius: 8px;
+}
+
+.login-layout .language-switch .header-link:hover {
+  background: rgb(255 255 255 / 20%);
+  border-color: rgb(255 255 255 / 40%);
+}
+
+.login-layout .showcase-section,
+.login-layout .showcase-content,
+.login-layout .graph-meta,
+.login-layout .feature-tags {
+  display: none !important;
+}
+
+.login-layout .form-section {
+  position: relative;
+  z-index: 2;
+  display: block !important;
+  flex: none;
+  width: min(100%, 460px);
+  padding: 0 !important;
+}
+
+.login-layout .form-panel {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.login-layout .form-card {
+  padding: 42px 40px 34px !important;
+  background: rgb(255 255 255 / 98%) !important;
+  border: 1px solid #dbe8fb !important;
+  border-radius: 18px !important;
+  box-shadow: 0 24px 70px rgb(0 48 130 / 18%), 0 4px 12px rgb(0 48 130 / 8%) !important;
+}
+
+.login-layout .form-header {
+  margin-bottom: 28px;
+  text-align: left !important;
+}
+
+.login-layout .form-title {
+  color: #0b2b5c !important;
+  font-size: 30px !important;
+  font-weight: 760 !important;
+  letter-spacing: -.045em;
+}
+
+.login-layout .form-welcome,
+.login-layout .form-subtitle {
+  color: #60718d !important;
+  font-size: 14px !important;
+}
+
+.login-layout .form-hint {
+  color: #1254b5 !important;
+  background: #edf5ff !important;
+  border: 1px solid #d4e7ff;
+}
+
+.login-layout .form-content .t-form-item__label {
+  color: #253b5c;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.login-layout .form-content .t-input {
+  min-height: 48px;
+  border-color: #cbdaf0 !important;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.login-layout .form-content .t-input:hover,
+.login-layout .form-content .t-input:focus-within {
+  border-color: #1677ff !important;
+  box-shadow: 0 0 0 3px rgb(22 119 255 / 12%) !important;
+}
+
+.login-layout .submit-button {
+  min-height: 48px;
+  margin-top: 8px;
+  border-radius: 9px !important;
+  background: #0052d9 !important;
+  box-shadow: 0 8px 18px rgb(0 82 217 / 22%);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.login-layout .submit-button:hover {
+  background: #1677ff !important;
+  transform: translateY(-1px);
+}
+
+.login-layout .register-cta__button,
+.login-layout .oidc-button {
+  min-height: 46px;
+  border-radius: 9px !important;
+}
+
+.login-layout .login-features {
+  display: grid;
+  gap: 9px;
+  margin-top: 28px;
+  padding-top: 20px !important;
+  border-top: 1px solid #e6eef9 !important;
+}
+
+.login-layout .feature-item {
+  color: #60718d;
+  font-size: 12px;
+}
+
+.login-layout .feature-icon {
+  display: inline-grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  color: #0052d9 !important;
+  background: #eaf3ff !important;
+  border-radius: 50%;
+}
+
+.login-layout > .auth-footer {
+  position: absolute;
+  bottom: 24px;
+  z-index: 2;
+  color: #7890b3;
+  font-size: 12px;
+  letter-spacing: .04em;
+}
+
+@media (max-width: 680px) {
+  .login-layout .auth-topbar { padding: 0 20px; }
+  .login-layout .auth-system__gateway,
+  .login-layout .auth-system__status { display: none; }
+  .login-layout .form-card { padding: 32px 24px 28px !important; }
+}
+
+:root[theme-mode="dark"] .login-layout.login-layout--gateway {
+  background: #091a33 !important;
+}
+
+:root[theme-mode="dark"] .login-layout.login-layout--gateway::before {
+  background: linear-gradient(135deg, #001b4d 0%, #003cab 62%, #0b5bd3 100%);
+}
+
+:root[theme-mode="dark"] .login-layout .form-card {
+  background: #10233d !important;
+  border-color: #234872 !important;
+  box-shadow: 0 24px 70px rgb(0 0 0 / 40%) !important;
+}
+
+:root[theme-mode="dark"] .login-layout .form-title { color: #f3f8ff !important; }
+:root[theme-mode="dark"] .login-layout .form-welcome,
+:root[theme-mode="dark"] .login-layout .form-subtitle,
+:root[theme-mode="dark"] .login-layout .feature-item { color: #a9c1df !important; }
+:root[theme-mode="dark"] .login-layout .form-content .t-form-item__label { color: #d9e8fb; }
+:root[theme-mode="dark"] .login-layout .form-content .t-input { background: #0b1b31; border-color: #31547d !important; }
+:root[theme-mode="dark"] .login-layout .login-features { border-top-color: #29486d !important; }
+</style>
+
+<style lang="less">
 html[theme-mode="dark"] {
   .login-layout {
     background: linear-gradient(225deg, #080b1a 0%, #10132d 15%, #171b3f 25%, #1e2254 38%, #282c6b 50%, #34398b 65%, #3b4aa8 78%, #4f5fc5 90%, #6366d9 100%);
@@ -1766,7 +2148,10 @@ html[theme-mode="dark"] {
       border-radius: 50%;
       background: #3447ff;
       box-shadow: 0 0 0 5px rgba(52, 71, 255, 0.1);
-      animation: authStatusPulse 2.2s ease-out infinite;
+      /* Keep the authentication landing page visually stable. The pulse
+       * caused the whole header to appear to flicker on some Chromium/WSL2
+       * compositors, especially while the page was still loading auth config. */
+      animation: none;
     }
   }
 
@@ -2320,4 +2705,29 @@ html[theme-mode='dark'] {
     }
   }
 }
+</style>
+
+<style lang="less">
+/* Ensure the standalone composition wins over the legacy login rules. */
+.login-layout.login-layout--gateway { display: flex !important; align-items: center !important; justify-content: center !important; min-height: 100vh !important; padding: 96px 24px 72px !important; background: #f4f8ff !important; }
+.login-layout.login-layout--gateway::before { content: ''; position: absolute; inset: 0 0 auto; height: 44vh; background: linear-gradient(135deg, #003cab, #0052d9 58%, #1677ff); clip-path: polygon(0 0, 100% 0, 100% 72%, 78% 88%, 48% 76%, 19% 91%, 0 78%); }
+.login-layout .auth-topbar { position: absolute !important; inset: 0 0 auto !important; height: 84px !important; padding: 0 42px !important; z-index: 5 !important; }
+.login-layout .header-logo { position: static !important; display: inline-flex !important; align-items: center; gap: 10px; color: #fff !important; }
+.login-layout .header-logo .logo-image { width: 34px !important; height: 34px !important; object-fit: contain; filter: brightness(0) invert(1) !important; }
+.login-layout .header-logo .logo-wordmark { color: #fff !important; font-size: 22px; font-weight: 750; }
+.login-layout .showcase-section, .login-layout .showcase-content, .login-layout .graph-meta, .login-layout .feature-tags { display: none !important; }
+.login-layout .form-section { position: relative !important; z-index: 2 !important; display: block !important; width: min(460px, 100%) !important; flex: none !important; padding: 0 !important; margin: 0 auto !important; }
+.login-layout .form-panel { width: 100% !important; max-width: none !important; margin: 0 !important; }
+.login-layout .form-card { padding: 42px 40px 34px !important; background: rgb(255 255 255 / 98%) !important; border: 1px solid #dbe8fb !important; border-radius: 18px !important; box-shadow: 0 24px 70px rgb(0 48 130 / 18%), 0 4px 12px rgb(0 48 130 / 8%) !important; }
+.login-layout .form-header { text-align: left !important; }
+.login-layout .form-title { color: #0b2b5c !important; font-size: 30px !important; font-weight: 760 !important; }
+.login-layout .form-content .t-input { min-height: 48px; border-color: #cbdaf0 !important; border-radius: 9px; }
+.login-layout .form-content .t-input:hover, .login-layout .form-content .t-input:focus-within { border-color: #1677ff !important; box-shadow: 0 0 0 3px rgb(22 119 255 / 12%) !important; }
+.login-layout .submit-button { min-height: 48px; border-radius: 9px !important; background: #0052d9 !important; box-shadow: 0 8px 18px rgb(0 82 217 / 22%); }
+.login-layout > .auth-footer { position: absolute !important; bottom: 24px; z-index: 2; color: #7890b3 !important; }
+@media (max-width: 680px) { .login-layout .auth-topbar { padding: 0 20px !important; } .login-layout .auth-system__gateway, .login-layout .auth-system__status { display: none !important; } .login-layout .form-card { padding: 32px 24px 28px !important; } }
+:root[theme-mode="dark"] .login-layout.login-layout--gateway { background: #091a33 !important; }
+:root[theme-mode="dark"] .login-layout.login-layout--gateway::before { background: linear-gradient(135deg, #001b4d, #003cab 62%, #0b5bd3); }
+:root[theme-mode="dark"] .login-layout .form-card { background: #10233d !important; border-color: #234872 !important; }
+:root[theme-mode="dark"] .login-layout .form-title { color: #f3f8ff !important; }
 </style>

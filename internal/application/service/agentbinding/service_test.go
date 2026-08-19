@@ -61,6 +61,32 @@ func (f *bindingRepoFake) CreateAgentBindingWithKey(_ context.Context, b *types.
 	f.keys.keys = append(f.keys.keys, k)
 	return nil
 }
+func (f *bindingRepoFake) CompleteSetup(_ context.Context, hash, bindingID, externalAgent, connectorType string, userAPIKeyID uint64, runtimeKey, dataKey *types.AgentBindingKey, now time.Time) (*types.AgentBinding, error) {
+	var setup *types.AgentBindingKey
+	for _, k := range f.keys.keys {
+		if k.KeyHash == hash && k.BindingID == bindingID && k.Purpose == "memory_binding_setup" && k.ConsumedAt == nil && k.RevokedAt == nil && (k.ExpiresAt == nil || k.ExpiresAt.After(now)) {
+			setup = k
+			break
+		}
+	}
+	if setup == nil {
+		return nil, errors.New("setup key not found")
+	}
+	b, err := f.GetAgentBinding(context.Background(), 42, bindingID)
+	if err != nil || b.Status != types.AgentBindingStatusPendingSetup || b.ExternalAgent != externalAgent || b.ConnectorType != connectorType || (b.SetupExpiresAt != nil && !b.SetupExpiresAt.After(now)) {
+		return nil, errors.New("invalid setup binding")
+	}
+	setup.ConsumedAt = &now
+	f.keys.keys = append(f.keys.keys, runtimeKey)
+	if dataKey != nil {
+		f.keys.keys = append(f.keys.keys, dataKey)
+	}
+	b.Status = types.AgentBindingStatusActive
+	b.ActivatedAt = &now
+	b.LastHandshakeAt = &now
+	b.SetupAttempts++
+	return b, nil
+}
 func (f *bindingRepoFake) GetAgentBinding(_ context.Context, tenantID uint64, id string) (*types.AgentBinding, error) {
 	b := f.items[id]
 	if b == nil || b.TenantID != tenantID {
@@ -207,7 +233,7 @@ func newBindingService(t *testing.T) (*Service, *bindingRepoFake, *keyRepoFake, 
 func validCreateRequest() interfaces.AgentBindingCreateRequest {
 	return interfaces.AgentBindingCreateRequest{
 		DepartmentID: "department-1", TeamID: "team-1", WorkspaceID: "workspace-1", ProjectID: "project-1",
-		UserID: "user-1", AgentID: "agent-1", TaskID: "task-1", ExternalAgent: "openclaw", ConnectorType: "openclaw_plugin",
+		UserID: "user-1", UserAPIKeyID: 9, AgentID: "agent-1", TaskID: "task-1", ExternalAgent: "openclaw", ConnectorType: "openclaw_plugin",
 		CapabilityScopes: []string{"memory.context", "memory.capture", "memory.recall", "memory.confirm", "memory.l3.publish", "knowledge.search", "wiki.get", "document.read", "context.assemble"},
 		AssetScopes:      []string{" team:team-1 ", "department:department-1", "workspace:workspace-1", "workspace:workspace-1", "project:project-1", "task:task-1"},
 		CaptureEnabled:   true, RecallEnabled: true, L3WikiEnabled: true, L3ReviewRequired: true,

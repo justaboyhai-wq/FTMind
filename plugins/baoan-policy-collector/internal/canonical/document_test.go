@@ -4,8 +4,11 @@ import (
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/model"
 	"os"
 	"path/filepath"
+	"reflect"
+	"sort"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestLoadLatestRendersCompletePolicyDocument(t *testing.T) {
@@ -128,6 +131,55 @@ func TestExportFilenameUsesSanitizedTitleAndPackageID(t *testing.T) {
 	}
 	if got, want := doc.ExportFilename(), "EducationPolicy（post_42）.md"; got != want {
 		t.Fatalf("ExportFilename() = %q, want %q", got, want)
+	}
+}
+
+func TestOfficialTagsUsesWebsiteDimensionsAndDateWindow(t *testing.T) {
+	doc := Document{
+		PackageID: "post_42",
+		Structured: model.StructuredPolicy{
+			Official: model.OfficialFacts{
+				ServiceObjects:   []string{"企业政策", "企业政策"},
+				IssuingAuthority: "宝安区发展和改革局",
+				Theme:            "国民经济管理",
+				CarrierType:      "区政府规范性文件",
+				DocumentGenre:    "通知",
+			},
+			ApplicationStart: "2026-08-01T00:00:00Z",
+			ApplicationEnd:   "2026-08-31T23:59:59Z",
+		},
+		Relations: []Relation{{SourceLabel: "文字解读"}},
+	}
+	got := doc.OfficialTags(time.Date(2026, 8, 19, 12, 0, 0, 0, time.UTC))
+	want := []string{
+		"服务对象/企业政策", "发文机构/宝安区发展和改革局", "主题/国民经济管理",
+		"文件载体/区政府规范性文件", "文件类型/通知", "关联内容/文字解读", "申报状态/当前可申报",
+	}
+	sort.Strings(want)
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("OfficialTags() = %#v, want %#v", got, want)
+	}
+}
+
+func TestOfficialTagsDoesNotInferApplicationStatusWithoutBothDates(t *testing.T) {
+	doc := Document{Structured: model.StructuredPolicy{ApplicationStart: "2026-08-01T00:00:00Z"}}
+	for _, tag := range doc.OfficialTags(time.Date(2026, 8, 19, 0, 0, 0, 0, time.UTC)) {
+		if strings.HasPrefix(tag, "申报状态/") {
+			t.Fatalf("unexpected inferred application tag %q", tag)
+		}
+	}
+}
+
+func TestFilterOfficialTagsUsesCapturedWebsiteDictionary(t *testing.T) {
+	tags, rejected := FilterOfficialTags([]string{"服务对象/企业政策", "主题/未知", "文件类型/区规范性文件"}, map[string][]string{
+		"service_objects": {"企业政策"},
+		"themes":          {"综合服务"},
+	})
+	if len(rejected) != 1 || rejected[0] != "主题/未知" {
+		t.Fatalf("rejected=%v", rejected)
+	}
+	if len(tags) != 2 {
+		t.Fatalf("accepted=%v", tags)
 	}
 }
 

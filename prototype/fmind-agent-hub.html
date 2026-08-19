@@ -1,0 +1,1832 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FMind · 外部 Agent 接入中心</title>
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<style>
+  /* ── tokens ─────────────────────────────────────────────── */
+  :root {
+    --primary:       #0052D9;
+    --primary-hover: #266FE8;
+    --primary-pressed:#003CAB;
+    --blue-bg:       #F2F7FF;
+    --bg:            #F5F7FA;
+    --card:          #FFFFFF;
+    --text-1:        #1D2129;
+    --text-2:        #4E5969;
+    --text-3:        #86909C;
+    --border:        #E5E6EB;
+    --success:       #00A870;
+    --success-bg:    #E8FFEA;
+    --warning:       #ED7B2F;
+    --warning-bg:    #FFF7E8;
+    --danger:        #E34D59;
+    --danger-bg:     #FEECE8;
+    --sf-red:        #DC1E32;
+    --purple:        #722ED1;
+    --cyan:          #13C2C2;
+    --green:         #00A870;
+    --radius: 8px;
+    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 2px 8px rgba(29,33,41,.06);
+    --shadow-lg: 0 4px 16px rgba(0,0,0,.12);
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+            "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Consolas, "Courier New", monospace;
+  }
+  [v-cloak] { display: none; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text-1);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+  input, select, textarea { font: inherit; color: inherit; }
+  a { color: var(--primary); text-decoration: none; }
+  h1,h2,h3,h4,h5,p { margin: 0; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #D5D8DE; border-radius: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  /* ── app shell ─────────────────────────────────────────── */
+  #app { display: flex; flex-direction: column; height: 100vh; }
+  .topbar {
+    height: 56px; flex: 0 0 56px;
+    background: var(--card); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 20px; gap: 20px;
+    position: relative; z-index: 40;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; min-width: 180px; }
+  .brand-mark {
+    width: 30px; height: 30px; border-radius: 7px;
+    background: var(--sf-red); display: grid; place-items: center; color: #fff;
+  }
+  .brand-name { font-size: 17px; font-weight: 700; letter-spacing: .01em; }
+  .topbar-title {
+    font-size: 15px; color: var(--text-2); font-weight: 500;
+    border-left: 1px solid var(--border); padding-left: 20px; flex: 1;
+  }
+  .topbar-right { display: flex; align-items: center; gap: 14px; }
+  .org-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; background: var(--blue-bg); color: var(--primary);
+    border-radius: 4px; font-size: 12px; font-weight: 500;
+  }
+  .env-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 2px 8px; border: 1px solid var(--border); border-radius: 4px;
+    color: var(--text-3); font-size: 12px;
+  }
+  .env-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
+  .icon-btn {
+    width: 30px; height: 30px; display: grid; place-items: center;
+    border-radius: 6px; color: var(--text-2);
+  }
+  .icon-btn:hover { background: var(--bg); color: var(--primary); }
+  .avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--primary); color: #fff; display: grid; place-items: center; font-size: 12px; font-weight: 600; }
+  .topbar-user { font-size: 13px; color: var(--text-2); }
+
+  .app-body { flex: 1; display: flex; min-height: 0; }
+
+  /* ── sidebar ───────────────────────────────────────────── */
+  .sidebar {
+    width: 232px; flex: 0 0 232px; background: var(--card);
+    border-right: 1px solid var(--border); overflow-y: auto; padding: 12px 8px 24px;
+  }
+  .menu-group { margin-bottom: 6px; }
+  .menu-group-title { padding: 8px 10px 4px; font-size: 12px; color: var(--text-3); }
+  .menu-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 6px; color: var(--text-2);
+    font-size: 13px; cursor: pointer;
+  }
+  .menu-item:hover { background: var(--bg); color: var(--text-1); }
+  .menu-item.active { background: var(--blue-bg); color: var(--primary); font-weight: 500; }
+  .menu-item .ic { opacity: .85; }
+  .menu-sub { padding-left: 14px; }
+  .menu-sub .menu-item { font-size: 12.5px; padding: 6px 10px; }
+  .menu-sub .menu-item.active { background: var(--blue-bg); color: var(--primary); }
+  .menu-chev { margin-left: auto; font-size: 10px; color: var(--text-3); transition: transform .15s; }
+  .menu-item.open .menu-chev { transform: rotate(90deg); }
+
+  /* ── main ──────────────────────────────────────────────── */
+  .main { flex: 1; overflow-y: auto; padding: 20px 24px 40px; min-width: 0; }
+  .breadcrumb { font-size: 12px; color: var(--text-3); margin-bottom: 6px; }
+  .breadcrumb b { color: var(--text-1); font-weight: 500; }
+  .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+  .page-head h1 { font-size: 22px; font-weight: 600; }
+  .page-head .desc { color: var(--text-2); font-size: 13px; margin-top: 4px; max-width: 760px; }
+  .page-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  /* ── buttons ───────────────────────────────────────────── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 0 14px; height: 32px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--card); color: var(--text-1);
+    font-size: 13px; font-weight: 500; transition: all .15s; white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--primary); color: var(--primary); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); color: #fff; }
+  .btn-primary:active { background: var(--primary-pressed); }
+  .btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+  .btn-danger:hover { background: #f54a5a; border-color: #f54a5a; color: #fff; }
+  .btn-success { background: var(--success); border-color: var(--success); color: #fff; }
+  .btn-success:hover { background: #00b96b; border-color: #00b96b; color: #fff; }
+  .btn-sm { height: 26px; padding: 0 10px; font-size: 12px; }
+  .btn-link { border: none; background: none; color: var(--primary); padding: 0 6px; height: auto; }
+  .btn-link:hover { color: var(--primary-hover); }
+  .btn-link.danger { color: var(--danger); }
+  .btn-ghost { border-color: transparent; }
+  .btn-ghost:hover { border-color: var(--border); color: var(--primary); }
+
+  /* ── card ──────────────────────────────────────────────── */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  .card-pad { padding: 16px; }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+  .card-head h3 { font-size: 15px; font-weight: 600; }
+  .card-head .sub { color: var(--text-3); font-size: 12px; font-weight: 400; margin-left: 8px; }
+
+  /* ── stat cards ────────────────────────────────────────── */
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+  .stat-card { display: flex; gap: 14px; align-items: flex-start; }
+  .stat-ic {
+    width: 42px; height: 42px; border-radius: 8px; flex-shrink: 0;
+    display: grid; place-items: center;
+  }
+  .stat-ic.blue { background: var(--blue-bg); color: var(--primary); }
+  .stat-ic.cyan { background: #E6FFFB; color: var(--cyan); }
+  .stat-ic.purple { background: #F5EFFF; color: var(--purple); }
+  .stat-ic.warn { background: var(--warning-bg); color: var(--warning); }
+  .stat-value { font-size: 24px; font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .stat-label { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+  .stat-sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+  .stat-sub .up { color: var(--success); }
+  .stat-sub .warn { color: var(--warning); }
+
+  /* ── badges & tags ─────────────────────────────────────── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; line-height: 1.6;
+  }
+  .badge .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .badge-normal { background: var(--success-bg); color: var(--success); }
+  .badge-warning { background: var(--warning-bg); color: var(--warning); }
+  .badge-error { background: var(--danger-bg); color: var(--danger); }
+  .badge-disabled { background: #F2F3F5; color: var(--text-3); }
+  .badge-revoked { background: #F2F3F5; color: var(--text-3); text-decoration: line-through; }
+  .tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 1px 8px; border-radius: 4px; font-size: 12px;
+    border: 1px solid var(--border); color: var(--text-2); background: var(--card);
+  }
+  .tag .dot { width: 5px; height: 5px; border-radius: 50%; }
+  .tag-blue { color: var(--primary); border-color: #BED8FF; background: var(--blue-bg); }
+  .tag-purple { color: var(--purple); border-color: #D8C2F5; background: #F5EFFF; }
+  .tag-cyan { color: var(--cyan); border-color: #9BE6E6; background: #E6FFFB; }
+  .tag-green { color: var(--green); border-color: #A9E7C4; background: var(--success-bg); }
+
+  /* ── switch ────────────────────────────────────────────── */
+  .switch {
+    width: 36px; height: 20px; border-radius: 10px; background: #C9CDD4;
+    position: relative; transition: background .15s; display: inline-block; vertical-align: middle;
+  }
+  .switch.on { background: var(--primary); }
+  .switch .knob {
+    position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+    border-radius: 50%; background: #fff; transition: left .15s; box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  }
+  .switch.on .knob { left: 18px; }
+
+  /* ── form ──────────────────────────────────────────────── */
+  .field { margin-bottom: 14px; }
+  .field > label { display: block; font-size: 13px; color: var(--text-2); margin-bottom: 6px; }
+  .field > label .req { color: var(--danger); margin-left: 2px; }
+  .input, .select, .textarea {
+    width: 100%; height: 32px; padding: 0 10px;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--card); font-size: 13px; outline: none; transition: border-color .15s;
+  }
+  .textarea { height: auto; padding: 8px 10px; resize: vertical; }
+  .input:focus, .select:focus, .textarea:focus { border-color: var(--primary); }
+  .input[readonly] { background: #F7F8FA; color: var(--text-3); }
+  .input-group { position: relative; }
+  .input-group .ic { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-3); }
+  .input-group input { padding-left: 32px; }
+  .select-wrap { position: relative; }
+  .select-wrap .chev { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  .field-full { grid-column: 1 / -1; }
+  .hint { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+  .note-box {
+    display: flex; gap: 8px; padding: 10px 12px; border-radius: var(--radius);
+    background: var(--blue-bg); border: 1px solid #BED8FF; color: var(--primary);
+    font-size: 12.5px; line-height: 1.6;
+  }
+  .note-box.amber { background: var(--warning-bg); border-color: #FFD24D; color: #D25F00; }
+  .note-box .ic { flex-shrink: 0; margin-top: 1px; }
+  .switch-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+  .switch-row:last-child { border-bottom: none; }
+  .switch-row .s-label { flex: 1; font-size: 13px; }
+  .switch-row .s-label .s-sub { color: var(--text-3); font-size: 12px; }
+  .switch-row .switch { flex-shrink: 0; }
+
+  /* ── table ─────────────────────────────────────────────── */
+  .table-wrap { overflow-x: auto; }
+  table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.tbl th {
+    text-align: left; padding: 10px 12px; color: var(--text-3); font-weight: 500;
+    font-size: 12px; background: #FAFBFC; border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  table.tbl td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: middle; white-space: nowrap; }
+  table.tbl tbody tr:hover { background: #F9FAFB; }
+  table.tbl .row-link { color: var(--text-1); font-weight: 500; cursor: pointer; }
+  table.tbl .row-link:hover { color: var(--primary); }
+  .tbl-num { font-variant-numeric: tabular-nums; }
+  .l0l3 { font-family: var(--mono); font-size: 12px; color: var(--text-2); }
+  .empty-row { text-align: center; color: var(--text-3); padding: 40px 0 !important; }
+  .dropdown-wrap { position: relative; display: inline-block; }
+  .dropdown-menu {
+    position: absolute; right: 0; top: 30px; min-width: 150px; z-index: 60;
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow-lg); padding: 4px; display: none;
+  }
+  .dropdown-menu.show { display: block; }
+  .dropdown-menu .dm-item {
+    display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+    border-radius: 6px; font-size: 13px; color: var(--text-1); cursor: pointer;
+  }
+  .dropdown-menu .dm-item:hover { background: var(--bg); }
+  .dropdown-menu .dm-item.danger { color: var(--danger); }
+  .dropdown-menu .dm-item.danger:hover { background: var(--danger-bg); }
+  .dropdown-menu .dm-sep { height: 1px; background: var(--border); margin: 4px 0; }
+  .search-suggest {
+    position: static; margin-top: 4px; border: 1px solid var(--border);
+    border-radius: var(--radius); background: var(--card); box-shadow: var(--shadow);
+    display: none; padding: 4px;
+  }
+  .search-suggest.show { display: block; }
+
+  /* ── filter toolbar ────────────────────────────────────── */
+  .filter-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .filter-bar .fb-item { position: relative; }
+  .filter-bar .select { width: 150px; padding-right: 26px; }
+  .filter-bar .search-box { width: 240px; }
+  .reset-link { color: var(--text-3); font-size: 13px; cursor: pointer; }
+  .reset-link:hover { color: var(--primary); }
+
+  /* ── architecture flow ─────────────────────────────────── */
+  .arch { display: flex; align-items: stretch; gap: 0; padding: 4px 0; }
+  .arch-step { flex: 1; min-width: 0; }
+  .arch-node {
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 10px; background: #fff; height: 100%;
+  }
+  .arch-node .an-label {
+    font-size: 12px; font-weight: 600; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .arch-node .an-label .bar { width: 3px; height: 14px; border-radius: 2px; flex-shrink: 0; }
+  .arch-node .an-tag {
+    font-family: var(--mono); font-size: 10px; padding: 0 5px; border-radius: 3px;
+    color: var(--text-3); background: var(--bg); margin-left: auto;
+  }
+  .arch-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .arch-chip {
+    font-size: 11px; color: var(--text-2); background: #F7F8FA;
+    border: 1px solid var(--border); padding: 2px 7px; border-radius: 4px;
+  }
+  .arch-arrow { align-self: center; color: var(--text-3); flex-shrink: 0; padding: 0 8px; font-size: 16px; }
+  .arch-arrow .cap { display: block; font-size: 10px; color: var(--text-3); text-align: center; margin-top: 2px; white-space: nowrap; }
+  .path-legend { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .path-item { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text-2); }
+  .path-item .path-no {
+    width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+    display: grid; place-items: center; font-size: 11px; font-weight: 600; color: #fff;
+  }
+  .path-a { background: var(--cyan); }
+  .path-b { background: var(--green); }
+
+  /* ── modal / drawer ────────────────────────────────────── */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(29,33,41,.45);
+    z-index: 100; display: flex; animation: fade .15s;
+  }
+  @keyframes fade { from { opacity: 0; } }
+  .modal {
+    margin: auto; background: var(--card); border-radius: 8px;
+    box-shadow: var(--shadow-lg); width: 520px; max-width: 94vw; max-height: 90vh;
+    display: flex; flex-direction: column; animation: pop .18s;
+  }
+  @keyframes pop { from { transform: scale(.97); opacity: 0; } }
+  .modal-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .modal-head h3 { font-size: 16px; font-weight: 600; }
+  .modal-body { padding: 20px; overflow-y: auto; }
+  .modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--border); }
+  .modal-lg { width: 1080px; max-width: 96vw; }
+
+  .drawer-mask {
+    position: fixed; inset: 0; background: rgba(29,33,41,.35); z-index: 100;
+    display: flex; justify-content: flex-end; animation: fade .15s;
+  }
+  .drawer {
+    width: 640px; max-width: 96vw; height: 100%; background: var(--card);
+    box-shadow: -6px 0 24px rgba(0,0,0,.12); display: flex; flex-direction: column;
+    animation: slideIn .22s;
+  }
+  @keyframes slideIn { from { transform: translateX(40px); opacity: 0; } }
+  .drawer-head { display: flex; align-items: center; gap: 10px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .drawer-head h3 { font-size: 16px; font-weight: 600; flex: 1; }
+  .drawer-body { flex: 1; overflow-y: auto; padding: 20px; }
+  .drawer-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--border); }
+
+  /* ── steps wizard ──────────────────────────────────────── */
+  .steps { display: flex; gap: 0; margin-bottom: 20px; }
+  .step-item { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+  .step-item::before {
+    content: ''; position: absolute; top: 14px; left: -50%; width: 100%;
+    height: 2px; background: var(--border); z-index: 0;
+  }
+  .step-item:first-child::before { display: none; }
+  .step-item.done::before { background: var(--primary); }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%; background: var(--border);
+    color: #fff; display: grid; place-items: center; font-size: 13px; position: relative; z-index: 1;
+  }
+  .step-item.active .step-dot { background: var(--primary); }
+  .step-item.done .step-dot { background: var(--success); }
+  .step-item.disabled .step-dot { background: #F2F3F5; color: var(--text-3); border: 1px solid var(--border); }
+  .step-label { font-size: 12px; color: var(--text-3); margin-top: 6px; }
+  .step-item.active .step-label { color: var(--primary); font-weight: 500; }
+
+  /* ── connector cards (wizard step 1) ───────────────────── */
+  .conn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .conn-card {
+    border: 1px solid var(--border); border-radius: var(--radius); padding: 14px;
+    cursor: pointer; transition: all .15s; background: var(--card);
+  }
+  .conn-card:hover { border-color: var(--primary); }
+  .conn-card.sel { border-color: var(--primary); background: var(--blue-bg); box-shadow: 0 0 0 1px var(--primary); }
+  .conn-card .cc-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .conn-card .cc-name { font-size: 14px; font-weight: 600; }
+  .conn-card .cc-reco { margin-left: auto; }
+  .conn-card .cc-desc { font-size: 12px; color: var(--text-2); margin-bottom: 8px; }
+  .conn-card .cc-feat { font-size: 12px; color: var(--text-3); display: flex; flex-direction: column; gap: 3px; }
+  .cc-feat .ok { color: var(--success); }
+  .cc-feat .no { color: var(--text-3); }
+
+  /* ── detail drawer tabs ────────────────────────────────── */
+  .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+  .tab-item { padding: 8px 14px; font-size: 13px; color: var(--text-2); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .tab-item:hover { color: var(--primary); }
+  .tab-item.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 500; }
+
+  /* ── org chain (overview) ──────────────────────────────── */
+  .chain { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 12px 0; }
+  .chain-step {
+    display: flex; align-items: center; gap: 6px; padding: 5px 10px;
+    border: 1px solid var(--border); border-radius: 6px; background: #FAFBFC; font-size: 12.5px; color: var(--text-1);
+  }
+  .chain-step.cur { border-color: var(--primary); background: var(--blue-bg); color: var(--primary); font-weight: 500; }
+  .chain-arrow { color: var(--text-3); }
+
+  /* ── timeline ──────────────────────────────────────────── */
+  .timeline { display: flex; flex-direction: column; }
+  .tl-item { display: flex; gap: 12px; position: relative; padding-bottom: 16px; }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-item::before {
+    content: ''; position: absolute; left: 5px; top: 18px; bottom: 0; width: 2px; background: var(--border);
+  }
+  .tl-item:last-child::before { display: none; }
+  .tl-dot { width: 12px; height: 12px; border-radius: 50%; margin-top: 3px; flex-shrink: 0; z-index: 1; }
+  .tl-dot.ok { background: var(--success); box-shadow: 0 0 0 3px var(--success-bg); }
+  .tl-dot.warn { background: var(--warning); box-shadow: 0 0 0 3px var(--warning-bg); }
+  .tl-dot.pend { background: #C9CDD4; box-shadow: 0 0 0 3px #F2F3F5; }
+  .tl-body { flex: 1; }
+  .tl-title { font-size: 13px; font-weight: 500; }
+  .tl-meta { font-size: 12px; color: var(--text-3); margin-top: 1px; }
+
+  /* ── mini chart ────────────────────────────────────────── */
+  .mini-chart { display: flex; align-items: flex-end; gap: 8px; height: 90px; padding: 4px 0 0; }
+  .mc-bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px; height: 100%; justify-content: flex-end; }
+  .mc-bar .mc-val { font-size: 11px; color: var(--text-3); font-family: var(--mono); }
+  .mc-bar .mc-col { width: 60%; max-width: 34px; border-radius: 4px 4px 0 0; background: var(--primary); opacity: .85; }
+  .mc-bar .mc-name { font-size: 12px; color: var(--text-2); }
+  .stat-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+  .stat-mini { background: #FAFBFC; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; }
+  .stat-mini .sm-label { font-size: 12px; color: var(--text-3); }
+  .stat-mini .sm-value { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* ── audit table ───────────────────────────────────────── */
+  .audit-list { display: flex; flex-direction: column; }
+  .audit-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--border); align-items: flex-start; }
+  .audit-item:last-child { border-bottom: none; }
+  .audit-time { font-family: var(--mono); font-size: 12px; color: var(--text-3); min-width: 108px; }
+  .audit-main { flex: 1; font-size: 13px; }
+  .audit-main .who { color: var(--text-2); font-size: 12px; margin-top: 1px; }
+  .audit-result { flex-shrink: 0; }
+
+  /* ── code block ────────────────────────────────────────── */
+  .code-block {
+    background: #F7F8FA; border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 12px; font-family: var(--mono); font-size: 12px; line-height: 1.7;
+    overflow-x: auto; color: var(--text-1); position: relative;
+  }
+  .code-block .cb-copy { position: absolute; top: 8px; right: 8px; }
+  .key-display {
+    display: flex; align-items: center; gap: 8px; background: var(--bg);
+    border: 1px dashed #BED8FF; border-radius: var(--radius); padding: 8px 10px;
+  }
+  .key-display code { font-family: var(--mono); font-size: 13px; color: var(--primary); flex: 1; word-break: break-all; }
+
+  /* ── L3 review card ────────────────────────────────────── */
+  .l3-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .l3-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; background: var(--card); }
+  .l3-card .l3-title { font-size: 13.5px; font-weight: 600; cursor: pointer; }
+  .l3-card .l3-title:hover { color: var(--primary); }
+  .l3-card .l3-meta { font-size: 12px; color: var(--text-3); margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+  .l3-card .l3-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+  .conf { font-family: var(--mono); font-size: 12px; }
+
+  /* ── toast ─────────────────────────────────────────────── */
+  .toasts { position: fixed; top: 68px; right: 20px; z-index: 300; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow-lg); font-size: 13px; min-width: 260px; animation: slideIn .2s;
+  }
+  .toast.success { border-left: 3px solid var(--success); }
+  .toast.error { border-left: 3px solid var(--danger); }
+  .toast.info { border-left: 3px solid var(--primary); }
+  .toast.warn { border-left: 3px solid var(--warning); }
+
+  /* ── test connection modal ─────────────────────────────── */
+  .test-step { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--border); }
+  .test-step:last-child { border-bottom: none; }
+  .test-ic { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; flex-shrink: 0; }
+  .test-ic.load { border: 2px solid var(--primary); border-top-color: transparent; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .test-ic.ok { background: var(--success-bg); color: var(--success); }
+  .test-ic.pend { background: #F2F3F5; color: var(--text-3); }
+
+  /* ── arch modal ────────────────────────────────────────── */
+  .arch-modal-body { padding: 20px 24px; overflow-y: auto; }
+  .arch-view-tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+  .avt {
+    padding: 5px 14px; border: 1px solid var(--border); border-radius: 16px;
+    font-size: 13px; color: var(--text-2); cursor: pointer; transition: all .15s;
+  }
+  .avt:hover { border-color: var(--primary); color: var(--primary); }
+  .avt.active { background: var(--blue-bg); border-color: var(--primary); color: var(--primary); font-weight: 500; }
+  .arch-big .arch-node { padding: 14px; }
+  .arch-big .an-label { font-size: 13px; }
+  .arch-big .arch-chip { font-size: 12px; padding: 3px 9px; }
+  .arch-view-desc {
+    font-size: 13px; color: var(--text-2); background: #FAFBFC;
+    border: 1px dashed var(--border); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 16px;
+  }
+  .arch-path-note { margin-top: 16px; font-size: 12.5px; color: var(--text-3); }
+
+  .split-2 { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; align-items: start; }
+  .stack-col { display: flex; flex-direction: column; gap: 16px; }
+  .pulse { animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
+
+  @media (max-width: 1280px) {
+    .stat-grid { grid-template-columns: repeat(2, 1fr); }
+    .l3-grid { grid-template-columns: repeat(2, 1fr); }
+    .split-2 { grid-template-columns: 1fr; }
+    .conn-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div id="app" v-cloak>
+
+  <!-- ═══ TOP BAR ═══ -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M5 19 C 2.5 15.5 3 10.5 7 8.5 C 11 6.5 13 9 11 11.5 C 9.5 13.5 6.5 12.5 7 10.2 C 7.3 8.8 9 8 10.5 8.8" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="brand-name">FMind</span>
+    </div>
+    <div class="topbar-title">外部 Agent 接入中心</div>
+    <div class="topbar-right">
+      <span class="org-chip">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h13v14H3z"/><path d="M8 3h13v14"/><path d="M7 12h5M7 16h5"/></svg>
+        顺丰科技
+      </span>
+      <span class="env-tag"><span class="env-dot"></span>开发环境</span>
+      <button class="icon-btn" title="通知">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </button>
+      <span style="width:1px;height:20px;background:var(--border)"></span>
+      <div class="avatar">96</div>
+      <span class="topbar-user">962700571@qq.com</span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar">
+      <div class="menu-group">
+        <div class="menu-group-title">工作台</div>
+        <div class="menu-item"><iicon name="home"></iicon><span>首页</span></div>
+        <div class="menu-item"><iicon name="kb"></iicon><span>知识库</span></div>
+        <div class="menu-item"><iicon name="wiki"></iicon><span>Wiki</span></div>
+        <div class="menu-item"><iicon name="robot"></iicon><span>Agent</span></div>
+        <div class="menu-item open">
+          <iicon name="plug"></iicon><span>外部 Agent 接入</span><span class="menu-chev">▶</span>
+        </div>
+        <div class="menu-sub">
+          <div class="menu-item active"><iicon name="link"></iicon><span>Agent 绑定</span></div>
+          <div class="menu-item"><iicon name="activity"></iicon><span>连接状态</span></div>
+          <div class="menu-item"><iicon name="brain"></iicon><span>外部记忆</span></div>
+          <div class="menu-item"><iicon name="review"></iicon><span>L3 审核</span></div>
+          <div class="menu-item"><iicon name="publish"></iicon><span>Wiki 发布</span></div>
+        </div>
+        <div class="menu-group-title">系统</div>
+        <div class="menu-item"><iicon name="models"></iicon><span>模型管理</span></div>
+        <div class="menu-item"><iicon name="settings"></iicon><span>系统设置</span></div>
+      </div>
+    </aside>
+
+    <!-- ═══ MAIN ═══ -->
+    <main class="main">
+      <!-- breadcrumb + header -->
+      <div class="breadcrumb">外部 Agent 接入 <span style="color:var(--text-3)">/</span> <b>Agent 绑定</b></div>
+      <div class="page-head">
+        <div>
+          <h1>外部 Agent 接入中心</h1>
+          <p class="desc">将第三方 Agent 接入 FMind 的统一组织身份和长期记忆体系，实现自动对话捕获、记忆召回和 L3 知识沉淀。</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn" @click="toast('接入文档为示例说明（原型）','info')"><iicon name="docs"></iicon>接入文档</button>
+          <button class="btn" @click="refreshStatus"><iicon name="refresh"></iicon>刷新状态</button>
+          <button class="btn btn-primary" @click="openCreate"><iicon name="plus"></iicon>新建 Agent 绑定</button>
+        </div>
+      </div>
+
+      <!-- stat cards -->
+      <div class="stat-grid">
+        <div class="card card-pad stat-card">
+          <div class="stat-ic blue"><iicon name="nodes"></iicon></div>
+          <div>
+            <div class="stat-value">{{ bindings.length }}</div>
+            <div class="stat-label">Agent 绑定</div>
+            <div class="stat-sub">{{ normalCount }} 个正常运行</div>
+          </div>
+        </div>
+        <div class="card card-pad stat-card">
+          <div class="stat-ic purple"><iicon name="chat"></iicon></div>
+          <div>
+            <div class="stat-value">{{ (8426).toLocaleString() }}</div>
+            <div class="stat-label">今日捕获</div>
+            <div class="stat-sub"><span class="up">较昨日 +12.6%</span></div>
+          </div>
+        </div>
+        <div class="card card-pad stat-card">
+          <div class="stat-ic cyan"><iicon name="search"></iicon></div>
+          <div>
+            <div class="stat-value">{{ (3182).toLocaleString() }}</div>
+            <div class="stat-label">记忆召回</div>
+            <div class="stat-sub">平均延迟 86ms</div>
+          </div>
+        </div>
+        <div class="card card-pad stat-card">
+          <div class="stat-ic warn"><iicon name="review"></iicon></div>
+          <div>
+            <div class="stat-value" style="color:var(--warning)">17</div>
+            <div class="stat-label">待审核 L3</div>
+            <div class="stat-sub"><span class="warn">5 条超过 24 小时</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- architecture flow -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-head">
+          <h3>当前接入架构<span class="sub">控制面 FMind · 数据面 MemoryProxy · 记忆面 MemoryCore</span></h3>
+          <button class="btn btn-sm" @click="archModal = true"><iicon name="expand"></iicon>展开架构图</button>
+        </div>
+        <div class="card-pad">
+          <div class="arch">
+            <template v-for="item in archFlow" :key="item.type + (item.plane ? item.plane.id : 'a' + item.index)">
+              <div class="arch-step" v-if="item.type==='step'">
+                <div class="arch-node" :style="{ borderTop: '3px solid ' + item.plane.color }">
+                  <div class="an-label">
+                    <span class="bar" :style="{ background: item.plane.color }"></span>{{ item.plane.label }}
+                    <span class="an-tag">{{ item.plane.plane }}</span>
+                  </div>
+                  <div class="arch-chips">
+                    <span class="arch-chip" v-for="n in item.plane.nodes" :key="n">{{ n }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="arch-arrow" v-else>
+                <svg width="20" height="14" viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 7h16M13 1l6 6-6 6"/></svg>
+              </div>
+            </template>
+          </div>
+          <div class="path-legend">
+            <div class="path-item">
+              <span class="path-no path-a">A</span>
+              <span><b>L0–L3 原生记忆召回</b>：对话自动捕获 → MemoryCore 提取 L0–L3 → 回答前注入外部 Agent</span>
+            </div>
+            <div class="path-item">
+              <span class="path-no path-b">B</span>
+              <span><b>L3 Wiki 知识沉淀</b>：审核通过的 L3 → 记忆 Wiki → Wiki 问答</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- filter toolbar -->
+      <div class="card card-pad" style="margin-bottom:16px">
+        <div class="filter-bar">
+          <div class="input-group search-box">
+            <iicon name="search"></iicon>
+            <input class="input" v-model="filters.search" placeholder="搜索绑定名称、Agent、用户…"/>
+          </div>
+          <div class="fb-item">
+            <div class="select-wrap">
+              <select class="select" v-model="filters.connector">
+                <option value="">连接器类型：全部</option>
+                <option>OpenClaw Plugin</option>
+                <option>Hermes Provider</option>
+                <option>OpenAI Proxy</option>
+                <option>Anthropic Proxy</option>
+                <option>Generic SDK</option>
+              </select>
+              <span class="chev">▾</span>
+            </div>
+          </div>
+          <div class="fb-item">
+            <div class="select-wrap">
+              <select class="select" v-model="filters.status">
+                <option value="">运行状态：全部</option>
+                <option value="normal">正常</option>
+                <option value="warning">异常</option>
+                <option value="disabled">已停用</option>
+                <option value="revoked">已撤销</option>
+              </select>
+              <span class="chev">▾</span>
+            </div>
+          </div>
+          <div class="fb-item">
+            <div class="select-wrap">
+              <select class="select" v-model="filters.dept">
+                <option value="">所属部门：全部</option>
+                <option v-for="d in deptList" :key="d">{{ d }}</option>
+              </select>
+              <span class="chev">▾</span>
+            </div>
+          </div>
+          <div class="fb-item">
+            <div class="select-wrap">
+              <select class="select" v-model="filters.team">
+                <option value="">所属团队：全部</option>
+                <option v-for="t in teamList" :key="t">{{ t }}</option>
+              </select>
+              <span class="chev">▾</span>
+            </div>
+          </div>
+          <div class="fb-item">
+            <div class="select-wrap">
+              <select class="select" v-model="filters.capture">
+                <option value="">捕获状态：全部</option>
+                <option value="on">已开启</option>
+                <option value="off">已关闭</option>
+              </select>
+              <span class="chev">▾</span>
+            </div>
+          </div>
+          <div class="fb-item">
+            <div class="select-wrap">
+              <select class="select" v-model="filters.recall">
+                <option value="">召回状态：全部</option>
+                <option value="on">已开启</option>
+                <option value="off">已关闭</option>
+              </select>
+              <span class="chev">▾</span>
+            </div>
+          </div>
+          <a class="reset-link" @click="resetFilters">重置筛选</a>
+        </div>
+      </div>
+
+      <!-- binding table -->
+      <div class="card">
+        <div class="card-head">
+          <h3>Agent 绑定<span class="sub">共 {{ filteredBindings.length }} 条</span></h3>
+          <span class="tag" style="font-size:12px">捕获 {{ captureOn }} 项开启 · 召回 {{ recallOn }} 项开启</span>
+        </div>
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>绑定名称</th><th>接入类型</th><th>所属组织</th><th>绑定用户</th><th>Agent</th>
+                <th>捕获</th><th>召回</th><th style="text-align:right">今日对话</th><th>L0–L3 状态</th><th>最后活跃</th><th>运行状态</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="b in filteredBindings" :key="b.id">
+                <td><span class="row-link" @click="openDetail(b, 'overview')">{{ b.name }}</span></td>
+                <td>
+                  <span class="tag" :class="connTagClass(b.connector)"><span class="dot" :style="{background: connColor(b.connector)}"></span>{{ b.connectorLabel }}</span>
+                </td>
+                <td>{{ b.dept }} / {{ b.team }}</td>
+                <td>{{ b.user }}</td>
+                <td><span style="font-family:var(--mono);font-size:12px">{{ b.agent }}</span></td>
+                <td><span class="switch" :class="{on: b.capture}" @click="toggleCapture(b)" :style="['revoked','disabled'].includes(b.status) ? 'pointer-events:none;opacity:.5' : ''"><span class="knob"></span></span></td>
+                <td><span class="switch" :class="{on: b.recall}" @click="toggleRecall(b)" :style="['revoked','disabled'].includes(b.status) ? 'pointer-events:none;opacity:.5' : ''"><span class="knob"></span></span></td>
+                <td class="tbl-num" style="text-align:right">{{ b.today.toLocaleString() }}</td>
+                <td><span class="l0l3">{{ fmtL0L3(b) }}</span></td>
+                <td style="color:var(--text-3)">{{ b.lastActive }}</td>
+                <td>
+                  <span class="badge" :class="statusBadge(b.status)">
+                    <span class="dot"></span>{{ statusLabel(b.status) }}
+                  </span>
+                </td>
+                <td>
+                  <div class="dropdown-wrap">
+                    <button class="icon-btn" @click="toggleMenu(b)">⋮</button>
+                    <div class="dropdown-menu" :class="{show: menuOpen===b.id}">
+                      <div class="dm-item" @click="openDetail(b, 'overview'); menuOpen=null"><iicon name="eye"></iicon>查看详情</div>
+                      <div class="dm-item" @click="testConnection(b); menuOpen=null"><iicon name="plug"></iicon>测试连接</div>
+                      <div class="dm-item" @click="openDetail(b, 'memory'); menuOpen=null"><iicon name="brain"></iicon>查看记忆</div>
+                      <div class="dm-item" @click="openDetail(b, 'audit'); menuOpen=null"><iicon name="filetext"></iicon>查看审计</div>
+                      <div class="dm-item" @click="editPolicy(b); menuOpen=null"><iicon name="edit"></iicon>编辑策略</div>
+                      <div class="dm-sep"></div>
+                      <div class="dm-item" @click="rotateKey(b); menuOpen=null"><iicon name="rotate"></iicon>轮换 Binding Key</div>
+                      <div class="dm-item" @click="confirmDisable(b); menuOpen=null"><iicon name="pause"></iicon>停用</div>
+                      <div class="dm-item danger" @click="openRevoke(b); menuOpen=null"><iicon name="unplug"></iicon>撤销绑定</div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr v-if="filteredBindings.length === 0">
+                <td colspan="12" class="empty-row">
+                  <div style="font-size:24px;margin-bottom:8px">🔍</div>无匹配的绑定，调整筛选条件或<a @click="resetFilters" style="cursor:pointer">重置筛选</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- L3 review -->
+      <div class="card" style="margin-top:16px">
+        <div class="card-head">
+          <h3>待审核 L3<span class="sub">审核通过的 L3 仅发布为 Wiki 类型记忆知识库，不形成 Raw / RAG 知识库</span></h3>
+          <div style="display:flex;gap:8px">
+            <span class="tag" style="color:var(--warning);border-color:#FFD24D;background:var(--warning-bg)">5 条超 24h</span>
+            <button class="btn btn-sm" @click="toast('查看全部待审核 L3（原型）','info')">全部 17 条</button>
+          </div>
+        </div>
+        <div class="card-pad">
+          <div class="l3-grid">
+            <div class="l3-card" v-for="it in l3Items" :key="it.id">
+              <div class="l3-title" @click="openReview(it)">{{ it.title }}</div>
+              <div class="l3-meta">
+                <span>{{ it.team }}</span><span>来源 {{ it.agent }}</span>
+                <span class="conf">v{{ it.version }}</span>
+                <span class="conf">置信度 {{ it.confidence }}%</span>
+                <span>证据 {{ it.evidence }} 条</span>
+                <span>{{ it.created }}</span>
+              </div>
+              <div class="l3-foot">
+                <span class="badge badge-warning" style="font-size:11px">待审核</span>
+                <button class="btn btn-sm btn-primary" @click="openReview(it)">审核</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ═══ CREATE / POLICY WIZARD DRAWER ═══ -->
+  <div class="drawer-mask" v-if="wizard.open" @click.self="closeWizard">
+    <div class="drawer">
+      <div class="drawer-head">
+        <h3>{{ wizard.mode === 'policy' ? '编辑记忆策略' : '新建 Agent 绑定' }}</h3>
+        <button class="icon-btn" @click="closeWizard"><iicon name="close"></iicon></button>
+      </div>
+
+      <!-- 4-step indicator (create only) -->
+      <div class="drawer-body" style="padding-top:16px">
+        <div class="steps" v-if="wizard.mode === 'create'">
+          <div class="step-item" :class="{ active: wizard.step===1, done: wizard.step>1, disabled: wizard.step<1 }">
+            <div class="step-dot">{{ wizard.step > 1 ? '✓' : 1 }}</div><div class="step-label">选择接入类型</div>
+          </div>
+          <div class="step-item" :class="{ active: wizard.step===2, done: wizard.step>2, disabled: wizard.step<2 }">
+            <div class="step-dot">{{ wizard.step > 2 ? '✓' : 2 }}</div><div class="step-label">绑定组织身份</div>
+          </div>
+          <div class="step-item" :class="{ active: wizard.step===3, done: wizard.step>3, disabled: wizard.step<3 }">
+            <div class="step-dot">{{ wizard.step > 3 ? '✓' : 3 }}</div><div class="step-label">配置记忆策略</div>
+          </div>
+          <div class="step-item" :class="{ active: wizard.step===4 }">
+            <div class="step-dot">4</div><div class="step-label">生成连接配置</div>
+          </div>
+        </div>
+
+        <!-- STEP 1: connector -->
+        <template v-if="wizard.mode==='create' && wizard.step===1">
+          <p style="font-size:13px;color:var(--text-2);margin-bottom:12px">选择外部 Agent 的连接方式，FMind 将按此方式签发接入策略与 Binding Key。</p>
+          <div class="conn-grid">
+            <div class="conn-card" v-for="c in connectorTypes" :key="c.id" :class="{sel: wizard.form.connector===c.id}" @click="wizard.form.connector=c.id">
+              <div class="cc-head">
+                <iicon :name="c.icon"></iicon>
+                <span class="cc-name">{{ c.name }}</span>
+                <span class="cc-reco tag" v-if="c.reco" style="color:var(--success);border-color:#A9E7C4;background:var(--success-bg)">推荐</span>
+              </div>
+              <div class="cc-desc">{{ c.desc }}</div>
+              <div class="cc-feat">
+                <span :class="c.capture ? 'ok' : 'no'">{{ c.capture ? '✓ 支持自动捕获' : '✕ 无自动捕获' }}</span>
+                <span :class="c.recall ? 'ok' : 'no'">{{ c.recall ? '✓ 支持回答前召回' : '✕ 不支持回答前召回' }}</span>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- STEP 2: org identity -->
+        <template v-if="wizard.mode==='create' && wizard.step===2">
+          <div class="note-box" style="margin-bottom:16px">
+            <iicon name="shield"></iicon>
+            <span>外部 Agent 提交的租户、团队、用户和 Agent 标识不被信任，实际身份由 Binding Key 对应的 FMind 绑定关系确定。</span>
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label>租户<span class="req">*</span></label>
+              <input class="input" value="顺丰科技" readonly/>
+            </div>
+            <div class="field">
+              <label>部门<span class="req">*</span></label>
+              <div class="select-wrap">
+                <select class="select" v-model="wizard.form.dept" @change="wizard.form.team = wizard.form.dept ? wizard.form.dept.split('|')[1] || '' : ''">
+                  <option value="" disabled>选择部门</option>
+                  <optgroup v-for="d in deptTree" :key="d.name" :label="d.name">
+                    <option v-for="t in d.teams" :key="t" :value="d.name + '|' + t">{{ '　' + t }}</option>
+                  </optgroup>
+                </select>
+                <span class="chev">▾</span>
+              </div>
+            </div>
+            <div class="field">
+              <label>团队<span class="req">*</span></label>
+              <input class="input" v-model="wizard.form.team" placeholder="由部门选择自动填充，可修改" :disabled="!wizard.form.dept"/>
+            </div>
+            <div class="field">
+              <label>用户<span class="req">*</span></label>
+              <div class="input-group">
+                <iicon name="user"></iicon>
+                <input class="input" v-model="wizard.form.user" placeholder="搜索并选择用户" @focus="userSearchFocus=true" @blur="setTimeout(()=>userSearchFocus=false,180)"/>
+              </div>
+              <div class="search-suggest" :class="{show: userSearchFocus && userMatches.length}">
+                <div class="dm-item" v-for="u in userMatches" :key="u" @mousedown.prevent="wizard.form.user=u; userSearchFocus=false">{{ u }}</div>
+              </div>
+            </div>
+            <div class="field">
+              <label>Agent<span class="req">*</span></label>
+              <div class="input-group">
+                <iicon name="robot"></iicon>
+                <input class="input" v-model="wizard.form.agent" placeholder="搜索并选择 Agent"/>
+              </div>
+            </div>
+            <div class="field field-full">
+              <label>绑定名称<span class="req">*</span></label>
+              <input class="input" v-model="wizard.form.name" placeholder="如：研发编码助手"/>
+            </div>
+            <div class="field field-full">
+              <label>描述</label>
+              <textarea class="textarea" v-model="wizard.form.desc" rows="2" placeholder="该绑定的用途说明"></textarea>
+            </div>
+          </div>
+        </template>
+
+        <!-- STEP 3: memory policy -->
+        <template v-if="wizard.step===3">
+          <template v-if="wizard.mode==='policy'">
+            <div class="chain" style="padding-top:0">
+              <span class="chain-step">{{ wizard.form.dept ? wizard.form.dept.split('|')[0] : '—' }}</span>
+              <span class="chain-arrow">→</span>
+              <span class="chain-step">{{ wizard.form.team || '—' }}</span>
+              <span class="chain-arrow">→</span>
+              <span class="chain-step">{{ wizard.form.user || '—' }}</span>
+              <span class="chain-arrow">→</span>
+              <span class="chain-step" style="font-family:var(--mono)">{{ wizard.form.agent || '—' }}</span>
+            </div>
+          </template>
+          <div class="note-box" style="margin-bottom:14px">
+            <iicon name="info"></iicon>
+            <span>该配置只控制捕获和召回。L1–L3 的提取时间和策略由 MemoryCore 自动管理，外部 Agent 不调用提取接口。</span>
+          </div>
+          <div class="switch-row" v-for="s in policySwitches" :key="s.key">
+            <div class="s-label">{{ s.label }}<div class="s-sub">{{ s.sub }}</div></div>
+            <span class="switch" :class="{on: wizard.form.policy[s.key]}" @click="wizard.form.policy[s.key] = !wizard.form.policy[s.key]"><span class="knob"></span></span>
+          </div>
+          <div class="form-grid" style="margin-top:14px">
+            <div class="field">
+              <label>单次最大召回条数</label>
+              <input class="input" type="number" v-model.number="wizard.form.policy.maxRecall" min="1"/>
+            </div>
+            <div class="field">
+              <label>召回 Token 上限</label>
+              <input class="input" type="number" v-model.number="wizard.form.policy.maxTokens"/>
+            </div>
+            <div class="field field-full">
+              <label>捕获排除规则</label>
+              <input class="input" v-model="wizard.form.policy.exclude" placeholder="如：skip /health, /ping，多个用逗号分隔"/>
+            </div>
+            <div class="field">
+              <label>Key 有效期（天）</label>
+              <input class="input" type="number" v-model.number="wizard.form.policy.keyTTL"/>
+            </div>
+            <div class="field">
+              <label>来源 IP / CIDR 限制</label>
+              <input class="input" v-model="wizard.form.policy.cidr" placeholder="如：10.0.0.0/8（留空为不限）"/>
+            </div>
+          </div>
+        </template>
+
+        <!-- STEP 4: connection config -->
+        <template v-if="wizard.step===4">
+          <template v-if="wizard.mode==='create'">
+            <div v-if="connCfgEnv" style="margin-bottom:14px">
+              <div class="field">
+                <label>Base URL</label>
+                <div class="key-display"><code>{{ connCfgEnv.baseUrl }}</code></div>
+              </div>
+              <div class="field">
+                <label>Binding Key</label>
+                <div class="key-display">
+                  <code>{{ wizard.form.key }}</code>
+                  <button class="btn btn-sm" @click="copy(wizard.form.key)"><iicon name="copy"></iicon>复制</button>
+                </div>
+              </div>
+            </div>
+            <div class="field">
+              <label>环境变量配置</label>
+              <div class="code-block">
+                <button class="btn btn-sm btn-ghost cb-copy" @click="copy(envText)"><iicon name="copy"></iicon>复制</button>
+                <pre style="margin:0;white-space:pre-wrap">{{ envText }}</pre>
+              </div>
+            </div>
+            <div class="note-box amber" style="margin-top:14px">
+              <iicon name="warning"></iicon>
+              <div>
+                <b>安全提示</b><br/>
+                · Binding Key 只显示一次，FMind 只保存 Key 哈希<br/>
+                · 请立即复制并保存在安全位置<br/>
+                · Key 可以轮换和撤销，撤销后立即失效<br/>
+                · 不要将 Key 提交到代码仓库
+              </div>
+            </div>
+          </template>
+          <template v-else>
+            <div class="note-box" style="margin-bottom:14px"><iicon name="success"></iicon><span>策略已保存，绑定信息与捕获、召回配置已更新。</span></div>
+          </template>
+        </template>
+
+        <!-- create success -->
+        <template v-if="wizard.done">
+          <div style="text-align:center;padding:20px 0 8px">
+            <div style="width:56px;height:56px;border-radius:50%;background:var(--success-bg);color:var(--success);display:grid;place-items:center;margin:0 auto 14px">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+            <h3 style="font-size:17px">绑定创建成功</h3>
+            <p style="color:var(--text-2);font-size:13px;margin:8px 0 16px">已生成一次性 Binding Key，请立即复制保存。</p>
+            <div class="key-display" style="text-align:left;margin-bottom:14px">
+              <code>{{ wizard.form.key }}</code>
+              <button class="btn btn-sm btn-primary" @click="copy(wizard.form.key)"><iicon name="copy"></iicon>复制 Key</button>
+            </div>
+            <div class="note-box amber" style="text-align:left;margin-bottom:18px">
+              <iicon name="warning"></iicon>
+              <span>关闭后将不再显示该 Key。FMind 仅保存其哈希，无法再次查看明文。</span>
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center" @click="finishCreate">完成</button>
+          </div>
+        </template>
+      </div>
+
+      <div class="drawer-foot" v-if="!wizard.done">
+        <template v-if="wizard.mode==='create' && wizard.step===1">
+          <button class="btn" @click="closeWizard">取消</button>
+          <button class="btn btn-primary" :disabled="!wizard.form.connector" @click="wizard.step=2">下一步</button>
+        </template>
+        <template v-else-if="wizard.mode==='create' && wizard.step===2">
+          <button class="btn" @click="wizard.step=1">上一步</button>
+          <button class="btn btn-primary" :disabled="!wizard.form.name || !wizard.form.user || !wizard.form.agent || !wizard.form.dept" @click="wizard.step=3">下一步</button>
+        </template>
+        <template v-else-if="wizard.step===3">
+          <template v-if="wizard.mode==='create'">
+            <button class="btn" @click="wizard.step=2">上一步</button>
+            <button class="btn btn-primary" @click="toPolicyDone">下一步</button>
+          </template>
+          <template v-else>
+            <button class="btn" @click="closeWizard">取消</button>
+            <button class="btn btn-primary" @click="finishCreate">保存</button>
+          </template>
+        </template>
+        <template v-else-if="wizard.step===4 && wizard.mode==='create'">
+          <button class="btn" @click="copy(envText)"><iicon name="copy"></iicon>复制全部配置</button>
+          <button class="btn" @click="downloadConfigFile"><iicon name="download"></iicon>下载配置文件</button>
+          <button class="btn" @click="testNewBinding"><iicon name="plug"></iicon>测试连接</button>
+          <button class="btn btn-primary" @click="finishCreate">完成</button>
+        </template>
+        <template v-else-if="wizard.step===4 && wizard.mode==='policy'">
+          <button class="btn btn-primary" @click="finishCreate">完成</button>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DETAIL DRAWER ═══ -->
+  <div class="drawer-mask" v-if="detail.open" @click.self="detail.open=false">
+    <div class="drawer" style="width:680px">
+      <div class="drawer-head">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px">
+            <h3 style="margin:0">{{ detail.binding.name }}</h3>
+            <span class="badge" :class="statusBadge(detail.binding.status)"><span class="dot"></span>{{ statusLabel(detail.binding.status) }}</span>
+          </div>
+          <div style="font-size:12px;color:var(--text-3);margin-top:3px">
+            {{ detail.binding.connectorLabel }} · 最后活跃 {{ detail.binding.lastActive }}
+          </div>
+        </div>
+        <button class="btn btn-sm" @click="testConnection(detail.binding)"><iicon name="plug"></iicon>测试连接</button>
+        <button class="btn btn-sm" @click="editPolicy(detail.binding)"><iicon name="edit"></iicon>编辑策略</button>
+        <button class="icon-btn" @click="detail.open=false"><iicon name="close"></iicon></button>
+      </div>
+      <div class="drawer-body">
+        <div class="tabs">
+          <div class="tab-item" v-for="t in detailTabs" :key="t.key" :class="{active: detail.tab===t.key}" @click="detail.tab=t.key">{{ t.label }}</div>
+        </div>
+
+        <!-- overview -->
+        <template v-if="detail.tab==='overview'">
+          <h4 style="font-size:13px;color:var(--text-3);margin:0 0 4px">组织关系链</h4>
+          <div class="chain">
+            <span class="chain-step">顺丰科技</span><span class="chain-arrow">→</span>
+            <span class="chain-step">{{ detail.binding.dept }}</span><span class="chain-arrow">→</span>
+            <span class="chain-step">{{ detail.binding.team }}</span><span class="chain-arrow">→</span>
+            <span class="chain-step">{{ detail.binding.user }}</span><span class="chain-arrow">→</span>
+            <span class="chain-step" style="font-family:var(--mono)">{{ detail.binding.agent }}</span><span class="chain-arrow">→</span>
+            <span class="chain-step cur">当前 Binding</span>
+          </div>
+          <div class="field">
+            <label>描述</label>
+            <p style="font-size:13px;color:var(--text-2)">{{ detail.binding.desc || '—' }}</p>
+          </div>
+          <h4 style="font-size:13px;color:var(--text-3);margin:10px 0 8px">记忆策略</h4>
+          <div class="stat-mini" style="margin-bottom:8px" v-for="s in policyBrief" :key="s.k">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span class="sm-label">{{ s.label }}</span>
+              <span class="badge" :class="s.v ? 'badge-normal' : 'badge-disabled'" style="font-size:11px">{{ s.v ? '开启' : '关闭' }}</span>
+            </div>
+          </div>
+        </template>
+
+        <!-- data chain -->
+        <template v-if="detail.tab==='chain'">
+          <div class="timeline">
+            <div class="tl-item" v-for="(e,i) in chainEvents" :key="i">
+              <div class="tl-dot" :class="e.state"></div>
+              <div class="tl-body">
+                <div class="tl-title">{{ e.title }}</div>
+                <div class="tl-meta">{{ e.time }} · {{ e.detail }}</div>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- memory stats -->
+        <template v-if="detail.tab==='memory'">
+          <div class="mini-chart">
+            <div class="mc-bar" v-for="m in memBars" :key="m.name">
+              <span class="mc-val">{{ m.v >= 1000 ? (m.v/1000).toFixed(1)+'k' : m.v }}</span>
+              <div class="mc-col" :style="{height: (m.v / memMax * 70) + 'px', background: m.color}"></div>
+              <span class="mc-name">{{ m.name }}</span>
+            </div>
+          </div>
+          <div class="stat-rows">
+            <div class="stat-mini"><div class="sm-label">L0 数量</div><div class="sm-value">{{ fmtFull(detail.binding.l0) }}</div></div>
+            <div class="stat-mini"><div class="sm-label">L1 数量</div><div class="sm-value">{{ fmtFull(detail.binding.l1) }}</div></div>
+            <div class="stat-mini"><div class="sm-label">L2 数量</div><div class="sm-value">{{ fmtFull(detail.binding.l2) }}</div></div>
+            <div class="stat-mini"><div class="sm-label">L3 数量</div><div class="sm-value">{{ fmtFull(detail.binding.l3) }}</div></div>
+            <div class="stat-mini"><div class="sm-label">今日捕获</div><div class="sm-value">{{ detail.binding.today.toLocaleString() }}</div></div>
+            <div class="stat-mini"><div class="sm-label">今日召回</div><div class="sm-value">{{ detail.binding.recall ? (Math.round(detail.binding.today*0.38)).toLocaleString() : 0 }}</div></div>
+            <div class="stat-mini"><div class="sm-label">召回命中率</div><div class="sm-value" style="color:var(--success)">92.4%</div></div>
+            <div class="stat-mini"><div class="sm-label">平均延迟</div><div class="sm-value">86ms</div></div>
+          </div>
+          <p class="hint" style="margin-top:10px">L1–L3 由 MemoryCore 后台自动提取；召回走 MemoryCore 原生记忆召回，与 Wiki 问答相互独立。</p>
+        </template>
+
+        <!-- session binding -->
+        <template v-if="detail.tab==='session'">
+          <div class="audit-list">
+            <div class="audit-item" v-for="s in sessions" :key="s.id">
+              <span class="tag" :class="s.online ? 'tag-green' : 'tag'"><span class="dot" :style="{background: s.online ? 'var(--success)' : '#C9CDD4'}"></span>{{ s.online ? '活跃' : '离线' }}</span>
+              <div class="audit-main">
+                <div style="font-family:var(--mono);font-size:12.5px">{{ s.id }}</div>
+                <div class="who">{{ s.agent }} · {{ s.started }} 开始 · {{ s.turns }} 轮对话</div>
+              </div>
+              <span class="audit-result" style="font-size:12px;color:var(--text-3)">{{ s.l0 }} 条 L0</span>
+            </div>
+          </div>
+        </template>
+
+        <!-- key management -->
+        <template v-if="detail.tab==='key'">
+          <div class="field">
+            <label>当前 Binding Key</label>
+            <div class="key-display"><code>{{ maskedKey(detail.binding.key) }}</code><button class="btn btn-sm" @click="copy(detail.binding.key)"><iicon name="copy"></iicon>复制</button></div>
+            <div class="hint">明文只显示一次；FMind 仅保存哈希。创建于 {{ detail.binding.createdAt }}。</div>
+          </div>
+          <div class="field">
+            <label>有效期</label>
+            <p style="font-size:13px">90 天 · 到期自动失效（{{ detail.binding.expiresAt }}）</p>
+          </div>
+          <div class="field">
+            <label>IP / CIDR 限制</label>
+            <p style="font-size:13px;font-family:var(--mono)">{{ detail.binding.cidr || '不限' }}</p>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn" @click="rotateKey(detail.binding)"><iicon name="rotate"></iicon>轮换 Key</button>
+            <button class="btn btn-danger" @click="openRevoke(detail.binding)"><iicon name="unplug"></iicon>撤销绑定</button>
+          </div>
+          <div class="note-box amber" style="margin-top:14px"><iicon name="warning"></iicon><span>轮换后旧 Key 进入 10 分钟宽限期；撤销后立即失效且不可恢复。</span></div>
+        </template>
+
+        <!-- audit -->
+        <template v-if="detail.tab==='audit'">
+          <div class="audit-list">
+            <div class="audit-item" v-for="a in audits" :key="a.time + a.action">
+              <span class="audit-time">{{ a.time }}</span>
+              <div class="audit-main">
+                <div>{{ a.action }}</div>
+                <div class="who">{{ a.who }} · {{ a.detail }}</div>
+              </div>
+              <span class="audit-result"><span class="badge" :class="a.result==='成功'?'badge-normal':'badge-error'" style="font-size:11px">{{ a.result }}</span></span>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CONNECTION TEST MODAL ═══ -->
+  <div class="overlay" v-if="testModal.open" @click.self="testModal.open=false">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>连接测试 · {{ testModal.binding ? testModal.binding.name : '' }}</h3>
+        <button class="icon-btn" @click="testModal.open=false"><iicon name="close"></iicon></button>
+      </div>
+      <div class="modal-body">
+        <div class="test-step" v-for="s in testSteps" :key="s.label">
+          <div class="test-ic" :class="s.state === 'loading' ? 'load' : (s.state === 'ok' ? 'ok' : 'pend')">
+            <span v-if="s.state==='ok'" style="color:var(--success)">✓</span>
+            <span v-else-if="s.state==='loading'"></span>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:13.5px;font-weight:500">{{ s.label }}</div>
+            <div style="font-size:12px;color:var(--text-3)">{{ s.detail }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" @click="testModal.open=false">{{ testDone ? '关闭' : '取消' }}</button>
+        <button class="btn btn-primary" v-if="!testDone" :disabled="testRunning" @click="runTest">重新测试</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ARCH MODAL ═══ -->
+  <div class="overlay" v-if="archModal" @click.self="archModal=false">
+    <div class="modal modal-lg">
+      <div class="modal-head">
+        <h3>外部 Agent 接入架构图</h3>
+        <button class="icon-btn" @click="archModal=false"><iicon name="close"></iicon></button>
+      </div>
+      <div class="arch-modal-body">
+        <div class="arch-view-tabs">
+          <div class="avt" v-for="v in archViews" :key="v.key" :class="{active: archView===v.key}" @click="archView=v.key">
+            <span class="dot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--primary);margin-right:5px"></span>{{ v.label }}
+          </div>
+        </div>
+        <div class="arch-view-desc">{{ archViewDesc }}</div>
+        <div class="arch arch-big" style="flex-wrap:nowrap;overflow-x:auto">
+          <template v-for="item in archFlow" :key="item.type + (item.plane ? item.plane.id : 'b' + item.index)">
+            <div class="arch-step" v-if="item.type==='step'" style="min-width:150px">
+              <div class="arch-node" :style="{ borderTop: '3px solid ' + item.plane.color, opacity: planeActive(item.plane) ? 1 : .4 }">
+                <div class="an-label">
+                  <span class="bar" :style="{ background: item.plane.color }"></span>{{ item.plane.label }}
+                  <span class="an-tag">{{ item.plane.plane }}</span>
+                </div>
+                <div class="arch-chips">
+                  <span class="arch-chip" v-for="n in item.plane.nodes" :key="n">{{ n }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="arch-arrow" v-else :style="{opacity: arrowActive(item.index) ? 1 : .25}">
+              <svg width="22" height="14" viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.6" :style="arrowReverse(item.index) ? 'transform:scaleX(-1)' : ''"><path d="M1 7h16M13 1l6 6-6 6"/></svg>
+            </div>
+          </template>
+        </div>
+        <div class="arch-path-note">
+          <b style="color:var(--cyan)">路径 A：</b> L0–L3 → MemoryCore 原生记忆召回 → 外部 Agent（回答前注入）
+          <b style="color:var(--green);margin-left:20px">路径 B：</b> 审核通过的 L3 → 记忆 Wiki → Wiki 问答（独立于 Raw/RAG 检索）
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ L3 REVIEW DRAWER ═══ -->
+  <div class="drawer-mask" v-if="review.open" @click.self="review.open=false">
+    <div class="drawer">
+      <div class="drawer-head">
+        <h3>L3 审核 · {{ review.item ? review.item.title : '' }}</h3>
+        <button class="icon-btn" @click="review.open=false"><iicon name="close"></iicon></button>
+      </div>
+      <div class="drawer-body">
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
+          <span class="tag tag-blue">{{ review.item.team }}</span>
+          <span class="tag tag-purple">来源 {{ review.item.agent }}</span>
+          <span class="tag">v{{ review.item.version }}</span>
+          <span class="tag">置信度 {{ review.item.confidence }}%</span>
+          <span class="tag">证据 {{ review.item.evidence }} 条</span>
+          <span class="tag">Memory ID <span style="font-family:var(--mono)">{{ review.item.memId }}</span></span>
+          <span class="tag">Binding ID <span style="font-family:var(--mono)">{{ review.item.bindingId }}</span></span>
+        </div>
+        <div class="field">
+          <label>目标记忆 Wiki</label>
+          <div class="key-display"><code>{{ review.item.targetWiki }}</code></div>
+        </div>
+        <div class="field">
+          <label>L3 内容（Markdown）</label>
+          <div class="code-block" style="min-height:120px;white-space:pre-wrap;line-height:1.6">{{ review.item.markdown }}</div>
+        </div>
+        <div class="field">
+          <label>来源摘要</label>
+          <p style="font-size:13px;color:var(--text-2)">{{ review.item.sourceSummary }}</p>
+        </div>
+        <div class="field">
+          <label>证据链摘要</label>
+          <p style="font-size:13px;color:var(--text-2)">{{ review.item.evidenceSummary }}</p>
+        </div>
+        <div class="field">
+          <label>版本差异</label>
+          <p style="font-size:13px;color:var(--text-2)">{{ review.item.diff }}</p>
+        </div>
+        <div class="note-box" style="margin-top:6px">
+          <iicon name="info"></iicon>
+          <span>审核通过的 L3 只发布为 Wiki 类型的记忆知识库，不形成 Raw/RAG 知识库，不触发 Docreader、切片或普通 RAG 索引。</span>
+        </div>
+      </div>
+      <div class="drawer-foot">
+        <button class="btn btn-danger" @click="reviewAction('reject')"><iicon name="close"></iicon>驳回</button>
+        <button class="btn" @click="reviewAction('revise')">要求修改</button>
+        <button class="btn btn-success" @click="reviewAction('approve')"><iicon name="publish"></iicon>通过并发布到记忆 Wiki</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CONFIRM / REVOKE MODAL ═══ -->
+  <div class="overlay" v-if="confirm.open" @click.self="confirm.open=false">
+    <div class="modal" style="width:440px">
+      <div class="modal-head">
+        <h3>{{ confirm.title }}</h3>
+        <button class="icon-btn" @click="confirm.open=false"><iicon name="close"></iicon></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13.5px;line-height:1.7">{{ confirm.message }}</p>
+        <div v-if="confirm.needName" class="field" style="margin-top:14px">
+          <label>请输入绑定名称「{{ confirm.binding ? confirm.binding.name : '' }}」以确认</label>
+          <input class="input" v-model="confirm.nameInput" :placeholder="confirm.binding ? confirm.binding.name : ''"/>
+        </div>
+        <div v-if="confirm.kind==='rotate'" class="note-box amber" style="margin-top:14px">
+          <iicon name="warning"></iicon><span>轮换后旧 Key 将在 10 分钟宽限期后失效；历史记忆不受影响。</span>
+        </div>
+        <div v-if="confirm.kind==='disable'" class="note-box" style="margin-top:14px">
+          <iicon name="info"></iicon><span>停用后历史记忆不会被删除，可随时重新启用。</span>
+        </div>
+        <div v-if="confirm.kind==='revoke'" class="note-box amber" style="margin-top:14px">
+          <iicon name="warning"></iicon><span>撤销后不允许恢复，绑定立即失效；历史记忆保留但不再召回。</span>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" @click="confirm.open=false">取消</button>
+        <button class="btn" :class="confirm.kind==='revoke' ? 'btn-danger' : (confirm.kind==='disable' ? '' : 'btn-primary')"
+                :disabled="confirm.needName && confirm.nameInput !== (confirm.binding ? confirm.binding.name : '')"
+                @click="doConfirm">{{ confirmBtnLabel }}</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TOASTS ═══ -->
+  <div class="toasts">
+    <div class="toast" :class="t.type" v-for="t in toasts" :key="t.id">
+      <span v-if="t.type==='success'" style="color:var(--success)">✓</span>
+      <span v-else-if="t.type==='error'" style="color:var(--danger)">✕</span>
+      <span v-else style="color:var(--primary)">ℹ</span>
+      <span>{{ t.msg }}</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const ICONS = {
+  home: '<path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
+  kb: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/>',
+  wiki: '<path d="M12 6.3C10 4.5 7.5 4 4 4v13c3.5 0 6 .5 8 2 2-1.5 4.5-2 8-2V4c-3.5 0-6 .5-8 2.3z"/><path d="M12 6.3v12.7"/>',
+  robot: '<rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 8V4M8 8V6M16 8V6"/><path d="M9 13h.01M15 13h.01M9 17h6"/>',
+  plug: '<path d="M12 22v-6"/><path d="M9 8V2M15 8V2"/><path d="M6 8h12v4a6 6 0 0 1-12 0z"/>',
+  link: '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
+  activity: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+  brain: '<path d="M9.5 2a2.5 2.5 0 0 1 2.5 2.5v15A2.5 2.5 0 0 1 9.5 22 3.5 3.5 0 0 1 6 18.5 3.5 3.5 0 0 1 3 15.5 3.5 3.5 0 0 1 5.5 12 3.5 3.5 0 0 1 3 8.5 3.5 3.5 0 0 1 6.5 5 3.5 3.5 0 0 1 9.5 2z"/>',
+  review: '<path d="M11 4H4v16h16v-7"/><path d="M21 3l-9 9"/><path d="M15 3h6v6"/>',
+  publish: '<path d="m5 12 5 5 9-11"/><path d="M4 20h16"/>',
+  models: '<rect x="3" y="3" width="18" height="7" rx="1.5"/><rect x="3" y="14" width="18" height="7" rx="1.5"/><path d="M7 6.5h.01M7 17.5h.01M11 6.5h.01"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.01a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55h.01a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.01a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/>',
+  nodes: '<circle cx="6" cy="12" r="3"/><circle cx="18" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M8.7 10.6 15.3 7.4M8.7 13.4l6.6 3.2"/>',
+  chat: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+  expand: '<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>',
+  docs: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>',
+  refresh: '<path d="M21 12a9 9 0 1 1-2.6-6.3"/><path d="M21 3v6h-6"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+  filetext: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>',
+  edit: '<path d="M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5z"/>',
+  rotate: '<path d="M21 12a9 9 0 1 1-2.6-6.3"/><path d="M21 3v6h-6"/>',
+  pause: '<path d="M8 5v14M16 5v14"/>',
+  unplug: '<path d="M12 22v-6"/><path d="M9 8V2M15 8V2"/><path d="M6 8h12v4a6 6 0 0 1-12 0z"/><path d="m3 3 18 18"/>',
+  close: '<path d="M18 6 6 18M6 6l12 12"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/>',
+  warning: '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+  success: '<circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.5 2.5 5-5"/>',
+  copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/>',
+  org: '<path d="M3 7h13v14H3z"/><path d="M8 3h13v14"/><path d="M7 12h5M7 16h5"/>',
+  team: '<circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 13.5A5 5 0 0 1 22 20"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+  filter: '<path d="M22 3H2l8 9v7l4 2v-9z"/>',
+  key: '<circle cx="7.5" cy="15.5" r="4.5"/><path d="m11 12 9-9M16 7l2 2"/>',
+  plugin: '<path d="M10 13H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v5"/><path d="M17 2v5h5a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-2"/>',
+  code: '<path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/>',
+  openai: '<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/>',
+  anthropic: '<path d="M12 4 5 20h3.2l1-2.4h5.6l1 2.4H19L12 4zm0 6.2 1.9 4.6h-3.8L12 10.2z"/>',
+};
+
+const { createApp, computed, reactive } = Vue;
+
+createApp({
+  data() {
+    return {
+      bindings: [],
+      testSteps: [],
+      menuOpen: null,
+      filters: { search: '', connector: '', status: '', dept: '', team: '', capture: '', recall: '' },
+      archModal: false,
+      archView: 'control',
+      archViews: [
+        { key: 'control', label: '控制面' },
+        { key: 'capture', label: '捕获链路' },
+        { key: 'recall', label: '召回链路' },
+        { key: 'wiki', label: 'L3 Wiki 链路' },
+      ],
+      wizard: { open: false, mode: 'create', step: 1, done: false, form: null },
+      userSearchFocus: false,
+      detail: { open: false, binding: null, tab: 'overview' },
+      detailTabs: [
+        { key: 'overview', label: '概览' },
+        { key: 'chain', label: '数据链路' },
+        { key: 'memory', label: '记忆统计' },
+        { key: 'session', label: '会话绑定' },
+        { key: 'key', label: 'Key 管理' },
+        { key: 'audit', label: '审计记录' },
+      ],
+      testModal: { open: false, binding: null },
+      testRunning: false,
+      testDone: false,
+      review: { open: false, item: null },
+      confirm: { open: false, kind: '', title: '', message: '', binding: null, needName: false, nameInput: '' },
+      toasts: [],
+      planes: [
+        { id: 'agent', label: '外部 Agent', plane: '接入端', color: '#4E5969', nodes: ['OpenClaw', 'Hermes', 'Claude Code', 'OpenAI Agent', '其他兼容 Agent'] },
+        { id: 'connector', label: '连接方式', plane: '接入端', color: '#4E5969', nodes: ['Plugin Hook', 'MemoryProvider', 'OpenAI Proxy', 'Anthropic Proxy', 'Generic SDK'] },
+        { id: 'binding', label: 'FMind AgentBinding', plane: '控制面', color: '#0052D9', nodes: ['组织身份', 'Binding Key', '接入策略'] },
+        { id: 'proxy', label: 'MemoryProxy', plane: '数据面', color: '#722ED1', nodes: ['协议代理', '自动捕获', '召回注入'] },
+        { id: 'core', label: 'MemoryCore', plane: '记忆面', color: '#13C2C2', nodes: ['L0', 'L1', 'L2', 'L3'] },
+        { id: 'wiki', label: 'FMind 记忆 Wiki', plane: '知识沉淀', color: '#00A870', nodes: ['L3 审核', 'Wiki 发布', 'Wiki 问答'] },
+      ],
+      connectorTypes: [
+        { id: 'openclaw', name: 'OpenClaw Plugin', icon: 'plugin', reco: true, desc: '适用于 OpenClaw 生态 Agent，通过 Hook 自动捕获与召回。', capture: true, recall: true },
+        { id: 'hermes', name: 'Hermes MemoryProvider', icon: 'brain', reco: false, desc: '适用于 Hermes 框架，通过 MemoryProvider 接入记忆面。', capture: true, recall: true },
+        { id: 'openai', name: 'OpenAI-compatible Proxy', icon: 'openai', reco: false, desc: '适用于使用 OpenAI API 的 Agent，经代理透明捕获与注入。', capture: true, recall: true },
+        { id: 'anthropic', name: 'Anthropic-compatible Proxy', icon: 'anthropic', reco: true, desc: '适用于 Claude Code 及支持 Anthropic API 的 Agent。', capture: true, recall: true },
+        { id: 'sdk', name: 'Generic SDK', icon: 'code', reco: false, desc: '适用于自定义 Agent，通过通用 SDK 集成捕获与召回。', capture: true, recall: true },
+      ],
+      policySwitches: [
+        { key: 'capture', label: '自动捕获对话', sub: '完整对话经 MemoryProxy 写入 L0' },
+        { key: 'recall', label: '回答前自动召回', sub: 'MemoryCore 原生召回注入 System Prompt' },
+        { key: 'readL0', label: '允许读取 L0', sub: '读取原始对话（精确溯源）' },
+        { key: 'readL1', label: '允许读取 L1', sub: '读取原子事实与偏好' },
+        { key: 'readL2', label: '允许读取 L2', sub: '读取场景级知识块' },
+        { key: 'readL3', label: '允许读取 L3', sub: '读取长期人设与核心认知' },
+        { key: 'wiki', label: '允许成熟 L3 提交 Wiki 审核', sub: '审核通过后发布到记忆 Wiki' },
+        { key: 'tools', label: '保存工具调用和工具结果', sub: '记录 Agent 工具执行链路' },
+        { key: 'audit', label: '记录会话审计', sub: '写入审计日志供追溯' },
+      ],
+      l3Items: [
+        { id: 1, title: '异常件处理 SOP 全流程沉淀', team: '客服事业部 / 异常件处理组', agent: 'exception-agent', version: 3, confidence: 92, evidence: 48, created: '3 小时前', memId: 'mem_8f3a', bindingId: 'bnd_1024', targetWiki: '客服·异常件处理知识库', status: 'pending', markdown: '# 异常件处理 SOP\n\n## 触发条件\n…', sourceSummary: '来自 48 轮客服异常件处理会话，涉及退换货、破损赔付、延误申报三类场景。', evidenceSummary: '证据覆盖 12 次成功处理 + 3 次升级转办，与现有 FAQ 一致率 94%。', diff: '相对 v2：新增「延误申报」分支，修正赔付金额上限说明。' },
+        { id: 2, title: '平台架构演进决策记录', team: '科技研发部 / 平台架构组', agent: 'coding-agent', version: 5, confidence: 88, evidence: 36, created: '5 小时前', memId: 'mem_2c91', bindingId: 'bnd_1024', targetWiki: '研发·架构决策知识库', status: 'pending', markdown: '# 架构决策\n…', sourceSummary: '汇总编码助手 36 次架构讨论，含服务拆分与缓存选型。', evidenceSummary: '决策与代码落地一致，冲突记录 2 条已标注。', diff: '相对 v4：补充可观测性设计。' },
+        { id: 3, title: '内容选题与投放节奏模型', team: '市场运营部 / 内容团队', agent: 'content-agent', version: 2, confidence: 79, evidence: 21, created: '昨日', memId: 'mem_5d07', bindingId: 'bnd_1024', targetWiki: '运营·内容策略知识库', status: 'pending', markdown: '# 选题模型\n…', sourceSummary: '来自内容助手 21 轮选题讨论，提炼出月度节奏模型。', evidenceSummary: '与近 3 个月投放效果数据吻合。', diff: '首版沉淀。' },
+        { id: 4, title: '风控规则变更影响面清单', team: '供应链管理部 / 风控组', agent: 'risk-agent', version: 1, confidence: 71, evidence: 15, created: '1 天前', memId: 'mem_7b12', bindingId: 'bnd_1024', targetWiki: '风控·规则变更知识库', status: 'pending', markdown: '# 影响面\n…', sourceSummary: '涉及 15 轮风控规则讨论，影响 3 个下游系统。', evidenceSummary: '影响面清单与代码调用链一致。', diff: '首版沉淀。' },
+        { id: 5, title: '招聘漏斗转化优化建议', team: '人力资源部 / 招聘组', agent: 'hiring-agent', version: 2, confidence: 67, evidence: 12, created: '1 天前', memId: 'mem_0e44', bindingId: 'bnd_1024', targetWiki: '人力·招聘漏斗知识库', status: 'pending', markdown: '# 转化优化\n…', sourceSummary: '来自招聘助手 12 轮讨论。', evidenceSummary: '样本量偏小，建议人工复核。', diff: '修正漏斗口径。' },
+        { id: 6, title: '财务科目映射关系沉淀', team: '财务部 / 核算组', agent: 'finance-agent', version: 1, confidence: 63, evidence: 9, created: '2 天前', memId: 'mem_9c33', bindingId: 'bnd_1024', targetWiki: '财务·科目映射知识库', status: 'pending', markdown: '# 科目映射\n…', sourceSummary: '来自财务助手 9 轮讨论，覆盖 40+ 科目映射。', evidenceSummary: '证据链尚短，建议补充。', diff: '首版沉淀。' },
+      ],
+      sessions: [
+        { id: 'ses_1a2b3c', agent: 'coding-agent', started: '09:12', turns: 8, l0: 26, online: true },
+        { id: 'ses_4d5e6f', agent: 'coding-agent', started: '10:40', turns: 14, l0: 45, online: true },
+        { id: 'ses_7g8h9i', agent: 'coding-agent', started: '13:05', turns: 5, l0: 18, online: false },
+        { id: 'ses_0j1k2l', agent: 'coding-agent', started: '15:22', turns: 11, l0: 37, online: true },
+      ],
+      audits: [
+        { time: '2026-08-17 15:22', action: '轮换 Binding Key', who: '系统管理员', detail: '旧 Key 进入 10 分钟宽限期', result: '成功' },
+        { time: '2026-08-17 11:03', action: '回答前召回 5 条记忆', who: 'MemoryProxy', detail: '注入 system prompt，86ms', result: '成功' },
+        { time: '2026-08-17 09:58', action: 'L3 提交 Wiki 审核', who: 'MemoryCore', detail: '生成 v5 候选（置信度 88%）', result: '成功' },
+        { time: '2026-08-16 22:41', action: '测试连接', who: '李明', detail: '5 项检查全部通过', result: '成功' },
+        { time: '2026-08-16 18:30', action: '编辑记忆策略', who: '李明', detail: '开启允许读取 L3', result: '成功' },
+        { time: '2026-08-16 14:12', action: '捕获请求被排除规则跳过', who: 'MemoryProxy', detail: '/health 命中排除规则', result: '成功' },
+        { time: '2026-08-16 09:05', action: '上游 Anthropic 请求失败', who: 'MemoryProxy', detail: '529 网关限流，已重试 2 次', result: '失败' },
+      ],
+    };
+  },
+  computed: {
+    normalCount() { return this.bindings.filter(b => b.status === 'normal').length; },
+    captureOn() { return this.bindings.filter(b => b.capture).length; },
+    recallOn() { return this.bindings.filter(b => b.recall).length; },
+    deptList() { return [...new Set(this.bindings.map(b => b.dept))]; },
+    teamList() { return [...new Set(this.bindings.map(b => b.team))]; },
+    deptTree() {
+      const map = {};
+      this.bindings.forEach(b => { if (!map[b.dept]) map[b.dept] = []; if (!map[b.dept].includes(b.team)) map[b.dept].push(b.team); });
+      return Object.entries(map).map(([name, teams]) => ({ name, teams }));
+    },
+    userList() { return [...new Set(this.bindings.map(b => b.user))]; },
+    filteredBindings() {
+      const f = this.filters;
+      return this.bindings.filter(b => {
+        if (f.search && !(b.name + b.agent + b.user).toLowerCase().includes(f.search.toLowerCase())) return false;
+        if (f.connector && b.connectorLabel !== f.connector && !b.connectorLabel.includes(f.connector)) return false;
+        if (f.status && b.status !== f.status) return false;
+        if (f.dept && b.dept !== f.dept) return false;
+        if (f.team && b.team !== f.team) return false;
+        if (f.capture === 'on' && !b.capture) return false;
+        if (f.capture === 'off' && b.capture) return false;
+        if (f.recall === 'on' && !b.recall) return false;
+        if (f.recall === 'off' && b.recall) return false;
+        return true;
+      });
+    },
+    userMatches() {
+      const q = this.wizard.form ? this.wizard.form.user : '';
+      return q ? this.userList.filter(u => u.includes(q)).slice(0, 8) : this.userList.slice(0, 8);
+    },
+    connCfgEnv() {
+      if (!this.wizard.form) return null;
+      const c = this.wizard.form.connector;
+      const key = this.wizard.form.key;
+      if (c === 'anthropic') return { baseUrl: 'https://fmind.example.com/agent-gateway/anthropic/v1', env: [`ANTHROPIC_BASE_URL=https://fmind.example.com/agent-gateway/anthropic/v1`, `ANTHROPIC_API_KEY=${key}`] };
+      if (c === 'openai') return { baseUrl: 'https://fmind.example.com/agent-gateway/openai/v1', env: [`OPENAI_BASE_URL=https://fmind.example.com/agent-gateway/openai/v1`, `OPENAI_API_KEY=${key}`] };
+      if (c === 'openclaw') return { baseUrl: 'https://fmind.example.com/memory-gateway', env: [`TDAI_MEMORY_ENDPOINT=https://fmind.example.com/memory-gateway`, `FMIND_BINDING_KEY=${key}`] };
+      if (c === 'hermes') return { baseUrl: 'https://fmind.example.com/memory-gateway', env: [`HERMES_MEMORY_ENDPOINT=https://fmind.example.com/memory-gateway`, `FMIND_BINDING_KEY=${key}`] };
+      return { baseUrl: 'https://fmind.example.com/agent-gateway/sdk', env: [`FMIND_GATEWAY_ENDPOINT=https://fmind.example.com/agent-gateway/sdk`, `FMIND_BINDING_KEY=${key}`] };
+    },
+    envText() { return this.connCfgEnv ? this.connCfgEnv.env.join('\n') : ''; },
+    policyBrief() {
+      if (!this.detail.binding) return [];
+      const p = this.detail.binding.policy;
+      return [
+        { k: 'capture', label: '自动捕获对话', v: p.capture },
+        { k: 'recall', label: '回答前自动召回', v: p.recall },
+        { k: 'readL3', label: '允许读取 L3', v: p.readL3 },
+        { k: 'wiki', label: '成熟 L3 提交 Wiki 审核', v: p.wiki },
+        { k: 'audit', label: '记录会话审计', v: p.audit },
+      ];
+    },
+    chainEvents() {
+      const base = [
+        { title: 'Binding Key 验证成功', state: 'ok', detail: 'HMAC-SHA256 校验通过', time: '15:22:01' },
+        { title: 'Binding Context 已缓存', state: 'ok', detail: '租户/部门/团队/用户/Agent 已解析', time: '15:22:01' },
+        { title: '回答前召回 5 条记忆', state: 'ok', detail: 'L1×3 · L2×2 · L3×1，共 2,140 tokens', time: '15:22:02' },
+        { title: '上游 Anthropic 请求成功', state: 'ok', detail: '模型 doubao-seed-2.0-pro，首 Token 820ms', time: '15:22:03' },
+        { title: '完整 Turn 捕获成功', state: 'ok', detail: '已保存消息与工具调用', time: '15:22:06' },
+        { title: '写入 L0', state: 'ok', detail: 'session ses_4d5e6f · 45 条消息', time: '15:22:07' },
+        { title: 'MemoryCore Pipeline 已接收', state: 'ok', detail: '异步提取任务已入队', time: '15:22:07' },
+        { title: 'L1 提取完成', state: 'ok', detail: '提取 3 条原子事实', time: '15:22:40' },
+        { title: 'L2 / L3 等待聚合', state: 'pend', detail: '达到聚合阈值后由 MemoryCore 自动沉淀', time: '—' },
+      ];
+      return base;
+    },
+    memBars() {
+      if (!this.detail.binding) return [];
+      const b = this.detail.binding;
+      return [
+        { name: 'L0', v: b.l0, color: '#0052D9' },
+        { name: 'L1', v: b.l1, color: '#13C2C2' },
+        { name: 'L2', v: b.l2, color: '#722ED1' },
+        { name: 'L3', v: b.l3, color: '#00A870' },
+      ];
+    },
+    memMax() { return Math.max(...this.memBars.map(m => m.v), 1); },
+    confirmBtnLabel() {
+      const k = this.confirm.kind;
+      return { rotate: '确认轮换', disable: '确认停用', revoke: '确认撤销' }[k] || '确认';
+    },
+    archFlow() {
+      const arr = [];
+      this.planes.forEach((p, i) => {
+        arr.push({ type: 'step', plane: p });
+        if (i < this.planes.length - 1) arr.push({ type: 'arrow', index: i + 1 });
+      });
+      return arr;
+    },
+    archViewDesc() {
+      const d = {
+        control: 'FMind 作为唯一权威，管理租户、部门、团队、用户、Agent、AgentBinding 与 Binding Key，配置捕获、召回与 L3 Wiki 策略。',
+        capture: '外部 Agent 的完整对话经 Plugin Hook / MemoryProvider / Proxy 自动捕获，写入 MemoryCore L0，再由后台流水线异步提取 L1–L3。外部 Agent 不调用提取接口。',
+        recall: 'MemoryCore 对 L0–L3 执行原生召回，经 MemoryProxy 在回答前注入外部 Agent 的上下文。召回与 Wiki 问答相互独立。',
+        wiki: '达到阈值的成熟 L3 提交审核；审核通过后仅发布为 Wiki 类型记忆知识库，供 Wiki 问答使用，不形成 Raw/RAG 索引。',
+      };
+      return d[this.archView];
+    },
+  },
+  watch: {
+    'wizard.step'(n) {
+      if (n === 4 && !this.wizard.form.key) this.wizard.form.key = 'fmb_live_' + this.randHex();
+    },
+  },
+  methods: {
+    randHex() { return Array.from({ length: 24 }, () => '0123456789abcdef'[Math.floor(Math.random() * 16)]).join(''); },
+    statusLabel(s) { return { normal: '正常', warning: '异常', error: '异常', disabled: '已停用', revoked: '已撤销' }[s] || s; },
+    statusBadge(s) { return { normal: 'badge-normal', warning: 'badge-warning', error: 'badge-error', disabled: 'badge-disabled', revoked: 'badge-revoked' }[s] || ''; },
+    connColor(c) { return { 'OpenClaw Plugin': '#00A870', 'Hermes Provider': '#722ED1', 'OpenAI Proxy': '#0052D9', 'Anthropic Proxy': '#13C2C2', 'Generic SDK': '#86909C' }[c] || '#86909C'; },
+    connTagClass(c) { return { 'OpenClaw Plugin': 'tag-green', 'Hermes Provider': 'tag-purple', 'OpenAI Proxy': 'tag-blue', 'Anthropic Proxy': 'tag-cyan', 'Generic SDK': '' }[c] || ''; },
+    fmtL0L3(b) { return `${this.shorten(b.l0)} / ${this.shorten(b.l1)} / ${this.shorten(b.l2)} / ${b.l3}`; },
+    shorten(v) { return v >= 1000 ? (v / 1000).toFixed(1) + 'k' : String(v); },
+    fmtFull(v) { return v.toLocaleString(); },
+    maskedKey(k) { if (!k) return ''; return k.slice(0, 10) + '••••••••••••' + k.slice(-4); },
+    resetFilters() { this.filters = { search: '', connector: '', status: '', dept: '', team: '', capture: '', recall: '' }; },
+    toggleMenu(b) { this.menuOpen = this.menuOpen === b.id ? null : b.id; },
+    toggleCapture(b) {
+      if (b.status === 'revoked') return;
+      b.capture = !b.capture;
+      this.toast(`${b.name}：自动捕获已${b.capture ? '开启' : '关闭'}`, 'success');
+    },
+    toggleRecall(b) {
+      if (b.status === 'revoked') return;
+      b.recall = !b.recall;
+      if (b.policy) b.policy.recall = b.recall;
+      this.toast(`${b.name}：回答前召回已${b.recall ? '开启' : '关闭'}`, 'success');
+    },
+    refreshStatus() {
+      this.toast('正在刷新连接状态…', 'info');
+      setTimeout(() => this.toast('状态已刷新：10 个正常运行，1 个异常，1 个已停用', 'success'), 600);
+    },
+    openCreate() {
+      this.wizard = {
+        open: true, mode: 'create', step: 1, done: false,
+        form: {
+          connector: '', dept: '', team: '', user: '', agent: '', name: '', desc: '', key: '',
+          policy: { capture: true, recall: true, readL0: false, readL1: true, readL2: true, readL3: true, wiki: true, tools: true, audit: true, maxRecall: 5, maxTokens: 2400, exclude: '/health, /ping', keyTTL: 90, cidr: '' },
+        },
+      };
+    },
+    closeWizard() {
+      if (this.wizard.done) return;
+      this.wizard.open = false;
+    },
+    toPolicyDone() {
+      this.wizard.step = 4;
+      if (this.wizard.mode === 'policy') { this.toast('记忆策略已保存', 'success'); }
+    },
+    finishCreate() {
+      if (this.wizard.done) { this.wizard.open = false; this.toast('绑定已创建', 'success'); return; }
+      if (this.wizard.mode === 'policy') { this.wizard.open = false; this.toast('策略已保存', 'success'); return; }
+      const f = this.wizard.form;
+      const connectorLabel = { anthropic: 'Anthropic Proxy', openai: 'OpenAI Proxy', openclaw: 'OpenClaw Plugin', hermes: 'Hermes Provider', sdk: 'Generic SDK' }[f.connector];
+      const d = f.dept.split('|');
+      const b = {
+        id: 'bnd_' + Date.now().toString().slice(-6),
+        name: f.name, connector: connectorLabel, connectorLabel,
+        dept: d[0], team: f.team || d[1], user: f.user, agent: f.agent,
+        capture: f.policy.capture, recall: f.policy.recall, today: 0,
+        l0: 0, l1: 0, l2: 0, l3: 0,
+        lastActive: '刚刚', status: 'normal',
+        key: f.key, createdAt: new Date().toLocaleDateString('zh-CN'), expiresAt: '90 天后', cidr: f.policy.cidr || '不限',
+        desc: f.desc, policy: { ...f.policy }, sessions: [], audits: [],
+      };
+      this.bindings.unshift(b);
+      this.wizard.done = true;
+    },
+    openDetail(b, tab) { this.detail = { open: true, binding: b, tab: tab || 'overview' }; },
+    editPolicy(b) {
+      this.wizard = {
+        open: true, mode: 'policy', step: 3, done: false,
+        form: {
+          connector: this.connIdFromLabel(b.connector), dept: b.dept + '|' + b.team, team: b.team,
+          user: b.user, agent: b.agent, name: b.name, desc: b.desc, key: b.key,
+          policy: { ...(b.policy || { capture: b.capture, recall: b.recall, readL0: false, readL1: true, readL2: true, readL3: true, wiki: true, tools: true, audit: true, maxRecall: 5, maxTokens: 2400, exclude: '/health, /ping', keyTTL: 90, cidr: b.cidr || '' }) },
+        },
+      };
+    },
+    connIdFromLabel(l) {
+      return { 'OpenClaw Plugin': 'openclaw', 'Hermes Provider': 'hermes', 'OpenAI Proxy': 'openai', 'Anthropic Proxy': 'anthropic', 'Generic SDK': 'sdk' }[l] || 'sdk';
+    },
+    testConnection(b) {
+      this.testModal = { open: true, binding: b };
+      this.testRunning = false;
+      this.testDone = false;
+      this.testSteps = this.buildTestSteps('loading');
+      this.runTest();
+    },
+    buildTestSteps(state) {
+      const s = state;
+      return [
+        { label: 'Binding Key 验证成功', detail: 'HMAC-SHA256 签名校验', state: s },
+        { label: 'MemoryProxy 可达', detail: 'POST /health · 24ms', state: s },
+        { label: 'MemoryCore 可达', detail: 'POST /health · 31ms', state: s },
+        { label: '捕获测试成功', detail: '写入 1 条测试 L0', state: s },
+        { label: '召回测试成功', detail: '召回 3 条记忆，命中率 92%', state: s },
+      ];
+    },
+    runTest() {
+      this.testRunning = true;
+      this.testDone = false;
+      this.testSteps = this.buildTestSteps('loading');
+      const labels = this.testSteps.map(s => s.label);
+      let i = 0;
+      const timer = setInterval(() => {
+        if (i >= labels.length) {
+          clearInterval(timer);
+          this.testRunning = false;
+          this.testDone = true;
+          this.toast('连接测试全部通过', 'success');
+          return;
+        }
+        this.testSteps[i].state = 'ok';
+        i++;
+      }, 700);
+    },
+    rotateKey(b) {
+      this.confirm = { open: true, kind: 'rotate', title: '轮换 Binding Key', message: `确定要为「${b.name}」轮换 Binding Key？旧 Key 将在 10 分钟宽限期后失效。`, binding: b, needName: false, nameInput: '' };
+    },
+    confirmDisable(b) {
+      this.confirm = { open: true, kind: 'disable', title: '停用绑定', message: `确定停用「${b.name}」？停用后捕获与召回开关将同步关闭，历史记忆不会被删除。`, binding: b, needName: false, nameInput: '' };
+    },
+    openRevoke(b) {
+      this.confirm = { open: true, kind: 'revoke', title: '撤销绑定', message: '撤销后不允许恢复，绑定立即失效，历史记忆保留但不再召回。请谨慎操作。', binding: b, needName: true, nameInput: '' };
+    },
+    doConfirm() {
+      const c = this.confirm;
+      const b = c.binding;
+      if (c.kind === 'rotate') {
+        b.key = 'fmb_live_' + this.randHex();
+        b.createdAt = new Date().toLocaleDateString('zh-CN');
+        this.toast(`Binding Key 已轮换，旧 Key 将于 10 分钟后失效`, 'success');
+      } else if (c.kind === 'disable') {
+        b.status = 'disabled';
+        b.capture = false; b.recall = false;
+        if (b.policy) { b.policy.capture = false; b.policy.recall = false; }
+        this.toast(`「${b.name}」已停用，历史记忆不会被删除`, 'success');
+      } else if (c.kind === 'revoke') {
+        b.status = 'revoked';
+        b.capture = false; b.recall = false;
+        this.toast(`「${b.name}」已撤销，历史记忆保留`, 'warn');
+      }
+      this.confirm.open = false;
+    },
+    openReview(it) { this.review = { open: true, item: it }; },
+    reviewAction(kind) {
+      const it = this.review.item;
+      const idx = this.l3Items.findIndex(x => x.id === it.id);
+      if (kind === 'approve') {
+        this.l3Items.splice(idx, 1);
+        this.toast(`「${it.title}」已发布到记忆 Wiki`, 'success');
+      } else if (kind === 'revise') {
+        this.toast('已标记为「要求修改」，将退回来源 Agent 修订', 'info');
+      } else {
+        this.l3Items.splice(idx, 1);
+        this.toast('已驳回该 L3 候选', 'warn');
+      }
+      this.review.open = false;
+    },
+    downloadConfigFile() {
+      const f = this.wizard.form;
+      const env = this.envText;
+      const blob = new Blob(['# ' + (f.name || 'binding') + ' · FMind 连接配置\n' + env + '\n'], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (f.name || 'binding') + '.env';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      this.toast('配置文件已下载', 'success');
+    },
+    testNewBinding() {
+      const f = this.wizard.form;
+      const label = { anthropic: 'Anthropic Proxy', openai: 'OpenAI Proxy', openclaw: 'OpenClaw Plugin', hermes: 'Hermes Provider', sdk: 'Generic SDK' }[f.connector] || 'Generic SDK';
+      this.testConnection({ name: f.name || '新绑定', connectorLabel: label });
+    },
+    copy(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => this.toast('已复制到剪贴板', 'success')).catch(() => this.toast('复制失败', 'error'));
+      } else {
+        this.toast('复制失败：浏览器不支持剪贴板', 'error');
+      }
+    },
+    toast(msg, type) {
+      const id = Date.now() + Math.random();
+      this.toasts.push({ id, msg, type: type || 'info' });
+      setTimeout(() => { this.toasts = this.toasts.filter(t => t.id !== id); }, 2600);
+    },
+    planeActive(p) {
+      const v = this.archView;
+      if (v === 'control') return p.id === 'binding';
+      if (v === 'capture') return ['agent', 'connector', 'binding', 'proxy', 'core'].includes(p.id);
+      if (v === 'recall') return ['core', 'proxy', 'agent'].includes(p.id);
+      if (v === 'wiki') return ['core', 'wiki'].includes(p.id);
+      return true;
+    },
+    arrowActive(i) {
+      // i is 1..5: agent→connector(1) connector→binding(2) binding→proxy(3) proxy→core(4) core→wiki(5)
+      const v = this.archView;
+      if (v === 'control') return i === 2;
+      if (v === 'capture') return [1, 2, 3, 4].includes(i);
+      if (v === 'recall') return [1, 4].includes(i); // 反向：core→proxy、proxy→agent
+      if (v === 'wiki') return i === 5;
+      return true;
+    },
+    arrowReverse(i) {
+      // 召回链路与绘制方向相反，箭头反向以表达 core→proxy→agent
+      return this.archView === 'recall' && [1, 4].includes(i);
+    },
+    planeColor(id) { return (this.planes.find(p => p.id === id) || {}).color || '#4E5969'; },
+  },
+  created() {
+    const dept = {
+      '客服事业部': ['异常件处理组', '质量组', '用户运营组'],
+      '科技研发部': ['平台架构组', '知识运营组', 'AI 工程组'],
+      '市场运营部': ['内容团队', '创意团队'],
+      '数据中心': ['分析组', '数据工程组'],
+      '测试部门': ['自动化组'],
+      '供应链管理部': ['风控组'],
+      '人力资源部': ['招聘组'],
+      '财务部': ['核算组'],
+    };
+    const mk = (id, name, connector, connectorLabel, dept, team, user, agent, capture, recall, today, l0, l1, l2, l3, lastActive, status, desc) => ({
+      id, name, connector, connectorLabel, dept, team, user, agent, capture, recall, today, l0, l1, l2, l3, lastActive, status,
+      key: 'fmb_live_' + this.randHex(), createdAt: '2026-08-01', expiresAt: '2026-10-30', cidr: '', desc,
+      policy: { capture, recall, readL0: false, readL1: true, readL2: true, readL3: true, wiki: true, tools: true, audit: true, maxRecall: 5, maxTokens: 2400, exclude: '/health, /ping', keyTTL: 90 },
+    });
+    this.bindings = [
+      mk('b1', '客服异常件助手', 'Anthropic Proxy', 'Anthropic Proxy', '客服事业部', '异常件处理组', '张晓宇', 'exception-agent', true, true, 1284, 34210, 6802, 186, 28, '2 分钟前', 'normal', '处理异常件工单，支持退换货、破损赔付、延误申报。'),
+      mk('b2', '研发编码助手', 'Anthropic Proxy', 'Claude Code / Anthropic Proxy', '科技研发部', '平台架构组', '李明', 'coding-agent', true, true, 892, 52180, 9431, 302, 47, '5 分钟前', 'normal', '编码与架构设计助手，接入平台架构组研发流程。'),
+      mk('b3', 'OpenClaw 运营助手', 'OpenClaw Plugin', 'OpenClaw Plugin', '市场运营部', '内容团队', '王静', 'content-agent', true, true, 516, 20840, 3812, 120, 19, '12 分钟前', 'normal', '内容选题、排期与投放节奏助手。'),
+      mk('b4', 'Hermes 数据分析', 'Hermes Provider', 'Hermes Provider', '数据中心', '分析组', '陈曦', 'analytics-agent', true, false, 203, 11860, 2210, 64, 11, '38 分钟前', 'warning', '数据查询与分析助手，当前召回已关闭。'),
+      mk('b5', '历史测试 Agent', 'Generic SDK', 'Generic SDK', '测试部门', '自动化组', '测试用户', 'legacy-agent', false, false, 0, 9320, 1204, 30, 4, '3 天前', 'disabled', '历史测试用绑定，已停用。'),
+      mk('b6', '供应链风控助手', 'Anthropic Proxy', 'Anthropic Proxy', '供应链管理部', '风控组', '赵磊', 'risk-agent', true, true, 654, 28760, 5106, 145, 23, '8 分钟前', 'normal', '供应链风控规则分析与影响面评估。'),
+      mk('b7', '营销内容创作', 'OpenAI Proxy', 'OpenAI Proxy', '市场运营部', '创意团队', '孙悦', 'creative-agent', true, true, 389, 15230, 2640, 88, 15, '21 分钟前', 'normal', '营销素材与活动文案创作助手。'),
+      mk('b8', '客服质检分析', 'Hermes Provider', 'Hermes Provider', '客服事业部', '质量组', '周婷', 'qa-agent', true, true, 276, 9740, 1820, 56, 9, '1 小时前', 'normal', '客服对话质检与合规分析。'),
+      mk('b9', '知识库运营助手', 'OpenClaw Plugin', 'OpenClaw Plugin', '科技研发部', '知识运营组', '吴浩', 'kb-agent', true, true, 148, 6030, 1112, 38, 7, '2 小时前', 'normal', '知识库内容整理与 Wiki 维护。'),
+      mk('b10', '招聘助手', 'Generic SDK', 'Generic SDK', '人力资源部', '招聘组', '郑爽', 'hiring-agent', true, true, 245, 8120, 1504, 47, 8, '35 分钟前', 'normal', '招聘漏斗分析与候选人筛选。'),
+      mk('b11', '财务数据助手', 'OpenAI Proxy', 'OpenAI Proxy', '财务部', '核算组', '钱枫', 'finance-agent', true, true, 167, 7240, 1330, 41, 6, '1 小时前', 'normal', '财务科目映射与核算数据查询。'),
+      mk('b12', '遗留文档 Agent', 'Generic SDK', 'Generic SDK', '测试部门', '自动化组', '测试用户', 'doc-agent', true, true, 42, 3910, 680, 22, 3, '昨天', 'normal', '遗留文档检索与归档。'),
+    ];
+  },
+}).component('iicon', {
+  props: { name: String, size: { type: Number, default: 16 } },
+  computed: { paths() { return ICONS[this.name] || ''; } },
+  template: '<svg :width="size" :height="size" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" v-html="paths"></svg>',
+}).mount('#app');
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS departments (id TEXT PRIMARY KEY, tenant_id INTEGER NOT NULL, name TEXT NOT NULL, code TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'active', created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, deleted_at DATETIME);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_departments_tenant_code ON departments(tenant_id, code) WHERE deleted_at IS NULL;
+CREATE TABLE IF NOT EXISTS teams (id TEXT PRIMARY KEY, tenant_id INTEGER NOT NULL, department_id TEXT NOT NULL, name TEXT NOT NULL, code TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'active', created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, deleted_at DATETIME);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_teams_tenant_code ON teams(tenant_id, code) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_teams_department ON teams(tenant_id, department_id) WHERE deleted_at IS NULL;
+CREATE TABLE IF NOT EXISTS team_members (id INTEGER PRIMARY KEY AUTOINCREMENT, team_id TEXT NOT NULL, tenant_id INTEGER NOT NULL, user_id TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'viewer', status TEXT NOT NULL DEFAULT 'active', created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, deleted_at DATETIME);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_team_members_active ON team_members(team_id, user_id) WHERE deleted_at IS NULL;
+CREATE TABLE IF NOT EXISTS team_agents (id INTEGER PRIMARY KEY AUTOINCREMENT, team_id TEXT NOT NULL, tenant_id INTEGER NOT NULL, agent_id TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'active', created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, deleted_at DATETIME);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_team_agents_active ON team_agents(team_id, agent_id) WHERE deleted_at IS NULL;
+ALTER TABLE knowledge_bases ADD COLUMN department_id TEXT;
+ALTER TABLE knowledge_bases ADD COLUMN team_id TEXT;
+ALTER TABLE knowledge_bases ADD COLUMN visibility TEXT NOT NULL DEFAULT 'team';
+CREATE INDEX IF NOT EXISTS idx_knowledge_bases_team_scope ON knowledge_bases(tenant_id, department_id, team_id);

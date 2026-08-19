@@ -3,10 +3,9 @@
         <!-- 展开时：Logo + 搜索/折叠按钮同行 -->
         <div class="logo_row" v-if="!uiStore.sidebarCollapsed">
             <div class="logo_box" @click="router.push('/platform/knowledge-bases')" style="cursor: pointer;">
-                <span class="fmind-mark" aria-label="FMind">
-                    <span class="fmind-mark__glyph" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
-                    </span><span class="fmind-mark__name">FMind</span>
+                <span class="fmind-mark" aria-label="FTMind">
+                    <img :src="sfLogo" class="fmind-mark__logo" alt="" />
+                    <span class="fmind-mark__name">FTMind</span>
                 </span>
                 <sup v-if="isLiteEdition" class="lite-badge">Lite</sup>
             </div>
@@ -262,6 +261,7 @@ import telegramLogo from '@/assets/img/im/telegram.svg';
 import dingtalkLogo from '@/assets/img/im/dingtalk.svg';
 import mattermostLogo from '@/assets/img/im/mattermost.svg';
 import wechatLogo from '@/assets/img/im/wechat.svg';
+import sfLogo from '@/assets/img/brand/sf-logo-alone.png';
 import qqbotLogo from '@/assets/img/im/qqbot.png';
 
 const PLATFORM_LOGO: Record<string, string> = {
@@ -397,12 +397,16 @@ const isMenuItemActive = (itemPath: string): boolean => {
                 currentRoute === 'knowledgeBaseSettings';
         case 'agents':
             return currentRoute === 'agentList';
+        case 'external-memory':
+            return currentRoute === 'externalMemoryAdmin' || currentRoute === 'externalMemoryBindings' || currentRoute === 'externalMemoryReviews';
         case 'organizations':
             return currentRoute === 'organizationList';
         case 'creatChat':
             return currentRoute === 'kbCreatChat' || currentRoute === 'globalCreatChat';
         case 'settings':
             return currentRoute === 'settings';
+        case 'feedback':
+            return currentRoute === 'feedbackAdmin';
         default:
             return itemPath === currentpath.value;
     }
@@ -415,8 +419,10 @@ const getMenuIconName = (item: MenuItem): string => {
         'creatChat': 'chat-add',
         'knowledge-bases': 'folder',
         agents: 'control-platform',
+        'external-memory': 'layers',
         organizations: 'usergroup',
         settings: 'setting',
+        feedback: 'error-circle',
         logout: 'logout',
     }
     return iconByPath[item.path] || 'app'
@@ -425,17 +431,21 @@ const getMenuIconName = (item: MenuItem): string => {
 // 分离上下两部分菜单（使用 visibleMenuArr 以便 lite 模式过滤 logout）
 const topMenuItems = computed<MenuItem[]>(() => {
     return (visibleMenuArr.value as unknown as MenuItem[]).filter((item: MenuItem) =>
-        item.path === 'knowledge-bases' || item.path === 'agents' || item.path === 'organizations' || item.path === 'creatChat'
+        item.path === 'knowledge-bases' || item.path === 'agents' || item.path === 'external-memory' || item.path === 'organizations' || item.path === 'creatChat'
     );
 });
 
 const bottomMenuItems = computed<MenuItem[]>(() => {
-    return (visibleMenuArr.value as unknown as MenuItem[]).filter((item: MenuItem) => {
-        if (item.path === 'knowledge-bases' || item.path === 'agents' || item.path === 'organizations' || item.path === 'creatChat') {
+    const items = (visibleMenuArr.value as unknown as MenuItem[]).filter((item: MenuItem) => {
+        if (item.path === 'knowledge-bases' || item.path === 'agents' || item.path === 'external-memory' || item.path === 'organizations' || item.path === 'creatChat') {
             return false;
         }
         return true;
     });
+    if (authStore.hasRole('admin') || authStore.hasRole('owner') || authStore.canAccessAllTenants) {
+        items.unshift({ title: t('feedback.adminMenu'), icon: 'error-circle', path: 'feedback' });
+    }
+    return items;
 });
 
 // 当前知识库信息
@@ -1045,6 +1055,8 @@ const handleMenuClick = async (path: string) => {
         // 设置菜单项：打开设置弹窗并跳转路由
         uiStore.openSettings()
         router.push('/platform/settings')
+    } else if (path === 'feedback') {
+        router.push('/platform/feedback')
     } else {
         gotopage(path)
     }
@@ -1231,6 +1243,29 @@ const onDragHandleMouseDown = (e: MouseEvent) => {
         flex: 1;
         min-width: 0;
         overflow: hidden;
+
+        .fmind-mark {
+            display: inline-flex;
+            align-items: center;
+            min-width: 0;
+        }
+
+        .fmind-mark__logo {
+            width: 30px;
+            height: 30px;
+            margin-right: 8px;
+            object-fit: contain;
+            flex: 0 0 auto;
+        }
+
+        .fmind-mark__name {
+            color: var(--td-text-color-primary);
+            font-family: var(--app-font-family);
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1;
+            white-space: nowrap;
+        }
 
         .logo {
             width: 128px;

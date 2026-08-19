@@ -135,8 +135,32 @@ const router = createRouter({
           meta: { requiresInit: true, requiresAuth: true }
         },
         {
+          path: "feedback",
+          name: "feedbackAdmin",
+          component: () => import("../views/feedback/FeedbackAdmin.vue"),
+          meta: { requiresInit: true, requiresAuth: true, requiresTenantAdmin: true },
+        },
+        {
+          path: "my-feedback",
+          name: "myFeedback",
+          component: () => import("../views/feedback/MyFeedback.vue"),
+          meta: { requiresInit: true, requiresAuth: true },
+        },
+        {
           path: "external-memory",
           name: "externalMemoryAdmin",
+          component: () => import("../views/memory/ExternalMemoryAdmin.vue"),
+          meta: { requiresInit: true, requiresAuth: true, requiresTenantAdmin: true }
+        },
+        {
+          path: "external-memory/bindings",
+          name: "externalMemoryBindings",
+          component: () => import("../views/memory/ExternalMemoryAdmin.vue"),
+          meta: { requiresInit: true, requiresAuth: true, requiresTenantAdmin: true }
+        },
+        {
+          path: "external-memory/reviews",
+          name: "externalMemoryReviews",
           component: () => import("../views/memory/ExternalMemoryAdmin.vue"),
           meta: { requiresInit: true, requiresAuth: true, requiresTenantAdmin: true }
         },
@@ -342,7 +366,11 @@ router.beforeEach(async (to, from, next) => {
   // 如果访问的是登录页面或初始化页面，直接放行
   if (to.meta.requiresAuth === false || to.meta.requiresInit === false) {
     // 如果已登录用户访问登录页面，重定向到知识库列表页面
-    if (to.path === '/login' && authStore.isLoggedIn) {
+    // The request interceptor can invalidate an expired refresh token while
+    // the in-memory Pinia store still contains the old access token. In that
+    // short window, the login route must win; otherwise the guard bounces
+    // between /login and the protected page indefinitely.
+    if (to.path === '/login' && authStore.isLoggedIn && localStorage.getItem('fmind_token')) {
       next(authStore.hasValidTenant ? '/platform/knowledge-bases' : '/onboarding/workspace')
       return
     }

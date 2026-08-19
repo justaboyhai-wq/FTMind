@@ -54,6 +54,7 @@ import (
 	memoryService "github.com/justaboyhai-wq/fmind/internal/application/service/memory"
 	"github.com/justaboyhai-wq/fmind/internal/application/service/memorywiki"
 	"github.com/justaboyhai-wq/fmind/internal/application/service/retriever"
+	"github.com/justaboyhai-wq/fmind/internal/authz"
 	"github.com/justaboyhai-wq/fmind/internal/common"
 	"github.com/justaboyhai-wq/fmind/internal/config"
 	"github.com/justaboyhai-wq/fmind/internal/database"
@@ -168,11 +169,13 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(repository.NewMCPOAuthRepository))
 	must(container.Provide(repository.NewCustomAgentRepository))
 	must(container.Provide(repository.NewOrganizationRepository))
+	must(container.Provide(repository.NewTeamRepository))
 	must(container.Provide(repository.NewKBShareRepository))
 	must(container.Provide(repository.NewAgentShareRepository))
 	must(container.Provide(repository.NewEmbedChannelRepository))
 	must(container.Provide(repository.NewTenantDisabledSharedAgentRepository))
 	must(container.Provide(repository.NewUserResourceFavoriteRepository))
+	must(container.Provide(repository.NewAnswerFeedbackRepository))
 	must(container.Provide(service.NewWebSearchStateService))
 	must(container.Provide(repository.NewDataSourceRepository))
 	must(container.Provide(repository.NewSyncLogRepository))
@@ -196,6 +199,8 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(service.NewAuditLogRetentionRunner))
 	must(container.Provide(service.NewKnowledgeBaseService))
 	must(container.Provide(service.NewOrganizationService))
+	must(container.Provide(service.NewTeamService))
+	must(container.Provide(authz.NewServiceWithDB))
 	must(container.Provide(service.NewKBShareService)) // KBShareService must be registered before KnowledgeService and KnowledgeTagService
 	must(container.Provide(service.NewAgentShareService))
 	must(container.Provide(service.NewKnowledgeService))
@@ -211,7 +216,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(service.NewFMindCloudService))
 	must(container.Provide(agentbinding.NewScopeValidator))
 	must(container.Provide(agentbinding.NewService))
-	must(container.Provide(memorywiki.NewService))
+	must(container.Provide(memorywiki.NewServiceWithAuthorization))
 
 	// Extract services - register individual extracters with names
 	must(container.Provide(service.NewChunkExtractService, dig.Name("chunkExtractor")))
@@ -225,6 +230,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(service.NewMCPToolApprovalService))
 	must(container.Provide(service.NewCustomAgentService))
 	must(container.Provide(service.NewUserResourceFavoriteService))
+	must(container.Provide(service.NewAnswerFeedbackService))
 	must(container.Provide(memoryService.NewMemoryService))
 	must(container.Provide(service.NewWikiPageService))
 	must(container.Provide(service.NewWikiLogEntryService))
@@ -381,14 +387,16 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(handler.NewWebSearchProviderHandler))
 	must(container.Provide(handler.NewVectorStoreHandler))
 	must(container.Provide(handler.NewCustomAgentHandler))
-	must(container.Provide(handler.NewAgentBindingHandler))
-	must(container.Provide(handler.NewBindingIntrospectionHandler))
+	must(container.Provide(handler.NewAgentBindingHandlerWithAPIKey))
+	must(container.Provide(handler.NewBindingIntrospectionHandlerWithAuthorizationAndAPIKey))
 	must(container.Provide(handler.NewMemoryWikiHandler))
 	must(container.Provide(handler.NewInternalMemoryEventHandler))
 	must(container.Provide(handler.NewUserResourceFavoriteHandler))
+	must(container.Provide(handler.NewAnswerFeedbackHandler))
 	must(container.Provide(service.NewSkillService))
 	must(container.Provide(handler.NewSkillHandler))
 	must(container.Provide(handler.NewOrganizationHandler))
+	must(container.Provide(handler.NewTeamHandler))
 
 	// Data source handler
 	must(container.Provide(handler.NewDataSourceHandler))

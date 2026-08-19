@@ -19,7 +19,11 @@ export interface AgentBinding {
   task_id?: string
   external_agent: string
   connector_type: string
-  status: 'active' | 'revoked' | string
+  status: 'pending_setup' | 'active' | 'revoked' | string
+  setup_expires_at?: string
+  activated_at?: string
+  last_handshake_at?: string
+  setup_attempts?: number
   capture_enabled: boolean
   recall_enabled: boolean
   l3_wiki_enabled: boolean
@@ -35,6 +39,7 @@ export interface AgentBinding {
 }
 
 export interface CreateAgentBindingRequest {
+  user_api_key_id: number
   department_id?: string
   team_id: string
   workspace_id?: string
@@ -56,6 +61,19 @@ export interface CreateAgentBindingRequest {
 export interface CreateAgentBindingResult {
   binding: AgentBinding
   connector_secret: string
+  credential_purpose?: 'memory_binding_setup' | 'memory_binding_runtime' | string
+  setup_expires_at?: string
+  setup_manifest?: {
+    binding_id: string
+    external_agent: string
+    connector_type: string
+    fmind_endpoint: string
+    memory_core_endpoint?: string
+    memory_proxy_endpoint?: string
+    capabilities: string[]
+    asset_scopes: string[]
+  }
+  setup_prompt?: string
 }
 
 export interface MemoryPublication {
@@ -100,7 +118,8 @@ export interface MemoryReviewDetail {
 export const listAgentBindings = () => get<AgentBinding[]>('/api/v1/agent-bindings')
 export const createAgentBinding = (payload: CreateAgentBindingRequest) => post<CreateAgentBindingResult>('/api/v1/agent-bindings', payload)
 export const revokeAgentBinding = (id: string) => post<void>(`/api/v1/agent-bindings/${encodeURIComponent(id)}/revoke`)
-export const rotateAgentBindingKey = (id: string) => post<{ connector_secret: string }>(`/api/v1/agent-bindings/${encodeURIComponent(id)}/keys/rotate`)
+export const rotateAgentBindingKey = (id: string) => post<Pick<CreateAgentBindingResult, 'connector_secret' | 'credential_purpose' | 'setup_prompt' | 'setup_expires_at'>>(`/api/v1/agent-bindings/${encodeURIComponent(id)}/keys/rotate`)
+export const getAgentBindingSetupStatus = (id: string) => get<{ binding_id: string; status: string; setup_expires_at?: string; activated_at?: string; last_handshake_at?: string; setup_attempts?: number }>(`/api/v1/agent-bindings/${encodeURIComponent(id)}/setup-status`)
 export const listMemoryReviews = (status?: string) => get<MemoryPublication[]>(reviewListPath(status))
 export const getMemoryReview = async (id: string): Promise<MemoryReviewDetail> => {
   const detail = await get<RawMemoryReviewDetail<MemoryPublication>>(`/api/v1/external-memory/l3/reviews/${encodeURIComponent(id)}`)
@@ -110,3 +129,5 @@ export const reviewMemory = (id: string, action: 'approve' | 'reject' | 'request
   post(reviewActionPath(id, action), { comment })
 export const publishMemory = (id: string, knowledgeBaseId = '') =>
   post(`/api/v1/external-memory/l3/reviews/${encodeURIComponent(id)}/publish`, knowledgeBaseId ? { knowledge_base_id: knowledgeBaseId } : {})
+export const revokeMemory = (id: string, comment = '') =>
+  post(`/api/v1/external-memory/l3/reviews/${encodeURIComponent(id)}/revoke`, comment ? { comment } : {})

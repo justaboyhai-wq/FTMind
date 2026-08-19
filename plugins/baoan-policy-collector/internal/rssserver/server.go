@@ -35,11 +35,12 @@ type channel struct {
 	Items       []item `xml:"item"`
 }
 type item struct {
-	Title       string `xml:"title"`
-	Link        string `xml:"link"`
-	GUID        string `xml:"guid"`
-	Description string `xml:"description"`
-	PubDate     string `xml:"pubDate,omitempty"`
+	Title       string   `xml:"title"`
+	Link        string   `xml:"link"`
+	GUID        string   `xml:"guid"`
+	Categories  []string `xml:"category,omitempty"`
+	Description string   `xml:"description"`
+	PubDate     string   `xml:"pubDate,omitempty"`
 }
 
 func New(cfg Config) *Server {
@@ -53,6 +54,7 @@ func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", s.health)
 	mux.HandleFunc(s.cfg.FeedPath, s.feed)
+	mux.HandleFunc("/tag-audit.json", s.tagAudit)
 	mux.HandleFunc("/packages/", s.packagePage)
 	return mux
 }
@@ -80,15 +82,21 @@ func (s *Server) feed(w http.ResponseWriter, r *http.Request) {
 		base = scheme(r) + "://" + r.Host
 	}
 	entries := make([]item, 0, len(documents))
+	dimensions, _ := canonical.LoadLatestDictionary(s.cfg.DataDir)
 	for _, doc := range documents {
 		updated := doc.FetchedAt
 		if updated.IsZero() {
 			updated = time.Unix(0, 0).UTC()
 		}
+		tags := doc.OfficialTags(time.Now().UTC())
+		if len(dimensions) > 0 {
+			tags, _ = canonical.FilterOfficialTags(tags, dimensions)
+		}
 		entries = append(entries, item{
 			Title:       doc.Structured.Title,
 			Link:        base + "/packages/" + url.PathEscape(doc.PackageID),
-			GUID:        "baoan-policy:" + doc.PackageID + ":" + doc.SnapshotID,
+			GUID:        "baoan-policy:" + doc.PackageID,
+			Categories:  tags,
 			Description: firstNonEmpty(doc.Structured.Abstract, "宝安区政策完整规范化文档"),
 			PubDate:     updated.UTC().Format(time.RFC1123Z),
 		})
@@ -104,6 +112,33 @@ func (s *Server) feed(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/rss+xml; charset=utf-8")
 	w.Header().Set("Cache-Control", "no-cache")
 	_, _ = w.Write(append([]byte(xml.Header), out...))
+}
+
+func (s *Server) tagAudit(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	documents, err := s.loadDocuments()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	dimensions, err := canonical.LoadLatestDictionary(s.cfg.DataDir)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("load official tag dictionary: %v", err), http.StatusInternalServerError)
+		return
+	}
+	type rejectedTagAudit struct {
+		PolicyID     string   `json:"policy_id"`
+		Title        string   `json:"title"`
+		RejectedTags []string `json:"rejected_tags"`
+	}
+	rejected := make([]rejectedTagAudit, 0)
+	for _, doc := range documents {
+		_, tags := canonical.FilterOfficialTags(doc.OfficialTags(time.Now().UTC()), dimensions)
+		if len(tags) > 0 {
+			rejected = append(rejected, rejectedTagAudit{PolicyID: doc.PackageID, Title: doc.Structured.Title, RejectedTags: tags})
+		}
+	}
+	_ = json.NewEncoder(w).Encode(map[string]any{"rejected_tag_count": len(rejected), "items": rejected})
 }
 
 func (s *Server) packagePage(w http.ResponseWriter, r *http.Request) {

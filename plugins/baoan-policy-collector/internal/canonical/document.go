@@ -46,6 +46,70 @@ type ExportReport struct {
 	Failures map[string]string `json:"failures,omitempty"`
 }
 
+// FilterOfficialTags applies the collector's captured official dictionary to
+// dimension tags. Empty dictionaries are treated as unavailable (so a feed
+// remains usable during the first discovery run); unknown values are returned
+// separately for audit logging and are never emitted as tags.
+func FilterOfficialTags(tags []string, dimensions map[string][]string) (accepted, rejected []string) {
+	allowedKey := map[string]string{"服务对象/": "service_objects", "发文机构/": "authorities", "主题/": "themes", "文件载体/": "carriers", "文件类型/": "document_genres"}
+	sets := make(map[string]map[string]struct{}, len(dimensions))
+	for key, values := range dimensions {
+		if len(values) == 0 {
+			continue
+		}
+		set := map[string]struct{}{}
+		for _, value := range values {
+			set[strings.TrimSpace(value)] = struct{}{}
+		}
+		sets[key] = set
+	}
+	for _, tag := range tags {
+		valid := true
+		for prefix, key := range allowedKey {
+			if strings.HasPrefix(tag, prefix) {
+				if set := sets[key]; len(set) > 0 {
+					_, valid = set[strings.TrimSpace(strings.TrimPrefix(tag, prefix))]
+				}
+				break
+			}
+		}
+		if valid {
+			accepted = append(accepted, tag)
+		} else {
+			rejected = append(rejected, tag)
+		}
+	}
+	return accepted, rejected
+}
+
+// LoadLatestDictionary reads the latest captured website dimension snapshot.
+func LoadLatestDictionary(root string) (map[string][]string, error) {
+	pointer, err := os.ReadFile(filepath.Join(root, "dictionaries", "latest.json"))
+	if err != nil {
+		return nil, err
+	}
+	var meta struct {
+		SnapshotID string `json:"snapshot_id"`
+	}
+	if err := json.Unmarshal(pointer, &meta); err != nil {
+		return nil, err
+	}
+	if meta.SnapshotID == "" {
+		return nil, fmt.Errorf("dictionary latest pointer has no snapshot_id")
+	}
+	body, err := os.ReadFile(filepath.Join(root, "dictionaries", "snapshots", meta.SnapshotID, "official-dimensions.json"))
+	if err != nil {
+		return nil, err
+	}
+	var snapshot struct {
+		Dimensions map[string][]string `json:"dimensions"`
+	}
+	if err := json.Unmarshal(body, &snapshot); err != nil {
+		return nil, err
+	}
+	return snapshot.Dimensions, nil
+}
+
 func VerifyAll(root string) error {
 	entries, err := os.ReadDir(filepath.Join(root, "policies"))
 	if err != nil {
@@ -135,6 +199,57 @@ func (d Document) ExportFilename() string {
 		truncated.WriteRune(r)
 	}
 	return truncated.String() + suffix
+}
+
+// OfficialTags returns only website-backed, dimension-prefixed tags. It never
+// derives an application status when either boundary is missing or malformed.
+func (d Document) OfficialTags(now time.Time) []string {
+	seen := make(map[string]struct{})
+	add := func(prefix, value string) {
+		value = strings.TrimSpace(value)
+		if value == "" {
+			return
+		}
+		tag := prefix + value
+		if _, ok := seen[tag]; ok {
+			return
+		}
+		seen[tag] = struct{}{}
+	}
+	for _, value := range d.Structured.Official.ServiceObjects {
+		add("服务对象/", value)
+	}
+	add("发文机构/", d.Structured.Official.IssuingAuthority)
+	add("主题/", d.Structured.Official.Theme)
+	add("文件载体/", d.Structured.Official.CarrierType)
+	add("文件类型/", d.Structured.Official.DocumentGenre)
+	for _, relation := range d.Relations {
+		add("关联内容/", relation.SourceLabel)
+	}
+	start, startOK := parseOfficialTime(d.Structured.ApplicationStart)
+	end, endOK := parseOfficialTime(d.Structured.ApplicationEnd)
+	if startOK && endOK && !now.Before(start) && !now.After(end) {
+		add("申报状态/", "当前可申报")
+	}
+	result := make([]string, 0, len(seen))
+	for tag := range seen {
+		result = append(result, tag)
+	}
+	sort.Strings(result)
+	return result
+}
+
+func parseOfficialTime(value string) (time.Time, bool) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return time.Time{}, false
+	}
+	for _, layout := range []string{time.RFC3339, "2006-01-02"} {
+		if parsed, err := time.Parse(layout, value); err == nil {
+			return parsed, true
+		}
+	}
+	return time.Time{}, false
 }
 
 func prepareOutputDir(outputDir string) error {

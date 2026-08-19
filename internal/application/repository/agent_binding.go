@@ -37,6 +37,64 @@ func (r *agentBindingRepository) CreateAgentBindingWithKey(ctx context.Context, 
 	})
 }
 
+// CompleteSetup atomically consumes the one-time setup key, activates the
+// binding, and persists the runtime key. The setup secret is never returned
+// by the repository and cannot be replayed after this transaction commits.
+func (r *agentBindingRepository) CompleteSetup(ctx context.Context, keyHash, bindingID, externalAgent, connectorType string, userAPIKeyID uint64, runtimeKey, dataKey *types.AgentBindingKey, now time.Time) (*types.AgentBinding, error) {
+	var binding types.AgentBinding
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var setupKey types.AgentBindingKey
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("key_hash = ? AND binding_id = ? AND purpose = ? AND consumed_at IS NULL AND revoked_at IS NULL AND (expires_at IS NULL OR expires_at > ?)", keyHash, bindingID, "memory_binding_setup", now).First(&setupKey).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ErrAgentBindingKeyNotFound
+			}
+			return err
+		}
+		bindingQuery := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ? AND external_agent = ? AND connector_type = ? AND status = ? AND (setup_expires_at IS NULL OR setup_expires_at > ?) AND (expires_at IS NULL OR expires_at > ?)", bindingID, externalAgent, connectorType, types.AgentBindingStatusPendingSetup, now, now)
+		if userAPIKeyID != 0 {
+			bindingQuery = bindingQuery.Where("user_api_key_id = ?", userAPIKeyID)
+		}
+		if err := bindingQuery.First(&binding).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return ErrAgentBindingNotFound
+			}
+			return err
+		}
+		runtimeKey.ExpiresAt = binding.ExpiresAt
+		// Keys created by the setup exchange must inherit the locked binding
+		// tenant. The service deliberately does not trust request-supplied
+		// tenant data, and older setup implementations left this zero-valued,
+		// making the newly issued runtime key impossible to introspect.
+		runtimeKey.TenantID = binding.TenantID
+		if dataKey != nil {
+			dataKey.ExpiresAt = binding.ExpiresAt
+			dataKey.TenantID = binding.TenantID
+		}
+		if err := tx.Create(runtimeKey).Error; err != nil {
+			return err
+		}
+		if dataKey != nil {
+			if err := tx.Create(dataKey).Error; err != nil {
+				return err
+			}
+		}
+		if err := tx.Model(&types.AgentBindingKey{}).Where("id = ?", setupKey.ID).Updates(map[string]any{"consumed_at": now, "last_used_at": now, "updated_at": now}).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(&types.AgentBinding{}).Where("id = ?", bindingID).Updates(map[string]any{"status": types.AgentBindingStatusActive, "activated_at": now, "last_handshake_at": now, "setup_attempts": gorm.Expr("setup_attempts + 1"), "updated_at": now}).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	binding.Status = types.AgentBindingStatusActive
+	binding.ActivatedAt = &now
+	binding.LastHandshakeAt = &now
+	return &binding, nil
+}
+
 // ResolveActiveKeyAndBinding returns a coherent authentication snapshot. The
 // first key read only discovers lock order; the binding is locked first to
 // match rotation, then the same key is locked and rechecked. Thus a rotation
@@ -46,7 +104,7 @@ func (r *agentBindingRepository) ResolveActiveKeyAndBinding(ctx context.Context,
 	var binding types.AgentBinding
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var candidate types.AgentBindingKey
-		if err := tx.Where("key_hash = ? AND revoked_at IS NULL AND (expires_at IS NULL OR expires_at > ?)", hash, now).
+		if err := tx.Where("key_hash = ? AND purpose = ? AND revoked_at IS NULL AND (expires_at IS NULL OR expires_at > ?)", hash, "memory_binding_runtime", now).
 			First(&candidate).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return ErrAgentBindingKeyNotFound
@@ -62,7 +120,7 @@ func (r *agentBindingRepository) ResolveActiveKeyAndBinding(ctx context.Context,
 			return err
 		}
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-			Where("id = ? AND key_hash = ? AND tenant_id = ? AND binding_id = ? AND revoked_at IS NULL AND (expires_at IS NULL OR expires_at > ?)", candidate.ID, hash, candidate.TenantID, candidate.BindingID, now).
+			Where("id = ? AND key_hash = ? AND purpose = ? AND tenant_id = ? AND binding_id = ? AND revoked_at IS NULL AND (expires_at IS NULL OR expires_at > ?)", candidate.ID, hash, "memory_binding_runtime", candidate.TenantID, candidate.BindingID, now).
 			First(&key).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return ErrAgentBindingKeyNotFound
@@ -130,7 +188,7 @@ func (r *agentBindingRepository) RevokeAgentBinding(ctx context.Context, tenantI
 func (r *agentBindingRepository) RotateAgentBindingKey(ctx context.Context, tenantID uint64, bindingID string, key *types.AgentBindingKey) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var binding types.AgentBinding
-		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("tenant_id = ? AND id = ? AND status = ?", tenantID, bindingID, types.AgentBindingStatusActive).First(&binding).Error; err != nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("tenant_id = ? AND id = ? AND status IN ?", tenantID, bindingID, []string{types.AgentBindingStatusActive, types.AgentBindingStatusPendingSetup}).First(&binding).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return ErrAgentBindingNotFound
 			}
@@ -151,8 +209,11 @@ func (r *agentBindingRepository) RotateAgentBindingKey(ctx context.Context, tena
 		}
 		// A key rotation is also a token-generation rotation. Incrementing the
 		// authoritative policy version invalidates every token minted by the old key.
-		result := tx.Model(&types.AgentBinding{}).Where("tenant_id = ? AND id = ?", tenantID, bindingID).
-			Updates(map[string]any{"policy_version": gorm.Expr("policy_version + 1"), "updated_at": now})
+		updates := map[string]any{"policy_version": gorm.Expr("policy_version + 1"), "updated_at": now}
+		if key.Purpose == "memory_binding_setup" && key.ExpiresAt != nil {
+			updates["setup_expires_at"] = key.ExpiresAt
+		}
+		result := tx.Model(&types.AgentBinding{}).Where("tenant_id = ? AND id = ?", tenantID, bindingID).Updates(updates)
 		if result.Error != nil {
 			return result.Error
 		}

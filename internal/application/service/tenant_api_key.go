@@ -47,6 +47,7 @@ func (s *tenantAPIKeyService) CreateAPIKey(
 	}
 	key := &types.TenantAPIKey{
 		TenantID:         req.TenantID,
+		UserID:           req.UserID,
 		Name:             name,
 		KeyHash:          hashTenantAPIKey(token),
 		APIKey:           token,
@@ -54,6 +55,11 @@ func (s *tenantAPIKeyService) CreateAPIKey(
 		KnowledgeBaseIDs: normalizeAPIKeyIDs(req.KnowledgeBaseIDs),
 		Capabilities:     types.NormalizeAPIKeyCapabilities(types.StringArray(req.Capabilities)),
 		ExpiresAt:        req.ExpiresAt,
+	}
+	if key.UserID == "" {
+		if userID, ok := types.UserIDFromContext(ctx); ok {
+			key.UserID = userID
+		}
 	}
 	if key.FullAccess {
 		key.KnowledgeBaseIDs = nil

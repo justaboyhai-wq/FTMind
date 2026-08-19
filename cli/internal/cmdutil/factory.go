@@ -114,7 +114,8 @@ func New() *Factory {
 // credentials are available so the user gets the right hint to run
 // `fmind auth login`.
 func buildClient(f *Factory) (*sdk.Client, error) {
-	// Env-credential injection: FMIND_TOKEN (bearer) or FMIND_API_KEY, with
+	// Env-credential injection: FMIND_TOKEN (bearer), FMIND_USER_API_KEY, or
+	// the legacy FMIND_API_KEY alias, with
 	// FMIND_HOST (or the active profile's host), builds an ephemeral client
 	// that bypasses config.yaml + the keyring — the stateless headless / CI /
 	// agent path (no disk writes, no `auth login`).
@@ -132,7 +133,7 @@ func buildClient(f *Factory) (*sdk.Client, error) {
 		// an active profile) — an agent that execs retry_argv would loop. Point
 		// hint + retry_argv at the real first step: create a profile.
 		return nil, NewError(CodeAuthUnauthenticated, "no profile configured").
-			WithHint("add one first: `fmind profile add <name> --host <url> --use`, then `fmind auth login` (or set FMIND_API_KEY + FMIND_HOST for headless use)").
+			WithHint("add one first: `fmind profile add <name> --host <url> --use`, then `fmind auth login` (or set FMIND_USER_API_KEY + FMIND_HOST for headless use)").
 			WithRetryArgv([]string{"fmind", "profile", "add", "--help"})
 	}
 	prof, ok := cfg.Profiles[profileName]
@@ -205,10 +206,14 @@ func buildClient(f *Factory) (*sdk.Client, error) {
 // which kind. Used by `auth status` / `config view` so their host / profile
 // output reflects that the env credential (and FMIND_HOST) — not the config
 // profile — is what actually authenticated the client. Mirrors buildClientFromEnv's
-// precedence (FMIND_TOKEN wins over FMIND_API_KEY).
+// precedence (FMIND_TOKEN wins over FMIND_USER_API_KEY, which wins over the
+// legacy FMIND_API_KEY alias).
 func EnvCredential() (active bool, kind string) {
 	if strings.TrimSpace(os.Getenv("FMIND_TOKEN")) != "" {
 		return true, "FMIND_TOKEN"
+	}
+	if strings.TrimSpace(os.Getenv("FMIND_USER_API_KEY")) != "" {
+		return true, "FMIND_USER_API_KEY"
 	}
 	if strings.TrimSpace(os.Getenv("FMIND_API_KEY")) != "" {
 		return true, "FMIND_API_KEY"
@@ -217,7 +222,7 @@ func EnvCredential() (active bool, kind string) {
 }
 
 // buildClientFromEnv builds an ephemeral SDK client from FMIND_TOKEN (bearer
-// JWT) or FMIND_API_KEY when either is set, bypassing config.yaml + the
+// JWT), FMIND_USER_API_KEY, or legacy FMIND_API_KEY when either is set, bypassing config.yaml + the
 // keyring entirely — the stateless path for headless / CI / agent use. Returns
 // handled=false (fall through to the profile path) when neither var is set.
 //
@@ -225,11 +230,12 @@ func EnvCredential() (active bool, kind string) {
 // can target an already-configured host without re-specifying it). When a token
 // is supplied, no 401→refresh transport is attached — env creds are ephemeral,
 // so a 401 propagates for the caller to supply a fresh token. FMIND_TOKEN
-// wins over FMIND_API_KEY if both are set.
+// wins over FMIND_USER_API_KEY, which wins over FMIND_API_KEY if both are set.
 func buildClientFromEnv(f *Factory) (client *sdk.Client, handled bool, err error) {
 	token := strings.TrimSpace(os.Getenv("FMIND_TOKEN"))
+	userAPIKey := strings.TrimSpace(os.Getenv("FMIND_USER_API_KEY"))
 	apiKey := strings.TrimSpace(os.Getenv("FMIND_API_KEY"))
-	if token == "" && apiKey == "" {
+	if token == "" && userAPIKey == "" && apiKey == "" {
 		return nil, false, nil
 	}
 	host := strings.TrimSpace(os.Getenv("FMIND_HOST"))
@@ -244,11 +250,14 @@ func buildClientFromEnv(f *Factory) (client *sdk.Client, handled bool, err error
 	}
 	if host == "" {
 		return nil, true, NewError(CodeInputInvalidArgument,
-			"FMIND_TOKEN / FMIND_API_KEY is set but no host is available").
+			"FMIND_TOKEN / FMIND_USER_API_KEY / FMIND_API_KEY is set but no host is available").
 			WithHint("set FMIND_HOST (e.g. https://kb.example.com) or configure a profile host")
 	}
 	if token != "" {
 		return sdk.NewClient(host, sdk.WithBearerToken(token)), true, nil
+	}
+	if userAPIKey != "" {
+		return sdk.NewClient(host, sdk.WithAPIKey(userAPIKey)), true, nil
 	}
 	return sdk.NewClient(host, sdk.WithAPIKey(apiKey)), true, nil
 }

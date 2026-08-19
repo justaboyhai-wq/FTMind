@@ -10,6 +10,8 @@ type AgentBindingKey struct {
 	TenantID   uint64     `json:"tenant_id" gorm:"not null;index"`
 	KeyPrefix  string     `json:"key_prefix" gorm:"type:varchar(24);not null;index"`
 	KeyHash    string     `json:"-" gorm:"type:varchar(64);not null;uniqueIndex"`
+	Purpose    string     `json:"purpose" gorm:"type:varchar(40);not null;default:'memory_binding_runtime';index"`
+	ConsumedAt *time.Time `json:"consumed_at,omitempty"`
 	CreatedBy  string     `json:"created_by,omitempty" gorm:"type:varchar(36)"`
 	ExpiresAt  *time.Time `json:"expires_at,omitempty"`
 	RevokedAt  *time.Time `json:"revoked_at,omitempty"`

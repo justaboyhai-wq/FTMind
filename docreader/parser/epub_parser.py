@@ -18,6 +18,11 @@ from ebooklib import epub
 
 from docreader.models.document import Document
 from docreader.parser.base_parser import BaseParser
+from docreader.utils.archive import (
+    ArchiveLimits,
+    DEFAULT_ARCHIVE_LIMITS,
+    validate_zip_archive,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -28,11 +33,13 @@ class EPUBParser(BaseParser):
     def __init__(self, *args, extract_images: bool = True, **kwargs):
         super().__init__(*args, **kwargs)
         self.extract_images = extract_images
+        self.max_archive_uncompressed_bytes = DEFAULT_ARCHIVE_LIMITS.max_total_bytes
 
     def parse_into_text(self, content: bytes) -> Document:
         logger.info(
             "Parsing EPUB file: %s, size: %d bytes", self.file_name, len(content)
         )
+        validate_zip_archive(content, self._archive_limits())
         try:
             with tempfile.NamedTemporaryFile(
                 suffix=".epub", delete=False, mode="wb"
@@ -71,6 +78,7 @@ class EPUBParser(BaseParser):
         import zipfile
         from io import BytesIO
 
+        validate_zip_archive(content, self._archive_limits())
         metadata = {"source_format": "epub", "file_size": len(content)}
         images: Dict[str, str] = {}
         image_aliases: Dict[str, str] = {}
@@ -131,6 +139,17 @@ class EPUBParser(BaseParser):
         metadata["image_count"] = len(images)
         return Document(
             content="\n\n".join(markdown_parts), images=images, metadata=metadata
+        )
+
+    def _archive_limits(self) -> ArchiveLimits:
+        return ArchiveLimits(
+            max_members=DEFAULT_ARCHIVE_LIMITS.max_members,
+            max_member_bytes=min(
+                DEFAULT_ARCHIVE_LIMITS.max_member_bytes,
+                self.max_archive_uncompressed_bytes,
+            ),
+            max_total_bytes=self.max_archive_uncompressed_bytes,
+            max_ratio=DEFAULT_ARCHIVE_LIMITS.max_ratio,
         )
 
     def _extract_metadata(self, book) -> Dict[str, str]:

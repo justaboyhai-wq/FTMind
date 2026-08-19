@@ -568,6 +568,15 @@ const fallbackProviderOptions = computed(() => [
     modelTypes: ['chat', 'embedding', 'vllm', 'asr']
   },
   {
+    value: 'deepseek',
+    label: t('model.editor.providers.deepseek.label'),
+    defaultUrls: {
+      chat: 'https://api.deepseek.com/v1'
+    },
+    description: t('model.editor.providers.deepseek.description'),
+    modelTypes: ['chat']
+  },
+  {
     value: 'azure_openai',
     label: t('model.editor.providers.azure_openai.label'),
     defaultUrls: {
@@ -734,6 +743,7 @@ const providerOptions = computed(() => {
   // 防止旧配置在未改动的情况下被意外覆盖为火山引擎。
   return options.filter(option =>
     option.value === DEFAULT_CHAT_PROVIDER ||
+    option.value === 'deepseek' ||
     (isEdit.value && option.value === formData.value.provider),
   )
 })

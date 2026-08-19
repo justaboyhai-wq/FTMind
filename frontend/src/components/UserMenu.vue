@@ -104,6 +104,10 @@
           <span>{{ $t('integrations.tabs.api') }}</span>
         </div>
         <div class="menu-divider"></div>
+        <div class="menu-item" @click="handleMyFeedback">
+          <t-icon name="error-circle" class="menu-icon" />
+          <span>{{ $t('feedback.myFeedback') }}</span>
+        </div>
         <div class="menu-item" @click="handleSettings">
           <t-icon name="setting" class="menu-icon" />
           <span>{{ $t('general.allSettings') }}</span>
@@ -299,6 +303,10 @@ const handleSettings = () => {
   menuVisible.value = false
   uiStore.openSettings()
   router.push('/platform/settings')
+}
+const handleMyFeedback = () => {
+  menuVisible.value = false
+  router.push('/platform/my-feedback')
 }
 
 // Open the platform administration area inside the standard Settings

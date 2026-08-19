@@ -33,6 +33,18 @@
               <p class="capability-card__desc">{{ $t(`integrations.claw.capabilities.${key}.desc`) }}</p>
             </div>
           </div>
+          <h4 class="setting-drawer__section-title claw-memory-title">
+            {{ $t('integrations.claw.memoryTitle') }}
+          </h4>
+          <div class="capability-grid capability-grid--claw">
+            <div v-for="key in memoryCapabilityKeys" :key="key" class="capability-card capability-card--memory">
+              <div class="capability-card__icon">
+                <t-icon :name="memoryCapabilityIcons[key]" />
+              </div>
+              <h5 class="capability-card__title">{{ $t(`integrations.claw.memory.${key}.title`) }}</h5>
+              <p class="capability-card__desc">{{ $t(`integrations.claw.memory.${key}.desc`) }}</p>
+            </div>
+          </div>
         </section>
       </div>
     </template>
@@ -119,6 +131,7 @@ const uiStore = useUIStore()
 const { apiBaseUrlDisplay } = useApiBaseUrlDisplay()
 
 const capabilityKeys = ['upload', 'url', 'manual', 'search', 'browse'] as const
+const memoryCapabilityKeys = ['context', 'capture', 'recall', 'wiki'] as const
 const stepKeys = ['api', 'env', 'install', 'verify'] as const
 
 const capabilityIcons: Record<(typeof capabilityKeys)[number], string> = {
@@ -129,11 +142,19 @@ const capabilityIcons: Record<(typeof capabilityKeys)[number], string> = {
   browse: 'view-list',
 }
 
+const memoryCapabilityIcons: Record<(typeof memoryCapabilityKeys)[number], string> = {
+  context: 'layers',
+  capture: 'edit-1',
+  recall: 'search',
+  wiki: 'book-open',
+}
+
 const installCommand = 'openclaw skills install @justaboyhai-wq/fmind'
 
 const envExample = computed(() => {
   const base = apiBaseUrlDisplay.value || 'https://your-server.com/api/v1'
-  return `export FMIND_BASE_URL="${base}"\nexport FMIND_API_KEY="sk-your-api-key"`
+  const gateway = base.replace(/\/api\/v1\/?$/, '')
+  return `export FMIND_BASE_URL="${base}"\nexport FMIND_USER_API_KEY="<existing FMind user API key>"\nexport FMIND_AGENT_RUNTIME_KEY="<Agent Binding runtime key>"\nexport FMIND_MEMORY_PROXY_URL="${gateway}"`
 })
 
 const openClawHub = () => {

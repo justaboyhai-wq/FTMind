@@ -5,10 +5,10 @@
             <header class="fmind-workspace-topbar">
                 <div class="fmind-workspace-crumb">
                     <span class="fmind-workspace-crumb__dot" aria-hidden="true"></span>
-                    <span>FMind</span>
+                    <span>FTMind</span>
                     <small>/ {{ currentSection }}</small>
                 </div>
-                <div class="fmind-workspace-status" title="FMind"><span></span></div>
+                <div class="fmind-workspace-status" title="FTMind"><span></span></div>
             </header>
             <div v-if="isRouterAlive" class="platform-route-outlet">
                 <RouterView />
@@ -58,6 +58,7 @@ const currentSection = computed(() => {
     if (path.includes('/knowledge-bases')) return t('menu.knowledgeBase')
     if (path.includes('/chat') || path.includes('/creatChat')) return t('menu.chat')
     if (path.includes('/agents')) return t('menu.agents')
+    if (path.includes('/external-memory')) return t('menu.externalMemory')
     if (path.includes('/organizations')) return t('menu.organizations')
     if (path.includes('/settings')) return t('menu.settings')
     return 'Workspace'

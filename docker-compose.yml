@@ -4,7 +4,9 @@ services:
     # Requires frontend/dist — run ./scripts/build_frontend_dist.sh before --build
     build:
       context: ./frontend
-    container_name: FMind-frontend
+      args:
+        - VITE_FRONTEND_COMMIT=${VITE_FRONTEND_COMMIT:-unknown}
+    container_name: ${FMIND_CONTAINER_PREFIX:-FMind}-frontend
     ports:
       - "${FRONTEND_PORT:-80}:80"
     environment:
@@ -33,7 +35,7 @@ services:
         - APK_MIRROR_ARG=${APK_MIRROR_ARG:-}
         - GOPROXY_ARG=${GOPROXY:-https://goproxy.cn,direct}
         - GOSUMDB_ARG=${GOSUMDB:-off}
-    container_name: FMind-app
+    container_name: ${FMIND_CONTAINER_PREFIX:-FMind}-app
     ports:
       - "${APP_PORT:-8080}:8080"
     volumes:
@@ -212,6 +214,10 @@ services:
       # FMind-only profile; set them when starting `--profile memory`.
       - FMIND_BINDING_KEY_PEPPER=${FMIND_BINDING_KEY_PEPPER:-}
       - FMIND_BINDING_TOKEN_SECRET=${FMIND_BINDING_TOKEN_SECRET:-}
+      - FMIND_AGENT_BINDING_SETUP_FLOW=${FMIND_AGENT_BINDING_SETUP_FLOW:-false}
+      - FMIND_PUBLIC_BASE_URL=${FMIND_PUBLIC_BASE_URL:-}
+      - MEMORY_CORE_PUBLIC_URL=${MEMORY_CORE_PUBLIC_URL:-}
+      - MEMORY_PROXY_PUBLIC_URL=${MEMORY_PROXY_PUBLIC_URL:-}
       - FMIND_MEMORY_CORE_URL=${FMIND_MEMORY_CORE_URL:-}
       - FMIND_MEMORY_CORE_API_KEY=${FMIND_MEMORY_CORE_API_KEY:-}
       - FMIND_MEMORY_CORE_SERVICE_ID=${FMIND_MEMORY_CORE_SERVICE_ID:-fmind}
@@ -242,7 +248,7 @@ services:
     build:
       context: ${MEMORY_SOURCE_ROOT:-../TencentDB-Agent-Memory}/MemoryCore
       dockerfile: Dockerfile
-    container_name: FMind-memory-core
+    container_name: ${FMIND_CONTAINER_PREFIX:-FMind}-memory-core
     profiles:
       - memory
     expose:
@@ -298,7 +304,7 @@ services:
     build:
       context: ${MEMORY_SOURCE_ROOT:-../TencentDB-Agent-Memory}/MemoryProxy
       dockerfile: Dockerfile
-    container_name: FMind-memory-proxy
+    container_name: ${FMIND_CONTAINER_PREFIX:-FMind}-memory-proxy
     profiles:
       - memory
     ports:
@@ -338,6 +344,7 @@ services:
             __MEMORY_CORE_API_KEY__: "MEMORY_CORE_API_KEY",
             __MEMORY_PROXY_UPSTREAM_URL__: "MEMORY_PROXY_UPSTREAM_URL",
             __MEMORY_PROXY_UPSTREAM_API_KEY__: "MEMORY_PROXY_UPSTREAM_API_KEY",
+            __MEMORY_PROXY_ADMIN_API_KEY__: "TDAI_PROXY_ADMIN_API_KEY",
           };
           const allow = new Set((process.env.MEMORY_INSECURE_HTTP_ALLOWLIST || "").split(",").map(v => v.trim().toLowerCase()).filter(Boolean));
           for (const name of ["FMIND_ENDPOINT", "MEMORY_CORE_ENDPOINT"]) {
@@ -387,7 +394,7 @@ services:
       dockerfile: docker/Dockerfile.docreader
       args:
         - APT_MIRROR=${APT_MIRROR:-}
-    container_name: FMind-docreader
+    container_name: ${FMIND_CONTAINER_PREFIX:-FMind}-docreader
     # docreader gRPC ships without auth/TLS and is only consumed by the app
     # container over the FMind-network (DOCREADER_ADDR defaults to
     # docreader:50051), so we don't publish 50051 to the host. `expose` keeps
@@ -419,7 +426,7 @@ services:
       - GRPC_TLS_CA=${GRPC_TLS_CA:-}
       - GRPC_AUTH_TOKEN=${GRPC_AUTH_TOKEN:-}
     healthcheck:
-      test: ["CMD", "grpc_health_probe", "-addr=localhost:50051"]
+      test: ["CMD", "/app/.venv/bin/python", "-c", "import grpc; grpc.channel_ready_future(grpc.insecure_channel('localhost:50051')).result(timeout=3)"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -451,7 +458,7 @@ services:
   # 修改的PostgreSQL配置
   postgres:
     image: paradedb/paradedb:v0.22.2-pg17
-    container_name: FMind-postgres
+    container_name: ${FMIND_CONTAINER_PREFIX:-FMind}-postgres
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -472,7 +479,7 @@ services:
 
   redis:
     image: redis:7.0-alpine
-    container_name: FMind-redis
+    container_name: ${FMIND_CONTAINER_PREFIX:-FMind}-redis
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis_data:/data
@@ -536,8 +543,8 @@ services:
     image: minio/minio:RELEASE.2025-09-07T16-13-09Z
     container_name: FMind-minio
     ports:
-      - "${MINIO_PORT:-9000}:9000"
-      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+      - "127.0.0.1:${MINIO_PORT:-9000}:9000"
+      - "127.0.0.1:${MINIO_CONSOLE_PORT:-9001}:9001"
     environment:
       - MINIO_ROOT_USER=${MINIO_ACCESS_KEY_ID:-minioadmin}
       - MINIO_ROOT_PASSWORD=${MINIO_SECRET_ACCESS_KEY:-minioadmin}
@@ -567,8 +574,8 @@ services:
       - NEO4J_apoc_import_file_use__neo4j__config=true
       - NEO4JLABS_PLUGINS=["apoc"]
     ports:
-      - "7474:7474"
-      - "7687:7687"
+      - "127.0.0.1:${NEO4J_HTTP_PORT:-7474}:7474"
+      - "127.0.0.1:${NEO4J_BOLT_PORT:-7687}:7687"
     restart: always
     networks:
       - FMind-network
@@ -635,8 +642,8 @@ services:
       - CLUSTER_DATA_BIND_PORT=7001
       - RAFT_BOOTSTRAP_EXPECT=1
     ports:
-      - "9035:8080"
-      - "50052:50051"
+      - "127.0.0.1:${WEAVIATE_HTTP_PORT:-9035}:8080"
+      - "127.0.0.1:${WEAVIATE_GRPC_PORT:-50052}:50051"
     volumes:
       - weaviate_data:/var/lib/weaviate
     networks:
@@ -955,18 +962,18 @@ networks:
 
 volumes:
   postgres-data:
-    name: fmind_postgres_data
+    name: ${FMIND_VOLUME_PREFIX:-fmind}_postgres_data
   data-files:
-    name: fmind_data_files
+    name: ${FMIND_VOLUME_PREFIX:-fmind}_data_files
   docreader-tmp:
-    name: fmind_docreader_tmp
+    name: ${FMIND_VOLUME_PREFIX:-fmind}_docreader_tmp
   minio_data:
     name: fmind_minio_data
   neo4j-data:
   qdrant_data:
     name: fmind_qdrant_data
   redis_data:
-    name: fmind_redis_data
+    name: ${FMIND_VOLUME_PREFIX:-fmind}_redis_data
   milvus_data:
   weaviate_data:
   doris_fe_meta:
@@ -978,6 +985,6 @@ volumes:
   langfuse_minio_data:
   searxng_config:
   memory-core-data:
-    name: fmind_memory_core_data
+    name: ${FMIND_VOLUME_PREFIX:-fmind}_memory_core_data
   memory-proxy-data:
-    name: fmind_memory_proxy_data
+    name: ${FMIND_VOLUME_PREFIX:-fmind}_memory_proxy_data

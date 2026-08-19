@@ -233,3 +233,53 @@ builtin_agents:
       rerank_top_k: 10
       rerank_threshold: 0.3
 
+  - id: "builtin-baoan-policy-qa"
+    avatar: "🏛️"
+    is_builtin: true
+    i18n:
+      default:
+        name: "Bao'an Policy Q&A"
+        description: "Evidence-first Q&A for Bao'an official policies, attachments, interpretations, and application windows"
+      zh-CN:
+        name: "宝安政策问答"
+        description: "面向宝安区政策原文、附件、解读和申报时效的证据优先问答智能体"
+      zh-TW:
+        name: "寶安政策問答"
+        description: "面向寶安區政策原文、附件、解讀和申報時效的證據優先問答智能體"
+      ja-JP:
+        name: "宝安政策Q&A"
+        description: "宝安区の政策原文、添付資料、解説、申請期間に基づく根拠重視のQ&Aエージェント"
+      ko-KR:
+        name: "바오안 정책 Q&A"
+        description: "바오안구 정책 원문, 첨부 자료, 해설 및 신청 기간에 근거한 질의응답 에이전트"
+    config:
+      agent_mode: "smart-reasoning"
+      agent_type: "custom"
+      system_prompt_id: "baoan_policy_qa"
+      temperature: 0.2
+      max_completion_tokens: 4096
+      max_iterations: 24
+      kb_selection_mode: "selected"
+      retrieve_kb_only_when_mentioned: false
+      retain_retrieval_history: false
+      allowed_tools:
+        - "wiki_search"
+        - "wiki_read_page"
+        - "wiki_read_source_doc"
+        - "wiki_flag_issue"
+        - "knowledge_search"
+        - "grep_chunks"
+        - "list_knowledge_chunks"
+        - "get_document_info"
+      web_search_enabled: false
+      web_search_max_results: 0
+      reflection_enabled: true
+      multi_turn_enabled: true
+      history_turns: 8
+      faq_priority_enabled: false
+      embedding_top_k: 12
+      keyword_threshold: 0.25
+      vector_threshold: 0.45
+      rerank_top_k: 10
+      rerank_threshold: 0.3
+

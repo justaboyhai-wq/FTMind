@@ -35,6 +35,10 @@ func newMemoryWikiHandler(service memoryWikiReviewService) *MemoryWikiHandler {
 }
 
 func (h *MemoryWikiHandler) ListReviews(c *gin.Context) {
+	if h.service == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "memory review service unavailable"})
+		return
+	}
 	publications, err := h.service.List(c.Request.Context(), c.GetUint64(types.TenantIDContextKey.String()), c.Query("status"))
 	if err != nil {
 		writeMemoryWikiError(c, err)
@@ -44,6 +48,10 @@ func (h *MemoryWikiHandler) ListReviews(c *gin.Context) {
 }
 
 func (h *MemoryWikiHandler) GetReview(c *gin.Context) {
+	if h.service == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "memory review service unavailable"})
+		return
+	}
 	projection, err := h.service.GetReview(c.Request.Context(), c.GetUint64(types.TenantIDContextKey.String()), c.Param("id"))
 	if err != nil {
 		writeMemoryWikiError(c, err)
@@ -118,6 +126,36 @@ func (h *MemoryWikiHandler) Publish(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, page)
+}
+
+func (h *MemoryWikiHandler) Revoke(c *gin.Context) {
+	revoker, ok := h.service.(interface {
+		RevokePublication(context.Context, uint64, string, string, string) (*interfaces.ExternalMemoryProjection, error)
+	})
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "memory revoke service unavailable"})
+		return
+	}
+	var request struct {
+		Comment string `json:"comment"`
+	}
+	if c.Request.ContentLength != 0 {
+		if err := c.ShouldBindJSON(&request); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+			return
+		}
+	}
+	actor, ok := types.UserIDFromContext(c.Request.Context())
+	if !ok || strings.TrimSpace(actor) == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "actor identity is required"})
+		return
+	}
+	projection, err := revoker.RevokePublication(c.Request.Context(), c.GetUint64(types.TenantIDContextKey.String()), c.Param("id"), actor, strings.TrimSpace(request.Comment))
+	if err != nil {
+		writeMemoryWikiError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, projection)
 }
 
 func writeMemoryWikiError(c *gin.Context, err error) {

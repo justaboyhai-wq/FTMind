@@ -11,6 +11,7 @@ type BindingContext struct {
 	WorkspaceID      string      `json:"workspace_id,omitempty"`
 	ProjectID        string      `json:"project_id,omitempty"`
 	UserID           string      `json:"user_id"`
+	UserAPIKeyID     uint64      `json:"user_api_key_id,omitempty"`
 	AgentID          string      `json:"agent_id"`
 	TaskID           string      `json:"task_id,omitempty"`
 	ExternalAgent    string      `json:"external_agent"`

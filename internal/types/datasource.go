@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/fmind/internal/utils"
 	"github.com/google/uuid"
+	"github.com/justaboyhai-wq/fmind/internal/utils"
 	"gorm.io/gorm"
 )
 
@@ -320,6 +320,10 @@ type FetchedItem struct {
 
 	// Source resource ID (e.g., folder ID this document belongs to)
 	SourceResourceID string `json:"source_resource_id"`
+
+	// TagNames are source-provided, dimension-prefixed tags to apply during
+	// ingestion. Connectors must never use this field for inferred tags.
+	TagNames []string `json:"tag_names,omitempty"`
 }
 
 // SyncCursor represents the position/state for incremental sync

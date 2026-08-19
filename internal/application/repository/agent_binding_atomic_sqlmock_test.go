@@ -34,15 +34,15 @@ func TestAgentBindingAtomicResolveRejectsOldKeyRevokedWhileWaitingForBindingLock
 	now := time.Date(2026, time.August, 17, 12, 0, 0, 0, time.UTC)
 	keyRows := []string{"id", "binding_id", "tenant_id", "key_hash", "revoked_at", "expires_at"}
 	mock.ExpectBegin()
-	mock.ExpectQuery(`SELECT .* FROM "agent_binding_keys" WHERE .*key_hash = \$1.*revoked_at IS NULL.*expires_at > \$2.*LIMIT \$3`).
-		WithArgs("old-hash", now, 1).
+	mock.ExpectQuery(`SELECT .* FROM "agent_binding_keys" WHERE .*key_hash = \$1.*purpose = \$2.*revoked_at IS NULL.*expires_at > \$3.*LIMIT \$4`).
+		WithArgs("old-hash", "memory_binding_runtime", now, 1).
 		WillReturnRows(sqlmock.NewRows(keyRows).AddRow("key-old", "binding-1", 42, "old-hash", nil, nil))
 	mock.ExpectQuery(`SELECT .* FROM "agent_bindings" WHERE .*tenant_id = \$1.*id = \$2.*status = \$3.*expires_at > \$4.*LIMIT \$5 FOR UPDATE`).
 		WithArgs(uint64(42), "binding-1", types.AgentBindingStatusActive, now, 1).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "tenant_id", "status", "policy_version"}).
 			AddRow("binding-1", 42, types.AgentBindingStatusActive, 2))
-	mock.ExpectQuery(`SELECT .* FROM "agent_binding_keys" WHERE .*id = \$1.*key_hash = \$2.*tenant_id = \$3.*binding_id = \$4.*revoked_at IS NULL.*expires_at > \$5.*LIMIT \$6 FOR UPDATE`).
-		WithArgs("key-old", "old-hash", uint64(42), "binding-1", now, 1).
+	mock.ExpectQuery(`SELECT .* FROM "agent_binding_keys" WHERE .*id = \$1.*key_hash = \$2.*purpose = \$3.*tenant_id = \$4.*binding_id = \$5.*revoked_at IS NULL.*expires_at > \$6.*LIMIT \$7 FOR UPDATE`).
+		WithArgs("key-old", "old-hash", "memory_binding_runtime", uint64(42), "binding-1", now, 1).
 		WillReturnRows(sqlmock.NewRows(keyRows))
 	mock.ExpectRollback()
 
@@ -90,8 +90,8 @@ func TestAgentBindingAtomicRotationInsertsBeforeRevokeAndRollsBack(t *testing.T)
 	repo, mock := newAgentBindingSQLMock(t)
 	key := &types.AgentBindingKey{ID: "key-new", BindingID: "binding-1", TenantID: 42, KeyPrefix: "fmind_prefix", KeyHash: "new-hash"}
 	mock.ExpectBegin()
-	mock.ExpectQuery(`SELECT .* FROM "agent_bindings" WHERE .*tenant_id = \$1 AND id = \$2 AND status = \$3.*FOR UPDATE`).
-		WithArgs(uint64(42), "binding-1", types.AgentBindingStatusActive, 1).
+	mock.ExpectQuery(`SELECT .* FROM "agent_bindings" WHERE .*tenant_id = \$1 AND id = \$2 AND status IN \(\$3,\$4\).*FOR UPDATE`).
+		WithArgs(uint64(42), "binding-1", types.AgentBindingStatusActive, types.AgentBindingStatusPendingSetup, 1).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "tenant_id", "status"}).AddRow("binding-1", 42, "active"))
 	mock.ExpectExec(`INSERT INTO "agent_binding_keys"`).WillReturnError(errors.New("replacement insert failed"))
 	mock.ExpectRollback()
@@ -107,8 +107,8 @@ func TestAgentBindingAtomicRotationRollsBackWhenPolicyVersionUpdateMissesRow(t *
 	repo, mock := newAgentBindingSQLMock(t)
 	key := &types.AgentBindingKey{ID: "key-new", BindingID: "binding-1", TenantID: 42, KeyPrefix: "fmind_prefix", KeyHash: "new-hash"}
 	mock.ExpectBegin()
-	mock.ExpectQuery(`SELECT .* FROM "agent_bindings" WHERE .*tenant_id = \$1 AND id = \$2 AND status = \$3.*FOR UPDATE`).
-		WithArgs(uint64(42), "binding-1", types.AgentBindingStatusActive, 1).
+	mock.ExpectQuery(`SELECT .* FROM "agent_bindings" WHERE .*tenant_id = \$1 AND id = \$2 AND status IN \(\$3,\$4\).*FOR UPDATE`).
+		WithArgs(uint64(42), "binding-1", types.AgentBindingStatusActive, types.AgentBindingStatusPendingSetup, 1).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "tenant_id", "status", "policy_version"}).AddRow("binding-1", 42, "active", 1))
 	mock.ExpectExec(`INSERT INTO "agent_binding_keys"`).WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectExec(`UPDATE "agent_binding_keys"`).WillReturnResult(sqlmock.NewResult(0, 1))
@@ -128,8 +128,8 @@ func TestAgentBindingAtomicRotationRejectsPolicyVersionOverflowBeforeKeyInsert(t
 	repo, mock := newAgentBindingSQLMock(t)
 	key := &types.AgentBindingKey{ID: "key-new", BindingID: "binding-1", TenantID: 42, KeyPrefix: "fmind_prefix", KeyHash: "new-hash"}
 	mock.ExpectBegin()
-	mock.ExpectQuery(`SELECT .* FROM "agent_bindings" WHERE .*tenant_id = \$1 AND id = \$2 AND status = \$3.*FOR UPDATE`).
-		WithArgs(uint64(42), "binding-1", types.AgentBindingStatusActive, 1).
+	mock.ExpectQuery(`SELECT .* FROM "agent_bindings" WHERE .*tenant_id = \$1 AND id = \$2 AND status IN \(\$3,\$4\).*FOR UPDATE`).
+		WithArgs(uint64(42), "binding-1", types.AgentBindingStatusActive, types.AgentBindingStatusPendingSetup, 1).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "tenant_id", "status", "policy_version"}).
 			AddRow("binding-1", 42, "active", int64(1<<63-1)))
 	mock.ExpectRollback()

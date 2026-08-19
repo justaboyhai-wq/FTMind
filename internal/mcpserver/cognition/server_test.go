@@ -65,9 +65,25 @@ func scopedBinding(capabilities, assets []string) *types.BindingContext {
 		TokenID: "jti-1", BindingID: "binding-1", TenantID: 7,
 		TeamID: "team-1", UserID: "user-1", AgentID: "agent-1",
 		TaskID: "task-1", ConnectorType: "openai_proxy",
+		Roles:            types.StringArray{"tenant:contributor"},
 		CapabilityScopes: types.StringArray(capabilities), AssetScopes: types.StringArray(assets),
 		CaptureEnabled: true, RecallEnabled: true, PolicyVersion: 3,
 		ExpiresAt: time.Now().Add(time.Minute),
+	}
+}
+
+func TestDispatchAppliesTenantRoleFloorInAdditionToBindingCapability(t *testing.T) {
+	binding := scopedBinding([]string{"memory.capture", "memory.confirm", "memory.review", "memory.publish", "memory.revoke"}, []string{"team:team-1"})
+	server := NewServer(&verifierStub{value: binding}, &executorStub{})
+	for _, tool := range []string{ToolMemoryCaptureTurn, ToolMemoryConfirmCandidate} {
+		if _, err := server.Dispatch(context.Background(), "token", Request{Tool: tool, Arguments: authorizedArguments(tool)}); err != nil {
+			t.Fatalf("contributor should use %s: %v", tool, err)
+		}
+	}
+	binding.Roles = types.StringArray{"tenant:viewer"}
+	server = NewServer(&verifierStub{value: binding}, &executorStub{})
+	if _, err := server.Dispatch(context.Background(), "token", Request{Tool: ToolMemoryCaptureTurn, Arguments: authorizedArguments(ToolMemoryCaptureTurn)}); err == nil {
+		t.Fatal("viewer must not capture even when binding capability is present")
 	}
 }
 

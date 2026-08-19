@@ -306,6 +306,7 @@
                 </t-tooltip>
                 <ChatRequestInfoButton v-if="showRequestInfo && isConversationDone" :session="session"
                   :session-id="sessionId" />
+                <AnswerFeedbackButton :session-id="sessionId || ''" :message-id="session?.id || ''" :question="userQuery" :answer="event.content || ''" :embed-channel-id="embedChannelId" :embed-token="embedToken" :embed-session-sig="embedSessionSig" :embed-visitor-id="embedVisitorId" />
                 <transition name="follow-up-toolbar-loading">
                   <span v-if="followUpLoading" class="answer-toolbar__follow-up-loading" role="status"
                     aria-live="polite">
@@ -313,6 +314,9 @@
                     <span class="answer-toolbar__follow-up-label">{{ t('chat.followUpQuestionsLoading') }}</span>
                   </span>
                 </transition>
+              </div>
+              <div v-if="answerFullyRendered && event.done && event.content && event.content.trim() && embeddedMode" class="answer-toolbar">
+                <AnswerFeedbackButton :session-id="sessionId || ''" :message-id="session?.id || ''" :question="userQuery" :answer="event.content || ''" :embed-channel-id="embedChannelId" :embed-token="embedToken" :embed-session-sig="embedSessionSig" :embed-visitor-id="embedVisitorId" />
               </div>
             </div>
 
@@ -468,6 +472,7 @@ import ToolResultRenderer from './ToolResultRenderer.vue';
 import ToolApprovalCard from './ToolApprovalCard.vue';
 import McpOAuthCard from './McpOAuthCard.vue';
 import ChatRequestInfoButton from '@/components/ChatRequestInfoButton.vue';
+import AnswerFeedbackButton from '@/components/AnswerFeedbackButton.vue';
 import ChatCitationFloat from '@/components/ChatCitationFloat.vue';
 import picturePreview from '@/components/picture-preview.vue';
 import { countGrepDocuments, groupGrepChunkResults } from '@/utils/grepResultsGroup';

@@ -25,6 +25,9 @@
         </div>
       </div>
     </div>
+    <div v-if="hasActualContent && session?.is_completed && !session?.isAgentMode" class="embed-answer-toolbar">
+      <AnswerFeedbackButton :session-id="sessionId" :message-id="session?.id || ''" :question="userQuery" :answer="answerText" :embed-channel-id="embedChannelId" :embed-token="embedToken" :embed-session-sig="embedSessionSig" :embed-visitor-id="embedVisitorId" />
+    </div>
     <Teleport to="body">
       <div v-if="citationFloat.visible" class="embed-citation-float"
         :style="{ top: `${citationFloat.top}px`, left: `${citationFloat.left}px` }" @mouseenter="cancelCitationClose"
@@ -67,6 +70,7 @@ import {
 import { useEmbedCitationPopover } from '@/composables/useEmbedCitationPopover'
 import { useTypewriter } from '@/composables/useTypewriter'
 import { vStableHtml } from '@/directives/stableHtml'
+import AnswerFeedbackButton from '@/components/AnswerFeedbackButton.vue'
 
 const RagPipelineProgress = defineAsyncComponent(
   () => import('@/views/chat/components/RagPipelineProgress.vue'),
@@ -90,6 +94,7 @@ const markdownRenderer = createChatMarkdownRenderer({
 })
 
 type EmbedSession = {
+  id?: string
   content?: string
   isRagMode?: boolean
   isAgentMode?: boolean

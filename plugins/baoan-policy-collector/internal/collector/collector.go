@@ -295,7 +295,7 @@ func writeDictionarySnapshot(root string, source []byte, records []model.IndexRe
 	sum := sha256.Sum256(source)
 	snapshotID := hex.EncodeToString(sum[:])[:16]
 	values := map[string]map[string]bool{
-		"service_objects": {}, "authorities": {}, "themes": {}, "carriers": {},
+		"service_objects": {}, "authorities": {}, "themes": {}, "carriers": {}, "document_genres": {},
 	}
 	for _, r := range records {
 		for _, value := range r.ServiceObjects {

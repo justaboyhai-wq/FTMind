@@ -31,12 +31,45 @@ func (v *databaseScopeValidator) ValidateCreate(ctx context.Context, binding *ty
 }
 
 func (v *databaseScopeValidator) ResolveRoles(ctx context.Context, binding *types.AgentBinding) (types.StringArray, error) {
-	// MVP transition boundary: FMind has no first-class Team/Department/
-	// Workspace/Project/Task tables yet. Admin-created bindings therefore own
-	// these immutable namespace IDs. We validate a closed identifier format and
-	// require every namespace to agree with its asset scope. Runtime callers can
-	// never override them: only the signed Binding Context is authoritative.
-	// Replace this block with repository ownership checks when those entities land.
+	if binding.UserAPIKeyID != 0 {
+		var apiKey types.TenantAPIKey
+		if err := v.db.WithContext(ctx).Where("id = ? AND tenant_id = ? AND user_id = ? AND revoked_at IS NULL AND (expires_at IS NULL OR expires_at > CURRENT_TIMESTAMP)", binding.UserAPIKeyID, binding.TenantID, binding.UserID).First(&apiKey).Error; err != nil {
+			return nil, fmt.Errorf("%w: user api key", ErrUnverifiableBindingScope)
+		}
+	}
+	// Team and department are authoritative organization resources. A binding
+	// cannot mint a namespace for an arbitrary string: both rows must belong to
+	// the authenticated tenant and the team must belong to the selected
+	// department when one is supplied.
+	var team types.Team
+	if err := v.db.WithContext(ctx).Where("id = ? AND tenant_id = ? AND status = ?", binding.TeamID, binding.TenantID, "active").First(&team).Error; err != nil {
+		return nil, fmt.Errorf("%w: team ownership", ErrUnverifiableBindingScope)
+	}
+	if binding.DepartmentID != "" && team.DepartmentID != binding.DepartmentID {
+		return nil, fmt.Errorf("%w: department/team mismatch", ErrUnverifiableBindingScope)
+	}
+	// Built-in FMind agents are system-owned and are not tenant/team
+	// resources. A binding must target a tenant custom agent that has been
+	// explicitly attached to the selected team.
+	if types.IsBuiltinAgentID(binding.AgentID) {
+		return nil, fmt.Errorf("%w: built-in agents cannot be bound", ErrUnverifiableBindingScope)
+	}
+	var teamMember types.TeamMember
+	if err := v.db.WithContext(ctx).Where("team_id = ? AND tenant_id = ? AND user_id = ? AND status = ?", binding.TeamID, binding.TenantID, binding.UserID, "active").First(&teamMember).Error; err != nil {
+		return nil, fmt.Errorf("%w: team membership", ErrUnverifiableBindingScope)
+	}
+	if !types.TenantRoleFromContext(ctx).HasPermission(types.TenantRoleAdmin) && teamMember.Role != types.TeamRoleAdmin {
+		return nil, fmt.Errorf("%w: team management role", ErrUnverifiableBindingScope)
+	}
+	var teamAgent types.TeamAgent
+	if err := v.db.WithContext(ctx).Where("team_id = ? AND tenant_id = ? AND agent_id = ? AND status = ?", binding.TeamID, binding.TenantID, binding.AgentID, "active").First(&teamAgent).Error; err != nil {
+		return nil, fmt.Errorf("%w: agent team ownership", ErrUnverifiableBindingScope)
+	}
+	// Workspace/Project/Task remain immutable namespace IDs until their
+	// first-class resources are introduced. We validate a closed identifier
+	// format and require every namespace to agree with its asset scope. Runtime
+	// callers can never override them: only the signed Binding Context is
+	// authoritative.
 	managed := map[string]string{
 		"team": binding.TeamID, "department": binding.DepartmentID,
 		"workspace": binding.WorkspaceID, "project": binding.ProjectID, "task": binding.TaskID,

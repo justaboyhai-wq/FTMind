@@ -586,7 +586,7 @@ const canShareKB = computed(() => {
 // 用户是否在分块设置中手动改过任何值。一旦为 true，就不再根据索引策略自动调整默认分块参数。
 const chunkingDirty = ref(false)
 
-type WikiTemplateId = 'general' | 'technical' | 'process' | 'project' | 'research' | 'glossary'
+type WikiTemplateId = 'general' | 'policyQa' | 'technical' | 'process' | 'project' | 'research' | 'glossary'
 type WikiTemplate = {
   id: WikiTemplateId
   title: string
@@ -612,6 +612,16 @@ const wikiTemplates = computed<WikiTemplate[]>(() => [
     granularityLabel: t('knowledgeEditor.wiki.granularityStandard'),
     contentInstructions: t('knowledgeEditor.wiki.templates.general.contentInstructions'),
     extractionInstructions: t('knowledgeEditor.wiki.templates.general.extractionInstructions'),
+  },
+  {
+    id: 'policyQa',
+    title: t('knowledgeEditor.wiki.templates.policyQa.title'),
+    description: t('knowledgeEditor.wiki.templates.policyQa.description'),
+    focus: t('knowledgeEditor.wiki.templates.policyQa.focus'),
+    granularity: 'exhaustive',
+    granularityLabel: t('knowledgeEditor.wiki.granularityExhaustive'),
+    contentInstructions: t('knowledgeEditor.wiki.templates.policyQa.contentInstructions'),
+    extractionInstructions: t('knowledgeEditor.wiki.templates.policyQa.extractionInstructions'),
   },
   {
     id: 'technical',

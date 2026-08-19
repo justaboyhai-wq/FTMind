@@ -322,6 +322,27 @@ export interface AuthCapabilities {
   can_create_tenant: boolean
 }
 
+export interface MenuPermission { key: string; visible: boolean; actions: string[] }
+export interface PermissionSnapshot {
+  tenant?: { id: string | number; role: string }
+  organization?: { department_ids: string[]; team_ids: string[]; team_roles: string[] }
+  capabilities: string[]
+  menus: MenuPermission[]
+  role_matrix?: Record<string, string[]>
+  resources?: { knowledge_base_ids?: string[]; memory_wiki_ids?: string[]; agent_ids?: string[] }
+}
+
+export async function getPermissionSnapshot(): Promise<{ success: boolean; data?: PermissionSnapshot; message?: string }> {
+  try {
+    const response = await get('/api/v1/auth/permissions')
+    const body = response as unknown as { success: boolean; data?: PermissionSnapshot; capabilities?: string[]; message?: string }
+    const data = body.data || { capabilities: body.capabilities || [], menus: [] }
+    return { ...body, data }
+  } catch (error: any) {
+    return { success: false, message: error?.message || 'Failed to load permissions' }
+  }
+}
+
 export async function getCurrentUser(): Promise<{ success: boolean; data?: { user: UserInfo; tenant?: TenantInfo | null; memberships?: MembershipInfo[]; tenant_required?: boolean; capabilities?: AuthCapabilities }; message?: string }> {
   try {
     const response = await get('/api/v1/auth/me')

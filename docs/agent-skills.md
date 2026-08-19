@@ -646,3 +646,12 @@ go run ./cmd/skills-demo/main.go
 - `skill name contains invalid characters`: 包含非法字符
 - `skill name is reserved`: 使用了保留词
 - `skill description too long`: 描述超过 500 字符
+
+# FMind 统一接入边界（知识库与外部记忆）
+
+Skill 的普通知识库调用使用 `FMIND_USER_API_KEY`（兼容旧名
+`FMIND_API_KEY`）。该 Key 仅代表用户身份，服务端仍按租户角色、团队范围和
+知识库权限授权。外部 Agent 的 L0-L2 记忆、上下文和 Memory Wiki 必须经过
+FMind/MemoryProxy 网关，使用绑定专用的 Agent 运行期 Key；MemoryCore 只作为
+内网组件，不应被 Skill、浏览器插件或模型直接调用。浏览器插件只保存受限的
+用户 Key，并以 `channel=browser_extension` 标记采集来源。

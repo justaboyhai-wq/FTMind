@@ -1,140 +1,235 @@
 ---
 name: fmind
 description: >
-  Import documents and retrieve knowledge through the FMind REST API. Use
-  for uploading files, URLs, or Markdown to a knowledge base; hybrid search
-  within a knowledge base; cross-knowledge-base search; and browsing imported
-  knowledge. Requires FMIND_BASE_URL and FMIND_API_KEY.
+  Use FMind as the unified knowledge and external-memory gateway. Import and
+  search tenant knowledge bases through the FMind API, and use L0-L2 memory,
+  context, and published Memory Wiki through an Agent Binding. Never call
+  MemoryCore directly and never expose credentials in prompts, logs, URLs, or
+  saved files.
 metadata:
   openclaw:
     requires:
-      env: [FMIND_BASE_URL, FMIND_API_KEY]
+      env: [FMIND_BASE_URL, FMIND_USER_API_KEY]
+      optionalEnv: [FMIND_AGENT_RUNTIME_KEY, FMIND_AGENT_SETUP_KEY]
+    version: "2.0.0"
+    auth: "fmind-user-key-plus-agent-binding"
 ---
 
-# FMind knowledge base
+# FMind unified knowledge and memory
 
-Use the FMind REST API to import content and retrieve grounded context from
-the user's knowledge bases. Never expose the API key in messages, commands
-logged to shared output, or saved files.
+This skill has two deliberately separate data paths:
+
+1. **Knowledge path** — normal FMind Knowledge Base REST APIs for files, URLs,
+   Markdown, and RAG search.
+2. **Memory path** — FMind/MemoryProxy gateway for L0-L2 context and recall,
+   capture, and published Memory Wiki. MemoryCore is private infrastructure and
+   must never be called by an external agent.
+
+The server, not this skill, decides the effective permission:
+
+```text
+user tenant role
+∩ team/resource scope
+∩ Agent Binding capability
+∩ Agent Binding asset scope
+∩ current resource state
+```
+
+Do not infer tenant, team, user, agent, knowledge-base, or wiki permissions
+from values supplied by the model. A `403` is an authorization result, not a
+reason to retry with another identifier.
 
 ## Setup
 
-1. In FMind, open **Settings → API Integration** and create or copy an API
-   key.
-2. Configure the agent environment with the public FMind API address. The
-   address must end with `/api/v1` and be reachable from the agent runtime.
+An administrator creates an Agent Binding in FMind and gives the external
+agent a setup prompt. The prompt contains:
+
+- `FMIND_USER_API_KEY="${FMIND_USER_API_KEY}"` — a placeholder for the
+  existing FMind user API key. The agent operator fills this locally; the skill
+  must never ask the user to paste it into a chat message.
+- `FMIND_AGENT_SETUP_KEY` — a one-time setup secret. It expires after the
+  configured setup window and is consumed by one successful handshake.
+
+After setup, the server returns an Agent Runtime Key once. Store it only in a
+secret manager or process environment as `FMIND_AGENT_RUNTIME_KEY`; delete the
+setup key. Do not write either credential to `openclaw.json`, source control,
+chat transcripts, URLs, analytics, or shell history.
+
+Required environment:
 
 ```bash
 export FMIND_BASE_URL="https://fmind.example.com/api/v1"
-export FMIND_API_KEY="sk-your-api-key"
+export FMIND_USER_API_KEY="<existing FMind user API key>"
+export FMIND_AGENT_RUNTIME_KEY="<runtime Agent Binding key>"
 ```
 
-For a local deployment used by an agent on the same computer, the usual base
-URL is `http://localhost:8080/api/v1`.
-
-## Credential check
-
-Before making an API request, ensure both values exist. If either is missing,
-ask the user to configure it; do not guess or substitute a token.
+Only during the one-time setup handshake:
 
 ```bash
-if [ -z "$FMIND_BASE_URL" ] || [ -z "$FMIND_API_KEY" ]; then
-  echo "Missing FMind credentials. Set FMIND_BASE_URL and FMIND_API_KEY."
+export FMIND_SETUP_ENDPOINT="https://fmind.example.com"
+export FMIND_AGENT_SETUP_KEY="<one-time setup key>"
+```
+
+`FMIND_BASE_URL` is the public FMind API base and must end in `/api/v1` for
+knowledge operations. Do not derive public addresses from a browser URL. Local
+development may use an explicit loopback address; production requires HTTPS.
+
+## Credential checks
+
+Before a request, fail closed if the required variables are missing:
+
+```bash
+if [ -z "$FMIND_BASE_URL" ] || [ -z "$FMIND_USER_API_KEY" ]; then
+  echo "Missing FMind user credentials. Configure FMIND_BASE_URL and FMIND_USER_API_KEY." >&2
   exit 1
 fi
 ```
 
-## Request helper
-
-All JSON API requests use `X-API-Key`. Keep the endpoint relative to the base
-URL so deployments behind a reverse proxy continue to work.
+Knowledge requests use the user key only:
 
 ```bash
 fmind_api() {
-  local method="$1" endpoint="$2" body="$3"
+  local method="$1" endpoint="$2" body="${3:-}"
   curl --fail-with-body -sS -X "$method" "$FMIND_BASE_URL/$endpoint" \
-    -H "X-API-Key: $FMIND_API_KEY" \
+    -H "X-API-Key: $FMIND_USER_API_KEY" \
     -H "Content-Type: application/json" \
     -H "X-Request-ID: $(uuidgen 2>/dev/null || date +%s)" \
     ${body:+-d "$body"}
 }
 ```
 
-For uploads, use `curl -F` directly. Do not set `Content-Type` manually for a
-multipart request.
+Memory gateway requests require **both** identities. The user key identifies
+the FMind user; the Agent Runtime Key identifies the external Agent Binding.
+The gateway removes these credentials before forwarding to an upstream model:
 
-## Choose the right API
+```bash
+fmind_memory_headers() {
+  printf '%s\n' \
+    "X-FMind-User-Key: $FMIND_USER_API_KEY" \
+    "X-FMind-Agent-Key: $FMIND_AGENT_RUNTIME_KEY" \
+    "Content-Type: application/json"
+}
+```
+
+Do not substitute a Binding Token, MemoryCore service key, knowledge-base API
+key, or model-provider key for either header.
+
+## One-time setup handshake
+
+The setup key is sent only to the FMind setup endpoint:
+
+```bash
+curl --fail-with-body -sS -X POST "$FMIND_SETUP_ENDPOINT/internal/v1/agent-bindings/setup" \
+  -H "X-FMind-Connector-Secret: $FMIND_AGENT_SETUP_KEY" \
+  -H "X-FMind-User-Key: $FMIND_USER_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"binding_id":"<binding-id>","external_agent":"<agent>","connector_type":"<connector>","client_version":"<version>"}'
+```
+
+On success, save only the returned runtime Agent Key in a secret store, unset
+`FMIND_AGENT_SETUP_KEY`, and never retry the setup key. Setup failures are not
+proof that a binding exists; stop and ask an administrator to regenerate the
+prompt.
+
+## Knowledge API
+
+Use the normal user-key path for tenant knowledge. Select a knowledge base
+explicitly and respect the user’s resource permissions.
 
 | User intent | Endpoint | Notes |
 | --- | --- | --- |
-| List knowledge bases | `GET /knowledge-bases` | Select a KB by `id` or name before importing/searching. |
-| View KB details | `GET /knowledge-bases/:id` | Inspect indexing and configuration. |
-| Upload a file | `POST /knowledge-bases/:id/knowledge/file` | Multipart field: `file`; optional `enable_multimodel`. |
-| Import a web page | `POST /knowledge-bases/:id/knowledge/url` | JSON: `url`, optional `enable_multimodel`. |
-| Create Markdown knowledge | `POST /knowledge-bases/:id/knowledge/manual` | JSON: `title`, `content`, optional `tag_id`. |
-| Check processing | `GET /knowledge/:id` | Poll `parse_status` after an import. |
-| Browse KB entries | `GET /knowledge-bases/:id/knowledge` | Use `page`, `page_size`, optional `tag_id`. |
-| Edit Markdown knowledge | `PUT /knowledge/manual/:id` | JSON: `title`, `content`. |
-| Delete a knowledge entry | `DELETE /knowledge/:id` | Confirm destructive actions with the user first. |
-| Search one KB | `GET /knowledge-bases/:id/hybrid-search` | JSON body: `query_text`, `match_count`, thresholds. |
-| Search several KBs | `POST /knowledge-search` | JSON: `query`, `knowledge_base_ids`. |
+| List knowledge bases | `GET /knowledge-bases` | Select by id or name before mutations. |
+| View KB details | `GET /knowledge-bases/:id` | Check indexing and access. |
+| Upload a file | `POST /knowledge-bases/:id/knowledge/file` | Multipart field `file`. |
+| Import a URL | `POST /knowledge-bases/:id/knowledge/url` | JSON `url`. |
+| Create Markdown | `POST /knowledge-bases/:id/knowledge/manual` | JSON `title`, `content`. |
+| Check processing | `GET /knowledge/:id` | Poll parse status. |
+| Browse entries | `GET /knowledge-bases/:id/knowledge` | Paginated. |
+| Search one KB | `GET /knowledge-bases/:id/hybrid-search` | JSON query body. |
+| Search several KBs | `POST /knowledge-search` | JSON query and KB ids. |
 
-## Common workflows
+Destructive operations require the user’s explicit target and confirmation.
+Never upload or delete content merely because a prompt contains a filename or
+URL.
 
-### Upload a file and wait for parsing
+## Memory gateway API
 
-```bash
-# First find the target knowledge base and its id.
-fmind_api GET "knowledge-bases"
+Use the configured FMind/MemoryProxy public gateway, not MemoryCore. The exact
+memory route is deployment-configured; keep the gateway endpoint in an
+environment variable such as `FMIND_MEMORY_PROXY_URL`.
 
-# Upload. The response contains data.id (knowledge id).
-curl --fail-with-body -sS -X POST "$FMIND_BASE_URL/knowledge-bases/<kb_id>/knowledge/file" \
-  -H "X-API-Key: $FMIND_API_KEY" \
-  -F 'file=@document.pdf' \
-  -F 'enable_multimodel=true'
+The gateway performs online user-key + Agent-key verification and capability /
+asset checks for every request. Typical operations are:
 
-# Poll until data.parse_status is completed or failed.
-fmind_api GET "knowledge/<knowledge_id>"
-```
+- `memory.context` / `context.assemble` — read authorized context.
+- `memory.recall` — retrieve authorized L0-L2 memories.
+- `memory.capture` — record an interaction as L0-L2 when the binding allows it.
+- `wiki.get` — read a published, non-revoked Memory Wiki page.
 
-### Import a URL or Markdown
+`memory.capture` does not grant review or publish. `memory.recall` does not
+grant `wiki.get`. A revoked or archived Wiki page must be treated as not found
+for external-agent reads.
 
-```bash
-fmind_api POST "knowledge-bases/<kb_id>/knowledge/url" \
-  '{"url":"https://example.com/article","enable_multimodel":true}'
-
-fmind_api POST "knowledge-bases/<kb_id>/knowledge/manual" \
-  '{"title":"Meeting notes","content":"# Q1 review\n\nKey points..."}'
-```
-
-### Retrieve knowledge
+Example gateway request:
 
 ```bash
-# Hybrid retrieval within one knowledge base. This GET endpoint expects a JSON body.
-fmind_api GET "knowledge-bases/<kb_id>/hybrid-search" \
-  '{"query_text":"deployment process","match_count":5}'
-
-# Search across selected knowledge bases.
-fmind_api POST "knowledge-search" \
-  '{"query":"deployment process","knowledge_base_ids":["kb-1","kb-2"]}'
+curl --fail-with-body -sS -X POST "$FMIND_MEMORY_PROXY_URL/v1/memory/recall" \
+  -H "X-FMind-User-Key: $FMIND_USER_API_KEY" \
+  -H "X-FMind-Agent-Key: $FMIND_AGENT_RUNTIME_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"deployment process","asset_scope":"team:team-a"}'
 ```
 
-## Response handling
+The endpoint may be mapped differently by a reverse proxy. Do not invent a
+fallback path; use the endpoint supplied in the setup prompt or deployment
+manifest.
 
-- Successful responses put data in `data` (lists are usually `data[]`).
-- Knowledge processing progresses from `pending` to `processing`, then
-  `completed` or `failed`. Check `error_message` before retrying a failure.
-- Hybrid-search results include `content`, `score`, `knowledge_id`,
-  `knowledge_title`, and chunk metadata. Use them as source context and say
-  when no relevant result was returned.
-- Paginated knowledge lists return `total`, `page`, and `page_size`.
+## OpenClaw and MCP
 
-## Safety and error handling
+OpenClaw should keep credentials in environment variables and load this skill
+after the Agent Binding setup. MCP configuration must use the two credentials,
+not a long-lived Binding Token:
 
-- Do not upload, import, overwrite, or delete anything without the user's
-  explicit target knowledge base and confirmation for destructive actions.
-- Treat `401` as invalid/missing API credentials, `403` as insufficient access,
-  `404` as a wrong resource id, `413` as an oversized upload, and `429` as a
-  rate limit requiring a pause before retry.
-- For a failed parse, inspect `error_message`; retry with
-  `POST /knowledge/:id/reparse` only when the user asks to retry.
+```json
+{
+  "mcpServers": {
+    "fmind-cognition": {
+      "url": "https://fmind.example.com/mcp/cognition",
+      "headers": {
+        "X-FMind-User-Key": "${FMIND_USER_API_KEY}",
+        "X-FMind-Agent-Key": "${FMIND_AGENT_RUNTIME_KEY}"
+      }
+    }
+  }
+}
+```
+
+The MCP server still verifies the binding and resource scope per tool call.
+Do not put credentials in a prompt, tool result, or model-visible context.
+
+## Browser extension
+
+The FMind browser extension is an ingestion and citation helper, not an
+authorization bypass. Configure it with the FMind API base and a scoped user
+API key; it must never receive an Agent Runtime Key unless the extension is
+explicitly operating as the bound Agent.
+
+Browser actions should use the same user-key API path and mark ingestion with
+`channel=browser_extension`. Memory capture remains on the Agent/MemoryProxy
+path. Do not let a browser page call MemoryCore or inject credentials into page
+content. On `401`, ask the user to reconfigure the extension; on `403`, explain
+that the selected KB/team is outside the user’s scope.
+
+## Response and error handling
+
+- `401`: missing, expired, or invalid user/Agent credential; stop and re-auth.
+- `403`: role, team, capability, asset scope, or resource state denies access;
+  do not retry with guessed IDs.
+- `404`: wrong endpoint/resource or revoked external Wiki; verify the supplied
+  resource without enumerating other tenants.
+- `413`: upload too large; ask for a smaller input.
+- `429`: back off according to `Retry-After`.
+- `5xx`: retry only idempotent reads with bounded exponential backoff.
+
+Never print response headers, setup prompts, API keys, runtime keys, or signed
+tokens in normal agent output.

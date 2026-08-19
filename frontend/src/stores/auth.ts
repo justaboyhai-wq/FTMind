@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { UserInfo, TenantInfo, KnowledgeBaseInfo } from '@/api/auth'
+import type { UserInfo, TenantInfo, KnowledgeBaseInfo, PermissionSnapshot } from '@/api/auth'
 import { userInfoFromApi } from '@/api/auth'
 import type { TenantInfo as TenantInfoFromAPI } from '@/api/tenant'
 import i18n from '@/i18n'
@@ -58,6 +58,7 @@ export const useAuthStore = defineStore('auth', () => {
   // deployment never briefly flashes a create action the backend would
   // then reject with 403/2005.
   const canCreateTenant = ref(false)
+  const permissions = ref<PermissionSnapshot>({ capabilities: [], menus: [] })
 
   // 计算属性
   const isLoggedIn = computed(() => {
@@ -317,6 +318,21 @@ export const useAuthStore = defineStore('auth', () => {
     canCreateTenant.value = allowed
   }
 
+  const setPermissions = (snapshot: PermissionSnapshot | null | undefined) => {
+    permissions.value = snapshot || { capabilities: [], menus: [] }
+  }
+  const hasCapability = (capability: string) => permissions.value.capabilities.includes(capability)
+  const canAction = (menu: string, action: string) => permissions.value.menus.some((m) => m.key === menu && m.visible && m.actions.includes(action))
+  const refreshPermissions = async (): Promise<boolean> => {
+    try {
+      const { getPermissionSnapshot } = await import('@/api/auth')
+      const response = await getPermissionSnapshot()
+      if (!response.success) return false
+      setPermissions(response.data)
+      return true
+    } catch { return false }
+  }
+
   // fetchPendingInvitationCount hits the dedicated /me/invitations/
   // pending-count endpoint and updates the store. Errors are
   // swallowed — the badge degrades to its last-known value instead
@@ -378,6 +394,8 @@ export const useAuthStore = defineStore('auth', () => {
       if (typeof createCapability === 'boolean') {
         setCanCreateTenant(createCapability)
       }
+
+      await refreshPermissions()
 
       return true
     } catch {
@@ -535,6 +553,7 @@ export const useAuthStore = defineStore('auth', () => {
     memberships,
     pendingInvitationCount,
     canCreateTenant,
+    permissions,
 
     // 计算属性
     isLoggedIn,
@@ -561,6 +580,10 @@ export const useAuthStore = defineStore('auth', () => {
     setMemberships,
     setPendingInvitationCount,
     setCanCreateTenant,
+    setPermissions,
+    hasCapability,
+    canAction,
+    refreshPermissions,
     fetchPendingInvitationCount,
     refreshFromAuthMe,
     getSelectedTenant,

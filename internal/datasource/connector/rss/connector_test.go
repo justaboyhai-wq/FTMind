@@ -84,6 +84,9 @@ func newFakeFeed(t *testing.T) *fakeFeed {
   <title>Article One</title>
   <link>%s/article/a1</link>
   <guid>guid-1</guid>
+  <category>服务对象/企业政策</category>
+  <category>主题/综合政务</category>
+  <category>模型推断/不应导入</category>
   <pubDate>Mon, 02 Jan 2006 15:04:05 GMT</pubDate>
   <description>%s</description>
 </item>
@@ -285,6 +288,9 @@ func TestConnector_FetchAll_FullTextMarkdown(t *testing.T) {
 	if it.Metadata["channel"] != types.ChannelRSS {
 		t.Errorf("channel = %q, want %q", it.Metadata["channel"], types.ChannelRSS)
 	}
+	if strings.Join(it.TagNames, "|") != "主题/综合政务|服务对象/企业政策" {
+		t.Fatalf("TagNames = %v, want website-prefixed tags only", it.TagNames)
+	}
 	// Full text from the article page should be present (not the short summary).
 	if !strings.Contains(string(it.Content), "first paragraph") {
 		t.Errorf("expected full article text in content, got: %q", string(it.Content))
@@ -320,6 +326,56 @@ func TestConnector_FetchIncremental_SkipsWithoutArticleFetch(t *testing.T) {
 	}
 	if got := f.articleFetches.Load(); got != 0 {
 		t.Fatalf("unchanged incremental sync must not refetch articles, got %d fetches", got)
+	}
+}
+
+func TestFeedSignalFingerprintChangesWhenCategoriesChange(t *testing.T) {
+	base := &gofeed.Item{GUID: "g1", Link: "https://example.com/a", Title: "t", Categories: []string{"主题/甲"}}
+	changed := &gofeed.Item{GUID: "g1", Link: "https://example.com/a", Title: "t", Categories: []string{"主题/乙"}}
+	if feedSignalFingerprint(base, "body") == feedSignalFingerprint(changed, "body") {
+		t.Fatal("category changes must invalidate RSS incremental fingerprint")
+	}
+}
+
+func TestConnector_FetchIncrementalEmitsCategoryOnlyChange(t *testing.T) {
+	category := "\u4e3b\u9898/\u7532"
+	title := "Policy"
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/article" {
+			w.Header().Set("Content-Type", "text/html")
+			_, _ = w.Write([]byte("<article>same body</article>"))
+			return
+		}
+		_, _ = fmt.Fprintf(w, `<rss version="2.0"><channel><item><guid>baoan-policy:post_42</guid><link>%s/article</link><title>%s</title><category>%s</category><description>same summary</description></item></channel></rss>`, "http://"+r.Host, title, category)
+	}))
+	defer server.Close()
+	cfg := makeConfig(server.URL, "")
+	cfg.ResourceIDs = []string{server.URL}
+	_, cursor, err := NewConnector().FetchIncremental(context.Background(), cfg, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	category = "\u4e3b\u9898/\u4e59"
+	items, cursor, err := NewConnector().FetchIncremental(context.Background(), cfg, cursor)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(items) != 1 || len(items[0].TagNames) != 1 || items[0].TagNames[0] != category {
+		t.Fatalf("category-only change must be emitted, got %#v", items)
+	}
+	title = "Policy revised"
+	items, _, err = NewConnector().FetchIncremental(context.Background(), cfg, cursor)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(items) != 1 || items[0].Title != title {
+		t.Fatalf("title-only change must be emitted, got %#v", items)
+	}
+}
+
+func TestPolicyGUIDFileNameRetainsPostID(t *testing.T) {
+	if got, want := rssItemFileName("\u5b9d\u5b89\u653f\u7b56", "baoan-policy:post_42"), "\u5b9d\u5b89\u653f\u7b56\uff08post_42\uff09.md"; got != want {
+		t.Fatalf("rssItemFileName()=%q, want %q", got, want)
 	}
 }
 

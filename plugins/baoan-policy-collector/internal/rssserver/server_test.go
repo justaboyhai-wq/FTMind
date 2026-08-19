@@ -48,7 +48,7 @@ func TestPackagePageAndFeedUseCanonicalSnapshot(t *testing.T) {
 	if feed.Code != 200 {
 		t.Fatalf("feed status=%d body=%s", feed.Code, feed.Body.String())
 	}
-	for _, want := range []string{"baoan-policy:post_7:snap-7", "https://collector.example/packages/post_7", "政策七"} {
+	for _, want := range []string{"baoan-policy:post_7", "<category>服务对象/企业政策</category>", "https://collector.example/packages/post_7", "政策七"} {
 		if !strings.Contains(feed.Body.String(), want) {
 			t.Errorf("feed missing %q", want)
 		}
@@ -77,6 +77,39 @@ func TestHealthReportsCanonicalAssemblyFailure(t *testing.T) {
 	response := httptest.NewRecorder()
 	server.Handler().ServeHTTP(response, httptest.NewRequest("GET", "/healthz", nil))
 	if response.Code != 503 || !strings.Contains(response.Body.String(), `"status":"degraded"`) {
+		t.Fatalf("status=%d body=%s", response.Code, response.Body.String())
+	}
+}
+
+func TestTagAuditReportsDictionaryRejectedTags(t *testing.T) {
+	root := t.TempDir()
+	base := filepath.Join(root, "policies", "post_8")
+	snapshot := filepath.Join(base, "snapshots", "snap-8")
+	if err := os.MkdirAll(snapshot, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	write := func(path, body string) {
+		t.Helper()
+		if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	write(filepath.Join(base, "latest.json"), `{"snapshot_id":"snap-8","snapshot_sha256":"hash-8"}`)
+	write(filepath.Join(snapshot, "normalized.md"), "body")
+	write(filepath.Join(snapshot, "structured.json"), `{"id":8,"title":"Policy 8","markdown":"body","official":{"theme":"Unknown theme"}}`)
+	write(filepath.Join(snapshot, "relations.json"), `[]`)
+	write(filepath.Join(snapshot, "source-detail.json"), `{}`)
+	write(filepath.Join(snapshot, "manifest.json"), `{"schema_version":"baoan.raw/v1","package_id":"post_8","external_id":"post_8","snapshot_id":"snap-8","snapshot_sha256":"hash-8","files":[]}`)
+	if err := os.MkdirAll(filepath.Join(root, "dictionaries", "snapshots", "snapshot"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	write(filepath.Join(root, "dictionaries", "latest.json"), `{"snapshot_id":"snapshot"}`)
+	write(filepath.Join(root, "dictionaries", "snapshots", "snapshot", "official-dimensions.json"), `{"dimensions":{"themes":["Known theme"]}}`)
+
+	server := New(Config{DataDir: root})
+	response := httptest.NewRecorder()
+	server.Handler().ServeHTTP(response, httptest.NewRequest("GET", "/tag-audit.json", nil))
+	if response.Code != 200 || !strings.Contains(response.Body.String(), "post_8") || !strings.Contains(response.Body.String(), "Unknown theme") {
 		t.Fatalf("status=%d body=%s", response.Code, response.Body.String())
 	}
 }

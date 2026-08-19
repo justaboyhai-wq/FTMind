@@ -81,19 +81,22 @@ func TestMemoryWikiReviewRoutesRequireAdmin(t *testing.T) {
 		c.Next()
 	})
 	RegisterMemoryWikiReviewRoutes(r.Group("/api/v1"), &handler.MemoryWikiHandler{}, g)
-	for _, tc := range []struct{ method, path string }{
-		{http.MethodGet, "/api/v1/external-memory/l3/reviews"},
-		{http.MethodGet, "/api/v1/external-memory/l3/reviews/review-1"},
-		{http.MethodPost, "/api/v1/external-memory/l3/reviews/review-1/approve"},
-		{http.MethodPost, "/api/v1/external-memory/l3/reviews/review-1/reject"},
-		{http.MethodPost, "/api/v1/external-memory/l3/reviews/review-1/request-changes"},
-		{http.MethodPost, "/api/v1/external-memory/l3/reviews/review-1/publish"},
+	for _, tc := range []struct {
+		method, path string
+		want         int
+	}{
+		{http.MethodGet, "/api/v1/external-memory/l3/reviews", http.StatusInternalServerError},
+		{http.MethodGet, "/api/v1/external-memory/l3/reviews/review-1", http.StatusInternalServerError},
+		{http.MethodPost, "/api/v1/external-memory/l3/reviews/review-1/approve", http.StatusForbidden},
+		{http.MethodPost, "/api/v1/external-memory/l3/reviews/review-1/reject", http.StatusForbidden},
+		{http.MethodPost, "/api/v1/external-memory/l3/reviews/review-1/request-changes", http.StatusForbidden},
+		{http.MethodPost, "/api/v1/external-memory/l3/reviews/review-1/publish", http.StatusForbidden},
 	} {
 		req := httptest.NewRequest(tc.method, tc.path, nil)
 		w := httptest.NewRecorder()
 		r.ServeHTTP(w, req)
-		if w.Code != http.StatusForbidden {
-			t.Fatalf("%s %s: viewer status=%d", tc.method, tc.path, w.Code)
+		if w.Code != tc.want {
+			t.Fatalf("%s %s: viewer status=%d want=%d", tc.method, tc.path, w.Code, tc.want)
 		}
 	}
 }

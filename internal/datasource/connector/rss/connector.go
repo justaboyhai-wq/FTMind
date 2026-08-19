@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -262,7 +263,15 @@ func (c *Connector) walk(
 			newCursor.FeedItems[feedURL][itemID] = resolved.fingerprint
 			newCursor.FeedSignals[feedURL][itemID] = feedSig
 
-			if incremental && prevItems != nil && prevItems[itemID] == resolved.fingerprint {
+			// A resolved article fingerprint only represents the body.  RSS
+			// categories, title and timestamps live in the feed signal and must
+			// still reach ProcessSync so the existing knowledge can be updated in
+			// place (not silently skipped as an unchanged article).
+			prevSig := ""
+			if prevSignals != nil {
+				prevSig = prevSignals[itemID]
+			}
+			if incremental && prevItems != nil && prevItems[itemID] == resolved.fingerprint && prevSig == feedSig {
 				skipped++
 				continue
 			}
@@ -329,6 +338,19 @@ func (c *Connector) resolveItem(
 		author = item.Author.Name
 	}
 
+	metadata := map[string]string{
+		"channel":            types.ChannelRSS,
+		"feed_url":           feedURL,
+		"feed_title":         feed.Title,
+		"guid":               item.GUID,
+		"link":               item.Link,
+		"author":             author,
+		"rss_content_signal": feedContentSignal(item, feedContent),
+	}
+	if invalid := invalidOfficialTagNames(item.Categories); len(invalid) > 0 {
+		metadata["invalid_official_tags"] = strings.Join(invalid, ",")
+	}
+
 	return resolvedFeedItem{
 		fingerprint: contentFingerprint(content),
 		item: types.FetchedItem{
@@ -336,20 +358,55 @@ func (c *Connector) resolveItem(
 			Title:            title,
 			Content:          []byte(content),
 			ContentType:      "text/markdown",
-			FileName:         sanitizeFileName(title) + ".md",
+			FileName:         rssItemFileName(title, itemID),
 			URL:              item.Link,
 			UpdatedAt:        updatedAt,
 			SourceResourceID: feedURL,
-			Metadata: map[string]string{
-				"channel":    types.ChannelRSS,
-				"feed_url":   feedURL,
-				"feed_title": feed.Title,
-				"guid":       item.GUID,
-				"link":       item.Link,
-				"author":     author,
-			},
+			TagNames:         normalizeOfficialTagNames(item.Categories),
+			Metadata:         metadata,
 		},
 	}
+}
+
+func invalidOfficialTagNames(values []string) []string {
+	invalid := make([]string, 0)
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value == "" {
+			continue
+		}
+		if len(normalizeOfficialTagNames([]string{value})) == 0 {
+			invalid = append(invalid, value)
+		}
+	}
+	return invalid
+}
+
+func normalizeOfficialTagNames(values []string) []string {
+	allowed := []string{"服务对象/", "发文机构/", "主题/", "文件载体/", "文件类型/", "关联内容/", "申报状态/"}
+	seen := make(map[string]struct{})
+	for _, raw := range values {
+		value := strings.TrimSpace(raw)
+		if value == "" {
+			continue
+		}
+		valid := false
+		for _, prefix := range allowed {
+			if strings.HasPrefix(value, prefix) && strings.TrimSpace(strings.TrimPrefix(value, prefix)) != "" {
+				valid = true
+				break
+			}
+		}
+		if valid {
+			seen[value] = struct{}{}
+		}
+	}
+	result := make([]string, 0, len(seen))
+	for value := range seen {
+		result = append(result, value)
+	}
+	sort.Strings(result)
+	return result
 }
 
 // htmlToMarkdown converts HTML to Markdown, returning the trimmed original on

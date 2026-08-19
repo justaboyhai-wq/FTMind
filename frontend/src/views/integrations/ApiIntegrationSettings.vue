@@ -26,6 +26,8 @@
           </div>
         </div>
 
+        <t-alert theme="info" class="fmind-credential-boundary" :message="$t('integrations.api.credentialBoundary')" />
+
         <template v-if="showDesktopPortSetting || showDesktopBindPublicSetting">
           <div v-if="showDesktopPortSetting" class="row">
             <div class="row-info">

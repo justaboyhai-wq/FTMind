@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FTMind 政策知识库自循环</title>
+  <style>
+    :root{--ink:#17243b;--muted:#65738a;--line:#e5eaf2;--bg:#f5f8fc;--card:#fff;--blue:#2264d1;--blue-2:#0c3b85;--cyan:#e9f3ff;--green:#12805c;--orange:#c76b18;--red:#ba4a4a;--mono:"Cascadia Code","SFMono-Regular",Consolas,monospace}
+    *{box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.7}
+    .shell{display:grid;grid-template-columns:238px minmax(0,760px) 210px;gap:34px;max-width:1360px;margin:0 auto;padding:28px 28px 70px}
+    .rail{position:sticky;top:24px;align-self:start}.brand{display:flex;gap:10px;align-items:center;font-weight:800;letter-spacing:.02em;color:var(--blue-2);margin-bottom:30px}.mark{width:31px;height:31px;border-radius:10px;background:linear-gradient(135deg,#1d65d4,#46b7ff);display:grid;place-items:center;color:white;font-weight:900;box-shadow:0 6px 16px #2264d13b}.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:var(--blue);font-weight:800;margin-bottom:8px}.nav-group{margin:20px 0}.nav-group h3{font-size:11px;color:#9aa7ba;letter-spacing:.14em;text-transform:uppercase;margin:0 0 8px}.nav a{display:block;color:var(--muted);text-decoration:none;font-size:13px;padding:7px 11px;border-left:2px solid transparent}.nav a:hover,.nav a.active{color:var(--blue-2);background:#edf4ff;border-left-color:var(--blue);font-weight:700}
+    main{min-width:0}.hero{padding:30px 0 38px;border-bottom:1px solid var(--line)}h1{font-size:clamp(32px,4vw,48px);line-height:1.12;letter-spacing:-.04em;margin:0 0 18px;color:var(--blue-2)}.lede{font-size:18px;line-height:1.75;color:#465873;max-width:690px;margin:0}.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}.chip{border:1px solid #cfe0f7;border-radius:999px;padding:4px 10px;color:var(--blue);font-size:12px;background:#f7fbff}
+    section{padding:44px 0 8px}h2{font-size:28px;line-height:1.2;margin:0 0 14px;letter-spacing:-.025em}h3{font-size:18px;margin:26px 0 8px}.intro{color:#53637a;margin-top:0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:0 8px 25px #1c38620b}.card h3{margin:0 0 6px;font-size:16px}.card p{margin:0;color:var(--muted);font-size:14px}.accent{border-top:3px solid var(--blue)}.green{border-top-color:var(--green)}.orange{border-top-color:var(--orange)}
+    .flow{display:flex;align-items:stretch;gap:8px;overflow-x:auto;padding:8px 0 12px}.node{min-width:130px;flex:1;background:#fff;border:1px solid #dbe5f2;border-radius:12px;padding:13px 12px;font-size:13px;color:#33455f}.node strong{display:block;color:var(--blue-2);font-size:14px;margin-bottom:4px}.arrow{align-self:center;color:#8da3c2;font-size:21px}.callout{border:1px solid #c9def7;border-left:4px solid var(--blue);background:#f0f7ff;border-radius:10px;padding:14px 16px;color:#35516f;margin:18px 0}.callout strong{color:var(--blue-2)}.callout.warn{border-color:#f0d8b5;border-left-color:var(--orange);background:#fff8ed}.callout.ok{border-color:#bfe8d7;border-left-color:var(--green);background:#effbf6}
+    table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14px}th,td{padding:11px 13px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:#f1f5fa;font-size:12px;color:#5a6b84;letter-spacing:.04em}tr:last-child td{border-bottom:0}code{font-family:var(--mono);font-size:.9em;background:#eef3f9;color:#23456f;padding:2px 5px;border-radius:4px}.code{position:relative;background:#13243d;color:#dbe9ff;border-radius:12px;padding:18px 20px;overflow:auto;font:13px/1.65 var(--mono);margin:14px 0}.copy{position:absolute;top:10px;right:10px;border:1px solid #597398;background:#1c3558;color:#dbe9ff;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer}.quote{border-left:3px solid #b8c7da;margin:18px 0;padding-left:16px;color:#5d6b80}
+    .toc-title{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:#9aa7ba;margin:72px 0 9px}.toc a{display:block;color:#8290a5;text-decoration:none;font-size:12px;padding:5px 0}.toc a.active{color:var(--blue);font-weight:800}.status{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--green);background:#eefbf6;border-radius:999px;padding:4px 9px}.dot{width:7px;height:7px;background:currentColor;border-radius:50%}.foot{border-top:1px solid var(--line);margin-top:42px;padding-top:18px;color:#8290a5;font-size:12px}
+    @media(max-width:1000px){.shell{grid-template-columns:190px minmax(0,1fr);gap:24px}.toc{display:none}}
+    @media(max-width:720px){.shell{display:block;padding:18px 17px 50px}.rail{position:static}.brand{margin-bottom:12px}.nav{display:flex;gap:4px;overflow:auto;padding-bottom:8px}.nav-group{display:none}.nav-group:first-of-type{display:block;margin:0}.nav-group:first-of-type h3{display:none}.nav a{white-space:nowrap;border-left:0;border-bottom:2px solid transparent;padding:6px 9px}.nav a.active{border-left:0;border-bottom-color:var(--blue)}.hero{padding-top:22px}.grid{grid-template-columns:1fr}.flow{margin-right:-17px;padding-right:17px}.node{min-width:145px}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="rail" data-od-id="nav">
+      <div class="brand"><span class="mark">F</span><span>FTMind</span></div>
+      <nav class="nav" aria-label="章节导航">
+        <div class="nav-group"><h3>产品逻辑</h3>
+          <a class="active" href="#overview">产品定位</a><a href="#environment">云端环境</a><a href="#ingest">资料循环</a><a href="#wiki">Wiki 规则</a>
+        </div>
+        <div class="nav-group"><h3>治理闭环</h3>
+          <a href="#qa">问答与信号</a><a href="#feedback">反馈审核</a><a href="#space">共享空间</a><a href="#loops">双循环</a>
+        </div>
+      </nav>
+    </aside>
+
+    <main data-od-id="article">
+      <header class="hero" id="overview">
+        <div class="eyebrow">Product logic / Bao'an policy</div>
+        <h1>政策知识库，如何持续生长</h1>
+        <p class="lede">FTMind 将宝安官网的政策原文、附件、官方标签和来源 URL 组织成可追溯的知识体系，再用 RSS 增量更新、证据优先问答和人工审核，把一次性资料变成可持续优化的政策服务。</p>
+        <div class="meta"><span class="chip">官方证据优先</span><span class="chip">增量同步</span><span class="chip">人工治理</span><span class="status"><span class="dot"></span>面向产品设计</span></div>
+      </header>
+
+      <section id="environment"><h2>云端演示环境</h2><p class="intro">当前部署约定把产品入口和政策采集服务分开，便于演示、监控和后续由 Nginx 统一代理。</p>
+        <table><thead><tr><th>入口</th><th>当前地址/端口</th><th>用途</th></tr></thead><tbody>
+          <tr><td>FTMind 主站</td><td><code>http://115.191.64.43:18310</code></td><td>产品前端与登录入口</td></tr>
+          <tr><td>登录页</td><td><code>http://115.191.64.43:18310/login</code></td><td>进入工作区和问答功能</td></tr>
+          <tr><td>宝安政策 RSS</td><td><code>18320</code> / <code>/feed.xml</code></td><td>只读发布最新政策快照</td></tr>
+          <tr><td>RSS 健康检查</td><td><code>18320/healthz</code></td><td>检查所有 Raw Package 是否可装配</td></tr>
+          <tr><td>云端测试账号</td><td><code>962700571@qq.com</code> / <code>admin123</code></td><td>仅用于当前测试演示，生产环境必须修改</td></tr>
+        </tbody></table>
+        <div class="callout warn"><strong>测试凭据提醒：</strong>上方账号仅用于当前云端测试演示，不应复用于生产环境；正式部署前请修改密码并撤销旧凭据。RSS 默认绑定 <code>127.0.0.1:18320</code>，生产环境建议通过现有 Nginx 反向代理提供 Feed。</div>
+      </section>
+
+      <section id="ingest"><h2>一、政策资料循环</h2><p class="intro">采集器不把 881 份政策 ID 写死，而是在每次运行时重新检查官网入口，优先跟随官网真实资源关系。</p>
+        <div class="flow"><div class="node"><strong>宝安官网</strong>入口 HTML 与静态脚本</div><span class="arrow">→</span><div class="node"><strong>发现资源</strong><code>zcfg.js</code>、详情 JSON</div><span class="arrow">→</span><div class="node"><strong>下载证据</strong>原文、附件、标签、来源 URL</div><span class="arrow">→</span><div class="node"><strong>Raw Package</strong>快照、哈希、关系与审计</div><span class="arrow">→</span><div class="node"><strong>RSS 同步</strong>只读 Feed + 增量指纹</div></div>
+        <p>采集器支持全量、增量、失败重试和定时任务。调度采用 Asia/Shanghai 时区，并跳过重叠执行；每份政策的原文、详情 JSON、附件和官方关系都留在 Raw Package 中，方便后续复核，而不是只留下模型加工后的文本。</p>
+        <div class="code"><button class="copy" data-copy="go run ./cmd/baoan-policy-collector daemon --data-dir ./baoan-policy-data">复制</button>go run ./cmd/baoan-policy-collector collect --incremental --data-dir ./baoan-policy-data
+go run ./cmd/baoan-policy-collector export-raw --data-dir ./baoan-policy-data --output-dir ./raw-export
+go run ./cmd/baoan-policy-collector daemon --data-dir ./baoan-policy-data --incremental-cron "0 2 * * *"
+go run ./cmd/baoan-policy-collector verify --all --data-dir ./baoan-policy-data
+go run ./cmd/baoan-policy-collector serve-rss --data-dir ./baoan-policy-data --addr :18320</div>
+        <p class="quote">RSS 网关只读展示每个政策包的 <code>latest.json</code>。下一次增量采集完成后，下一次 RSS 同步会自然看到最新内容，采集与知识库同步因此解耦。</p>
+      </section>
+
+      <section id="wiki"><h2>二、Wiki 解析规则</h2><p class="intro">政策 Wiki 的关键不是“让模型自由总结”，而是让不同来源、不同可信度的内容各归其位。</p>
+        <div class="grid"><article class="card accent"><h3>官方事实 · <code>official</code></h3><p>标题、文号、发文机构、日期、服务对象、主题、文件载体、附件和官网关系，原样保留来源和证据。模型不得补写缺失字段，也不能覆盖官网标签。</p></article><article class="card accent green"><h3>规则计算 · <code>computed</code></h3><p>例如“当前是否可申报”，由官方申报标识与申报起止日期共同计算，并记录计算时间、算法版本、输入证据与冲突信息。</p></article><article class="card accent orange"><h3>模型分析 · <code>derived_ai</code></h3><p>适用行业、办理条件、所需材料、办理流程和风险提示可以由模型提出，但必须附带证据、模型、提示词版本、置信度和人工审核状态。</p></article><article class="card accent"><h3>可追溯操作</h3><p>Wiki 更新、替代、失效、回滚和质量问题写入操作日志；历史事实不被静默覆盖，答案可以回到原文和附件定位。</p></article></div>
+        <div class="callout ok"><strong>产品原则：</strong>官网标签是权威维度，模型只负责增加“官网没有的新分析维度”。两者在数据结构上分开，才能支持政策更新和冲突审计。</div>
+      </section>
+
+      <section id="qa"><h2>三、问答与用户信号</h2><p class="intro">问答先检索政策原文、附件和 Wiki 页面，再生成带来源的回答。高风险字段（日期、金额、资格、材料和办理方式）必须回到原始证据核验。</p>
+        <div class="grid"><article class="card"><h3>收藏</h3><p>用户把值得复用的资源或内容收藏起来，形成个人和空间内的价值信号。当前收藏服务是用户级、空间隔离的轻量记录，不会未经审核自动改写知识库。</p></article><article class="card"><h3>错误反馈</h3><p>用户可针对一次最终回答提交问题类型、说明、正确建议和错误片段。系统冻结问题、答案、引用、模型、智能体、渠道和知识库快照。</p></article></div>
+        <div class="callout warn"><strong>闭环边界：</strong>收藏和反馈都可以成为“知识优化候选”，但只有管理员确认后，才会进入重新采集、重解析、Wiki 修复、检索调整或提示词优化。</div>
+      </section>
+
+      <section id="feedback"><h2>四、管理员审核与修复</h2><p class="intro">反馈不是一键改知识，而是一张带审计时间线的工单。管理员从问题成立性开始判断，再决定修复哪一层。</p>
+        <div class="flow"><div class="node"><strong>待处理</strong>收到用户反馈</div><span class="arrow">→</span><div class="node"><strong>审核中</strong>还原回答证据</div><span class="arrow">→</span><div class="node"><strong>定位根因</strong>资料、解析、检索、Wiki、提示词或模型</div><span class="arrow">→</span><div class="node"><strong>修复复测</strong>用原问题隔离验证</div><span class="arrow">→</span><div class="node"><strong>已解决/驳回</strong>公开结论与回归样例</div></div>
+        <p>反馈状态包括 <code>pending</code>、<code>reviewing</code>、<code>needs_info</code>、<code>fixing</code>、<code>resolved</code> 和 <code>dismissed</code>。管理员标记已解决时，必须填写根因、处理方式和用户可见说明；用户还可以在规定窗口内补充信息或重新打开。</p>
+        <p>根因可落到原始资料或附件、解析/分块/索引、检索或重排、Wiki 内容、智能体提示词、模型生成、政策已更新、用户条件不足或非系统问题。修复后的原问题在隔离请求中复测，前后答案和引用继续留在时间线里。</p>
+      </section>
+
+      <section id="space"><h2>五、共享空间与权限</h2><p class="intro">共享空间是跨空间协作的载体，不改变知识库或智能体的原始归属。一次跨空间使用需要同时通过成员角色和资源共享权限。</p>
+        <table><thead><tr><th>层级</th><th>产品含义</th><th>控制范围</th></tr></thead><tbody>
+          <tr><td>空间</td><td>资源的归属单位</td><td>知识库、智能体和成员关系</td></tr>
+          <tr><td>共享空间</td><td>协作关系的容器</td><td>谁能看到哪些共享资源</td></tr>
+          <tr><td>成员角色</td><td>管理员 / 编辑者 / 只读</td><td>空间设置、成员管理和操作上限</td></tr>
+          <tr><td>共享权限</td><td>知识库只读 / 可写；智能体只读使用</td><td>单个资源在该共享空间中的能力</td></tr>
+        </tbody></table>
+        <p>最终权限取两者交集：成员是只读时，即使知识库共享为可写也不能编辑；不同共享空间可以对同一知识库配置不同权限，互不影响。</p>
+      </section>
+
+      <section id="loops"><h2>六、两个相互咬合的循环</h2><p class="intro">FTMind 的持续生长来自“内容更新”和“质量治理”两条循环，而不是让模型无边界地改写政策。</p>
+        <div class="grid"><article class="card accent"><h3>内容循环</h3><p><strong>官网更新 → 定时采集 → RSS 增量同步 → Wiki/索引更新 → 政策问答</strong><br>每一步都保留来源、快照和时间，新的官网状态可以替代旧的有效性判断，但不会抹掉历史证据。</p></article><article class="card accent green"><h3>质量循环</h3><p><strong>问答使用 → 收藏/错误反馈 → 管理员审核 → 修复复测 → 回归样例 → 知识再优化</strong><br>人工确认是知识再次进入生产链路的闸门，确保政府政策内容始终可解释、可追责。</p></article></div>
+        <div class="callout"><strong>最终方向：</strong>让官方证据、规则计算、模型分析、用户信号和管理员治理在清晰边界内协作，逐步形成更完整、更及时、更可审计的宝安政策问答能力。</div>
+      </section>
+      <div class="foot">FTMind 产品逻辑说明 · 当前云端演示约定：18310（主站） / 18320（政策 RSS）</div>
+    </main>
+
+    <aside class="toc" data-od-id="toc"><div class="toc-title">On this page</div><nav class="toc-links"><a href="#overview">产品定位</a><a href="#environment">云端环境</a><a href="#ingest">资料循环</a><a href="#wiki">Wiki 规则</a><a href="#qa">问答与信号</a><a href="#feedback">反馈审核</a><a href="#space">共享空间</a><a href="#loops">双循环</a></nav></aside>
+  </div>
+  <script>
+    const links=[...document.querySelectorAll('.toc-links a')], sections=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+    const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id));document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id));}}),{rootMargin:'-20% 0px -65% 0px'}); sections.forEach(s=>io.observe(s));
+    document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',async()=>{await navigator.clipboard?.writeText(b.dataset.copy);const t=b.textContent;b.textContent='已复制';setTimeout(()=>b.textContent=t,1200)}));
+  </script>
+</body>
+</html>

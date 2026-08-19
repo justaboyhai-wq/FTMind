@@ -1,0 +1,10 @@
+DROP INDEX IF EXISTS idx_agent_binding_keys_purpose;
+DROP INDEX IF EXISTS idx_agent_binding_setup_expiry;
+DROP INDEX IF EXISTS uq_agent_bindings_pending_or_active_connector;
+CREATE UNIQUE INDEX IF NOT EXISTS uq_agent_bindings_active_connector ON agent_bindings(tenant_id, external_agent, connector_type) WHERE status = 'active' AND deleted_at IS NULL;
+ALTER TABLE agent_binding_keys DROP COLUMN IF EXISTS consumed_at;
+ALTER TABLE agent_binding_keys DROP COLUMN IF EXISTS purpose;
+ALTER TABLE agent_bindings DROP COLUMN IF EXISTS setup_attempts;
+ALTER TABLE agent_bindings DROP COLUMN IF EXISTS last_handshake_at;
+ALTER TABLE agent_bindings DROP COLUMN IF EXISTS activated_at;
+ALTER TABLE agent_bindings DROP COLUMN IF EXISTS setup_expires_at;

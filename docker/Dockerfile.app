@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.26-bookworm AS builder
+FROM golang:1.26-bookworm@sha256:116d58cbd88c1297624acc6e967a060012422bacf9930927e23fb719189c6f36 AS builder
 
 WORKDIR /app
 
@@ -48,7 +48,8 @@ RUN --mount=type=cache,target=/go/pkg/mod make build-prod
 # The Go module cache is mounted only while building, so copy Jieba's runtime
 # dictionaries into the image explicitly.  The application initializes Jieba
 # during startup and cannot use the zero-byte cache placeholders otherwise.
-RUN go mod download github.com/yanyiwu/gojieba@v1.4.7 && \
+RUN --mount=type=cache,target=/go/pkg/mod \
+    go mod download github.com/yanyiwu/gojieba@v1.4.7 && \
     mkdir -p /app/jieba-dict && \
     cp /go/pkg/mod/github.com/yanyiwu/gojieba@v1.4.7/deps/cppjieba/dict/jieba.dict.utf8 \
        /go/pkg/mod/github.com/yanyiwu/gojieba@v1.4.7/deps/cppjieba/dict/hmm_model.utf8 \
@@ -58,7 +59,7 @@ RUN go mod download github.com/yanyiwu/gojieba@v1.4.7 && \
        /app/jieba-dict/
 
 # Final stage
-FROM debian:12.12-slim
+FROM debian:12.12-slim@sha256:d5d3f9c23164ea16f31852f95bd5959aad1c5e854332fe00f7b3a20fcc9f635c
 
 WORKDIR /app
 
@@ -66,6 +67,10 @@ ARG APK_MIRROR_ARG
 
 # Create a non-root user first
 RUN useradd -m -s /bin/bash appuser
+
+# The slim runtime image may not contain a CA bundle yet. Reuse the verified
+# bundle from the build stage so HTTPS mirrors work before apt installs its own.
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 # Switch to the configured Debian mirror before the first package operation.
 # Debian's base image already includes the keys needed to validate its package
@@ -86,14 +91,12 @@ RUN apt-get update && \
         nodejs npm \
         gosu \
         ffmpeg && \
-    python3 -m pip install --break-system-packages --upgrade pip setuptools wheel && \
-    mkdir -p /home/appuser/.local/bin && \
-    curl -LsSf https://astral.sh/uv/install.sh | CARGO_HOME=/home/appuser/.cargo UV_INSTALL_DIR=/home/appuser/.local/bin sh && \
-    chown -R appuser:appuser /home/appuser && \
-    ln -sf /home/appuser/.local/bin/uvx /usr/local/bin/uvx && \
-    chmod +x /usr/local/bin/uvx && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+RUN python3 -m pip install --break-system-packages --upgrade pip setuptools wheel uv && \
+    mkdir -p /home/appuser/.local/bin && \
+    chown -R appuser:appuser /home/appuser
 
 # Create data directories and set permissions
 RUN mkdir -p /data/files && \

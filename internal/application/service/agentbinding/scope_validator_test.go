@@ -47,6 +47,7 @@ func TestBindingScopeValidatorRejectsMissingOrCrossTenantPersistedAssets(t *test
 			validator, mock := newScopeValidatorSQLMock(t)
 			binding := authoritativeBindingScope()
 			binding.AssetScopes = append(binding.AssetScopes, tc.kind+":"+tc.id)
+			expectBindingOrganization(mock, binding)
 			mock.ExpectQuery(`SELECT .* FROM "`+tc.tableName+`" WHERE .*tenant_id = \$1 AND id IN \(\$2\).*deleted_at`).
 				WithArgs(uint64(42), tc.id).
 				WillReturnRows(sqlmock.NewRows([]string{"id", "tenant_id"}))
@@ -77,6 +78,7 @@ func TestBindingScopeValidatorRejectsWikiPageAndDocumentKnowledgeBaseHierarchyCo
 			validator, mock := newScopeValidatorSQLMock(t)
 			binding := authoritativeBindingScope()
 			binding.AssetScopes = append(binding.AssetScopes, "knowledge_base:kb-allowed", tc.kind+":"+tc.id)
+			expectBindingOrganization(mock, binding)
 			mock.ExpectQuery(`SELECT .* FROM "`+tc.tableName+`" WHERE .*tenant_id = \$1 AND id IN \(\$2\).*deleted_at`).
 				WithArgs(uint64(42), tc.id).
 				WillReturnRows(sqlmock.NewRows([]string{"id", "tenant_id", "knowledge_base_id"}).
@@ -101,6 +103,7 @@ func TestBindingScopeValidatorBatchesPersistedAssetsAndAcceptsValidHierarchy(t *
 		"wiki_page:page-1", "wiki_page:page-2",
 		"document:doc-1", "document:doc-2",
 	)
+	expectBindingOrganization(mock, binding)
 	mock.ExpectQuery(`SELECT .* FROM "wiki_pages" WHERE .*tenant_id = \$1 AND id IN \(\$2,\$3\).*deleted_at`).
 		WithArgs(uint64(42), "page-1", "page-2").
 		WillReturnRows(sqlmock.NewRows([]string{"id", "tenant_id", "knowledge_base_id"}).
@@ -136,6 +139,18 @@ func authoritativeBindingScope() *types.AgentBinding {
 	return &types.AgentBinding{TenantID: 42, TeamID: "team-1", UserID: "user-1", AgentID: "agent-1", AssetScopes: types.StringArray{"tenant:42", "team:team-1"}}
 }
 
+func expectBindingOrganization(mock sqlmock.Sqlmock, binding *types.AgentBinding) {
+	mock.ExpectQuery(`SELECT .* FROM "teams" WHERE .*id = \$1 AND tenant_id = \$2 AND status = \$3.*LIMIT \$4`).
+		WithArgs(binding.TeamID, binding.TenantID, "active", 1).
+		WillReturnRows(sqlmock.NewRows([]string{"id", "tenant_id", "department_id", "status"}).AddRow(binding.TeamID, binding.TenantID, binding.DepartmentID, "active"))
+	mock.ExpectQuery(`SELECT .* FROM "team_members" WHERE .*team_id = \$1 AND tenant_id = \$2 AND user_id = \$3 AND status = \$4.*LIMIT \$5`).
+		WithArgs(binding.TeamID, binding.TenantID, binding.UserID, "active", 1).
+		WillReturnRows(sqlmock.NewRows([]string{"team_id", "tenant_id", "user_id", "role", "status"}).AddRow(binding.TeamID, binding.TenantID, binding.UserID, "team_admin", "active"))
+	mock.ExpectQuery(`SELECT .* FROM "team_agents" WHERE .*team_id = \$1 AND tenant_id = \$2 AND agent_id = \$3 AND status = \$4.*LIMIT \$5`).
+		WithArgs(binding.TeamID, binding.TenantID, binding.AgentID, "active", 1).
+		WillReturnRows(sqlmock.NewRows([]string{"team_id", "tenant_id", "agent_id", "status"}).AddRow(binding.TeamID, binding.TenantID, binding.AgentID, "active"))
+}
+
 func TestBindingScopeValidatorRejectsTenantAndOptionalNamespaceMismatchBeforeQuerying(t *testing.T) {
 	validator, mock := newScopeValidatorSQLMock(t)
 	for name, mutate := range map[string]func(*types.AgentBinding){
@@ -149,6 +164,7 @@ func TestBindingScopeValidatorRejectsTenantAndOptionalNamespaceMismatchBeforeQue
 		t.Run(name, func(t *testing.T) {
 			binding := authoritativeBindingScope()
 			mutate(binding)
+			expectBindingOrganization(mock, binding)
 			_, err := validator.ResolveRoles(context.Background(), binding)
 			if err == nil || !strings.Contains(err.Error(), "conflicts with binding namespace") {
 				t.Fatalf("expected namespace conflict, got %v", err)
@@ -179,6 +195,7 @@ func TestBindingScopeValidatorRejectsInvalidOrConflictingManagedNamespacesWithou
 
 func TestBindingScopeValidatorAlwaysScopesUserLookupByTenant(t *testing.T) {
 	validator, mock := newScopeValidatorSQLMock(t)
+	expectBindingOrganization(mock, authoritativeBindingScope())
 	mock.ExpectQuery(`SELECT .* FROM "tenant_members" WHERE .*user_id = \$1 AND tenant_id = \$2 AND status = \$3.*LIMIT \$4`).
 		WithArgs("user-1", uint64(42), types.TenantMemberStatusActive, 1).
 		WillReturnRows(sqlmock.NewRows([]string{"user_id", "tenant_id", "role", "status"}))
@@ -192,6 +209,7 @@ func TestBindingScopeValidatorAlwaysScopesUserLookupByTenant(t *testing.T) {
 
 func TestBindingScopeValidatorComputesRolesFromAuthoritativeRows(t *testing.T) {
 	validator, mock := newScopeValidatorSQLMock(t)
+	expectBindingOrganization(mock, authoritativeBindingScope())
 	mock.ExpectQuery(`SELECT .* FROM "tenant_members" WHERE .*user_id = \$1 AND tenant_id = \$2 AND status = \$3.*LIMIT \$4`).
 		WithArgs("user-1", uint64(42), types.TenantMemberStatusActive, 1).
 		WillReturnRows(sqlmock.NewRows([]string{"user_id", "tenant_id", "role", "status"}).AddRow("user-1", 42, "admin", "active"))

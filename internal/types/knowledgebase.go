@@ -51,6 +51,9 @@ type KnowledgeBase struct {
 	Description string `yaml:"description"             json:"description"`
 	// Workspace ID
 	TenantID uint64 `yaml:"tenant_id"               json:"tenant_id"`
+	DepartmentID string `yaml:"department_id" json:"department_id,omitempty" gorm:"type:varchar(36);index"`
+	TeamID string `yaml:"team_id" json:"team_id,omitempty" gorm:"type:varchar(36);index"`
+	Visibility string `yaml:"visibility" json:"visibility" gorm:"type:varchar(20);not null;default:'team'"`
 	// CreatorID records the user ID of whoever originally created the KB.
 	// Used by the workspace-level RBAC middleware to let Contributors edit
 	// their own KBs without granting them access to everyone else's.

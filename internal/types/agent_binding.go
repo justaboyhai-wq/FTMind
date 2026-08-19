@@ -18,11 +18,16 @@ type AgentBinding struct {
 	WorkspaceID      string         `json:"workspace_id,omitempty" gorm:"type:varchar(36);index"`
 	ProjectID        string         `json:"project_id,omitempty" gorm:"type:varchar(36);index"`
 	UserID           string         `json:"user_id" gorm:"type:varchar(36);not null;index"`
+	UserAPIKeyID     uint64         `json:"user_api_key_id,omitempty" gorm:"index"`
 	AgentID          string         `json:"agent_id" gorm:"type:varchar(36);not null;index"`
 	TaskID           string         `json:"task_id,omitempty" gorm:"type:varchar(64);index"`
 	ExternalAgent    string         `json:"external_agent" gorm:"type:varchar(128);not null"`
 	ConnectorType    string         `json:"connector_type" gorm:"type:varchar(64);not null"`
 	Status           string         `json:"status" gorm:"type:varchar(32);not null;default:'active';index"`
+	SetupExpiresAt   *time.Time     `json:"setup_expires_at,omitempty"`
+	ActivatedAt      *time.Time     `json:"activated_at,omitempty"`
+	LastHandshakeAt  *time.Time     `json:"last_handshake_at,omitempty"`
+	SetupAttempts    int            `json:"setup_attempts" gorm:"not null;default:0"`
 	CaptureEnabled   bool           `json:"capture_enabled" gorm:"not null;default:false"`
 	RecallEnabled    bool           `json:"recall_enabled" gorm:"not null;default:false"`
 	L3WikiEnabled    bool           `json:"l3_wiki_enabled" gorm:"not null;default:false"`
@@ -41,6 +46,7 @@ type AgentBinding struct {
 func (AgentBinding) TableName() string { return "agent_bindings" }
 
 const (
-	AgentBindingStatusActive  = "active"
-	AgentBindingStatusRevoked = "revoked"
+	AgentBindingStatusPendingSetup = "pending_setup"
+	AgentBindingStatusActive       = "active"
+	AgentBindingStatusRevoked      = "revoked"
 )

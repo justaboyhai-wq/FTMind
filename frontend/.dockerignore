@@ -1,4 +1,3 @@
-*
-!dist
-!nginx.conf
-!docker-entrypoint.sh
+node_modules
+dist
+*.log

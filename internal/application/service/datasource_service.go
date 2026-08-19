@@ -3,6 +3,8 @@ package service
 import (
 	"bytes"
 	"context"
+	"crypto/md5"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,13 +14,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hibiken/asynq"
 	"github.com/justaboyhai-wq/fmind/internal/datasource"
 	"github.com/justaboyhai-wq/fmind/internal/logger"
 	"github.com/justaboyhai-wq/fmind/internal/tracing/langfuse"
 	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 	secutils "github.com/justaboyhai-wq/fmind/internal/utils"
-	"github.com/hibiken/asynq"
 )
 
 // DataSourceService implements the DataSourceService interface
@@ -642,6 +644,7 @@ func (s *DataSourceService) ProcessSync(ctx context.Context, task *asynq.Task) e
 	}
 
 	var fetchWarnings []string
+	var tagWarnings []string
 	var partialFetch *datasource.PartialFetchError
 	if errors.As(fetchErr, &partialFetch) {
 		fetchWarnings = partialFetch.Details
@@ -706,6 +709,7 @@ func (s *DataSourceService) ProcessSync(ctx context.Context, task *asynq.Task) e
 		logger.Infof(ctx, "using auto-tag %q (id=%s) for data source sync", autoTagName, autoTag.ID)
 	}
 
+	hadItemFailure := false
 	for _, item := range items {
 		if item.IsDeleted {
 			if ds.SyncDeletions {
@@ -723,14 +727,30 @@ func (s *DataSourceService) ProcessSync(ctx context.Context, task *asynq.Task) e
 				logger.Warnf(ctx, "item %q (external_id=%s) fetch failed: %s", item.Title, item.ExternalID, errMsg)
 				result.Failed++
 				result.Errors = append(result.Errors, fmt.Sprintf("%s: %s", item.Title, errMsg))
+				hadItemFailure = true
 			} else {
 				logger.Infof(ctx, "skipping item %q (external_id=%s): no content or URL", item.Title, item.ExternalID)
 				result.Skipped++
 			}
 			continue
 		}
+		if invalid := strings.TrimSpace(item.Metadata["invalid_official_tags"]); invalid != "" {
+			logger.Warnf(ctx, "item %q contains rejected RSS tags: %s", item.Title, invalid)
+			tagWarnings = append(tagWarnings, fmt.Sprintf("%s: rejected RSS tags: %s", item.Title, invalid))
+		}
 
-		isUpdate, err := s.ingestItem(ctx, ds, &item, autoTagIDs)
+		itemTagIDs, tagErr := s.resolveFetchedItemTags(ctx, ds.KnowledgeBaseID, item.TagNames, autoTagIDs)
+		if tagErr != nil {
+			// Do not ingest a partial official-tag set.  On an existing RSS item
+			// this would otherwise remove previously managed tags; on any failure
+			// we retain the cursor so the full item is retried intact.
+			logger.Warnf(ctx, "failed to resolve tags for item %q: %v", item.Title, tagErr)
+			result.Failed++
+			result.Errors = append(result.Errors, fmt.Sprintf("%s: resolve official tags: %v", item.Title, tagErr))
+			hadItemFailure = true
+			continue
+		}
+		isUpdate, err := s.ingestItem(ctx, ds, &item, itemTagIDs)
 		if err != nil {
 			// Duplicate file/URL is not a failure — count as skipped
 			var dupErr *types.DuplicateKnowledgeError
@@ -741,6 +761,7 @@ func (s *DataSourceService) ProcessSync(ctx context.Context, task *asynq.Task) e
 				logger.Warnf(ctx, "failed to ingest item %q (external_id=%s): %v", item.Title, item.ExternalID, err)
 				result.Failed++
 				result.Errors = append(result.Errors, fmt.Sprintf("%s: %v", item.Title, err))
+				hadItemFailure = true
 			}
 		} else if isUpdate {
 			result.Updated++
@@ -757,7 +778,7 @@ func (s *DataSourceService) ProcessSync(ctx context.Context, task *asynq.Task) e
 	}
 
 	// Update cursor for next incremental sync
-	if nextCursor != nil {
+	if shouldAdvanceRSSCursor(nextCursor != nil, hadItemFailure) {
 		cursorJSON, _ := nextCursor.ToJSON()
 		ds.LastSyncCursor = cursorJSON
 	}
@@ -773,12 +794,68 @@ func (s *DataSourceService) ProcessSync(ctx context.Context, task *asynq.Task) e
 		}
 		resultJSON, _ = result.ToJSON()
 	}
+	if len(tagWarnings) > 0 {
+		syncStatus = types.SyncLogStatusPartial
+		if syncErrorMessage != "" {
+			syncErrorMessage += "; "
+		}
+		syncErrorMessage += strings.Join(tagWarnings, "; ")
+		result.Errors = append(result.Errors, tagWarnings...)
+		resultJSON, _ = result.ToJSON()
+	}
 	s.updateSyncRunResult(ctx, ds, syncLog, result, resultJSON, syncStatus, syncErrorMessage, wasPaused)
 
 	logger.Infof(ctx, "data source sync completed: ds=%s created=%d updated=%d deleted=%d",
 		payload.DataSourceID, syncLog.ItemsCreated, syncLog.ItemsUpdated, syncLog.ItemsDeleted)
 
 	return nil
+}
+
+func shouldAdvanceRSSCursor(hasNextCursor, hadItemFailure bool) bool {
+	return hasNextCursor && !hadItemFailure
+}
+
+// resolveFetchedItemTags creates/reuses source-provided tags and combines them
+// with the data-source tag. Invalid tags are ignored by the RSS connector
+// before this point; this guard also protects other connectors.
+func (s *DataSourceService) resolveFetchedItemTags(ctx context.Context, kbID string, names []string, baseIDs []string) ([]string, error) {
+	ids := append([]string(nil), baseIDs...)
+	seen := make(map[string]struct{}, len(ids))
+	for _, id := range ids {
+		if id != "" {
+			seen[id] = struct{}{}
+		}
+	}
+	var firstErr error
+	for _, name := range names {
+		if !isOfficialPolicyTagName(name) {
+			continue
+		}
+		tag, err := s.tagService.FindOrCreateTagByName(ctx, kbID, name)
+		if err != nil {
+			if firstErr == nil {
+				firstErr = err
+			}
+			continue
+		}
+		if tag != nil && tag.ID != "" {
+			if _, ok := seen[tag.ID]; !ok {
+				ids = append(ids, tag.ID)
+				seen[tag.ID] = struct{}{}
+			}
+		}
+	}
+	return ids, firstErr
+}
+
+func isOfficialPolicyTagName(name string) bool {
+	name = strings.TrimSpace(name)
+	for _, prefix := range []string{"服务对象/", "发文机构/", "主题/", "文件载体/", "文件类型/", "关联内容/", "申报状态/"} {
+		if strings.HasPrefix(name, prefix) && strings.TrimSpace(strings.TrimPrefix(name, prefix)) != "" {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *DataSourceService) updateSyncRunResult(
@@ -898,6 +975,15 @@ func (s *DataSourceService) ingestItem(ctx context.Context, ds *types.DataSource
 	for k, v := range item.Metadata {
 		metadata[k] = v
 	}
+	if len(item.TagNames) > 0 {
+		if encoded, err := json.Marshal(item.TagNames); err == nil {
+			metadata["official_tag_names"] = string(encoded)
+			metadata["official_tag_source"] = "website"
+		}
+	}
+	if len(item.Content) > 0 {
+		metadata["rss_content_sha256"] = contentSHA256(item.Content)
+	}
 
 	// Check if a knowledge item with this external_id already exists → delete it first (update)
 	isUpdate := false
@@ -908,6 +994,37 @@ func (s *DataSourceService) ingestItem(ctx context.Context, ds *types.DataSource
 			logger.Warnf(ctx, "failed to check existing knowledge for external_id=%s: %v", item.ExternalID, err)
 			// Non-fatal: proceed with creation (may produce duplicate)
 		} else if existing != nil {
+			// Preserve user/AI tags while replacing only tags managed by this
+			// connector. Official dimension tags are intentionally refreshed from
+			// the latest RSS item, so expired/removed website tags do not linger.
+			existingTags, tagErr := loadExistingKnowledgeTags(ctx, s.knowledgeService, existing.ID)
+			if tagErr != nil {
+				// Failing open here would call SetKnowledgeTags with only the RSS
+				// tags, deleting a user's manual/AI tags.  Report this item as a
+				// partial failure instead and leave it entirely untouched.
+				return false, tagErr
+			}
+			tagIDs = mergeExistingManualTagIDs(tagIDs, existingTags, existing.Metadata)
+			// A category/metadata-only RSS change must not destroy the existing
+			// knowledge ID, chunks, vectors or Wiki references. When the fetched
+			// body is byte-identical, update only mutable display/metadata columns
+			// and replace the managed tag set in place.
+			if len(item.Content) > 0 && matchesExistingRSSContent(item, existing) {
+				updates := map[string]interface{}{"metadata": metadata}
+				if item.Title != "" {
+					updates["title"] = item.Title
+				}
+				if item.FileName != "" {
+					updates["file_name"] = item.FileName
+				}
+				if err := repo.UpdateKnowledgeColumns(ctx, existing.ID, updates); err != nil {
+					return false, err
+				}
+				if err := s.knowledgeService.SetKnowledgeTags(ctx, existing.ID, tagIDs); err != nil {
+					return false, rollbackRSSInPlaceUpdate(ctx, repo, s.knowledgeService, existing, existingTags, err)
+				}
+				return true, nil
+			}
 			logger.Infof(ctx, "found existing knowledge %s for external_id=%s, deleting for update", existing.ID, item.ExternalID)
 			if err := s.knowledgeService.DeleteKnowledge(ctx, existing.ID); err != nil {
 				logger.Warnf(ctx, "failed to delete existing knowledge %s: %v", existing.ID, err)
@@ -955,6 +1072,153 @@ func (s *DataSourceService) ingestItem(ctx context.Context, ds *types.DataSource
 	}
 
 	return isUpdate, fmt.Errorf("item has neither content nor URL")
+}
+
+func loadExistingKnowledgeTags(
+	ctx context.Context,
+	knowledgeService interfaces.KnowledgeService,
+	knowledgeID string,
+) ([]*types.KnowledgeTag, error) {
+	existingTags, err := knowledgeService.GetKnowledgeTags(ctx, []string{knowledgeID})
+	if err != nil {
+		return nil, fmt.Errorf("read existing knowledge tags: %w", err)
+	}
+	return existingTags[knowledgeID], nil
+}
+
+// rollbackRSSInPlaceUpdate compensates a failed tag replacement.  The service
+// interfaces do not expose a shared transaction, so restore both mutable row
+// columns and the complete prior relationship set before returning the item
+// failure; ProcessSync consequently leaves the incremental cursor unchanged.
+func rollbackRSSInPlaceUpdate(
+	ctx context.Context,
+	repo interfaces.KnowledgeRepository,
+	knowledgeService interfaces.KnowledgeService,
+	existing *types.Knowledge,
+	previousTags []*types.KnowledgeTag,
+	setErr error,
+) error {
+	previousIDs := make([]string, 0, len(previousTags))
+	for _, tag := range previousTags {
+		if tag != nil && tag.ID != "" {
+			previousIDs = append(previousIDs, tag.ID)
+		}
+	}
+	columns := map[string]interface{}{"metadata": existing.Metadata, "title": existing.Title, "file_name": existing.FileName}
+	columnErr := repo.UpdateKnowledgeColumns(ctx, existing.ID, columns)
+	tagErr := knowledgeService.SetKnowledgeTags(ctx, existing.ID, previousIDs)
+	if columnErr != nil || tagErr != nil {
+		return fmt.Errorf("set RSS tags: %w; compensation failed: restore columns=%v restore tags=%v", setErr, columnErr, tagErr)
+	}
+	return fmt.Errorf("set RSS tags: %w; original metadata and tags restored", setErr)
+}
+
+func matchesStoredFileHash(content []byte, stored string) bool {
+	stored = strings.TrimSpace(stored)
+	md5Digest := md5.Sum(content)
+	if fmt.Sprintf("%x", md5Digest[:]) == stored {
+		return true
+	}
+	shaDigest := sha256.Sum256(content)
+	return fmt.Sprintf("%x", shaDigest[:]) == stored
+}
+
+func contentSHA256(content []byte) string {
+	digest := sha256.Sum256(content)
+	return fmt.Sprintf("%x", digest[:])
+}
+
+func matchesStoredRSSContent(content []byte, existing *types.Knowledge) bool {
+	if existing == nil {
+		return false
+	}
+	if matchesStoredFileHash(content, existing.FileHash) {
+		return true
+	}
+	metadata := existing.GetMetadata()
+	return metadata["rss_content_sha256"] == contentSHA256(content)
+}
+
+func matchesExistingRSSContent(item *types.FetchedItem, existing *types.Knowledge) bool {
+	if item == nil || existing == nil {
+		return false
+	}
+	if matchesStoredRSSContent(item.Content, existing) {
+		return true
+	}
+	existingMetadata := existing.GetMetadata()
+	guid := item.Metadata["guid"]
+	return isBaoanPolicyGUID(guid) && guid == existingMetadata["guid"] &&
+		item.Metadata["rss_content_signal"] != "" &&
+		item.Metadata["rss_content_signal"] == existingMetadata["rss_content_signal"]
+}
+
+func isBaoanPolicyGUID(guid string) bool {
+	const prefix = "baoan-policy:post_"
+	if !strings.HasPrefix(guid, prefix) || len(guid) == len(prefix) {
+		return false
+	}
+	for _, r := range guid[len(prefix):] {
+		if r < '0' || r > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+// mergeExistingManualTagIDs retains every existing tag except a tag explicitly
+// recorded as managed by the RSS policy integration. Prefixes alone are not
+// ownership: a user may legitimately create a similarly-prefixed tag.
+func mergeExistingManualTagIDs(tagIDs []string, existingTags []*types.KnowledgeTag, metadata ...types.JSON) []string {
+	merged := append([]string(nil), tagIDs...)
+	managedNames := map[string]struct{}{}
+	if len(metadata) > 0 {
+		managedNames = recordedOfficialTagNames(metadata[0])
+	}
+	for _, existingTag := range existingTags {
+		if existingTag != nil {
+			_, managed := managedNames[existingTag.Name]
+			if managed && isOfficialPolicyTagName(existingTag.Name) {
+				continue
+			}
+			merged = appendUniqueString(merged, existingTag.ID)
+		}
+	}
+	return merged
+}
+
+func recordedOfficialTagNames(metadata types.JSON) map[string]struct{} {
+	result := map[string]struct{}{}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(metadata, &fields); err != nil {
+		return result
+	}
+	raw := fields["official_tag_names"]
+	var names []string
+	if err := json.Unmarshal(raw, &names); err != nil {
+		var encoded string
+		if err := json.Unmarshal(raw, &encoded); err != nil || json.Unmarshal([]byte(encoded), &names) != nil {
+			return result
+		}
+	}
+	for _, name := range names {
+		if isOfficialPolicyTagName(name) {
+			result[name] = struct{}{}
+		}
+	}
+	return result
+}
+
+func appendUniqueString(values []string, value string) []string {
+	if value == "" {
+		return values
+	}
+	for _, v := range values {
+		if v == value {
+			return values
+		}
+	}
+	return append(values, value)
 }
 
 // bytesToFileHeader wraps a []byte into a *multipart.FileHeader so it can be

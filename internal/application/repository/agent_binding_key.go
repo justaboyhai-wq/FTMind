@@ -22,7 +22,7 @@ func (r *agentBindingKeyRepository) CreateAgentBindingKey(ctx context.Context, k
 }
 func (r *agentBindingKeyRepository) GetActiveAgentBindingKeyByHash(ctx context.Context, hash string) (*types.AgentBindingKey, error) {
 	var k types.AgentBindingKey
-	err := r.db.WithContext(ctx).Where("key_hash = ? AND revoked_at IS NULL AND (expires_at IS NULL OR expires_at > ?)", hash, time.Now()).First(&k).Error
+	err := r.db.WithContext(ctx).Where("key_hash = ? AND purpose = ? AND revoked_at IS NULL AND consumed_at IS NULL AND (expires_at IS NULL OR expires_at > ?)", hash, "memory_binding_runtime", time.Now()).First(&k).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, ErrAgentBindingKeyNotFound
 	}

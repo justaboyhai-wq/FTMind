@@ -2516,10 +2516,10 @@ const downloadExampleOptions = computed(() => [
 // 示例数据
 const exampleData: FAQEntryPayload[] = [
   {
-    standard_question: '什么是 FMind？',
-    answers: ['FMind 是一个智能知识库管理系统', '它支持多种知识库类型和导入方式'],
-    similar_questions: ['FMind 是什么？', '介绍一下 FMind'],
-    negative_questions: ['这不是 FMind', '与 FMind 无关'],
+    standard_question: '什么是 FTMind？',
+    answers: ['FTMind 是一个智能知识库管理系统', '它支持多种知识库类型和导入方式'],
+    similar_questions: ['FTMind 是什么？', '介绍一下 FTMind'],
+    negative_questions: ['这不是 FTMind', '与 FTMind 无关'],
     tag_name: '产品介绍',
   },
   {

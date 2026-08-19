@@ -29,6 +29,34 @@ type agentBindingServiceStub struct {
 	verifyErr       error
 }
 
+type setupBindingServiceStub struct {
+	agentBindingServiceStub
+	setupRequest interfaces.AgentBindingSetupRequest
+}
+
+func (s *setupBindingServiceStub) Setup(_ context.Context, req interfaces.AgentBindingSetupRequest) (*interfaces.AgentBindingSetupResult, error) {
+	s.setupRequest = req
+	return &interfaces.AgentBindingSetupResult{BindingID: req.BindingID, Status: types.AgentBindingStatusActive, ConnectorSecret: "fmind_runtime"}, nil
+}
+func (s *setupBindingServiceStub) SetupStatus(context.Context, string) (*interfaces.AgentBindingSetupStatus, error) {
+	return &interfaces.AgentBindingSetupStatus{Status: types.AgentBindingStatusPendingSetup}, nil
+}
+
+func TestAgentBindingSetupConsumesDedicatedHeader(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	svc := &setupBindingServiceStub{}
+	r := gin.New()
+	r.POST("/internal/v1/agent-bindings/setup", NewAgentBindingHandler(svc).Setup)
+	req := httptest.NewRequest(http.MethodPost, "/internal/v1/agent-bindings/setup", bytes.NewBufferString(`{"binding_id":"binding-1","external_agent":"openclaw","connector_type":"openclaw_plugin"}`))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-FMind-Connector-Secret", "fmind_setup")
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	if w.Code != http.StatusOK || svc.setupRequest.ConnectorSecret != "fmind_setup" {
+		t.Fatalf("setup header was not passed to service: status=%d body=%s request=%+v", w.Code, w.Body.String(), svc.setupRequest)
+	}
+}
+
 func (s *agentBindingServiceStub) Create(_ context.Context, req interfaces.AgentBindingCreateRequest) (*interfaces.AgentBindingCreateResult, error) {
 	s.createReq = req
 	if s.createErr != nil {

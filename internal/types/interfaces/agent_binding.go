@@ -22,6 +22,10 @@ type AgentBindingRepository interface {
 	RevokeAgentBindingWithKeys(context.Context, uint64, string) error
 }
 
+type AgentBindingSetupRepository interface {
+	CompleteSetup(context.Context, string, string, string, string, uint64, *types.AgentBindingKey, *types.AgentBindingKey, time.Time) (*types.AgentBinding, error)
+}
+
 // AgentBindingScopeValidator verifies tenant-owned managed namespaces and
 // resolves roles from authoritative server-side membership state.
 type AgentBindingScopeValidator interface {

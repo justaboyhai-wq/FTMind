@@ -1,6 +1,8 @@
+import io
 import os
 import tempfile
 import unittest
+import zipfile
 
 from ebooklib import epub
 
@@ -53,6 +55,17 @@ def _minimal_epub_bytes() -> bytes:
 
 
 class EPUBParserTest(unittest.TestCase):
+    def test_rejects_archive_with_excessive_uncompressed_size(self):
+        payload = io.BytesIO()
+        with zipfile.ZipFile(payload, "w", zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr("chapter1.xhtml", b"A" * 4096)
+
+        parser = EPUBParser(file_name="bomb.epub", file_type="epub")
+        parser.max_archive_uncompressed_bytes = 1024
+
+        with self.assertRaisesRegex(ValueError, "archive.*exceeds"):
+            parser._parse_epub_fallback(payload.getvalue())
+
     def test_parse_minimal_epub(self):
         document = EPUBParser(
             file_name="tiny.epub", file_type="epub"

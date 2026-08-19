@@ -263,6 +263,10 @@ func validVerifiedBinding(binding *types.BindingContext, now time.Time) bool {
 
 func authorizeTool(binding types.BindingContext, request Request) error {
 	policy := toolPolicies[request.Tool]
+	role, ok := bindingTenantRole(binding)
+	if !ok || !roleAllowsTool(role, request.Tool) {
+		return fmt.Errorf("%w: tenant role cannot perform %s", ErrForbidden, request.Tool)
+	}
 	if !contains(binding.CapabilityScopes, policy.capability) {
 		return fmt.Errorf("%w: missing capability %s", ErrForbidden, policy.capability)
 	}
@@ -290,6 +294,38 @@ func authorizeTool(binding types.BindingContext, request Request) error {
 		}
 	}
 	return nil
+}
+
+func bindingTenantRole(binding types.BindingContext) (types.TenantRole, bool) {
+	for _, raw := range binding.Roles {
+		if !strings.HasPrefix(raw, "tenant:") {
+			continue
+		}
+		value := strings.TrimPrefix(raw, "tenant:")
+		// tenant:member was emitted by pre-RBAC bindings. Keep it as the
+		// least write-capable compatibility role while new tokens use the
+		// canonical four TenantRole values.
+		if value == "member" {
+			return types.TenantRoleContributor, true
+		}
+		role := types.TenantRole(value)
+		if role.IsValid() {
+			return role, true
+		}
+	}
+	return "", false
+}
+
+func roleAllowsTool(role types.TenantRole, tool string) bool {
+	if role == types.TenantRoleOwner || role == types.TenantRoleAdmin {
+		return true
+	}
+	switch tool {
+	case ToolMemoryCaptureTurn, ToolMemoryConfirmCandidate:
+		return role == types.TenantRoleContributor
+	default:
+		return role == types.TenantRoleContributor || role == types.TenantRoleViewer
+	}
 }
 
 func authorizeContextAssembly(binding types.BindingContext, arguments map[string]any, requested []string) error {

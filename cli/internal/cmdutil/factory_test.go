@@ -430,6 +430,7 @@ func TestBuildClientFromEnv(t *testing.T) {
 
 	t.Run("no env vars falls through to profile path", func(t *testing.T) {
 		t.Setenv("FMIND_TOKEN", "")
+		t.Setenv("FMIND_USER_API_KEY", "")
 		t.Setenv("FMIND_API_KEY", "")
 		c, handled, err := buildClientFromEnv(emptyCfg)
 		assert.False(t, handled, "no env creds must fall through")
@@ -439,12 +440,27 @@ func TestBuildClientFromEnv(t *testing.T) {
 
 	t.Run("api key + FMIND_HOST builds a client", func(t *testing.T) {
 		t.Setenv("FMIND_TOKEN", "")
+		t.Setenv("FMIND_USER_API_KEY", "")
 		t.Setenv("FMIND_API_KEY", "sk-test")
 		t.Setenv("FMIND_HOST", "https://kb.example.com")
 		c, handled, err := buildClientFromEnv(emptyCfg)
 		assert.True(t, handled)
 		require.NoError(t, err)
 		assert.NotNil(t, c)
+	})
+
+	t.Run("FMIND_USER_API_KEY is the canonical API key alias", func(t *testing.T) {
+		t.Setenv("FMIND_TOKEN", "")
+		t.Setenv("FMIND_USER_API_KEY", "sk-user")
+		t.Setenv("FMIND_API_KEY", "legacy-key")
+		t.Setenv("FMIND_HOST", "https://kb.example.com")
+		c, handled, err := buildClientFromEnv(emptyCfg)
+		assert.True(t, handled)
+		require.NoError(t, err)
+		assert.NotNil(t, c)
+		active, kind := EnvCredential()
+		assert.True(t, active)
+		assert.Equal(t, "FMIND_USER_API_KEY", kind)
 	})
 
 	t.Run("token set but no host is a typed input error", func(t *testing.T) {

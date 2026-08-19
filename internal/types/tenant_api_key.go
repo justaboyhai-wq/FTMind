@@ -17,6 +17,7 @@ import (
 type TenantAPIKey struct {
 	ID               uint64      `json:"id" gorm:"primaryKey;autoIncrement"`
 	TenantID         uint64      `json:"tenant_id" gorm:"not null;index"`
+	UserID           string      `json:"user_id,omitempty" gorm:"type:varchar(36);index"`
 	Name             string      `json:"name" gorm:"type:varchar(128);not null"`
 	KeyHash          string      `json:"-" gorm:"type:varchar(64);not null;uniqueIndex"`
 	APIKey           string      `json:"api_key" gorm:"column:api_key;type:text;not null;default:''"`

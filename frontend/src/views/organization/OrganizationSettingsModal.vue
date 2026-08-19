@@ -231,7 +231,38 @@
                       <span class="permissions-compact-title">{{ $t('organization.editor.permissionsTitle') }}</span>
                       <span class="permissions-compact-desc">{{ $t('organization.editor.permissionsDesc') }}</span>
                     </div>
-                    <div class="permissions-compact-grid">
+                    <div class="memory-permissions-summary">
+                      <div class="memory-permissions-title">记忆能力（当前用户实际权限）</div>
+                      <div class="memory-permissions-list">
+                        <span v-for="item in actualMemoryPermissionItems" :key="item.key" :class="['memory-permission-item', { enabled: item.enabled }]">
+                          <t-icon :name="item.enabled ? 'check' : 'close'" size="12px" /> {{ item.label }}
+                        </span>
+                      </div>
+                    </div>
+                    <div class="permissions-compact-grid permissions-role-grid">
+                      <div v-for="role in permissionRoleCards" :key="role.key"
+                        :class="['perm-role-block', role.cssClass, { 'is-me': role.isMe }]">
+                        <div class="perm-role-tag">
+                          <t-icon :name="role.icon" size="12px" />
+                          <span>{{ role.label }}</span>
+                          <span v-if="role.isMe" class="me-badge">{{ $t('common.me') }}</span>
+                        </div>
+                        <div class="perm-group-label">知识库能力</div>
+                        <div class="perm-items">
+                          <span v-for="item in role.knowledge" :key="item.key" :class="['perm-item', item.enabled ? 'has' : 'no']">
+                            <t-icon :name="item.enabled ? 'check' : 'close'" size="12px" />{{ item.label }}
+                          </span>
+                        </div>
+                        <div class="perm-group-label memory-group-label">记忆能力（后端角色矩阵）</div>
+                        <div class="perm-items">
+                          <span v-for="item in role.memory" :key="item.key" :class="['perm-item', item.enabled ? 'has' : 'no']">
+                            <t-icon :name="item.enabled ? 'check' : 'close'" size="12px" />{{ item.label }}
+                          </span>
+                          <span v-if="role.memory.length === 0" class="perm-item no">暂无权限数据</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div v-if="false" class="permissions-compact-grid">
                       <div :class="['perm-role-block', 'admin', { 'is-me': orgInfo?.my_role === 'admin' }]">
                         <div class="perm-role-tag">
                           <t-icon name="user-safety" size="12px" />
@@ -698,7 +729,92 @@ import AgentAvatar from '@/components/AgentAvatar.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const memoryPermissionItems = computed(() => [
+  { key: 'memory.context', label: '使用记忆上下文' },
+  { key: 'memory.capture', label: '记录对话记忆' },
+  { key: 'memory.recall', label: '召回历史记忆' },
+  { key: 'memory.confirm', label: '确认记忆候选' },
+  { key: 'memory.review', label: '审核 L3 记忆' },
+  { key: 'memory.l3.publish', label: '发布 Memory Wiki' },
+  { key: 'wiki.get', label: '读取 Memory Wiki' },
+].map(item => ({ ...item, enabled: authStore.hasCapability(item.key) || authStore.canAction('external_memory', item.key) })))
 const { t } = useI18n()
+
+// The role matrix is returned by the backend permission snapshot. These
+// labels are presentation-only; enabled state never comes from a frontend
+// role guess.
+const memoryPermissionDefinitions = [
+  { key: 'memory.context', label: '使用记忆上下文' },
+  { key: 'memory.capture', label: '记录 L0-L2 记忆' },
+  { key: 'memory.recall', label: '召回 L0-L2 记忆' },
+  { key: 'memory.confirm', label: '确认记忆候选' },
+  { key: 'memory.review', label: '审核 L3 记忆' },
+  { key: 'memory.publish', label: '发布 Memory Wiki' },
+  { key: 'memory.revoke', label: '撤销 Memory Wiki' },
+  { key: 'wiki.get', label: '读取 Memory Wiki' },
+]
+
+const displayMemoryPermissionDefinitions = [
+  { key: 'memory.context', label: '\u4f7f\u7528\u8bb0\u5fc6\u4e0a\u4e0b\u6587' },
+  { key: 'memory.capture', label: '\u8bb0\u5f55 L0-L2 \u8bb0\u5fc6' },
+  { key: 'memory.recall', label: '\u53ec\u56de L0-L2 \u8bb0\u5fc6' },
+  { key: 'memory.confirm', label: '\u786e\u8ba4\u8bb0\u5fc6\u5019\u9009' },
+  { key: 'memory.review', label: '\u5ba1\u6838 L3 \u8bb0\u5fc6' },
+  { key: 'memory.publish', label: '\u53d1\u5e03 Memory Wiki' },
+  { key: 'memory.revoke', label: '\u64a4\u9500 Memory Wiki' },
+  { key: 'wiki.get', label: '\u8bfb\u53d6 Memory Wiki' },
+]
+
+const actualMemoryPermissionItems = computed(() => displayMemoryPermissionDefinitions.map(item => ({
+  ...item,
+  enabled: authStore.hasCapability(item.key) || authStore.canAction('external_memory', item.key),
+})))
+
+const permissionRoleCards = computed(() => {
+  const matrix = authStore.permissions.role_matrix || {}
+  const displayRoleDefinitions = [
+    { key: 'owner', label: '\u6240\u6709\u8005', cssClass: 'owner', icon: 'user-safety' },
+    { key: 'admin', label: '\u7ba1\u7406\u5458', cssClass: 'admin', icon: 'user-safety' },
+    { key: 'contributor', label: '\u7f16\u8f91', cssClass: 'editor', icon: 'edit' },
+    { key: 'viewer', label: '\u8bbf\u5ba2', cssClass: 'viewer', icon: 'browse' },
+  ]
+  const displayKnowledge = [
+    { key: 'knowledge.read', label: '\u67e5\u770b\u548c\u68c0\u7d22\u77e5\u8bc6\u5e93' },
+    { key: 'knowledge.update', label: '\u7f16\u8f91\u6388\u6743\u77e5\u8bc6\u5e93\u5185\u5bb9' },
+    { key: 'knowledge.share', label: '\u5171\u4eab\u77e5\u8bc6\u5e93' },
+    { key: 'settings.manage', label: '\u7ba1\u7406\u7a7a\u95f4\u8bbe\u7f6e\u548c\u6210\u5458' },
+  ]
+  const roleDefinitions = [
+    { key: 'owner', label: '所有者', cssClass: 'owner', icon: 'user-safety' },
+    { key: 'admin', label: '管理员', cssClass: 'admin', icon: 'user-safety' },
+    { key: 'contributor', label: '编辑', cssClass: 'editor', icon: 'edit' },
+    { key: 'viewer', label: '访客', cssClass: 'viewer', icon: 'browse' },
+  ]
+  const currentRole = orgInfo.value?.is_owner
+    ? 'owner'
+    : (orgInfo.value?.my_role === 'editor' ? 'contributor' : orgInfo.value?.my_role)
+  const knowledge = [
+    { key: 'knowledge.read', label: '查看和检索知识库' },
+    { key: 'knowledge.update', label: '编辑授权知识库内容' },
+    { key: 'knowledge.share', label: '共享知识库' },
+    { key: 'settings.manage', label: '管理空间设置和成员' },
+  ]
+  const knowledgeByRole: Record<string, string[]> = {
+    owner: displayKnowledge.map(item => item.key),
+    admin: displayKnowledge.map(item => item.key),
+    contributor: ['knowledge.read', 'knowledge.update'],
+    viewer: ['knowledge.read'],
+  }
+  return displayRoleDefinitions.map(role => {
+    const enabledMemory = new Set(matrix[role.key] || [])
+    return {
+      ...role,
+      isMe: currentRole === role.key,
+      knowledge: displayKnowledge.map(item => ({ ...item, enabled: knowledgeByRole[role.key].includes(item.key) })),
+      memory: displayMemoryPermissionDefinitions.map(item => ({ ...item, enabled: enabledMemory.has(item.key) })),
+    }
+  })
+})
 
 const orgStore = useOrganizationStore()
 
@@ -2086,6 +2202,44 @@ watch(currentSection, (section) => {
     }
   }
 
+  .memory-permissions-summary {
+    margin: 10px 0;
+    padding: 9px 10px;
+    border: 1px solid color-mix(in srgb, @primary-color 24%, var(--td-component-stroke));
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--td-brand-color) 5%, var(--td-bg-color-container));
+  }
+
+  .memory-permissions-title {
+    margin-bottom: 6px;
+    color: @primary-color;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .memory-permissions-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+  }
+
+  .memory-permission-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    color: var(--td-text-color-placeholder);
+    font-size: 11px;
+    white-space: nowrap;
+
+    &.enabled {
+      color: var(--td-text-color-secondary);
+
+      .t-icon {
+        color: @primary-color;
+      }
+    }
+  }
+
   .permissions-compact-grid {
     display: flex;
     gap: 8px;
@@ -2163,6 +2317,26 @@ watch(currentSection, (section) => {
       display: flex;
       flex-direction: column;
       gap: 4px;
+    }
+
+    .perm-group-label {
+      margin: 6px 0 4px;
+      font-size: 0;
+      font-weight: 600;
+      color: var(--td-text-color-placeholder);
+    }
+
+    .perm-group-label::after {
+      content: "\\77e5\\8bc6\\5e93\\80fd\\529b";
+      font-size: 10px;
+    }
+
+    .memory-group-label {
+      margin-top: 10px;
+    }
+
+    .memory-group-label::after {
+      content: "\\8bb0\\5fc6\\80fd\\529b\\ff08\\540e\\7aef\\89d2\\8272\\77e9\\9635\\ff09";
     }
 
     .perm-item {

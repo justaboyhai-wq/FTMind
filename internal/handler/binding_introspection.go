@@ -5,15 +5,26 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/justaboyhai-wq/fmind/internal/authz"
 	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
 
 type BindingIntrospectionHandler struct {
-	service interfaces.AgentBindingService
+	service    interfaces.AgentBindingService
+	authorizer *authz.Service
+	apiKeys    interfaces.TenantAPIKeyService
 }
 
 func NewBindingIntrospectionHandler(service interfaces.AgentBindingService) *BindingIntrospectionHandler {
 	return &BindingIntrospectionHandler{service: service}
+}
+
+func NewBindingIntrospectionHandlerWithAuthorization(service interfaces.AgentBindingService, authorizer *authz.Service) *BindingIntrospectionHandler {
+	return &BindingIntrospectionHandler{service: service, authorizer: authorizer}
+}
+
+func NewBindingIntrospectionHandlerWithAuthorizationAndAPIKey(service interfaces.AgentBindingService, authorizer *authz.Service, apiKeys interfaces.TenantAPIKeyService) *BindingIntrospectionHandler {
+	return &BindingIntrospectionHandler{service: service, authorizer: authorizer, apiKeys: apiKeys}
 }
 func (h *BindingIntrospectionHandler) Introspect(c *gin.Context) {
 	secret := c.GetHeader("X-FMind-Connector-Secret")
@@ -25,6 +36,16 @@ func (h *BindingIntrospectionHandler) Introspect(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid connector credentials"})
 		return
+	}
+	if h.apiKeys != nil {
+		userSecret := strings.TrimSpace(c.GetHeader("X-FMind-User-Key"))
+		userKey, keyErr := h.apiKeys.AuthenticateAPIKey(c, userSecret)
+		if keyErr != nil || userKey == nil || userKey.TenantID != result.Context.TenantID ||
+			(result.Context.UserAPIKeyID != 0 && userKey.ID != result.Context.UserAPIKeyID) ||
+			(userKey.UserID != "" && userKey.UserID != result.Context.UserID) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user credentials"})
+			return
+		}
 	}
 	c.JSON(http.StatusOK, result)
 }
@@ -41,6 +62,12 @@ func (h *BindingIntrospectionHandler) Verify(c *gin.Context) {
 	if err != nil || value == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid binding token"})
 		return
+	}
+	if h.authorizer != nil {
+		if err := h.authorizer.ValidateBindingContext(c, *value); err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid binding token"})
+			return
+		}
 	}
 	c.JSON(http.StatusOK, gin.H{"context": value})
 }

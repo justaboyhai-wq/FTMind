@@ -3,29 +3,29 @@
 :root,
 :root[theme-mode="light"] {
   --app-font-family: "Geist", "Inter", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-  --brand-main: #5b5bd6;
-  --td-brand-color-light: #eeeeff;
-  --td-brand-color-focus: #d9d9ff;
-  --td-brand-color-disabled: #bdbdec;
-  --td-brand-color-hover: #6b6bdd;
-  --td-brand-color: #5b5bd6;
-  --td-brand-color-active: #4c4cc4;
-  --td-brand-color-1: #f5f5ff;
-  --td-brand-color-2: #eeeeff;
-  --td-brand-color-3: #d9d9ff;
-  --td-brand-color-4: #5b5bd6;
-  --td-brand-color-5: #4c4cc4;
-  --td-brand-color-6: #4141ae;
-  --td-brand-color-7: #35358c;
-  --td-brand-color-8: #29296d;
-  --td-brand-color-9: #1f1f53;
-  --td-brand-color-10: #151538;
+  --brand-main: #0052d9;
+  --td-brand-color-light: #eaf3ff;
+  --td-brand-color-focus: #cfe2ff;
+  --td-brand-color-disabled: #a9c7f5;
+  --td-brand-color-hover: #1677ff;
+  --td-brand-color: #0052d9;
+  --td-brand-color-active: #003cab;
+  --td-brand-color-1: #f4f8ff;
+  --td-brand-color-2: #eaf3ff;
+  --td-brand-color-3: #cfe2ff;
+  --td-brand-color-4: #0052d9;
+  --td-brand-color-5: #003cab;
+  --td-brand-color-6: #002b80;
+  --td-brand-color-7: #00205f;
+  --td-brand-color-8: #00163f;
+  --td-brand-color-9: #00102f;
+  --td-brand-color-10: #00091f;
   --td-bg-color-page: #f7f7f8;
   --td-bg-color-sidebar: #fbfbfc;
   --td-bg-color-settings-modal: #fbfbfc;
   --td-bg-color-container: #fff;
   --td-bg-color-container-hover: #f2f3f5;
-  --td-bg-color-container-active: #eeeeff;
+  --td-bg-color-container-active: #eaf3ff;
   --td-bg-color-secondarycontainer: #fafafa;
   --td-bg-color-secondarycontainer-hover: #f2f3f5;
   --td-bg-color-secondarycontainer-active: #e9e9ef;
@@ -46,18 +46,18 @@
 
 :root[theme-mode="dark"] {
   color-scheme: dark;
-  --brand-main: #9696f4;
-  --td-brand-color: #9696f4;
-  --td-brand-color-hover: #aaaafa;
-  --td-brand-color-active: #7d7de1;
-  --td-brand-color-light: rgb(150 150 244 / 18%);
-  --td-brand-color-focus: rgb(150 150 244 / 28%);
-  --td-brand-color-1: #20203b;
-  --td-brand-color-2: #2b2b51;
-  --td-brand-color-3: #45457b;
-  --td-brand-color-4: #9696f4;
-  --td-brand-color-5: #aaaafa;
-  --td-brand-color-6: #bbbbff;
+  --brand-main: #4d9aff;
+  --td-brand-color: #4d9aff;
+  --td-brand-color-hover: #78b4ff;
+  --td-brand-color-active: #2f7fe5;
+  --td-brand-color-light: rgb(77 154 255 / 18%);
+  --td-brand-color-focus: rgb(77 154 255 / 28%);
+  --td-brand-color-1: #102744;
+  --td-brand-color-2: #17375e;
+  --td-brand-color-3: #28548b;
+  --td-brand-color-4: #4d9aff;
+  --td-brand-color-5: #78b4ff;
+  --td-brand-color-6: #9ccaff;
   --td-bg-color-page: #101116;
   --td-bg-color-sidebar: #15161c;
   --td-bg-color-settings-modal: #15161c;
@@ -94,7 +94,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 
 /* FMind mark: text rather than an image allows it to remain crisp in all UI surfaces. */
 .fmind-mark { display: inline-flex; align-items: center; gap: 9px; color: #1f2328; font-size: 16px; font-weight: 700; letter-spacing: -.055em; line-height: 1; text-decoration: none; }
-.fmind-mark__glyph { display: grid; width: 29px; height: 29px; place-items: center; color: #fff; background: #5b5bd6; border-radius: 8px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 18%); }
+.fmind-mark__glyph { display: grid; width: 29px; height: 29px; place-items: center; color: #fff; background: var(--td-brand-color); border-radius: 8px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 18%); }
 .fmind-mark__glyph svg { width: 19px; height: 19px; }
 .fmind-mark__name { line-height: 1; }
 .header-logo .fmind-mark { color: #1f2328; }
@@ -104,8 +104,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .aside_box .logo_row { height: 54px !important; border-bottom: 1px solid #f0f0f2; }
 .aside_box .menu_item { border-radius: 8px !important; transition: color .15s ease, background .15s ease !important; }
 .aside_box .menu_item:hover { background: #f2f3f5 !important; }
-.aside_box .menu_item_active, .aside_box .menu_item_c_active { color: #4949b7 !important; background: #eeeeff !important; }
-.aside_box .menu_item_active .menu_title, .aside_box .menu_item_c_active .menu_title { color: #4949b7 !important; font-weight: 650; }
+.aside_box .menu_item_active, .aside_box .menu_item_c_active { color: var(--td-brand-color) !important; background: var(--td-brand-color-light) !important; }
+.aside_box .menu_item_active .menu_title, .aside_box .menu_item_c_active .menu_title { color: var(--td-brand-color) !important; font-weight: 650; }
 .aside_box .menu_item .menu_icon .icon { color: currentColor; opacity: .78; }
 .aside_box .menu_item_active .menu_icon .icon, .aside_box .menu_item_c_active .menu_icon .icon { color: currentColor; opacity: 1; }
 .aside_box .submenu { border-top-color: #ececef !important; }
@@ -125,9 +125,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .t-card, .t-dialog__ctx .t-dialog { border-radius: 10px !important; }
 .t-button { border-radius: 7px !important; font-weight: 620; letter-spacing: -.01em; }
 .t-button--theme-primary { box-shadow: none !important; }
-.t-button--theme-primary:hover { background: #4c4cc4 !important; }
+.t-button--theme-primary:hover { background: var(--td-brand-color-hover) !important; }
 .t-input, .t-textarea__inner, .t-select-input { border-radius: 7px !important; }
-.t-input:focus, .t-textarea__inner:focus, .t-is-focused .t-input { border-color: var(--td-brand-color) !important; box-shadow: 0 0 0 3px rgb(91 91 214 / 10%) !important; }
+.t-input:focus, .t-textarea__inner:focus, .t-is-focused .t-input { border-color: var(--td-brand-color) !important; box-shadow: 0 0 0 3px rgb(0 82 217 / 12%) !important; }
 .t-table, .t-table th, .t-table td { border-color: #eef0f1 !important; }
 .t-table th { color: #92989f !important; background: #fafafa !important; font-size: 11px; font-weight: 650; letter-spacing: .04em; text-transform: uppercase; }
 .t-table tr:hover td { background: #fcfcfd !important; }
@@ -137,7 +137,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
  * card made the modal look like a stack of heavy outlines. */
 .knowledge-card, .knowledge-base-card, .agent-card, .card-item, .setting-card, .settings-card, .settings-section-panel, .upload-progress-panel, .warning-banner { background: #fff !important; border: 1px solid #e7e8ea !important; border-radius: 10px !important; box-shadow: 0 1px 1px rgb(31 35 40 / 2%) !important; }
 .settings-sidebar, .settings-nav { background: #fafafa !important; border-color: #e7e8ea !important; }
-.settings-nav .active, .settings-nav-item.active, .settings-nav-item:hover { color: #4949b7 !important; background: #eeeeff !important; border-radius: 7px !important; }
+.settings-nav .active, .settings-nav-item.active, .settings-nav-item:hover { color: var(--td-brand-color) !important; background: var(--td-brand-color-light) !important; border-radius: 7px !important; }
 .t-tag, .badge-count, .tag-filter-chip, .resource-origin-badge { border-color: #e1e2e6 !important; border-radius: 999px !important; }
 
 /* Settings are a single calm form surface, not a card inside another card.
@@ -174,10 +174,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .suggested-question-card { background: #fff !important; border-color: #e7e8ea !important; border-radius: 12px !important; box-shadow: 0 1px 1px rgb(31 35 40 / 2%); }
 .suggested-question-card:hover { border-color: #d7d9dc !important; box-shadow: 0 8px 22px rgb(30 35 40 / 5%) !important; }
 .chat .input_box, .chat .chat_input_box, .dialogue-wrap .input_box { border-color: #d9dade !important; border-radius: 18px !important; box-shadow: 0 12px 40px rgb(31 35 40 / 9%); }
-.chat .input_box:focus-within, .chat .chat_input_box:focus-within, .dialogue-wrap .input_box:focus-within { border-color: #a7a6e6 !important; box-shadow: 0 0 0 3px rgb(91 91 214 / 10%), 0 12px 40px rgb(31 35 40 / 9%) !important; }
+.chat .input_box:focus-within, .chat .chat_input_box:focus-within, .dialogue-wrap .input_box:focus-within { border-color: var(--td-brand-color) !important; box-shadow: 0 0 0 3px rgb(0 82 217 / 12%), 0 12px 40px rgb(31 35 40 / 9%) !important; }
 
 /* Authentication uses the same quiet, single-card entry screen as FMind. */
-.login-layout { display: grid !important; min-height: 100vh; place-items: center; padding: 28px !important; background: radial-gradient(circle at 60% 0%, #efefff 0, transparent 37%), #f7f7f8 !important; }
+.login-layout { display: grid !important; min-height: 100vh; place-items: center; padding: 28px !important; background: radial-gradient(circle at 60% 0%, #eaf3ff 0, transparent 37%), #f7f7f8 !important; }
 .login-layout .animated-bg, .login-layout .showcase-section { display: none !important; }
 .login-layout .header-logo { position: fixed !important; top: 28px !important; left: 28px !important; z-index: 2; }
 .login-layout .header-links { position: fixed !important; top: 27px !important; right: 28px !important; z-index: 2; opacity: .72; }
@@ -188,7 +188,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .login-layout .form-title { color: #1f2328 !important; font-size: clamp(30px, 6vw, 38px) !important; line-height: 1.08 !important; letter-spacing: -.055em; }
 .login-layout .form-welcome, .login-layout .form-subtitle, .login-layout .form-hint { color: #687076 !important; font-size: 14px !important; line-height: 1.65 !important; }
 .login-layout .login-features { padding-top: 16px !important; border-top: 1px solid #eef0f1; }
-.login-layout .feature-icon { color: #5b5bd6 !important; background: #eeeeff !important; }
+.login-layout .feature-icon { color: var(--td-brand-color) !important; background: var(--td-brand-color-light) !important; }
 .login-layout .carousel-container { display: none !important; }
 .embed-page, .embed-chat-container, .embed-chat { background: #f7f7f8 !important; }
 .embed-header, .embed-input-box { border-color: #e7e8ea !important; box-shadow: 0 8px 22px rgb(30 35 40 / 5%) !important; }
@@ -250,8 +250,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 :root[theme-mode="dark"] .settings-nav .active,
 :root[theme-mode="dark"] .settings-nav-item.active,
 :root[theme-mode="dark"] .settings-nav-item:hover {
-  background: #29294c !important;
-  color: #b9b9ff !important;
+  background: rgb(77 154 255 / 18%) !important;
+  color: #9ccaff !important;
 }
 :root[theme-mode="dark"] .t-table th {
   background: #20222b !important;
@@ -268,7 +268,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   background: #20222b !important;
 }
 :root[theme-mode="dark"] .login-layout {
-  background: radial-gradient(circle at 60% 0%, #25254b 0, transparent 37%), #101116 !important;
+  background: radial-gradient(circle at 60% 0%, #102744 0, transparent 37%), #101116 !important;
 }
 :root[theme-mode="dark"] .login-layout .form-card {
   background: rgb(27 29 37 / 94%) !important;

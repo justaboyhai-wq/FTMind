@@ -4,7 +4,10 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"time"
 
+	"github.com/google/uuid"
+	"github.com/justaboyhai-wq/fmind/internal/authz"
 	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
 )
@@ -34,9 +37,10 @@ type knowledgeBaseReader interface {
 }
 
 type Service struct {
-	repo interfaces.MemoryWikiPublicationRepository
-	wiki memoryWikiPageGateway
-	kb   knowledgeBaseReader
+	repo       interfaces.MemoryWikiPublicationRepository
+	wiki       memoryWikiPageGateway
+	kb         knowledgeBaseReader
+	authorizer *authz.Service
 }
 
 func NewService(repo interfaces.MemoryWikiPublicationRepository, wiki interfaces.WikiPageService, kb interfaces.KnowledgeBaseService) *Service {
@@ -45,6 +49,10 @@ func NewService(repo interfaces.MemoryWikiPublicationRepository, wiki interfaces
 
 func newService(repo interfaces.MemoryWikiPublicationRepository, wiki memoryWikiPageGateway, kb knowledgeBaseReader) *Service {
 	return &Service{repo: repo, wiki: wiki, kb: kb}
+}
+
+func NewServiceWithAuthorization(repo interfaces.MemoryWikiPublicationRepository, wiki interfaces.WikiPageService, kb interfaces.KnowledgeBaseService, authorizer *authz.Service) *Service {
+	return &Service{repo: repo, wiki: wiki, kb: kb, authorizer: authorizer}
 }
 
 // Submit is intentionally closed: public callers cannot construct governance
@@ -58,7 +66,7 @@ func (s *Service) List(ctx context.Context, tenantID uint64, status string) ([]*
 	if tenantID == 0 {
 		return nil, errors.New("tenant is required")
 	}
-	if err := requireMemoryWikiReviewer(ctx, tenantID); err != nil {
+	if err := requireMemoryWikiReader(ctx, tenantID); err != nil {
 		return nil, err
 	}
 	return s.repo.ListMemoryWikiPublications(ctx, tenantID, status)
@@ -68,7 +76,7 @@ func (s *Service) GetReview(ctx context.Context, tenantID uint64, id string) (*i
 	if tenantID == 0 || strings.TrimSpace(id) == "" {
 		return nil, errors.New("tenant and review id are required")
 	}
-	if err := requireMemoryWikiReviewer(ctx, tenantID); err != nil {
+	if err := requireMemoryWikiReader(ctx, tenantID); err != nil {
 		return nil, err
 	}
 	publication, err := s.repo.GetMemoryWikiPublication(ctx, tenantID, id)
@@ -82,7 +90,7 @@ func (s *Service) Review(ctx context.Context, tenantID uint64, id, reviewer stri
 	if tenantID == 0 || reviewer == "" {
 		return errors.New("tenant and reviewer are required")
 	}
-	if err := requireMemoryWikiReviewer(ctx, tenantID); err != nil {
+	if err := s.requireMemoryWikiAction(ctx, tenantID, authz.ActionReview); err != nil {
 		return err
 	}
 	publication, err := s.repo.GetMemoryWikiPublication(ctx, tenantID, id)
@@ -104,7 +112,7 @@ func (s *Service) Approve(ctx context.Context, key types.MemoryProjectionKey, re
 	if key.TenantID == 0 || reviewer == "" {
 		return nil, errors.New("tenant and reviewer are required")
 	}
-	if err := requireMemoryWikiReviewer(ctx, key.TenantID); err != nil {
+	if err := s.requireMemoryWikiAction(ctx, key.TenantID, authz.ActionReview); err != nil {
 		return nil, err
 	}
 	return s.repo.TransitionMemoryReview(
@@ -117,7 +125,7 @@ func (s *Service) RequestChanges(ctx context.Context, key types.MemoryProjection
 	if key.TenantID == 0 || strings.TrimSpace(reviewer) == "" || strings.TrimSpace(comment) == "" {
 		return nil, errors.New("tenant, reviewer, and review comment are required")
 	}
-	if err := requireMemoryWikiReviewer(ctx, key.TenantID); err != nil {
+	if err := s.requireMemoryWikiAction(ctx, key.TenantID, authz.ActionReview); err != nil {
 		return nil, err
 	}
 	return s.repo.TransitionMemoryReview(
@@ -130,7 +138,7 @@ func (s *Service) ResubmitChanges(ctx context.Context, key types.MemoryProjectio
 	if key.TenantID == 0 || strings.TrimSpace(actor) == "" || strings.TrimSpace(comment) == "" {
 		return nil, errors.New("tenant, actor, and revision comment are required")
 	}
-	if err := requireMemoryWikiReviewer(ctx, key.TenantID); err != nil {
+	if err := s.requireMemoryWikiAction(ctx, key.TenantID, authz.ActionReview); err != nil {
 		return nil, err
 	}
 	return s.repo.TransitionMemoryReview(
@@ -154,11 +162,57 @@ func (s *Service) RequestPublicationChanges(ctx context.Context, tenantID uint64
 	return s.transitionPublicationReview(ctx, tenantID, id, reviewer, comment, types.MemoryReviewStatusChangesRequested)
 }
 
+// RevokePublication is the authenticated FMind management path for a
+// published projection. Source-system revocations still enter through the
+// signed lifecycle event endpoint; this method creates an internal,
+// version-scoped revocation event only after the Admin/Owner gate succeeds.
+// Repeated calls are idempotent once the projection is already revoked.
+func (s *Service) RevokePublication(ctx context.Context, tenantID uint64, id, actor, comment string) (*interfaces.ExternalMemoryProjection, error) {
+	if tenantID == 0 || strings.TrimSpace(id) == "" || strings.TrimSpace(actor) == "" {
+		return nil, errors.New("tenant, review id, and actor are required")
+	}
+	if err := s.requireMemoryWikiAction(ctx, tenantID, authz.ActionRevoke); err != nil {
+		return nil, err
+	}
+	publication, err := s.repo.GetMemoryWikiPublication(ctx, tenantID, id)
+	if err != nil {
+		return nil, err
+	}
+	key := publicationProjectionKey(publication)
+	projection, err := s.repo.GetMemoryProjection(ctx, key)
+	if err != nil {
+		return nil, err
+	}
+	if projection.Publication.Status == types.MemoryReviewStatusRevoked || projection.ReviewTask.Status == types.MemoryReviewStatusRevoked {
+		return projection, nil
+	}
+	if strings.TrimSpace(comment) == "" {
+		comment = "revoked by " + actor
+	}
+	// The repository keeps the durable lifecycle audit record and the page
+	// fencing/archival behavior identical to a trusted source revocation. The
+	// actor/comment are retained in the request audit log by the HTTP layer;
+	// the immutable projection key prevents another version from being hit.
+	event := types.TrustedL3Event{
+		EventID: uuid.NewString(), EventType: types.MemoryL3EventRevoked,
+		SchemaVersion: "1.0", OccurredAt: time.Now().UTC(), TenantID: projection.Snapshot.TenantID,
+		DepartmentID: projection.Snapshot.DepartmentID, WorkspaceID: projection.Snapshot.WorkspaceID,
+		ProjectID: projection.Snapshot.ProjectID, TeamID: projection.Snapshot.TeamID,
+		BindingID: projection.Snapshot.BindingID, UserID: projection.Snapshot.UserID,
+		AgentID: projection.Snapshot.AgentID, TaskID: projection.Snapshot.TaskID,
+		MemoryID: projection.Snapshot.MemoryID, MemoryVersion: projection.Snapshot.MemoryVersion,
+		MemoryLevel: "L3", Maturity: "revoked", ContentChecksum: projection.Snapshot.ContentChecksum,
+	}
+	_ = comment // audit middleware records the supplied operator comment
+	updated, _, err := s.ReceiveTrustedL3Event(ctx, event)
+	return updated, err
+}
+
 func (s *Service) transitionPublicationReview(ctx context.Context, tenantID uint64, id, reviewer, comment, status string) (*types.MemoryReviewTask, error) {
 	if tenantID == 0 || strings.TrimSpace(id) == "" || strings.TrimSpace(reviewer) == "" {
 		return nil, errors.New("tenant, review id, and reviewer are required")
 	}
-	if err := requireMemoryWikiReviewer(ctx, tenantID); err != nil {
+	if err := s.requireMemoryWikiAction(ctx, tenantID, authz.ActionReview); err != nil {
 		return nil, err
 	}
 	publication, err := s.repo.GetMemoryWikiPublication(ctx, tenantID, id)
@@ -169,6 +223,30 @@ func (s *Service) transitionPublicationReview(ctx context.Context, tenantID uint
 		ctx, publicationProjectionKey(publication), publication.ReviewTaskID,
 		types.MemoryReviewStatusPendingReview, status, reviewer, strings.TrimSpace(comment),
 	)
+}
+
+func (s *Service) requireMemoryWikiAction(ctx context.Context, tenantID uint64, action authz.Action) error {
+	if _, err := authz.FromContext(ctx); err == nil {
+		if s.authorizer != nil {
+			return s.authorizer.Authorize(ctx, action, authz.Resource{Type: "memory_wiki", TenantID: tenantID})
+		}
+		return (&authz.Service{}).Authorize(ctx, action, authz.Resource{Type: "memory_wiki", TenantID: tenantID})
+	}
+	return requireMemoryWikiReviewer(ctx, tenantID)
+}
+
+func requireMemoryWikiReader(ctx context.Context, tenantID uint64) error {
+	if _, err := authz.FromContext(ctx); err == nil {
+		return (&authz.Service{}).Authorize(ctx, authz.ActionRead, authz.Resource{Type: "memory_wiki", TenantID: tenantID})
+	}
+	if types.IsSystemAdminFromContext(ctx) {
+		return nil
+	}
+	contextTenantID, ok := types.TenantIDFromContext(ctx)
+	if ok && contextTenantID == tenantID && types.TenantRoleFromContext(ctx).HasPermission(types.TenantRoleViewer) {
+		return nil
+	}
+	return ErrMemoryWikiReviewerRequired
 }
 
 func requireMemoryWikiReviewer(ctx context.Context, tenantID uint64) error {

@@ -1,4 +1,4 @@
-const { getSettings, saveSettings } = require("../../utils/config");
+const { getPublicSettings, saveSettings } = require("../../utils/config");
 
 Page({
   data: {
@@ -7,7 +7,7 @@ Page({
   },
 
   onShow() {
-    const settings = getSettings();
+    const settings = getPublicSettings();
     this.setData({
       baseUrl: settings.baseUrl,
       apiKey: settings.apiKey

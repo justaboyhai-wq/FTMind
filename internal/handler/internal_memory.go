@@ -206,10 +206,19 @@ func (h *InternalMemoryEventHandler) authorizeBinding(ctx context.Context, envel
 		return false, nil
 	}
 	if binding.PolicyVersion != envelope.BindingPolicyVersion || !binding.L3WikiEnabled || !binding.L3ReviewRequired ||
-		!containsScope(binding.CapabilityScopes, "memory.l3.publish") || !containsScope(binding.AssetScopes, "team:"+binding.TeamID) {
+		!containsAnyScope(binding.CapabilityScopes, "memory.publish", "memory.l3.publish") || !containsScope(binding.AssetScopes, "team:"+binding.TeamID) {
 		return false, nil
 	}
 	return true, nil
+}
+
+func containsAnyScope(scopes types.StringArray, targets ...string) bool {
+	for _, target := range targets {
+		if containsScope(scopes, target) {
+			return true
+		}
+	}
+	return false
 }
 
 func containsScope(scopes types.StringArray, target string) bool {

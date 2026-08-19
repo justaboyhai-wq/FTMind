@@ -21,6 +21,15 @@
                   <span class="permissions-compact-title">{{ $t('tenantMember.permissions.title') }}</span>
                   <span class="permissions-compact-desc">{{ $t('tenantMember.permissions.desc') }}</span>
                 </div>
+                <div class="memory-permissions-summary">
+                  <div class="memory-permissions-summary-title">记忆能力（当前用户实际权限）</div>
+                  <div class="memory-permissions-summary-list">
+                    <span v-for="item in actualMemoryPermissions" :key="item.key" class="memory-permission-chip">
+                      <t-icon name="check" size="12px" /> {{ item.label }}
+                    </span>
+                    <span v-if="actualMemoryPermissions.length === 0" class="memory-permissions-empty">暂无记忆权限</span>
+                  </div>
+                </div>
                 <div class="permissions-compact-grid">
                   <div v-for="r in roleMatrixOrder" :key="r"
                     :class="['perm-role-block', r, { 'is-me': currentRole === r }]">
@@ -33,6 +42,14 @@
                       <span v-for="(perm, i) in roleMatrix[r]" :key="i" :class="['perm-item', perm.has ? 'has' : 'no']">
                         <t-icon :name="perm.has ? 'check' : 'close'" size="12px" />
                         {{ $t('tenantMember.permissions.' + perm.key) }}
+                      </span>
+                    </div>
+                    <div class="perm-group-label">记忆能力</div>
+                    <div class="perm-items memory-perm-items">
+                      <span v-for="item in memoryPermissionsForRole(r)" :key="item.key"
+                        :class="['perm-item', item.has ? 'has' : 'no']">
+                        <t-icon :name="item.has ? 'check' : 'close'" size="12px" />
+                        {{ item.label }}
                       </span>
                     </div>
                   </div>
@@ -64,7 +81,32 @@
       </p>
     </div>
 
-    <div class="members-tab-layout">
+    <div class="member-management-tabs" role="tablist">
+      <button type="button" :class="['member-management-tab', { active: activeMemberSection === 'members' }]"
+        @click="activeMemberSection = 'members'">{{ $t('tenantMember.tabs.members') }}</button>
+      <button v-if="canManageOrganization" type="button" :class="['member-management-tab', { active: activeMemberSection === 'organization' }]"
+        @click="activeMemberSection = 'organization'">{{ $t('tenantMember.tabs.organization') }}</button>
+      <button type="button" :class="['member-management-tab', { active: activeMemberSection === 'permissions' }]"
+        @click="activeMemberSection = 'permissions'">{{ $t('tenantMember.tabs.permissions') }}</button>
+    </div>
+
+    <div v-if="activeMemberSection === 'organization'" class="organization-tab-panel">
+      <OrganizationTeamsPanel />
+    </div>
+    <div v-else-if="activeMemberSection === 'permissions'" class="permissions-tab-panel">
+      <div class="permissions-tab-hint">{{ $t('tenantMember.permissions.desc') }}</div>
+      <div class="permissions-compact-grid permissions-role-grid">
+        <div v-for="r in roleMatrixOrder" :key="r" :class="['perm-role-block', r, { 'is-me': currentRole === r }]">
+          <div class="perm-role-tag"><t-icon :name="roleMatrixIcon(r)" size="12px" /><span>{{ $t('tenantMember.role.' + r) }}</span><span v-if="currentRole === r" class="me-badge">{{ $t('common.me') }}</span></div>
+          <div class="perm-group-label">{{ $t('tenantMember.permissions.knowledgeTitle') }}</div>
+          <div class="perm-items"><span v-for="perm in roleMatrix[r]" :key="perm.key" :class="['perm-item', perm.has ? 'has' : 'no']"><t-icon :name="perm.has ? 'check' : 'close'" size="12px" />{{ $t('tenantMember.permissions.' + perm.key) }}</span></div>
+          <div class="perm-group-label">{{ $t('tenantMember.permissions.memoryTitle') }}</div>
+          <div class="perm-items memory-perm-items"><span v-for="item in memoryPermissionsForRole(r)" :key="item.key" :class="['perm-item', item.has ? 'has' : 'no']"><t-icon :name="item.has ? 'check' : 'close'" size="12px" />{{ item.label }}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div v-else class="members-tab-layout">
       <!-- Toolbar 已被并入「空间成员」列表头：搜索框紧贴列表头右
            侧，邀请按钮再往右一个图标位，所有「针对这张列表」的控
            件聚到同一行，独立 toolbar 不复存在。 -->
@@ -349,21 +391,30 @@
                   </t-tag>
                 </div>
               </template>
+              <template #scope="{ row }">
+                <span class="member-scope-cell">{{ memberScopeSummary(row) }}</span>
+              </template>
               <template #joined_at="{ row }">{{ formatDate(row.joined_at) }}</template>
               <template #actions="{ row }">
-                <t-popconfirm
-                  v-if="canManage && row.user_id !== currentUserId"
-                  :content="$t('tenantMember.remove.confirmBody', { name: row.username || row.email })"
-                  :confirm-btn="{ content: $t('tenantMember.remove.confirm'), theme: 'danger' }"
-                  :cancel-btn="{ content: $t('common.cancel') }"
-                  placement="left"
-                  @confirm="removeRow(row)">
-                  <t-tooltip :content="$t('tenantMember.remove.button')" placement="top">
-                    <t-button theme="danger" shape="square" variant="text" size="small" @click.stop>
-                      <template #icon><t-icon name="user-clear" /></template>
+                <div v-if="canManageOrganization && row.user_id !== currentUserId" class="member-action-buttons">
+                  <t-tooltip :content="$t('tenantMember.organization.configureScope')" placement="top">
+                    <t-button theme="primary" shape="square" variant="text" size="small" @click="openMemberScope(row)">
+                      <template #icon><t-icon name="usergroup" /></template>
                     </t-button>
                   </t-tooltip>
-                </t-popconfirm>
+                  <t-popconfirm
+                    :content="$t('tenantMember.remove.confirmBody', { name: row.username || row.email })"
+                    :confirm-btn="{ content: $t('tenantMember.remove.confirm'), theme: 'danger' }"
+                    :cancel-btn="{ content: $t('common.cancel') }"
+                    placement="left"
+                    @confirm="removeRow(row)">
+                    <t-tooltip :content="$t('tenantMember.remove.button')" placement="top">
+                      <t-button theme="danger" shape="square" variant="text" size="small" @click.stop>
+                        <template #icon><t-icon name="user-clear" /></template>
+                      </t-button>
+                    </t-tooltip>
+                  </t-popconfirm>
+                </div>
               </template>
             </t-table>
           </div>
@@ -507,14 +558,33 @@
         </div>
       </div>
     </t-drawer>
+
+    <t-dialog v-model:visible="scopeDialogVisible" :header="$t('tenantMember.organization.configureScope')"
+      :confirm-btn="{ content: $t('tenantMember.organization.saveScope'), loading: scopeSaving }"
+      :cancel-btn="{ content: $t('common.cancel') }" @confirm="saveMemberScope">
+      <div class="member-scope-dialog">
+        <p v-if="scopeMember" class="member-scope-dialog__member">
+          {{ $t('tenantMember.organization.scopeMember', { name: memberPrimary(scopeMember) }) }}
+        </p>
+        <p class="member-scope-dialog__hint">{{ $t('tenantMember.organization.scopeHint') }}</p>
+        <t-loading v-if="scopeLoading" />
+        <t-empty v-else-if="scopeTeams.length === 0" :description="$t('tenantMember.organization.noTeamsForScope')" />
+        <t-checkbox-group v-else v-model="scopeSelectedTeamIds" class="member-scope-checkboxes">
+          <t-checkbox v-for="team in scopeTeams" :key="team.id" :value="team.id">
+            {{ team.name }} <span class="member-scope-checkboxes__code">({{ team.code }})</span>
+          </t-checkbox>
+        </t-checkbox-group>
+      </div>
+    </t-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onUnmounted, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { useAuthStore } from '@/stores/auth'
+import OrganizationTeamsPanel from './OrganizationTeamsPanel.vue'
 import {
   listMembers,
   updateMemberRole,
@@ -535,9 +605,17 @@ import {
   type AuditAction,
   type AuditOutcome,
 } from '@/api/tenant/audit-log'
+import {
+  addTeamMember,
+  listTeamMembers,
+  listTeams,
+  removeTeamMember,
+  type Team,
+} from '@/api/organization/team'
 
 const { t, tm, locale } = useI18n()
 const authStore = useAuthStore()
+const activeMemberSection = ref<'members' | 'organization' | 'permissions'>('members')
 
 /** 悬停层限制在视口内，内容由内部滚动 */
 const permissionsPopupInnerStyle = {
@@ -582,6 +660,14 @@ const invitationsPageSize = ref(20)
 
 /** 历次分页载荷里见过的成员展示字段，补齐审计表里不在当前页的 user id */
 const memberDisplayByUserId = reactive<Record<string, { username?: string; email?: string }>>({})
+const memberTeamMap = ref<Record<string, string[]>>({})
+const scopeDialogVisible = ref(false)
+const scopeLoading = ref(false)
+const scopeSaving = ref(false)
+const scopeMember = ref<TenantMember | null>(null)
+const scopeTeams = ref<Team[]>([])
+const scopeSelectedTeamIds = ref<string[]>([])
+const scopeOriginalTeamIds = ref<string[]>([])
 
 // Pending invitations live alongside members but in a distinct section
 // at the top of the Members tab — they're "people we've asked to
@@ -645,6 +731,9 @@ const currentRole = computed<TenantRole | ''>(() => (authStore.currentTenantRole
 const canManage = computed(
   () => currentRole.value === 'owner' || authStore.canAccessAllTenants === true,
 )
+const canManageOrganization = computed(
+  () => currentRole.value === 'owner' || currentRole.value === 'admin' || authStore.canAccessAllTenants === true,
+)
 // Admin+ (and cross-tenant superusers) can view the audit log. Mirrors
 // the server's g.Admin() guard on /tenants/:id/audit-log so we don't
 // render a tab that would just 403.
@@ -660,6 +749,13 @@ const currentUserId = computed(() => authStore.user?.id ?? '')
 // :id == active tenant (auth middleware enforces membership), so we
 // don't expose a tenant picker here.
 const activeTenantId = computed(() => Number(authStore.currentTenantId ?? 0))
+
+// Settings can be opened without a fresh login or tenant switch. Refresh the
+// authoritative snapshot here so the role cards and current-user summary do
+// not remain on the store's fail-closed empty default.
+onMounted(() => {
+  void authStore.refreshPermissions()
+})
 
 const roleOptions = computed(() => [
   { label: t('tenantMember.role.owner'), value: 'owner' },
@@ -712,6 +808,33 @@ const roleMatrix: Record<TenantRole, RolePerm[]> = {
   ],
 }
 
+// Memory capabilities are supplied by the backend permission snapshot. The
+// role cards below only render the server's role_matrix; they never grant
+// access by themselves. Keeping the labels here makes the member-management
+// popover readable even when the external-memory page is not open.
+const memoryPermissionDefinitions = [
+  { key: 'memory.context', label: '使用记忆上下文' },
+  { key: 'memory.capture', label: '记录 L0-L2 记忆' },
+  { key: 'memory.recall', label: '召回 L0-L2 记忆' },
+  { key: 'memory.confirm', label: '确认记忆候选' },
+  { key: 'memory.review', label: '审核 L3 记忆' },
+  { key: 'memory.publish', label: '发布 Memory Wiki' },
+  { key: 'memory.revoke', label: '撤销 Memory Wiki' },
+  { key: 'wiki.get', label: '读取 Memory Wiki' },
+] as const
+
+const actualMemoryPermissions = computed(() => memoryPermissionDefinitions.filter((item) =>
+  authStore.permissions.capabilities.includes(item.key),
+))
+
+function memoryPermissionsForRole(role: TenantRole) {
+  const roleCapabilities = authStore.permissions.role_matrix?.[role] || []
+  return memoryPermissionDefinitions.map((item) => ({
+    ...item,
+    has: roleCapabilities.includes(item.key),
+  }))
+}
+
 function roleMatrixIcon(role: TenantRole): string {
   switch (role) {
     case 'owner':
@@ -728,8 +851,9 @@ function roleMatrixIcon(role: TenantRole): string {
 const columns = computed(() => [
   { colKey: 'member', title: t('tenantMember.columns.member'), ellipsis: true, minWidth: 132 },
   { colKey: 'role', title: t('tenantMember.columns.role'), width: 128 },
+  { colKey: 'scope', title: t('tenantMember.columns.teamScope'), ellipsis: true, minWidth: 190 },
   { colKey: 'joined_at', title: t('tenantMember.columns.joinedAt'), width: 154 },
-  { colKey: 'actions', title: t('tenantMember.columns.operations'), width: 88, align: 'left' },
+  { colKey: 'actions', title: t('tenantMember.columns.operations'), width: 122, align: 'left' },
 ])
 
 function memberPrimary(row: { username?: string; email?: string }) {
@@ -741,6 +865,89 @@ function memberSecondary(row: { username?: string; email?: string }) {
   const mail = row.email?.trim()
   if (name && mail) return mail
   return ''
+}
+
+function memberScopeSummary(row: TenantMember): string {
+  const teams = memberTeamMap.value[row.user_id] || []
+  if (teams.length === 0) return t('tenantMember.organization.noTeamScope')
+  const roleCaps = authStore.permissions.role_matrix?.[row.role] || []
+  const memory = memoryPermissionDefinitions
+    .filter((item) => roleCaps.includes(item.key))
+    .map((item) => item.label)
+    .slice(0, 3)
+  return `${teams.join('、')} · ${memory.join('、') || t('tenantMember.organization.noMemoryCapability')}`
+}
+
+async function loadMemberTeamScopes() {
+  if (!canViewAudit.value) return
+  try {
+    const response = await listTeams()
+    const teams = response.data || []
+    const entries = await Promise.all(teams.map(async (team: Team) => {
+      const membersResponse = await listTeamMembers(team.id)
+      return { team, members: membersResponse.data || [] }
+    }))
+    const next: Record<string, string[]> = {}
+    for (const entry of entries) {
+      for (const member of entry.members) {
+        next[member.user_id] = [...(next[member.user_id] || []), entry.team.name]
+      }
+    }
+    memberTeamMap.value = next
+  } catch {
+    // Team scope is informational; a failed auxiliary load must not block
+    // the authoritative member list or any server-side authorization.
+    memberTeamMap.value = {}
+  }
+}
+
+async function openMemberScope(row: TenantMember) {
+  scopeMember.value = row
+  scopeDialogVisible.value = true
+  scopeLoading.value = true
+  scopeTeams.value = []
+  scopeSelectedTeamIds.value = []
+  scopeOriginalTeamIds.value = []
+  try {
+    const teamsResponse = await listTeams()
+    const teams = teamsResponse.data || []
+    const memberships = await Promise.all(teams.map(async (team) => ({
+      team,
+      members: (await listTeamMembers(team.id)).data || [],
+    })))
+    const selected = memberships.filter((entry) => entry.members.some((member) => member.user_id === row.user_id)).map((entry) => entry.team.id)
+    scopeTeams.value = teams
+    scopeSelectedTeamIds.value = [...selected]
+    scopeOriginalTeamIds.value = [...selected]
+  } catch (error: any) {
+    scopeDialogVisible.value = false
+    MessagePlugin.error(error?.message || t('tenantMember.organization.loadFailed'))
+  } finally {
+    scopeLoading.value = false
+  }
+}
+
+async function saveMemberScope() {
+  if (!scopeMember.value || scopeLoading.value || scopeSaving.value) return
+  const userId = scopeMember.value.user_id
+  const current = new Set(scopeOriginalTeamIds.value)
+  const next = new Set(scopeSelectedTeamIds.value)
+  const toAdd = [...next].filter((id) => !current.has(id))
+  const toRemove = [...current].filter((id) => !next.has(id))
+  scopeSaving.value = true
+  try {
+    await Promise.all([
+      ...toAdd.map((teamId) => addTeamMember(teamId, userId)),
+      ...toRemove.map((teamId) => removeTeamMember(teamId, userId)),
+    ])
+    scopeDialogVisible.value = false
+    await loadMemberTeamScopes()
+    MessagePlugin.success(t('tenantMember.organization.scopeSaved'))
+  } catch (error: any) {
+    MessagePlugin.error(error?.message || t('tenantMember.organization.saveFailed'))
+  } finally {
+    scopeSaving.value = false
+  }
 }
 
 const addFormRules = {
@@ -828,6 +1035,7 @@ async function loadMembers() {
         membersPageSize.value = resp.data.page_size
       }
       rememberMembersForAudit(members.value)
+      void loadMemberTeamScopes()
     } else {
       error.value = resp.message || t('tenantMember.errors.generic')
     }
@@ -1459,6 +1667,34 @@ watch(
   width: 100%;
 }
 
+.member-management-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 14px 0 18px;
+  border-bottom: 1px solid var(--td-component-border);
+}
+.member-management-tab {
+  border: 0;
+  background: transparent;
+  color: var(--td-text-color-secondary);
+  padding: 9px 14px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.member-management-tab:hover,
+.member-management-tab.active {
+  color: var(--td-brand-color);
+  border-bottom-color: var(--td-brand-color);
+}
+.organization-tab-panel,
+.permissions-tab-panel { padding: 4px 0 12px; }
+.permissions-tab-hint { color: var(--td-text-color-secondary); margin-bottom: 14px; }
+.member-action-buttons { display: inline-flex; align-items: center; gap: 2px; }
+.member-scope-dialog__member { margin: 0 0 8px; font-weight: 600; }
+.member-scope-dialog__hint { margin: 0 0 14px; color: var(--td-text-color-secondary); }
+.member-scope-checkboxes { display: flex; flex-direction: column; gap: 10px; max-height: 280px; overflow: auto; }
+.member-scope-checkboxes__code { color: var(--td-text-color-secondary); font-size: 12px; }
+
 .member-cell {
   display: flex;
   flex-direction: column;
@@ -1778,6 +2014,42 @@ watch(
     }
   }
 
+  .memory-permissions-summary {
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: var(--td-brand-color-light);
+    border: 1px solid var(--td-brand-color-light-hover);
+  }
+
+  .memory-permissions-summary-title,
+  .perm-group-label {
+    color: var(--td-text-color-primary);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .memory-permissions-summary-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    margin-top: 5px;
+  }
+
+  .memory-permission-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    color: var(--td-brand-color);
+    font-size: 11px;
+    line-height: 1.35;
+  }
+
+  .memory-permissions-empty {
+    color: var(--td-text-color-secondary);
+    font-size: 11px;
+  }
+
   .permissions-compact-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -1907,6 +2179,13 @@ watch(
             flex-shrink: 0;
           }
         }
+      }
+
+      .perm-group-label {
+        margin: 8px 0 4px;
+        padding-top: 6px;
+        border-top: 1px solid var(--td-component-stroke);
+        font-size: 11px;
       }
     }
   }

@@ -1,5 +1,7 @@
+import io
 import shutil
 import unittest
+import zipfile
 from pathlib import Path
 
 from docreader.parser.ppt_convert import (
@@ -9,6 +11,7 @@ from docreader.parser.ppt_convert import (
     needs_ppt_to_pptx_conversion,
     normalize_ppt_bytes,
 )
+from docreader.parser.pptx_media import list_pptx_media
 
 TESTDATA = Path(__file__).resolve().parents[2] / "testdata" / "rag_test"
 LEGACY_PPT = TESTDATA / "ppt_old" / "en_38256.ppt"
@@ -18,6 +21,14 @@ PPTX_SAMPLE = TESTDATA / "pptx" / "en_marker.pptx"
 
 
 class TestPptConvert(unittest.TestCase):
+    def test_rejects_pptx_media_over_uncompressed_budget(self):
+        payload = io.BytesIO()
+        with zipfile.ZipFile(payload, "w", zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr("ppt/media/image.png", b"A" * 4096)
+
+        with self.assertRaisesRegex(ValueError, "archive.*exceeds"):
+            list_pptx_media(payload.getvalue(), max_uncompressed_bytes=1024)
+
     def test_legacy_ppt_magic(self):
         content = LEGACY_PPT.read_bytes()
         self.assertTrue(is_ole_compound(content))

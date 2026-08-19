@@ -25,7 +25,11 @@ func NewMemoryGatewayFromEnvironment() (MemoryGateway, error) {
 	baseURL := strings.TrimSpace(os.Getenv("FMIND_MEMORY_CORE_URL"))
 	apiKey := strings.TrimSpace(os.Getenv("FMIND_MEMORY_CORE_API_KEY"))
 	serviceID := strings.TrimSpace(os.Getenv("FMIND_MEMORY_CORE_SERVICE_ID"))
-	if baseURL == "" && apiKey == "" && serviceID == "" {
+	// Service ID has a useful default for an enabled gateway, but by itself it
+	// must not opt a normal FMind-only deployment into the MemoryCore client.
+	// Compose always supplies FMIND_MEMORY_CORE_SERVICE_ID, even when the
+	// optional MemoryCore profile is disabled.
+	if baseURL == "" && apiKey == "" {
 		return disabledMemoryGateway{}, nil
 	}
 	allowInsecure, err := strconv.ParseBool(defaultString(os.Getenv("FMIND_MEMORY_CORE_ALLOW_INSECURE_HTTP"), "false"))

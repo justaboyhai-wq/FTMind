@@ -1,0 +1,20 @@
+import { get, post, put } from '@/utils/request'
+
+export type FeedbackCategory = 'wrong_fact'|'outdated'|'citation_mismatch'|'incomplete'|'misunderstood'|'unsafe'|'other'
+export interface AnswerFeedback { id:string; status:string; category:string; description:string; public_reply?:string; internal_note?:string; created_at:string; updated_at:string; question_snapshot?:string; answer_snapshot?:string; quoted_text?:string; expected_correction?:string; root_cause?:string; resolution_action?:string }
+export interface FeedbackRequest { category:FeedbackCategory; description:string; expected_correction?:string; quoted_text?:string }
+export function getMessageFeedback(sessionId:string,messageId:string){return get<{success:boolean;data:AnswerFeedback|null}>(`/api/v1/sessions/${encodeURIComponent(sessionId)}/messages/${encodeURIComponent(messageId)}/feedback`)}
+export function submitMessageFeedback(sessionId:string,messageId:string,body:FeedbackRequest){return post<{success:boolean;data:AnswerFeedback}>(`/api/v1/sessions/${encodeURIComponent(sessionId)}/messages/${encodeURIComponent(messageId)}/feedback`,body)}
+export function listMyFeedback(page=1,pageSize=20){return get<{success:boolean;data:AnswerFeedback[];total:number}>(`/api/v1/answer-feedbacks/mine?page=${page}&page_size=${pageSize}`)}
+export function commentFeedback(id:string,comment:string){return post(`/api/v1/answer-feedbacks/${encodeURIComponent(id)}/comments`,{comment})}
+export function reopenFeedback(id:string,comment:string){return post(`/api/v1/answer-feedbacks/${encodeURIComponent(id)}/reopen`,{comment})}
+export function listAdminFeedback(params:Record<string,string|number>={}){const q=new URLSearchParams(Object.entries(params).map(([k,v])=>[k,String(v)]));return get<{success:boolean;data:AnswerFeedback[];total:number}>(`/api/v1/admin/answer-feedbacks?${q}`)}
+export function getAdminFeedbackStats(){return get<{success:boolean;data:Record<string,number>}>(`/api/v1/admin/answer-feedbacks/stats`)}
+export function getAdminFeedback(id:string){return get<{success:boolean;data:AnswerFeedback;events:any[]}>(`/api/v1/admin/answer-feedbacks/${encodeURIComponent(id)}`)}
+export function updateAdminFeedback(id:string,body:any){return put<{success:boolean;data:AnswerFeedback}>(`/api/v1/admin/answer-feedbacks/${encodeURIComponent(id)}`,body)}
+export function adminCommentFeedback(id:string,comment:string){return post(`/api/v1/admin/answer-feedbacks/${encodeURIComponent(id)}/comments`,{comment})}
+export function getEmbedFeedback(channelId:string,token:string,sessionId:string,messageId:string,sig:string,visitorId:string){return get<{success:boolean;data:AnswerFeedback|null}>(`/api/v1/embed/${encodeURIComponent(channelId)}/sessions/${encodeURIComponent(sessionId)}/messages/${encodeURIComponent(messageId)}/feedback`,{headers:{Authorization:`Embed ${token}`,'X-Embed-Session':sig,'X-Embed-Visitor':visitorId}})}
+export function submitEmbedFeedback(channelId:string,token:string,sessionId:string,messageId:string,sig:string,visitorId:string,body:FeedbackRequest){return post<{success:boolean;data:AnswerFeedback}>(`/api/v1/embed/${encodeURIComponent(channelId)}/sessions/${encodeURIComponent(sessionId)}/messages/${encodeURIComponent(messageId)}/feedback`,body,{headers:{Authorization:`Embed ${token}`,'X-Embed-Session':sig,'X-Embed-Visitor':visitorId}})}
+const embedHeaders=(token:string,sig:string,visitorId:string)=>({headers:{Authorization:`Embed ${token}`,'X-Embed-Session':sig,'X-Embed-Visitor':visitorId}})
+export function commentEmbedFeedback(channelId:string,token:string,sessionId:string,id:string,sig:string,visitorId:string,comment:string){return post(`/api/v1/embed/${encodeURIComponent(channelId)}/sessions/${encodeURIComponent(sessionId)}/feedback/${encodeURIComponent(id)}/comments`,{comment},embedHeaders(token,sig,visitorId))}
+export function reopenEmbedFeedback(channelId:string,token:string,sessionId:string,id:string,sig:string,visitorId:string,comment:string){return post(`/api/v1/embed/${encodeURIComponent(channelId)}/sessions/${encodeURIComponent(sessionId)}/feedback/${encodeURIComponent(id)}/reopen`,{comment},embedHeaders(token,sig,visitorId))}

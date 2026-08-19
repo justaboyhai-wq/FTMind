@@ -39,6 +39,14 @@
               <p class="capability-card__desc">{{ $t(`integrations.chrome.capabilities.${key}.desc`) }}</p>
             </div>
           </div>
+          <div class="integration-boundary-note">
+            <div class="integration-boundary-note__header">
+              <t-icon name="secured" />
+              <h4 class="setting-drawer__section-title">{{ $t('integrations.chrome.memoryTitle') }}</h4>
+            </div>
+            <p class="integration-boundary-note__desc">{{ $t('integrations.chrome.memoryDesc') }}</p>
+            <pre class="code-toolbar__code integration-boundary-note__code">{{ browserEnvExample }}</pre>
+          </div>
         </section>
       </div>
     </template>
@@ -89,6 +97,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -102,6 +111,11 @@ const { t } = useI18n()
 const router = useRouter()
 const uiStore = useUIStore()
 const { apiBaseUrlDisplay } = useApiBaseUrlDisplay()
+
+const browserEnvExample = computed(() => {
+  const base = apiBaseUrlDisplay.value || 'https://fmind.example.com/api/v1'
+  return `FMIND_BASE_URL="${base}"\nFMIND_USER_API_KEY="<scoped user API key>"\n# channel=browser_extension`
+})
 
 const capabilityKeys = ['qa', 'clip', 'notes', 'shortcuts'] as const
 const scenarioKeys = ['research', 'learning', 'tech', 'work'] as const

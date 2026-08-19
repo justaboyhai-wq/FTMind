@@ -53,7 +53,7 @@ const tooltipTitle = ref('')
 const tooltipKind = ref('')
 
 const labels = [
-  ['FMind Core', 'Knowledge core'],
+  ['FTMind Core', 'Knowledge core'],
   ['RAG', 'Retrieval'],
   ['Wiki', 'Knowledge page'],
   ['Agent', 'Intelligent agent'],

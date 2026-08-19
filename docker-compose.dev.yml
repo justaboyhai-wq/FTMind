@@ -3,7 +3,7 @@ services:
   # 只启动依赖的基础设施服务
   postgres:
     image: paradedb/paradedb:v0.22.2-pg17
-    container_name: FMind-postgres-dev
+    container_name: ${FMIND_CONTAINER_PREFIX:-FMind}-postgres-dev
     ports:
       - "${DB_PORT:-5432}:5432"
     environment:
@@ -25,7 +25,7 @@ services:
 
   redis:
     image: redis:7.0-alpine
-    container_name: FMind-redis-dev
+    container_name: ${FMIND_CONTAINER_PREFIX:-FMind}-redis-dev
     ports:
       - "${REDIS_PORT:-6379}:6379"
     volumes:
@@ -241,9 +241,9 @@ services:
       context: .
       dockerfile: docker/Dockerfile.docreader
     image: wechatopenai/fmind-docreader:${FMIND_VERSION:-latest}
-    container_name: FMind-docreader-dev
+    container_name: ${FMIND_CONTAINER_PREFIX:-FMind}-docreader-dev
     ports:
-      - "${DOCREADER_PORT:-50051}:50051"
+      - "127.0.0.1:${DOCREADER_PORT:-50051}:50051"
     volumes:
       - docreader-tmp-dev:/tmp/docreader
     environment:
@@ -268,7 +268,7 @@ services:
       - GRPC_TLS_SERVER_NAME=${GRPC_TLS_SERVER_NAME:-}
       - GRPC_AUTH_TOKEN=${GRPC_AUTH_TOKEN:-}
     healthcheck:
-      test: ["CMD", "grpc_health_probe", "-addr=localhost:50051"]
+      test: ["CMD", "/app/.venv/bin/python", "-c", "import grpc; grpc.channel_ready_future(grpc.insecure_channel('localhost:50051')).result(timeout=3)"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -308,7 +308,7 @@ services:
     build:
       context: ${MEMORY_SOURCE_ROOT:-../TencentDB-Agent-Memory}/MemoryCore
       dockerfile: Dockerfile
-    container_name: FMind-memory-core-dev
+    container_name: ${FMIND_CONTAINER_PREFIX:-FMind}-memory-core-dev
     profiles:
       - memory
     ports:
@@ -336,6 +336,12 @@ services:
       - FMIND_L3_EVENTS_ENABLED=true
       - FMIND_MEMORY_EVENT_SECRET=${FMIND_MEMORY_EVENT_SECRET:-}
       - FMIND_MEMORY_EVENT_SERVICE_ID=${FMIND_MEMORY_EVENT_SERVICE_ID:-memory-core}
+      - FMIND_BINDING_KEY_PEPPER=${FMIND_BINDING_KEY_PEPPER:-dev-binding-pepper-change-me}
+      - FMIND_BINDING_TOKEN_SECRET=${FMIND_BINDING_TOKEN_SECRET:-dev-binding-token-secret-change-me}
+      - FMIND_AGENT_BINDING_SETUP_FLOW=${FMIND_AGENT_BINDING_SETUP_FLOW:-true}
+      - FMIND_PUBLIC_BASE_URL=${FMIND_PUBLIC_BASE_URL:-http://localhost:${APP_PORT:-8080}}
+      - MEMORY_CORE_PUBLIC_URL=${MEMORY_CORE_PUBLIC_URL:-http://localhost:${MEMORY_CORE_PORT:-8420}}
+      - MEMORY_PROXY_PUBLIC_URL=${MEMORY_PROXY_PUBLIC_URL:-http://localhost:${MEMORY_PROXY_PORT:-8096}}
       - FMIND_L3_OUTBOX_PATH=/data/tdai-memory/fmind-l3-outbox.sqlite
     entrypoint:
       - /usr/bin/tini
@@ -363,7 +369,7 @@ services:
     build:
       context: ${MEMORY_SOURCE_ROOT:-../TencentDB-Agent-Memory}/MemoryProxy
       dockerfile: Dockerfile
-    container_name: FMind-memory-proxy-dev
+    container_name: ${FMIND_CONTAINER_PREFIX:-FMind}-memory-proxy-dev
     profiles:
       - memory
     ports:
@@ -403,6 +409,7 @@ services:
             __MEMORY_CORE_API_KEY__: "MEMORY_CORE_API_KEY",
             __MEMORY_PROXY_UPSTREAM_URL__: "MEMORY_PROXY_UPSTREAM_URL",
             __MEMORY_PROXY_UPSTREAM_API_KEY__: "MEMORY_PROXY_UPSTREAM_API_KEY",
+            __MEMORY_PROXY_ADMIN_API_KEY__: "TDAI_PROXY_ADMIN_API_KEY",
           };
           const allow = new Set((process.env.MEMORY_INSECURE_HTTP_ALLOWLIST || "").split(",").map(v => v.trim().toLowerCase()).filter(Boolean));
           for (const name of ["FMIND_ENDPOINT", "MEMORY_CORE_ENDPOINT"]) {

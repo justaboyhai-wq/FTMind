@@ -1,8 +1,22 @@
-# Production image. Build static assets on the host first:
-#   ./scripts/build_frontend_dist.sh
+FROM node:22-alpine AS builder
+
+WORKDIR /build
+
+COPY package.json package-lock.json ./
+COPY packages ./packages
+RUN npm ci
+
+COPY . .
+
+ARG VITE_FRONTEND_COMMIT=unknown
+ENV VITE_FRONTEND_COMMIT=${VITE_FRONTEND_COMMIT}
+ENV VITE_IS_DOCKER=true
+
+RUN npm run build
+
 FROM nginx:stable-alpine
 
-COPY dist /usr/share/nginx/html
+COPY --from=builder /build/dist /usr/share/nginx/html
 
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 
