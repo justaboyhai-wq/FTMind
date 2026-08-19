@@ -57,3 +57,5 @@ fix-docker.sh
 
 # WeChat Mini Program local/private configuration
 miniprogram/project.private.config.json
+# Local Baoan policy collector output (large, generated Raw Packages)
+/baoan-policy-data-first-batch/
