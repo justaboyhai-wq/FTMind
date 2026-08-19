@@ -22,7 +22,7 @@ type IndexRecord struct {
 
 type Attachment struct { ID int64 `json:"id"`; Name, Type, MIME, URL string; Size int64 `json:"size,string,omitempty"` }
 type DownloadedAttachment struct { Attachment; ActualSize int64; SHA256 string; StoragePath string }
-type RelatedPost struct { ID int64 `json:"id"`; Title, Type, TypeLabel, URL, Status string; Rank, OldRank, RelatedClassify int `json:"rank"`; CreatedAt, PublishedAt, FirstPublishedAt, DisplayPublishedAt, CreateTime int64 }
+type RelatedPost struct { ID int64 `json:"id"`; Title, Type, TypeLabel, URL, Status string; Rank int `json:"rank"`; OldRank int `json:"oldrank"`; RelatedClassify int `json:"related_classify"`; CreatedAt string `json:"created_at"`; PublishedAt, FirstPublishedAt, DisplayPublishedAt, CreateTime int64 }
 type FieldConflict struct { Field string; TopLevel, Nested string }
 type IndexDiff struct { Added, Changed, Missing []string `json:"-"` }
 
