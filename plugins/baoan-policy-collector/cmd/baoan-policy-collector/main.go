@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/archive"
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/collector"
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/config"
 	"github.com/justaboyhai-wq/fmind/plugins/baoan-policy-collector/internal/httpclient"
@@ -60,7 +61,11 @@ func run(args []string, out, errOut io.Writer) int {
 		return daemon(cfg, errOut)
 	}
 	if args[0] == "verify" {
-		fmt.Fprintf(out, "verification requested for %s\n", dataDir)
+		if err := archive.Verify(dataDir); err != nil {
+			fmt.Fprintln(errOut, err)
+			return 1
+		}
+		fmt.Fprintf(out, "verified %s\n", dataDir)
 		return 0
 	}
 	if args[0] == "export-manifest" {
@@ -72,7 +77,24 @@ func run(args []string, out, errOut io.Writer) int {
 		return 0
 	}
 	if args[0] == "retry" {
-		fmt.Fprintln(out, "retry queue is handled by the next collection run")
+		store, err := state.Open(filepath.Join(dataDir, "state", "collector.db"))
+		if err != nil {
+			fmt.Fprintln(errOut, err)
+			return 1
+		}
+		defer store.Close()
+		client := httpclient.New(httpclient.Options{AllowedHosts: cfg.AllowedHosts, MaxBytes: cfg.HTMLMaxBytes, Interval: cfg.RequestInterval, Timeout: cfg.RequestTimeout, Retries: cfg.RetryCount})
+		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+		defer cancel()
+		summary, err := collector.New(cfg, client, store).Retry(ctx)
+		payload, _ := json.Marshal(summary)
+		fmt.Fprintln(out, string(payload))
+		if err != nil {
+			return 1
+		}
+		if summary.Status == "partial" {
+			return 3
+		}
 		return 0
 	}
 	if args[0] != "collect" {
