@@ -13,7 +13,9 @@ go run ./cmd/baoan-policy-collector daemon --data-dir ./baoan-policy-data
 The collector is an independent Go module. It discovers `zcfg.js` from the seed
 HTML on every run, downloads detail JSON, original HTML, attachments, and
 official relationship metadata, then writes immutable packages under
-`<data-dir>/policies`. It does not require the FMind services.
+`<data-dir>/policies`. Each run also writes discovery/event ledgers and an
+official-dimension dictionary snapshot under `<data-dir>/dictionaries`.
+It does not require the FMind services.
 
 Validation commands:
 

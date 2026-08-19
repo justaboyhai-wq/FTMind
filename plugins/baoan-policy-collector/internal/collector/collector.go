@@ -2,10 +2,13 @@ package collector
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"time"
 
@@ -136,6 +139,9 @@ func (c *Collector) collect(ctx context.Context, full bool, maxItems int, filter
 	run.IndexCount = len(records)
 	run.UniqueIDs = len(records)
 	if err := writeDiscovery(c.Config.DataDir, runID, seed.Body, index.Body, records); err != nil {
+		return finish(err)
+	}
+	if err := writeDictionarySnapshot(c.Config.DataDir, index.Body, records); err != nil {
 		return finish(err)
 	}
 	for _, record := range records {
@@ -283,6 +289,58 @@ func appendRunEvent(root, runID, name string, value any) error {
 	}
 	defer f.Close()
 	return json.NewEncoder(f).Encode(value)
+}
+
+func writeDictionarySnapshot(root string, source []byte, records []model.IndexRecord) error {
+	sum := sha256.Sum256(source)
+	snapshotID := hex.EncodeToString(sum[:])[:16]
+	values := map[string]map[string]bool{
+		"service_objects": {}, "authorities": {}, "themes": {}, "carriers": {},
+	}
+	for _, r := range records {
+		for _, value := range r.ServiceObjects {
+			if value != "" {
+				values["service_objects"][value] = true
+			}
+		}
+		if r.Source != "" {
+			values["authorities"][r.Source] = true
+		}
+		if r.Theme != "" {
+			values["themes"][r.Theme] = true
+		}
+		if r.CarrierType != "" {
+			values["carriers"][r.CarrierType] = true
+		}
+	}
+	ordered := make(map[string][]string, len(values))
+	for dimension, set := range values {
+		for value := range set {
+			ordered[dimension] = append(ordered[dimension], value)
+		}
+		sort.Strings(ordered[dimension])
+	}
+	payload := map[string]any{"schema_version": "baoan.dictionary/v1", "snapshot_id": snapshotID, "source_sha256": hex.EncodeToString(sum[:]), "captured_at": time.Now().UTC(), "dimensions": ordered}
+	body, err := json.MarshalIndent(payload, "", "  ")
+	if err != nil {
+		return err
+	}
+	dir := filepath.Join(root, "dictionaries", "snapshots", snapshotID)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+	if err := os.WriteFile(filepath.Join(dir, "official-dimensions.json"), body, 0o644); err != nil {
+		return err
+	}
+	return writeAtomic(filepath.Join(root, "dictionaries", "latest.json"), []byte(fmt.Sprintf("{\"snapshot_id\":\"%s\",\"source_sha256\":\"%s\"}", snapshotID, hex.EncodeToString(sum[:]))))
+}
+
+func writeAtomic(path string, body []byte) error {
+	tmp := path + ".tmp"
+	if err := os.WriteFile(tmp, body, 0o644); err != nil {
+		return err
+	}
+	return os.Rename(tmp, path)
 }
 
 func writeDiscovery(root, runID string, seed, index []byte, records []model.IndexRecord) error {

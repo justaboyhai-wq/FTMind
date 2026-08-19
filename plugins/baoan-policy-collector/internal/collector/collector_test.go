@@ -90,6 +90,9 @@ func TestCollectEndToEndPublishesPackage(t *testing.T) {
 	if err := archive.Verify(cfg.DataDir); err != nil {
 		t.Fatal(err)
 	}
+	if _, err := os.Stat(filepath.Join(cfg.DataDir, "dictionaries", "latest.json")); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestRetryProcessesOnlyFailedRecord(t *testing.T) {
