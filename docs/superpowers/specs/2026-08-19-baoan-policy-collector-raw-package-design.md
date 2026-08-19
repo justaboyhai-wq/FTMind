@@ -134,6 +134,10 @@ Schema、哈希和引用完整性校验
 
 协议健康检查至少验证：`zcfg.js` 可解析、索引记录数非零、ID 唯一、随机详情样本符合 Schema、详情路径公式成立、附件 URL 位于白名单、`gkml_data` 可二次解析。若入口由 JavaScript 数组变成其他格式、记录数相对上次完整批次异常下降、字段集合漂移或路径公式失效，本批次必须标记 partial 并停止据此做“官网已删除”判断。
 
+静态入口 HTML 已确认包含 `<script src="/zcfg.js" type="text/javascript" charset="utf-8"></script>`，其后的 inline script 直接执行 `allData = allData.sort(sortData)`。因此 881 个 ID 并不直接内嵌在入口 HTML 正文中，而是位于入口 HTML 明确声明的初始化资源 `zcfg.js` 中。采集器每次运行必须从 seed HTML 重新发现并校验该脚本引用，再下载当次脚本提取 ID，不能把当前 881 个 ID 固化进程序。首版实测提取 881 次 ID、去重后仍为 881，重复数为 0；对索引首部、尾部以及当前可申报样本按详情路径公式抽查均返回 200。
+
+每次 run 应额外归档 `discovery/seed.html`、`discovery/index-script.js`、`discovery/index-records.ndjson` 和 `discovery/ids.json`。`ids.json` 至少保存索引 URL、响应 SHA-256、提取时间、记录总数、排序前 ID 列表、唯一 ID 列表以及相对上一完整 run 的 `added_ids`、`changed_ids`、`missing_ids`。新增政策由 `added_ids` 自动进入详情和附件队列；`missing_ids` 只进入缺失观察，不直接删除历史资料。
+
 ## 5. 官网事实、计算结果与未来模型数据的边界
 
 ### 5.1 官网事实 `official`
@@ -282,6 +286,11 @@ baoan-policy-data/
 │               └── <sha256-prefix>-<safe-original-name>
 └── runs/
     └── <run-id>/
+        ├── discovery/
+        │   ├── seed.html
+        │   ├── index-script.js
+        │   ├── index-records.ndjson
+        │   └── ids.json
         ├── run-manifest.json
         ├── policies.ndjson
         ├── failures.ndjson
