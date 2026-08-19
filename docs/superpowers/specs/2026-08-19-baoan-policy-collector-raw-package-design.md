@@ -118,6 +118,22 @@ Schema、哈希和引用完整性校验
 
 浏览器网络跟踪只用于以下情况：首次建立协议目录、HTML/JavaScript 无法静态解释请求参数、网站改版导致协议指纹失配。跟踪完成后必须把请求语义固化成版本化协议目录；日常定时任务不得依赖浏览器、坐标点击或 DOM 点击循环。
 
+## 4.2 2026-08-19 官网请求协议实测基线
+
+对 `https://www.baoan.gov.cn/xxgk/fgk/` 的静态脚本、浏览器已加载资源及公开响应进行了交叉核对。以下内容作为首版 `protocol/request-catalog.json` 的实测基线，而不是长期写死且无需校验的假设：
+
+1. 全量发现入口为 `GET https://www.baoan.gov.cn/zcfg.js`。本次响应为 UTF-8 JavaScript，大小约 1.01 MB，声明 `var allData = [...]`，其中恰好包含 881 条带 `id` 的政策/解读索引记录。采集器必须归档原始脚本、计算 SHA-256，再用受限解析器提取数组；禁止直接执行远端 JavaScript。
+2. 详情元数据 URL 由文章 ID 确定性生成：`/postmeta/p/{floor(id/1000000)}/{floor(id/1000)}/{id}.json`。例如 `12846556` 对应 `https://www.baoan.gov.cn/postmeta/p/12/12846/12846556.json`。页面当前展示的 7 条可申报记录分别触发 `12846556`、`12793671`、`12702507`、`12298294`、`12181232`、`11953225`、`11208928` 的详情请求。
+3. `/postmeta/hot/187595.json`、`/postmeta/hot/187596.json`、`/postmeta/hot/146015.json`、`/postmeta/hot/110300.json` 返回 `articles` 聚合，用于页面“热门政策”展示，每个请求只取前 10 条。它们可作为补充发现和对账信号，但不得作为 881 条全量索引或详情真源。
+4. `zcfg.js` 索引已观察到的业务字段包括：`id`、`title`、`subtitle`、`content`、`abstract`、`source`、`date`、`filterDate`、`url`、`wh`、`zt`、`tc`、`channel`、`zxdh`、`wjlx`、`sbks`、`sbjs`、`expired_time`。其中部分记录的 `content` 为空，页面搜索时才按需加载 `/zcfgCon.js`；因此正文真源仍是详情 HTML/详情 JSON，而不是假定索引永远带全文。
+5. 详情 JSON 已观察到 `attachment`、`related_posts`、`gkml_data`、`url`、`gkml_url`、`EXT_wh`、`EXT_wjlb`、`EXT_fbjg`、`EXT_ztfl`、`wjlx`、`sbks`、`sbjs`、`zxdz`、`zxdh` 等字段。`gkml_data` 是 JSON 字符串，须二次解析并原样归档，其字段包含有效期、文号、发布机构、关键词、主分类、体裁分类和主题分类等。
+6. 附件对象至少包含 `id`、`name`、`type`、`mime`、`size`、`url`；关联对象至少包含 `id`、`title`、`type`、`rank`、`related_classify`、`url`、状态和多种发布时间。关联关系的业务类型不能只凭标题猜测，应优先结合 `related_classify`、目标 URL 栏目、页面显示文案和目标详情元数据确定；无法确定时保留原始关联并标记 unknown。
+7. 样本 `12846556` 的详情响应包含 4 个附件和 4 条显式关联，覆盖政策 PDF、3 个 Word 表格、上位政策、历史版本、文字解读和意见征集，证明详情 JSON 可以作为附件与关系发现的主入口，详情 HTML用于正文保真和交叉校验。
+
+当前页面脚本将“当前可申报”候选条件实现为：`sbks` 与 `sbjs` 均非空，且 `expired_time` 尚未到期或为空；UI 同时用 `sbjs` 显示申报截止日期与剩余天数。由于这个实现没有直接校验当前时间是否落在 `[sbks, sbjs]` 内，采集器不得把网站脚本判断当作唯一状态结论。Raw Package 必须分别保存：是否被官网列入、`sbks`、`sbjs`、`expired_time`、网站脚本规则版本、本地透明规则结果以及两者冲突。
+
+协议健康检查至少验证：`zcfg.js` 可解析、索引记录数非零、ID 唯一、随机详情样本符合 Schema、详情路径公式成立、附件 URL 位于白名单、`gkml_data` 可二次解析。若入口由 JavaScript 数组变成其他格式、记录数相对上次完整批次异常下降、字段集合漂移或路径公式失效，本批次必须标记 partial 并停止据此做“官网已删除”判断。
+
 ## 5. 官网事实、计算结果与未来模型数据的边界
 
 ### 5.1 官网事实 `official`
