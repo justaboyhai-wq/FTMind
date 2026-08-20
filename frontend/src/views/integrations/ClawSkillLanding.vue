@@ -154,7 +154,7 @@ const installCommand = 'openclaw skills install @justaboyhai-wq/fmind'
 const envExample = computed(() => {
   const base = apiBaseUrlDisplay.value || 'https://your-server.com/api/v1'
   const gateway = base.replace(/\/api\/v1\/?$/, '')
-  return `export FMIND_BASE_URL="${base}"\nexport FMIND_USER_API_KEY="<existing FMind user API key>"\nexport FMIND_AGENT_RUNTIME_KEY="<Agent Binding runtime key>"\nexport FMIND_MEMORY_PROXY_URL="${gateway}"`
+  return `export FTMIND_BASE_URL="${base}"\nexport FTMIND_USER_API_KEY="<existing FTMind user API key>"\nexport FTMIND_AGENT_RUNTIME_KEY="<Agent Binding runtime key>"\nexport FTMIND_MEMORY_PROXY_URL="${gateway}"`
 })
 
 const openClawHub = () => {

@@ -2,7 +2,7 @@
 
 **Goal:** Preserve the current knowledge base while renaming policy documents, binding verified Baoan official tags, and making future RSS syncs update documents and tags without duplicates.
 
-**Architecture:** The collector derives only website-backed, dimension-prefixed tags and emits them as RSS `<category>` values. FMind's RSS connector carries those values through `FetchedItem` to the datasource service, which creates/reuses tags and applies managed official-tag relations while preserving manual tags. A transactional, idempotent migration adopts existing `post_<id>` documents and updates display names/tags without changing knowledge IDs, chunks, vectors, or storage paths.
+**Architecture:** The collector derives only website-backed, dimension-prefixed tags and emits them as RSS `<category>` values. FTMind's RSS connector carries those values through `FetchedItem` to the datasource service, which creates/reuses tags and applies managed official-tag relations while preserving manual tags. A transactional, idempotent migration adopts existing `post_<id>` documents and updates display names/tags without changing knowledge IDs, chunks, vectors, or storage paths.
 
 ## Requirements
 
@@ -17,10 +17,10 @@
 ## Implementation tasks
 
 1. Collector: add deterministic `OfficialTags`, website-value validation, application-date evaluation, RSS `<category>` output, stable GUIDs, and category-aware feed fingerprints.
-2. FMind RSS connector: add `FetchedItem.TagNames`, parse/validate categories, preserve fallback article fetching, and report invalid per-item categories as partial failures.
+2. FTMind RSS connector: add `FetchedItem.TagNames`, parse/validate categories, preserve fallback article fetching, and report invalid per-item categories as partial failures.
 3. Datasource service: create/reuse tags, apply managed official tags alongside the source tag, preserve manual/AI tags, and remove stale managed tags on update.
 4. Migration command: support `--kb-id`, `--feed-url`, `--data-dir`, `--dry-run`, `--apply`, `--rollback-file`, `--rollback`, and optional `--datasource-id`; map `post_<id>` documents to canonical packages; transactionally update title/file_name, cached wiki display titles, metadata, tag relations, and adoption cursor; abort on unmatched/ambiguous mappings.
-5. Rollout: deploy collector first, deploy FMind connector second, back up database/config, dry-run migration, apply migration and tag backfill, create paused RSS source, seed existing cursor/adoption metadata, then enable sync.
+5. Rollout: deploy collector first, deploy FTMind connector second, back up database/config, dry-run migration, apply migration and tag backfill, create paused RSS source, seed existing cursor/adoption metadata, then enable sync.
 
 ## Verification
 

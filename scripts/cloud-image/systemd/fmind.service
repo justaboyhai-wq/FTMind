@@ -1,5 +1,5 @@
 [Unit]
-Description=FMind (docker compose)
+Description=FTMind (docker compose)
 Requires=docker.service fmind-firstboot.service
 After=docker.service network-online.target fmind-firstboot.service
 Wants=network-online.target

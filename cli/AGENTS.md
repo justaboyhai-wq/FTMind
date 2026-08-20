@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This is the FMind CLI (`fmind`), a command-line client for the FMind RAG server. The module path is `github.com/justaboyhai-wq/fmind/cli`.
+This is the FTMind CLI (`fmind`), a command-line client for the FTMind RAG server. The module path is `github.com/justaboyhai-wq/fmind/cli`.
 
 The wire contract for AI agents *consuming* `fmind` output (JSON shape, exit codes, error format) is documented below and in [README.md](README.md). Read this file if you're integrating with the CLI binary — build / test / architecture details follow the wire contract sections.
 
@@ -138,7 +138,7 @@ Make errors structured, actionable, and specific.
 
 ## Design decisions worth flagging
 
-Five design decisions readers may want context on: where FMind picks an
+Five design decisions readers may want context on: where FTMind picks an
 opinionated default, what the trade-off is, and what mainstream practice it
 is or isn't aligned with.
 
@@ -146,28 +146,28 @@ is or isn't aligned with.
 
 | | |
 |---|---|
-| **FMind** | success envelope → stdout; error envelope → stderr |
+| **FTMind** | success envelope → stdout; error envelope → stderr |
 | **Rationale** | `fmind ... --format json \| jq '.data[]'` must not mix error objects into the data stream. Channel split lets pipeline consumers suppress errors with `2>/dev/null` and still get clean JSON on stdout. |
 
 ### 2. `fmind api DELETE` triggers exit-10 confirmation
 
 | | |
 |---|---|
-| **FMind** | DELETE triggers exit-10 (`input.confirmation_required`); user bypasses with `-y/--yes` |
+| **FTMind** | DELETE triggers exit-10 (`input.confirmation_required`); user bypasses with `-y/--yes` |
 | **Rationale** | DELETE is irreversible. Most raw-API CLI commands rely on restricted credentials for safety, but self-hosted deployments may not have restricted-credential infrastructure available. Defensive default because agents are common consumers. |
 
 ### 3. `retry_argv` distinct from `hint`
 
 | | |
 |---|---|
-| **FMind** | two separate fields: `retry_argv` (suggested next command as a JSON argv array, directly-executable for non-destructive errors; informational only on exit-10) + `hint` (prose) |
+| **FTMind** | two separate fields: `retry_argv` (suggested next command as a JSON argv array, directly-executable for non-destructive errors; informational only on exit-10) + `hint` (prose) |
 | **Rationale** | Agents don't regex-extract argv from prose — known fragility. An argv array is exec-ready with no shell-splitting or quoting. Trade-off: one extra envelope field. On exit-10, the user must approve the destructive write; agents surface `retry_argv` for human review, not auto-execution. |
 
 ### 4. NDJSON event stream has no envelope wrapping
 
 | | |
 |---|---|
-| **FMind** | `chat` / `session ask --format ndjson` emit bare `{type:...}` per line; default JSON buffers a bounded answer-event projection into one envelope |
+| **FTMind** | `chat` / `session ask --format ndjson` emit bare `{type:...}` per line; default JSON buffers a bounded answer-event projection into one envelope |
 | **Rationale** | This matches established practice across NDJSON-emitting CLIs and webhook protocols. Each complete line can be decoded and dispatched as it arrives; the buffered envelope is reserved for normal JSON mode. |
 
 ### 5. No `schema_version` field in payload
@@ -175,7 +175,7 @@ is or isn't aligned with.
 | | |
 |---|---|
 | **Mainstream** | some APIs (Anthropic / OpenAI) embed a `version` field in payload |
-| **FMind** | version identity via CLI binary semver + CHANGELOG `### BREAKING` + skill `tested_against` + CI parity tests |
+| **FTMind** | version identity via CLI binary semver + CHANGELOG `### BREAKING` + skill `tested_against` + CI parity tests |
 | **Rationale** | Mainstream CLIs don't embed version in payload. Agents have complete version awareness via `fmind --version` and skill version binding. |
 
 ## Pre-1.0 breaking policy
@@ -533,7 +533,7 @@ The three surfaces do not auto-sync: each is wired separately so agents that onl
 
 ## MCP Tool Surface
 
-FMind's MCP server exposes a curated 10-tool surface where most tools are read-only but `chat` and `session_ask` create conversation/message records. Many MCP servers in the wild ship write / mutation operations on by default and rely on credential-scope or sandbox restrictions for safety. FMind opts for curation instead: the server side doesn't yet enforce per-token scope, so an agent holding a user's token has full write access. Until server-side scope ships, the CLI keeps mutation tools out of the MCP surface as a belt-and-braces second line of defense. When server scope arrives this stance can loosen.
+FTMind's MCP server exposes a curated 10-tool surface where most tools are read-only but `chat` and `session_ask` create conversation/message records. Many MCP servers in the wild ship write / mutation operations on by default and rely on credential-scope or sandbox restrictions for safety. FTMind opts for curation instead: the server side doesn't yet enforce per-token scope, so an agent holding a user's token has full write access. Until server-side scope ships, the CLI keeps mutation tools out of the MCP surface as a belt-and-braces second line of defense. When server scope arrives this stance can loosen.
 
 The curated 10 tools (`cli/internal/mcp/tools.go`):
 
@@ -580,7 +580,7 @@ Reasons hard-required-flags is the v0.5+ default:
 
 - Admin / debug commands have no natural human-interactive prompt to lean on.
 - Agent-friendly: MCP callers do not stall waiting for stdin prompts.
-- Consistent with every existing non-auth FMind command.
+- Consistent with every existing non-auth FTMind command.
 
 - **Agent help blob**: Commands MAY call
   `cmdutil.SetAgentHelp(cmd, cmdutil.AgentHelp{...})` to expose a stable

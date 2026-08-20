@@ -1,4 +1,4 @@
-// Command fmind is a CLI for Tencent FMind knowledge bases.
+// Command fmind is a CLI for Tencent FTMind knowledge bases.
 package main
 
 import (
@@ -8,9 +8,14 @@ import (
 	"syscall"
 
 	"github.com/justaboyhai-wq/fmind/cli/cmd"
+	"github.com/justaboyhai-wq/fmind/internal/config"
 )
 
 func main() {
+	// Honor FTMIND_* environment variables by copying them to the legacy
+	// FMIND_* names when the legacy names are unset.
+	config.SyncBrandEnvironmentVariables()
+
 	// Wire SIGINT/SIGTERM into the root context so long-running commands
 	// (chat / agent invoke / doc wait) observe ctx.Done() and can run their
 	// cancellation cleanup paths (e.g., re-emit the auto-created session id

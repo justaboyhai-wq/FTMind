@@ -7,7 +7,7 @@ import (
 )
 
 // Segmenter is the small text-segmentation contract used by retrieval and
-// evaluation. Keeping this contract in FMind avoids making the whole server
+// evaluation. Keeping this contract in FTMind avoids making the whole server
 // depend on CGO just to compile; deployments may provide a richer segmenter.
 type Segmenter struct{}
 

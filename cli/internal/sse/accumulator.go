@@ -1,5 +1,5 @@
 // Package sse provides helpers for consuming server-sent event streams from
-// the FMind SDK (KnowledgeQAStream, ContinueStream).
+// the FTMind SDK (KnowledgeQAStream, ContinueStream).
 //
 // Accumulator is the canonical sink: every callback event appends to a
 // buffered Content string and updates terminal-state fields like References

@@ -1,5 +1,5 @@
 """
-Parser module for FMind document processing system.
+Parser module for FTMind document processing system.
 
 This module provides document parsers for various file formats including:
 - Microsoft Word documents (.doc, .docx)

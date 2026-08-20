@@ -53,12 +53,12 @@ export default {
     reopen: 'Product tour',
     steps: {
       welcome: {
-        title: 'Welcome to FMind',
+        title: 'Welcome to FTMind',
         desc: 'A few quick steps to get you familiar with knowledge bases, chat and agents. Click "Next" to begin.',
       },
       knowledge: {
         title: 'Create your knowledge base',
-        desc: 'Everything starts here: upload documents, web pages or FAQs and FMind parses and indexes them automatically. Click here to open knowledge bases.',
+        desc: 'Everything starts here: upload documents, web pages or FAQs and FTMind parses and indexes them automatically. Click here to open knowledge bases.',
       },
       chat: {
         title: 'Start an AI chat',
@@ -1235,37 +1235,37 @@ export default {
       desc: "Your role can't access this settings page. Ask an admin of this workspace to grant the required role.",
     },
     fmindCloud: {
-      title: 'FMind Cloud',
-      description: 'Configure FMind Cloud APPID and APPSECRET credentials. Credentials are used for model services and document parsing engine.',
+      title: 'FTMind Cloud',
+      description: 'Configure FTMind Cloud APPID and APPSECRET credentials. Credentials are used for model services and document parsing engine.',
       viewDocs: 'View Docs',
       unconfigured: 'Credentials not configured. Please fill in APPID and APPSECRET.',
       configured: 'Credentials configured and working.',
-      expired: 'FMind Cloud credentials expired',
+      expired: 'FTMind Cloud credentials expired',
       expiredDefault: 'Encryption key changed after service restart. Saved credentials cannot be decrypted. Please re-enter credentials.',
       reconfigure: 'Reconfigure',
       appIdLabel: 'APPID',
-      appIdDesc: 'FMind Cloud application ID',
+      appIdDesc: 'FTMind Cloud application ID',
       appIdPlaceholder: 'Enter APPID',
       appSecretLabel: 'APPSECRET',
-      appSecretDesc: 'FMind Cloud application secret',
+      appSecretDesc: 'FTMind Cloud application secret',
       appSecretPlaceholder: 'Enter APPSECRET',
       saveHint: 'Credentials will be validated and encrypted before saving.',
       saveBtn: 'Save Credentials',
       usageTitle: 'Usage Guide',
-      usageSteps: '1. Save APPID and APPSECRET\n2. Register chat, embedding, rerank, and vlm in Cloud Models below\n3. Parser: Knowledge Base Settings → Parser Engine → FMind Cloud',
+      usageSteps: '1. Save APPID and APPSECRET\n2. Register chat, embedding, rerank, and vlm in Cloud Models below\n3. Parser: Knowledge Base Settings → Parser Engine → FTMind Cloud',
       fillRequired: 'Please fill in APPID and APPSECRET',
       saveSuccess: 'Credentials saved successfully',
       saveFailed: 'Failed to save credentials',
-      credentialConfigured: 'FMind Cloud credentials configured.',
+      credentialConfigured: 'FTMind Cloud credentials configured.',
       credentialExpired: 'Credentials expired. Please reconfigure.',
-      credentialUnconfigured: 'FMind Cloud credentials not configured. Please set up APPID and APPSECRET first.',
+      credentialUnconfigured: 'FTMind Cloud credentials not configured. Please set up APPID and APPSECRET first.',
       checkingStatus: 'Checking credential status...',
       goToSettings: 'Go to Settings',
-      modelHintConfigured: 'FMind Cloud credentials configured. See supported models in',
+      modelHintConfigured: 'FTMind Cloud credentials configured. See supported models in',
       modelHintDocsLink: 'API docs',
       modelsSection: {
         title: 'Cloud Models',
-        descReady: 'Register the four standard FMind Cloud models for chat, retrieval, reranking, and vision.',
+        descReady: 'Register the four standard FTMind Cloud models for chat, retrieval, reranking, and vision.',
         descPending: 'Save credentials above before adding cloud models here.',
         statusAdded: 'Added',
         statusPending: 'Credentials required',
@@ -1282,10 +1282,10 @@ export default {
       addModelsAllExist: 'All four model types already exist',
       addModelsEmbeddingFailed: 'Embedding connection test failed; could not detect vector dimension',
       addModelsDisplayName: {
-        chat: 'FMind Cloud Chat',
-        embedding: 'FMind Cloud Embedding',
-        rerank: 'FMind Cloud ReRank',
-        vllm: 'FMind Cloud Vision',
+        chat: 'FTMind Cloud Chat',
+        embedding: 'FTMind Cloud Embedding',
+        rerank: 'FTMind Cloud ReRank',
+        vllm: 'FTMind Cloud Vision',
       },
     },
     system: 'System Settings',
@@ -1688,7 +1688,7 @@ export default {
   },
   initialization: {
     title: 'Initialization',
-    welcome: 'Welcome to FMind',
+    welcome: 'Welcome to FTMind',
     description: 'Please configure the system before starting',
     step1: 'Step 1: Configure LLM Model',
     step2: 'Step 2: Configure Embedding Model',
@@ -1949,11 +1949,11 @@ export default {
     backToLogin: 'Back to Login',
     registerNow: 'Register Now',
     loginHint: 'Sign in to continue, or create an account below if this is your first time.',
-    firstTime: 'New to FMind?',
+    firstTime: 'New to FTMind?',
     registerSuccess: 'Registration successful. Please sign in',
     registerFailed: 'Registration failed',
     subtitle: 'RAG Q&A, ReAct Agent and Wiki — an LLM-powered enterprise knowledge framework',
-    registerSubtitle: 'Create your account and start using FMind',
+    registerSubtitle: 'Create your account and start using FTMind',
     emailPlaceholder: 'Enter email address',
     passwordPlaceholder: 'Enter password (8-32 characters, including letters and numbers)',
     confirmPasswordPlaceholder: 'Enter password again',
@@ -2247,7 +2247,7 @@ export default {
     goToAgentSettings: 'Go to agent settings'
   },
   createChat: {
-    title: 'Hi, I am FMind — your knowledge, within reach',
+    title: 'Hi, I am FTMind — your knowledge, within reach',
     newSessionTitle: 'New Session',
     messages: {
       selectKnowledgeBase: 'Please select a knowledge base first',
@@ -2485,7 +2485,7 @@ export default {
     allowFileUploadDesc: 'When enabled, visitors can upload images and document attachments. Requires the bound agent to support image upload.',
     webhookUrl: 'Webhook URL',
     webhookUrlPlaceholder: 'https://your-server.example.com/fmind/embed-events',
-    webhookUrlDesc: 'Optional. FMind POSTs message_sent / message_received events to this HTTPS endpoint.',
+    webhookUrlDesc: 'Optional. FTMind POSTs message_sent / message_received events to this HTTPS endpoint.',
     webhookSecret: 'Webhook secret',
     webhookSecretPlaceholder: 'HMAC-SHA256 secret (X-FMind-Signature header)',
     webhookSecretKeep: 'Leave blank to keep the saved secret',
@@ -5449,8 +5449,8 @@ export default {
           desc: 'PaddleOCR-VL Cloud API',
         },
         fmindCloud: {
-          name: 'FMind Cloud',
-          desc: 'Document parsing via FMind Cloud',
+          name: 'FTMind Cloud',
+          desc: 'Document parsing via FTMind Cloud',
         },
         markitdown: {
           name: 'MarkItDown',
@@ -6281,7 +6281,7 @@ export default {
 	      capabilityMessageHistory: 'Message history',
 	      capabilityMessageHistoryHint: 'Let this key search workspace chat history and read chat-history stats. It does not grant workspace configuration access.',
 	      capabilityManageModels: 'Manage models',
-	      capabilityManageModelsHint: 'Manage model definitions, credentials, connectivity checks, and FMind Cloud credentials.',
+	      capabilityManageModelsHint: 'Manage model definitions, credentials, connectivity checks, and FTMind Cloud credentials.',
 	      capabilityManageMcpServices: 'Manage MCP services',
 	      capabilityManageMcpServicesHint: 'Manage MCP services, credentials, tool approval policies, and OAuth state for this principal.',
 	      capabilityManageDatasources: 'Manage data sources',
@@ -6327,7 +6327,7 @@ export default {
         'Anyone with the API key can change the user ID header to impersonate another external user and reuse or hijack that user\'s MCP OAuth authorization. Do not use this from browsers or untrusted clients; use Signed token for end-user apps.',
       signedRecommended: 'Recommended for user-facing apps: your backend signs a short-lived HS256 JWT for the external user.',
       signedFlowDetail:
-        'Keep the HMAC secret only on FMind and your trusted backend—never put it in requests or ship it to browsers. The request header carries the JWT string signed with that secret (it changes on each issuance or after expiry), not the secret itself. JWT must include sub (external user ID), tenant_id, aud=fmind, and exp (max 24h lifetime).',
+        'Keep the HMAC secret only on FTMind and your trusted backend—never put it in requests or ship it to browsers. The request header carries the JWT string signed with that secret (it changes on each issuance or after expiry), not the secret itself. JWT must include sub (external user ID), tenant_id, aud=fmind, and exp (max 24h lifetime).',
       directHeader: 'User ID header',
       requireDirectHeader: 'Require user ID header',
       requireDirectHeaderDesc:
@@ -6335,7 +6335,7 @@ export default {
       tokenHeader: 'Token header',
       tokenHeaderDesc: 'Clients send the backend-signed JWT in this fixed header.',
       hmacSecret: 'HMAC secret',
-      hmacSecretDesc: 'Same secret stored in FMind; used only on your backend to sign JWTs—never send it as a request header.',
+      hmacSecretDesc: 'Same secret stored in FTMind; used only on your backend to sign JWTs—never send it as a request header.',
       secretConfigured: 'Secret configured (not shown again); enter a new value to rotate',
       secretSavedCopyHint: 'Secret saved. Copy it to your backend now — you will not be able to view it again after leaving this page.',
       generateSecret: 'Generate secret',
@@ -6423,7 +6423,7 @@ export default {
     chrome: {
       title: 'Knowledge Assistant',
       subtitle:
-        'For self-hosted FMind: ask questions in a sidebar, clip web pages, and save Markdown notes into your knowledge bases while you browse.',
+        'For self-hosted FTMind: ask questions in a sidebar, clip web pages, and save Markdown notes into your knowledge bases while you browse.',
       capabilitiesTitle: 'Core capabilities',
       capabilities: {
         qa: {
@@ -6458,7 +6458,7 @@ export default {
         },
         port: {
           title: 'Desktop: fixed port (recommended)',
-          desc: 'On FMind Desktop, set a fixed API port (e.g. 37841) in API Info so the URL stays stable across restarts.',
+          desc: 'On FTMind Desktop, set a fixed API port (e.g. 37841) in API Info so the URL stays stable across restarts.',
         },
         install: {
           title: 'Install the extension',
@@ -6477,9 +6477,9 @@ export default {
       storeMeta: 'Chrome Web Store · v1.0.0',
     },
     claw: {
-      title: 'FMind Skill',
+      title: 'FTMind Skill',
       subtitle:
-        'Import documents and run hybrid retrieval (vector + keyword) via the FMind REST API—for uploads, URL imports, Markdown entries, and cross-KB search.',
+        'Import documents and run hybrid retrieval (vector + keyword) via the FTMind REST API—for uploads, URL imports, Markdown entries, and cross-KB search.',
       capabilitiesTitle: 'Skill capabilities',
       capabilities: {
         upload: {
@@ -6511,7 +6511,7 @@ export default {
         },
         env: {
           title: 'Configure environment',
-          desc: 'Set FMIND_BASE_URL and FMIND_API_KEY in your shell or ~/.zshrc / ~/.bashrc. The example below uses your current API base URL—replace the API Key with your actual value.',
+          desc: 'Set FTMIND_BASE_URL and FTMIND_API_KEY in your shell or ~/.zshrc / ~/.bashrc. The example below uses your current API base URL—replace the API Key with your actual value.',
         },
         install: {
           title: 'Install the skill',
@@ -6529,7 +6529,7 @@ export default {
       ecosystemNote:
         'Skill hosted on ClawHub ({\'@\'}justaboyhai-wq/fmind). See the ClawHub page for full API docs and version history.',
       installCta: 'Open ClawHub',
-      installCtaHint: 'Install FMind Skill · opens in a new tab',
+      installCtaHint: 'Install FTMind Skill · opens in a new tab',
       hubMeta: 'ClawHub · {\'@\'}justaboyhai-wq/fmind · MIT-0',
     },
   },
@@ -6790,10 +6790,10 @@ export default {
     statuses: { pending: 'Pending', reviewing: 'Reviewing', needs_info: 'Needs information', fixing: 'Fixing', resolved: 'Resolved', dismissed: 'Dismissed' },
   },
   externalMemory: {
-    eyebrow: 'Memory governance', title: 'External memory', subtitle: 'Connect approved external agents and govern reviewed L3 memories without changing FMind knowledge retrieval.', refresh: 'Refresh', scopeNote: 'This page is limited to workspace administrators. Connector secrets are displayed only when created or rotated.', memoryWikiBadge: 'Memory Wiki',
+    eyebrow: 'Memory governance', title: 'External memory', subtitle: 'Connect approved external agents and govern reviewed L3 memories without changing FTMind knowledge retrieval.', refresh: 'Refresh', scopeNote: 'This page is limited to workspace administrators. Connector secrets are displayed only when created or rotated.', memoryWikiBadge: 'Memory Wiki',
     tabs: { bindings: 'Agent access', reviews: 'L3 review & publish' },
     bindings: { title: 'Agent access', desc: 'Each binding scopes a single external agent to a team and explicit capabilities.', create: 'Create binding', createTitle: 'Create external agent binding', empty: 'No external agent bindings yet.', rotate: 'Rotate key', revoke: 'Revoke', revokeTitle: 'Revoke binding?', revokeHint: 'This immediately blocks {name} from obtaining new memory access tokens.', revoked: 'Binding revoked', rotated: 'Connector key rotated' },
-    fields: { teamId: 'Team ID', userId: 'User ID', agentId: 'FMind agent ID', externalAgent: 'External agent ID', connector: 'Connector type', capabilities: 'Capabilities', assetScopes: 'Asset scopes', assetScopesHelp: 'One scope per line or comma-separated, e.g. team:engineering.' }, policy: { capture: 'Capture memory', recall: 'Recall memory', l3: 'Enable reviewed L3 Wiki publishing' },
+    fields: { teamId: 'Team ID', userId: 'User ID', agentId: 'FTMind agent ID', externalAgent: 'External agent ID', connector: 'Connector type', capabilities: 'Capabilities', assetScopes: 'Asset scopes', assetScopesHelp: 'One scope per line or comma-separated, e.g. team:engineering.' }, policy: { capture: 'Capture memory', recall: 'Recall memory', l3: 'Enable reviewed L3 Wiki publishing' },
     secret: { title: 'Save connector secret', warning: 'Copy this secret now. It cannot be shown again after this dialog is closed.', copy: 'Copy', copied: 'Secret copied', copyFailed: 'Copy failed. Select and copy the secret manually.', confirm: 'I saved it' },
     reviews: { title: 'L3 review & publish', desc: 'Only approved L3 memory is eligible for the dedicated zero-RAG Memory Wiki.', allStatuses: 'All statuses', empty: 'No L3 memory reviews.', open: 'Review', detailTitle: 'L3 memory review', markdown: 'Markdown', evidence: 'Evidence', noEvidence: 'No evidence is recorded.', reviewComment: 'Review comment', comment: 'Comment', commentRequired: 'A comment is required when requesting changes.', commentOptional: 'Optional comment' },
     actions: { approve: 'Approve', reject: 'Reject', requestChanges: 'Request changes', publish: 'Publish to Memory Wiki', saved: 'Review saved', published: 'Published to Memory Wiki' }, columns: { externalAgent: 'External agent', connector: 'Connector', team: 'Team', policy: 'Policy', status: 'Status', actions: 'Actions', title: 'L3 title', agent: 'Agent' }, status: { pending_review: 'Pending review', changes_requested: 'Changes requested', approved: 'Approved', publishing: 'Publishing', published: 'Published', rejected: 'Rejected', revoked: 'Revoked', active: 'Active' }, validation: { required: 'This field is required.' }, error: { load: 'Unable to load external memory data.', save: 'Unable to save this change.' },

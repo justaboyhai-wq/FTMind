@@ -1,4 +1,4 @@
-const STORAGE_KEY = "fmind_settings";
+const STORAGE_KEY = "ftmind_settings";
 let runtimeApiKey = "";
 
 function normalizeBaseUrl(baseUrl) {

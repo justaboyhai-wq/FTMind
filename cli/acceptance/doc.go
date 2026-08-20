@@ -7,5 +7,5 @@
 // Sub-packages:
 //
 //	contract/    - envelope JSON shape golden + error.code registry consistency
-//	e2e/         - real FMind server blackbox tests (testscript-style)
+//	e2e/         - real FTMind server blackbox tests (testscript-style)
 package acceptance

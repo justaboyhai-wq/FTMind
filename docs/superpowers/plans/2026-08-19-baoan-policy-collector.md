@@ -4,7 +4,7 @@
 
 **Goal:** 在 `plugins/baoan-policy-collector` 建成独立采集器，直接遍历官网 `zcfg.js` 全量记录，下载详情 JSON、原文 HTML 和附件，生成不可变、可校验、可增量维护的 Raw Package。
 
-**Architecture:** 每次先下载 seed HTML，从 `<script src>` 重新发现并校验 `zcfg.js`，再用不执行远端代码的受限解析器提取 `allData`。按 ID 公式请求详情 JSON，以它作为结构化主数据源，以原文 HTML 和附件作为保真证据；SQLite 只保存运行状态，事实全部落入 Raw Package。本阶段不接入 FMind 数据库、前端、模型或浏览器自动化。
+**Architecture:** 每次先下载 seed HTML，从 `<script src>` 重新发现并校验 `zcfg.js`，再用不执行远端代码的受限解析器提取 `allData`。按 ID 公式请求详情 JSON，以它作为结构化主数据源，以原文 HTML 和附件作为保真证据；SQLite 只保存运行状态，事实全部落入 Raw Package。本阶段不接入 FTMind 数据库、前端、模型或浏览器自动化。
 
 **Tech Stack:** Go 1.26、`net/http`、`encoding/json`、`crypto/sha256`、`html-to-markdown/v2`、`modernc.org/sqlite`、`robfig/cron/v3`、JSON Schema、`testing`/`httptest`、Docker。
 
@@ -12,7 +12,7 @@
 
 ## 简化后的边界
 
-实测协议已经消除分页和通用爬取的不确定性：seed HTML 引用 `/zcfg.js`；该文件当前包含 881 条唯一 ID；详情 URL 可按 `/postmeta/p/{id/1000000}/{id/1000}/{id}.json` 拼接；详情 JSON 已包含正文、官方元数据、附件和关系。因此首版删除通用蜘蛛、分页器、浏览器降级、FMind 数据源表、MinIO、管理 API、Vue 页面和模型标签推理。未来 Wiki Transformer/Importer 读取本项目的 Raw Package，单独建设。
+实测协议已经消除分页和通用爬取的不确定性：seed HTML 引用 `/zcfg.js`；该文件当前包含 881 条唯一 ID；详情 URL 可按 `/postmeta/p/{id/1000000}/{id/1000}/{id}.json` 拼接；详情 JSON 已包含正文、官方元数据、附件和关系。因此首版删除通用蜘蛛、分页器、浏览器降级、FTMind 数据源表、MinIO、管理 API、Vue 页面和模型标签推理。未来 Wiki Transformer/Importer 读取本项目的 Raw Package，单独建设。
 
 ## 文件结构
 
@@ -495,7 +495,7 @@ Expected: FAIL，`run`/scheduler 未定义。
 
 - [ ] **Step 5: Docker 与 README**
 
-多阶段构建静态二进制，非 root 运行，只挂载 `/data`，不开放端口。README 给出 Windows、Docker、全量、增量、重试、校验、备份和恢复命令，明确不依赖 FMind 七容器。
+多阶段构建静态二进制，非 root 运行，只挂载 `/data`，不开放端口。README 给出 Windows、Docker、全量、增量、重试、校验、备份和恢复命令，明确不依赖 FTMind 七容器。
 
 - [ ] **Step 6: 验证并提交**
 
@@ -580,7 +580,7 @@ Expected: 占位词扫描无输出，diff、vet、测试通过。
 - 官网标签逐字保真；首版不调用模型。
 - 全量、增量、失败重试、断点续跑和三轮缺失均有测试。
 - 快照不可变，可用 SHA-256 和 JSON Schema 独立校验。
-- Windows、Linux、Docker 可独立运行，不依赖 FMind、数据库服务或浏览器。
+- Windows、Linux、Docker 可独立运行，不依赖 FTMind、数据库服务或浏览器。
 - 本阶段不直接导入 Wiki；Raw Package 稳定后再制定 Wiki Schema/Importer 计划。
 
 ## 实施审计（2026-08-19）

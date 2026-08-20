@@ -18,7 +18,7 @@ func (disabledMemoryGateway) Invoke(context.Context, string, types.BindingContex
 	return nil, errors.New("MemoryCore gateway is not configured")
 }
 
-// NewMemoryGatewayFromEnvironment keeps the original FMind deployment usable
+// NewMemoryGatewayFromEnvironment keeps the original FTMind deployment usable
 // without MemoryCore. Once any MemoryCore endpoint is configured, credentials
 // and transport policy become mandatory and startup fails closed.
 func NewMemoryGatewayFromEnvironment() (MemoryGateway, error) {
@@ -26,7 +26,7 @@ func NewMemoryGatewayFromEnvironment() (MemoryGateway, error) {
 	apiKey := strings.TrimSpace(os.Getenv("FMIND_MEMORY_CORE_API_KEY"))
 	serviceID := strings.TrimSpace(os.Getenv("FMIND_MEMORY_CORE_SERVICE_ID"))
 	// Service ID has a useful default for an enabled gateway, but by itself it
-	// must not opt a normal FMind-only deployment into the MemoryCore client.
+	// must not opt a normal FTMind-only deployment into the MemoryCore client.
 	// Compose always supplies FMIND_MEMORY_CORE_SERVICE_ID, even when the
 	// optional MemoryCore profile is disabled.
 	if baseURL == "" && apiKey == "" {

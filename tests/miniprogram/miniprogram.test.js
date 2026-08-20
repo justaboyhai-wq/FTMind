@@ -52,7 +52,7 @@ test("normalizeBaseUrl trims trailing slashes", () => {
   assert.equal(normalizeBaseUrl(" https://example.com/// "), "https://example.com");
 });
 
-test("API helpers send FMind auth headers", async () => {
+test("API helpers send FTMind auth headers", async () => {
   let capturedRequest;
   global.wx = {
     getStorageSync() {

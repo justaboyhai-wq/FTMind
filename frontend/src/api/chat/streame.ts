@@ -48,7 +48,7 @@ export function useStream() {
     const apiUrl = getApiBaseUrl();
     
     const embedToken = params.embed_token;
-    const token = embedToken || localStorage.getItem('fmind_token');
+    const token = embedToken || localStorage.getItem('ftmind_token');
     if (!token) {
       error.value = i18n.global.t('error.tokenNotFound');
       stopStream();
@@ -62,7 +62,7 @@ export function useStream() {
     // hydrate）都会让两者相等，使得后续流式请求悄悄丢 header、落到
     // home 空间上，导致 SSE 接口返回 404。直接附即可——后端
     // IsTenantAccessible 也允许 header 指向自家空间。
-    const selectedTenantId = localStorage.getItem('fmind_selected_tenant_id');
+    const selectedTenantId = localStorage.getItem('ftmind_selected_tenant_id');
     const tenantIdHeader: string | null = selectedTenantId || null;
 
     // TTFB instrumentation: record the moment we kick off the request so

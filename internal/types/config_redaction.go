@@ -132,12 +132,12 @@ func CredentialsConfigForResponse(cfg *CredentialsConfig, maskSecrets bool) *Cre
 	if !maskSecrets {
 		return &out
 	}
-	if out.FMindCloud != nil {
-		cloud := *out.FMindCloud
+	if out.FTMindCloud != nil {
+		cloud := *out.FTMindCloud
 		if cloud.AppSecret != "" {
 			cloud.AppSecret = RedactedSecretPlaceholder
 		}
-		out.FMindCloud = &cloud
+		out.FTMindCloud = &cloud
 	}
 	return &out
 }

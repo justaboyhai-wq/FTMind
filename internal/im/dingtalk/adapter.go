@@ -171,7 +171,7 @@ type fileMessageContent struct {
 	FileName            string `json:"fileName"`
 }
 
-// parseFileContent maps a DingTalk msgtype + content object to FMind's file
+// parseFileContent maps a DingTalk msgtype + content object to FTMind's file
 // message fields. Returns ok=false for non-file/picture message types so the
 // caller keeps its text handling. Picture messages have no fileName; the IM
 // service appends an extension after download.

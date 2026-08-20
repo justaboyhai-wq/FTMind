@@ -1,5 +1,5 @@
 [Unit]
-Description=FMind first-boot initialization (runs once)
+Description=FTMind first-boot initialization (runs once)
 After=docker.service network-online.target
 Requires=docker.service
 Wants=network-online.target

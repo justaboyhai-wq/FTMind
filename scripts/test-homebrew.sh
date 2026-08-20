@@ -61,8 +61,8 @@ echo ""
 echo "=== Step 3: Generate Formula ==="
 
 cat > "${TAP_DIR}/Formula/${FORMULA_NAME}.rb" << RUBY
-class FMindLiteTest < Formula
-  desc "FMind Lite (local test)"
+class FTMindLiteTest < Formula
+  desc "FTMind Lite (local test)"
   homepage "https://github.com/justaboyhai-wq/fmind"
   version "${VERSION}"
   license "Apache-2.0"

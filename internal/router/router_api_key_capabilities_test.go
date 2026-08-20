@@ -276,7 +276,7 @@ func TestTenantInfrastructureRoutesDeclareSpecificCapabilities(t *testing.T) {
 	RegisterEmbedChannelRoutes(v1, &handler.EmbedChannelHandler{}, g)
 	RegisterIMChannelRoutes(v1, &handler.IMHandler{}, g)
 	RegisterDataSourceRoutes(v1, &handler.DataSourceHandler{}, &handler.DataSourceCredentialsHandler{}, g)
-	RegisterFMindCloudRoutes(v1, &handler.FMindCloudHandler{}, g)
+	RegisterFTMindCloudRoutes(v1, &handler.FTMindCloudHandler{}, g)
 
 	cases := []struct {
 		method string

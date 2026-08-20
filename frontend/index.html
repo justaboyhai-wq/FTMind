@@ -11,19 +11,25 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="keywords" content="知识工作台、文档解析、语义检索、RAG、智能体、Wiki、私有部署、人工智能应用"/>
     <meta name="description" content="FTMind 是面向私有部署的知识工作台，提供文档解析、语义检索、流式对话、智能体与 Wiki 能力。"/>
-    <link rel="icon" type="image/png" href="/sf-logo-alone.png" />
-    <link rel="apple-touch-icon" sizes="120x120" type="image/png" href="/sf-logo-alone.png" />
+    <link rel="icon" type="image/png" href="/ftmind-logo.png" />
+    <link rel="apple-touch-icon" sizes="120x120" type="image/png" href="/ftmind-logo.png" />
 </head>
 <body>
 <script>
 (function(){
-  var legacyTheme=localStorage.getItem('BlexWiki_theme');
-  if(localStorage.getItem('FMind_theme')===null&&legacyTheme!==null)localStorage.setItem('FMind_theme',legacyTheme);
-  var legacyLite=localStorage.getItem('blexwiki_lite_mode');
-  if(localStorage.getItem('fmind_lite_mode')===null&&legacyLite!==null)localStorage.setItem('fmind_lite_mode',legacyLite);
-  var legacyPath=sessionStorage.getItem('blexwiki_lite_last_path');
-  if(sessionStorage.getItem('fmind_lite_last_path')===null&&legacyPath!==null)sessionStorage.setItem('fmind_lite_last_path',legacyPath);
-  var t=localStorage.getItem('FMind_theme')||'light';
+  function migrate(storage, legacyKey, newKey){
+    var v=storage.getItem(legacyKey);
+    if(v!==null&&storage.getItem(newKey)===null)storage.setItem(newKey,v);
+  }
+  // Very old BlexWiki keys -> FTMind keys.
+  migrate(localStorage,'BlexWiki_theme','FTMind_theme');
+  migrate(localStorage,'blexwiki_lite_mode','ftmind_lite_mode');
+  migrate(sessionStorage,'blexwiki_lite_last_path','ftmind_lite_last_path');
+  // Migrate legacy brand storage keys to FTMind keys.
+  migrate(localStorage,'FMind_theme','FTMind_theme');
+  migrate(localStorage,'fmind_lite_mode','ftmind_lite_mode');
+  migrate(sessionStorage,'fmind_lite_last_path','ftmind_lite_last_path');
+  var t=localStorage.getItem('FTMind_theme')||'light';
   if(t==='system')t=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
   document.documentElement.setAttribute('theme-mode',t);
   /* 与 theme.css 中 --td-bg-color-page 一致，避免样式加载后整页背景从 #fff 跳到 #eee 触发重绘闪动 */
@@ -50,8 +56,8 @@
 <script>
 (function(){
   try {
-    if (localStorage.getItem('fmind_lite_mode') !== 'true') return;
-    var saved = sessionStorage.getItem('fmind_lite_last_path');
+    if (localStorage.getItem('ftmind_lite_mode') !== 'true') return;
+    var saved = sessionStorage.getItem('ftmind_lite_last_path');
     if (!saved || saved.indexOf('/platform/') !== 0 || saved.indexOf('/platform/organizations') === 0) return;
     var path = window.location.pathname;
     if (path !== '/' && path !== '/platform' && path !== '/platform/knowledge-bases') return;
@@ -72,7 +78,7 @@
 <div id="app"></div>
 <script>
 (function(){
-  var t=localStorage.getItem('FMind_theme')||'light';
+  var t=localStorage.getItem('FTMind_theme')||'light';
   if(t==='system')t=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
   var bg=t==='dark'?'#181818':'#eee';
   var el=document.getElementById('app');

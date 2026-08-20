@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# prepare.sh - 在干净的 Linux 实例上部署 FMind 运行时, 用于制作云镜像模板。
-# 不需要 clone 整个 FMind 仓库, 只下载 4 个运行时文件 (~100KB)。
+# prepare.sh - 在干净的 Linux 实例上部署 FTMind 运行时, 用于制作云镜像模板。
+# 不需要 clone 整个 FTMind 仓库, 只下载 4 个运行时文件 (~100KB)。
 # 兼容: Ubuntu / Debian / CentOS / Rocky / TencentOS 等带 systemd + Docker 的发行版。
 # 使用方式:  sudo bash prepare.sh
 # 可调环境变量:
@@ -120,7 +120,7 @@ EOF
   done
 fi
 
-echo "[prepare] 2/6 拉取 FMind 运行时文件 (ref=${FMIND_REF})"
+echo "[prepare] 2/6 拉取 FTMind 运行时文件 (ref=${FMIND_REF})"
 # 只下载实际需要的 4 个文件, 不 clone 整个仓库 (~MB 级 -> ~KB 级)
 mkdir -p "${FMIND_DIR}/config" "${FMIND_DIR}/skills"
 
@@ -137,9 +137,9 @@ tar -xzf "${tmp}/repo.tar.gz" -C "${tmp}" \
   '*/.env.example' \
   '*/config/config.yaml' \
   '*/skills/preloaded'
-src=$(find "${tmp}" -maxdepth 1 -mindepth 1 -type d -name 'FMind-*' | head -1)
+src=$(find "${tmp}" -maxdepth 1 -mindepth 1 -type d -name 'FTMind-*' | head -1)
 if [[ -z "${src}" ]]; then
-  echo "[prepare] 解压失败, 未找到 FMind-* 目录" >&2
+  echo "[prepare] 解压失败, 未找到 FTMind-* 目录" >&2
   exit 1
 fi
 
@@ -225,7 +225,7 @@ systemctl enable fmind-firstboot.service
 
 echo "[prepare] 6/6 完成"
 echo
-echo "  FMind 运行时已部署到 ${FMIND_DIR}"
+echo "  FTMind 运行时已部署到 ${FMIND_DIR}"
 echo "    docker-compose.yml / config/config.yaml / skills/preloaded / .env"
 echo "  版本: ${FMIND_REF}  (见 ${FMIND_DIR}/.cloud-image-meta)"
 echo

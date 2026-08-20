@@ -680,7 +680,7 @@ curl --location --request PUT 'http://localhost:8080/api/v1/knowledge/image/4c4e
 --header 'X-API-Key: sk-xxxxx' \
 --header 'Content-Type: application/json' \
 --data '{
-    "image_info": "{\"description\":\"产品架构图\",\"alt_text\":\"FMind 系统架构\"}"
+    "image_info": "{\"description\":\"产品架构图\",\"alt_text\":\"FTMind 系统架构\"}"
 }'
 ```
 

@@ -861,7 +861,7 @@ func downloadImage(ctx context.Context, client *http.Client, remoteURL string) (
 		return nil, "", fmt.Errorf("create request: %w", err)
 	}
 	// Some CDNs require a browser-like User-Agent.
-	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; FMind/1.0)")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; FTMind/1.0)")
 
 	resp, err := client.Do(req)
 	if err != nil {

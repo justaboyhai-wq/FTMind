@@ -1,4 +1,4 @@
-// Package types defines the core data structures and interfaces used throughout the FMind system.
+// Package types defines the core data structures and interfaces used throughout the FTMind system.
 package types
 
 import "context"

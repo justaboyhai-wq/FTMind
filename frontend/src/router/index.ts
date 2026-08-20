@@ -4,8 +4,8 @@ import { useAuthStore } from '@/stores/auth'
 import { autoSetup, getCurrentUser, userInfoFromApi } from '@/api/auth'
 
 /** Lite /桌面 WebView 硬刷新时可能只打开 `/`，用 session 记住上次页面以便恢复 */
-const LITE_LAST_PATH_KEY = 'fmind_lite_last_path'
-const AUTO_SETUP_FAILED_KEY = 'fmind_auto_setup_failed'
+const LITE_LAST_PATH_KEY = 'ftmind_lite_last_path'
+const AUTO_SETUP_FAILED_KEY = 'ftmind_auto_setup_failed'
 
 function shouldTryAutoSetup() {
   return localStorage.getItem(AUTO_SETUP_FAILED_KEY) !== 'true'
@@ -16,7 +16,7 @@ function markAutoSetupFailed() {
 }
 
 function isLiteEdition(authStore: ReturnType<typeof useAuthStore>) {
-  return authStore.isLiteMode || localStorage.getItem('fmind_lite_mode') === 'true'
+  return authStore.isLiteMode || localStorage.getItem('ftmind_lite_mode') === 'true'
 }
 
 function isLiteSpaDefaultEntry(to: RouteLocationNormalized) {
@@ -257,14 +257,14 @@ function persistLoginResponse(authStore: ReturnType<typeof useAuthStore>, respon
 }
 
 async function hydrateSessionFromToken(authStore: ReturnType<typeof useAuthStore>) {
-  const token = localStorage.getItem('fmind_token')
+  const token = localStorage.getItem('ftmind_token')
   if (!token) return false
 
   if (!authStore.token) {
     authStore.setToken(token)
   }
 
-  const storedRefreshToken = localStorage.getItem('fmind_refresh_token')
+  const storedRefreshToken = localStorage.getItem('ftmind_refresh_token')
   if (storedRefreshToken && !authStore.refreshToken) {
     authStore.setRefreshToken(storedRefreshToken)
   }
@@ -370,7 +370,7 @@ router.beforeEach(async (to, from, next) => {
     // the in-memory Pinia store still contains the old access token. In that
     // short window, the login route must win; otherwise the guard bounces
     // between /login and the protected page indefinitely.
-    if (to.path === '/login' && authStore.isLoggedIn && localStorage.getItem('fmind_token')) {
+    if (to.path === '/login' && authStore.isLoggedIn && localStorage.getItem('ftmind_token')) {
       next(authStore.hasValidTenant ? '/platform/knowledge-bases' : '/onboarding/workspace')
       return
     }

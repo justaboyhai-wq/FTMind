@@ -1,6 +1,6 @@
-// Package rss implements the RSS/Atom data source connector for FMind.
+// Package rss implements the RSS/Atom data source connector for FTMind.
 //
-// It syncs articles from one or more RSS/Atom/JSON feeds into a FMind
+// It syncs articles from one or more RSS/Atom/JSON feeds into a FTMind
 // knowledge base. Each configured feed URL is treated as a selectable
 // resource; each feed item becomes a knowledge entry whose body is the
 // article's full text rendered as Markdown.
@@ -18,7 +18,7 @@
 //     Deletions are NOT synced — feeds routinely drop old items.
 //
 // All outbound requests go through the SSRF-safe HTTP client so a malicious
-// feed cannot redirect FMind to internal services.
+// feed cannot redirect FTMind to internal services.
 package rss
 
 import (

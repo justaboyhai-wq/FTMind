@@ -59,7 +59,7 @@ type InternalMemoryEventHandler struct {
 	now       func() time.Time
 }
 
-// NewInternalMemoryEventHandler keeps standalone FMind deployments working,
+// NewInternalMemoryEventHandler keeps standalone FTMind deployments working,
 // but requires a strong independent service credential as soon as MemoryCore
 // integration is configured.
 func NewInternalMemoryEventHandler(receiver *memorywiki.Service, bindings interfaces.AgentBindingRepository) (*InternalMemoryEventHandler, error) {
@@ -231,7 +231,7 @@ func containsScope(scopes types.StringArray, target string) bool {
 }
 
 // ComputeMemoryEventSignature is the frozen cross-language HMAC contract used
-// by MemoryCore's durable outbox worker and FMind's intake.
+// by MemoryCore's durable outbox worker and FTMind's intake.
 func ComputeMemoryEventSignature(secret []byte, serviceID, timestamp string, body []byte) string {
 	bodyDigest := sha256.Sum256(body)
 	canonical := fmt.Sprintf("%s\n%s\n%s\n%s", memoryEventSignatureDomain, serviceID, timestamp, hex.EncodeToString(bodyDigest[:]))

@@ -94,7 +94,7 @@ type RouterParams struct {
 	RedisClient                  *redis.Client
 	DataSourceHandler            *handler.DataSourceHandler
 	DataSourceCredentialsHandler *handler.DataSourceCredentialsHandler
-	FMindCloudHandler            *handler.FMindCloudHandler
+	FTMindCloudHandler            *handler.FTMindCloudHandler
 	WikiPageHandler              *handler.WikiPageHandler
 	CognitionServer              *cognition.Server
 	AuthorizationService         *authz.Service
@@ -286,7 +286,7 @@ func NewRouter(params RouterParams) *gin.Engine {
 		RegisterIMChannelRoutes(v1, params.IMHandler, rbacGuards)
 		RegisterEmbedChannelRoutes(v1, params.EmbedChannelHandler, rbacGuards)
 		RegisterDataSourceRoutes(v1, params.DataSourceHandler, params.DataSourceCredentialsHandler, rbacGuards)
-		RegisterFMindCloudRoutes(v1, params.FMindCloudHandler, rbacGuards)
+		RegisterFTMindCloudRoutes(v1, params.FTMindCloudHandler, rbacGuards)
 		RegisterWikiPageRoutes(v1, params.WikiPageHandler, rbacGuards)
 		RegisterChunkerDebugRoutes(v1, rbacGuards)
 
@@ -1090,7 +1090,7 @@ func RegisterMCPServiceRoutes(
 	// MCP OAuth provider redirect. Registered OUTSIDE the /mcp-services group
 	// to avoid a static-vs-":id" route conflict, and left unauthenticated
 	// (allow-listed in middleware/auth.go) because the third-party browser
-	// redirect carries no FMind bearer — the single-use state authenticates.
+	// redirect carries no FTMind bearer — the single-use state authenticates.
 	r.GET("/mcp-oauth/callback", oauthHandler.Callback)
 
 	mcpServices := g.apiKeyGroup(r.Group("/mcp-services"), apiKeyManageMCPServices(apiKeyFullAccess()))
@@ -2158,11 +2158,11 @@ func RegisterDataSourceRoutes(
 	}
 }
 
-// RegisterFMindCloudRoutes 注册 FMindCloud 初始化路由
-// RegisterFMindCloudRoutes registers the FMindCloud credential
+// RegisterFTMindCloudRoutes 注册 FTMindCloud 初始化路由
+// RegisterFTMindCloudRoutes registers the FTMindCloud credential
 // management endpoints. SaveCredentials persists external SaaS keys
 // for the tenant (Admin+), Status is a low-risk readiness probe (Viewer+).
-func RegisterFMindCloudRoutes(r *gin.RouterGroup, handler *handler.FMindCloudHandler, g *rbacGuards) {
+func RegisterFTMindCloudRoutes(r *gin.RouterGroup, handler *handler.FTMindCloudHandler, g *rbacGuards) {
 	g.apiKeyRoute(r, http.MethodPost, "/fmindcloud/credentials", apiKeyManageModels(apiKeyFullAccess()), g.Admin(), handler.SaveCredentials)
 	g.apiKeyRoute(r, http.MethodGet, "/models/fmindcloud/status", apiKeyManageModels(apiKeyFullAccess()), g.Viewer(), handler.Status)
 }

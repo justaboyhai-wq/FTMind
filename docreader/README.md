@@ -1,6 +1,6 @@
 # DocReader Service
 
-DocReader 是 FMind 项目中负责文档解析和处理的 gRPC 服务。它支持多种文档格式的读取、OCR 识别、多模态处理等功能。
+DocReader 是 FTMind 项目中负责文档解析和处理的 gRPC 服务。它支持多种文档格式的读取、OCR 识别、多模态处理等功能。
 
 ## Docker Compose 环境变量配置
 
@@ -97,7 +97,7 @@ DocReader 支持多种存储后端：
 - `STORAGE_TYPE`: 设置为 `minio`
 - `MINIO_ACCESS_KEY_ID`: MinIO 访问密钥 ID（默认：minioadmin）
 - `MINIO_SECRET_ACCESS_KEY`: MinIO 访问密钥（默认：minioadmin）
-- `MINIO_BUCKET_NAME`: MinIO 存储桶名称（默认：FMind）
+- `MINIO_BUCKET_NAME`: MinIO 存储桶名称（默认：FTMind）
 - `MINIO_PATH_PREFIX`: 文件路径前缀
 - `MINIO_USE_SSL`: 是否使用 SSL（默认：false）
 
@@ -225,5 +225,5 @@ docker logs FMind-docreader
 
 - 服务端口：50051（gRPC）
 - 容器名称：FMind-docreader
-- 网络：FMind-network
+- 网络：FTMind-network
 - 重启策略：unless-stopped

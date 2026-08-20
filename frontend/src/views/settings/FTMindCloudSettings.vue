@@ -1,5 +1,5 @@
 <template>
-  <div class="fmindcloud-settings">
+  <div class="ftmindcloud-settings">
     <div class="section-header">
       <h2>{{ $t('settings.fmindCloud.title') }}</h2>
       <p class="section-description">
@@ -212,12 +212,12 @@ import { testEmbeddingModel } from '@/api/initialization'
 import {
   WKC_MODEL_KINDS,
   WKC_MODEL_NAME_BY_KIND,
-  FMIND_CLOUD_BASE_URL,
-  FMIND_CLOUD_PROVIDER,
+  FTMIND_CLOUD_BASE_URL,
+  FTMIND_CLOUD_PROVIDER,
   buildWkcModelConfig,
   existingWkcKinds,
   type WkcModelKind,
-} from '@/utils/fmindCloudModels'
+} from '@/utils/ftmindCloudModels'
 
 const { t } = useI18n()
 
@@ -262,8 +262,8 @@ const resolveEmbeddingDimension = async (): Promise<number> => {
   const result = await testEmbeddingModel({
     source: 'remote',
     modelName: WKC_MODEL_NAME_BY_KIND.embedding,
-    baseUrl: FMIND_CLOUD_BASE_URL,
-    provider: FMIND_CLOUD_PROVIDER,
+    baseUrl: FTMIND_CLOUD_BASE_URL,
+    provider: FTMIND_CLOUD_PROVIDER,
   })
   if (!result.available || !result.dimension) {
     throw new Error(result.message || t('settings.fmindCloud.addModelsEmbeddingFailed'))
@@ -364,7 +364,7 @@ onMounted(async () => {
 </script>
 
 <style lang="less" scoped>
-.fmindcloud-settings {
+.ftmindcloud-settings {
   width: 100%;
 }
 

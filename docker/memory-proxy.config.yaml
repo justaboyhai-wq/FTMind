@@ -1,4 +1,4 @@
-# FMind integration profile for TencentDB Agent Memory / MemoryProxy.
+# FTMind integration profile for TencentDB Agent Memory / MemoryProxy.
 #
 # __...__ values are rendered from environment variables into an ephemeral
 # mode-0600 file by the compose entrypoint.  No credential is stored here.
@@ -32,7 +32,7 @@ rateLimit:
   tpm: 1000000
   qpm: 100
 
-# External-agent identity is resolved solely through FMind Connector Secrets
+# External-agent identity is resolved solely through FTMind Connector Secrets
 # supplied on each request.  connectorSecret remains empty on purpose: it is
 # never shared with MemoryCore or persisted in this configuration.
 fmind:
@@ -50,7 +50,7 @@ extraction:
   enabled: true
   extractors: ["tdai-memory"]
 
-# FMind Binding Context supplies team/agent/task identity, so the legacy
+# FTMind Binding Context supplies team/agent/task identity, so the legacy
 # interactive selector must stay off in this integration profile.
 sessionInit:
   enabled: false

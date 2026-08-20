@@ -66,7 +66,7 @@ func (s *stubTenantService) GetTenantByIDForUser(context.Context, uint64, string
 	panic("unexpected")
 }
 
-func (s *stubTenantService) GetFMindCloudCredentials(context.Context) *types.FMindCloudCredentials {
+func (s *stubTenantService) GetFTMindCloudCredentials(context.Context) *types.FTMindCloudCredentials {
 	panic("unexpected")
 }
 

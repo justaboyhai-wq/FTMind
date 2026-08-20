@@ -488,12 +488,12 @@ const agentImageUploadEnabledEffective = computed(() =>
   drawerAgent.value?.config?.image_upload_enabled === true,
 )
 
-const FMIND_BRAND_COLOR = '#5B5BD6'
+const FTMIND_BRAND_COLOR = '#5B5BD6'
 
 function getDefaultEmbedPrimaryColor(): string {
-  if (typeof window === 'undefined') return FMIND_BRAND_COLOR
+  if (typeof window === 'undefined') return FTMIND_BRAND_COLOR
   const css = getComputedStyle(document.documentElement).getPropertyValue('--td-brand-color').trim()
-  return css || FMIND_BRAND_COLOR
+  return css || FTMIND_BRAND_COLOR
 }
 
 const defaultPrimaryColor = getDefaultEmbedPrimaryColor()

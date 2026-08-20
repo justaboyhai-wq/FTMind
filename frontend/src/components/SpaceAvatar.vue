@@ -45,7 +45,7 @@ const emojiChar = computed(() => {
   return v.slice(6).trim() || '';
 });
 
-// FMind 空间头像色谱：蓝紫知识网络色，不再沿用旧绿色品牌色。
+// FTMind 空间头像色谱：蓝紫知识网络色，不再沿用旧绿色品牌色。
 const gradients = [
   { from: '#5b5bd6', to: '#3b82f6' },
   { from: '#4f46e5', to: '#8b5cf6' },

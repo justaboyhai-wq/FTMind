@@ -483,7 +483,7 @@ onMounted(() => {
   color: #0052D9;
 }
 
-// 三种 transport 的徽章配色：SSE 使用 FMind 紫，HTTP Streamable 使用蓝，stdio 使用橙。
+// 三种 transport 的徽章配色：SSE 使用 FTMind 紫，HTTP Streamable 使用蓝，stdio 使用橙。
 .service-card--sse .service-card__badge {
   background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);
   color: var(--td-brand-color);

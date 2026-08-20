@@ -209,7 +209,7 @@ All notable changes to this project will be documented in this file.
 
 ### New Features
 
-- **NEW**: **Tenant RBAC (Role-Based Access Control)** — the headline of this release (#1303). FMind now enforces a per-tenant role matrix on every mutating route, with per-KB resource ownership. Highlights:
+- **NEW**: **Tenant RBAC (Role-Based Access Control)** — the headline of this release (#1303). FTMind now enforces a per-tenant role matrix on every mutating route, with per-KB resource ownership. Highlights:
   - **4-tier role matrix**: `Owner` (one per tenant; can additionally delete the tenant) ⊃ `Admin` ⊃ `Contributor` (full owner of own resources, read-only on others) ⊃ `Viewer` (read-only). Two exceptions: cross-tenant superuser (`User.CanAccessAllTenants=true`) is implicit Admin in any tenant they switch into; API-Key-synthesized virtual users are pinned Admin in their owning tenant.
   - **Per-KB resource ownership**: `chunk → knowledge → kb → creator_id`; same chain applies to FAQ entries, generated questions, KB tags and wiki pages. `custom_agents.creator_id` + `custom_agents.runnable_by_viewer` (default true) control agent ownership and viewer-callability.
   - **Two guard families**: role guards (`Viewer()` / `Contributor()` / `Admin()` / `Owner()`) for tenant-level infra (models, vector stores, IM channels, …) and ownership guards (`OwnedKBOrAdmin()`, `OwnedAgentOrAdmin()`, `OwnedChunkKBOrAdmin()`, …) for resource writes. KB-access guard wired at the route layer for chunk / knowledge / knowledgebase routes (no per-handler helpers).
@@ -227,7 +227,7 @@ All notable changes to this project will be documented in this file.
   - `auth`: new `refresh` and `token` verbs; transparent 401 retry transport.
   - `context` CRUD: add / list / remove / use.
   - `link` / `unlink` for project-level KB binding.
-  - `mcp serve` — curated stdio MCP server so AI clients (Claude Code, Cursor, …) can drive FMind directly; includes MCP `chunk_list` tool.
+  - `mcp serve` — curated stdio MCP server so AI clients (Claude Code, Cursor, …) can drive FTMind directly; includes MCP `chunk_list` tool.
   - **Globals**: `--format`, `--json` field-select, `--jq`, `--paginate`, `--all-pages` (canonical catch-up), `--input`, `--log-level`, `--from-url`, NDJSON output, bare-JSON output path, signal-aware contexts.
   - **Removed**: envelope infrastructure (errors → stderr); `--dry-run`; `internal/agent` aiclient package; v0.0 scaffolding.
 - **NEW**: **KB Retrieval Fan-out Across Vector Stores** — a single KB can now bind to multiple vector stores; retrieval engine fans out queries across all bound stores and merges results. KB editor validates bindings on create / copy / delete. Retriever resolution introduces a factory pattern for KB-scoped engine selection.
@@ -237,7 +237,7 @@ All notable changes to this project will be documented in this file.
 - **NEW**: **Huawei Cloud OBS** object storage joins Local / MinIO / AWS S3 / Volcengine TOS / Alibaba Cloud OSS / Kingsoft Cloud KS3 / Huawei OBS.
 - **NEW**: **vLLM URL configuration for MinerU** doc parser.
 - **NEW**: **Apache Doris compatibility modes** — configurable Doris compat modes with mode-switch guards.
-- **NEW**: **Docreader image URL whitelist** — trusted URLs can be served as-is without re-uploading into FMind storage.
+- **NEW**: **Docreader image URL whitelist** — trusted URLs can be served as-is without re-uploading into FTMind storage.
 - **NEW**: **Server-Side User Preferences** — per-user font / theme / memory-feature toggle persisted on the server; per-user KB pinning replaces tenant-wide pin model; "Shared by me" label across surfaces.
 - **NEW**: **User favorites & recents** under the user menu.
 - **NEW**: **`creator_name` on agents and knowledge bases** for visibility across surfaces.
@@ -407,7 +407,7 @@ All notable changes to this project will be documented in this file.
 ## [0.5.1] - 2026-04-30
 
 ### 🚀 New Features
-- **NEW**: WeChat Mini Program — added a lightweight mobile client (`miniprogram/`) for configuring FMind API access, selecting knowledge bases, importing URLs, and chatting from inside WeChat, extending FMind from desktop to mobile.
+- **NEW**: WeChat Mini Program — added a lightweight mobile client (`miniprogram/`) for configuring FTMind API access, selecting knowledge bases, importing URLs, and chatting from inside WeChat, extending FTMind from desktop to mobile.
 - **NEW**: Knowledge Base — document list view with multi-select, floating batch action bar, and batch delete to streamline managing large knowledge bases.
 - **NEW**: IM — tenant-wide IM Channels Overview entry under the user menu so administrators can inspect every IM channel of the tenant from a single page.
 - **NEW**: Sessions — keyword search across the conversation list, user-scoped pinning of important sessions, and clear IM-source visibility for chats originating from IM channels.
@@ -483,10 +483,10 @@ All notable changes to this project will be documented in this file.
 
 ### 🚀 New Features
 - **NEW**: Cloud Knowledge Assistant — a cloud-hosted knowledge assistant service for quick onboarding without local deployment
-- **NEW**: FMind Cloud — FMind Cloud provider integration, providing hosted LLM models and document parsing capabilities, with credential management, status checks, and UI feedback
+- **NEW**: FTMind Cloud — FTMind Cloud provider integration, providing hosted LLM models and document parsing capabilities, with credential management, status checks, and UI feedback
 - **NEW**: Chrome Extension — browser extension support with menu entry and quick access integration for seamless knowledge capture from web pages
 - **NEW**: WeChat IM Integration — WeChat channel adapter with QR code login and long-polling message support
-- **NEW**: ClawHub Skill — FMind Skill published on ClawHub platform, enabling document import, hybrid search, and knowledge management via the FMind REST API
+- **NEW**: ClawHub Skill — FTMind Skill published on ClawHub platform, enabling document import, hybrid search, and knowledge management via the FTMind REST API
 - **NEW**: Attachment Processing — file attachment support in chat pipeline with enhanced error handling, content formatting, and image/attachment metadata injection in queries
 - **NEW**: Azure OpenAI Provider — full Azure OpenAI support for chat, VLM, and embedding models with deployment name preservation, configurable dimensions parameter, provider registration with metadata, URL auto-detection, and frontend provider integration with i18n
 - **NEW**: Alibaba Cloud OSS Storage — object storage support via S3-compatible mode with configuration UI, connectivity test, status reporting, OSS TypeScript types, docreader OssStorage class, factory and container registration, and multi-language i18n (Korean, Russian)
@@ -523,7 +523,7 @@ All notable changes to this project will be documented in this file.
 ### 🔧 Refactoring
 - Replaced CryptoService with lightweight utils AES helpers, simplifying encryption logic across the codebase
 - Optimized OSS storage initialization, URL formatting, and security handling for improved S3 compatibility
-- Enhanced FMind Cloud internationalization and UI feedback for credential management operations
+- Enhanced FTMind Cloud internationalization and UI feedback for credential management operations
 
 ### 📚 Documentation
 - Added VectorStore CRUD API endpoint documentation with Swagger annotations
@@ -1346,7 +1346,7 @@ All notable changes to this project will be documented in this file.
 - Improved initialization configuration handling
 
 ### 🛡️ Security Recommendations
-- Deploy FMind services in internal/private network environments
+- Deploy FTMind services in internal/private network environments
 - Avoid direct exposure to public internet
 - Configure proper firewall rules and access controls
 - Regular updates for security patches and improvements
@@ -1364,7 +1364,7 @@ All notable changes to this project will be documented in this file.
 
 ## [0.1.0] - 2025-09-08
 
-- Initial public release of FMind.
+- Initial public release of FTMind.
 - Web UI for knowledge upload, chat, configuration, and settings.
 - RAG pipeline with chunking, embedding, retrieval, reranking, and generation.
 - Initialization wizard for configuring models (LLM, embedding, rerank, retriever).

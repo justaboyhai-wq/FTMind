@@ -242,7 +242,7 @@ services:
 
   # Sandbox 镜像：仅用于 build/pull，非常驻服务；app 执行 Skills 时按需 docker run 该镜像，用毕即释
   # Optional TencentDB Agent Memory stack. Startup order is deliberately
-  # one-way: FMind app -> MemoryCore -> MemoryProxy. The base FMind profile
+  # one-way: FTMind app -> MemoryCore -> MemoryProxy. The base FTMind profile
   # remains independent when `--profile memory` is not selected.
   memory-core:
     build:
@@ -588,7 +588,7 @@ services:
     container_name: FMind-qdrant
     # Qdrant is an internal dependency of the app. Keeping these ports inside
     # the Compose network avoids colliding with an existing host Qdrant while
-    # still making REST/gRPC available to other FMind services.
+    # still making REST/gRPC available to other FTMind services.
     expose:
       - "6333"
       - "6334"
@@ -659,7 +659,7 @@ services:
   # Stream Load partial_columns）。本 compose 使用 4.1 官方稳定 tag。
   #
   # 端口说明：
-  #   - 9030 (FE MySQL)：FMind 主链路读写、SQL 查询都走此端口。
+  #   - 9030 (FE MySQL)：FTMind 主链路读写、SQL 查询都走此端口。
   #   - 8030 (FE HTTP)：Stream Load partial update 入口。
   #   - 8040 (BE)     ：BE 心跳与数据传输；FE 会把 stream load 重定向到 BE。
   #
@@ -722,9 +722,9 @@ services:
   # ---------------------------------------------------------------------------
   # Langfuse 自建可观测栈 (opt-in via `--profile langfuse`)
   #
-  # 为了最小化资源占用，Langfuse 会复用 FMind 已有的 postgres 和 redis：
+  # 为了最小化资源占用，Langfuse 会复用 FTMind 已有的 postgres 和 redis：
   #   - postgres：在 FMind-postgres 中创建独立的 "langfuse" 数据库
-  #   - redis  ：复用 FMind-redis 的 DB 1（FMind 自己用 DB 0）
+  #   - redis  ：复用 FMind-redis 的 DB 1（FTMind 自己用 DB 0）
   # 需要新增的只有 Langfuse 应用自身 + ClickHouse（OLAP）+ 专用 MinIO（事件/媒体 S3）。
   #
   # 启用方式：
@@ -829,7 +829,7 @@ services:
     container_name: FMind-langfuse-worker
     restart: unless-stopped
     depends_on: &langfuse-depends-on
-      # 复用 FMind 已有的 postgres/redis，需要先完成 langfuse 数据库的创建
+      # 复用 FTMind 已有的 postgres/redis，需要先完成 langfuse 数据库的创建
       langfuse-db-init:
         condition: service_completed_successfully
       redis:

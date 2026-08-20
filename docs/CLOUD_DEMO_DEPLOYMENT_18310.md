@@ -1,6 +1,6 @@
-# FMind 云服务器测试/演示部署手册
+# FTMind 云服务器测试/演示部署手册
 
-本文用于将 FMind 部署到已有业务服务器，目标是测试和演示，不覆盖服务器上原有的哪吒及其他项目。
+本文用于将 FTMind 部署到已有业务服务器，目标是测试和演示，不覆盖服务器上原有的哪吒及其他项目。
 
 ## 1. 服务器与端口规划
 
@@ -13,8 +13,8 @@
 | 内存 | 约 30 GiB，可用约 12 GiB |
 | 磁盘 | 394 GiB，剩余约 138 GiB |
 | Swap | 当前未配置 |
-| FMind 前端 | 18310 |
-| FMind App 宿主机端口 | 18311，仅绑定 127.0.0.1 |
+| FTMind 前端 | 18310 |
+| FTMind App 宿主机端口 | 18311，仅绑定 127.0.0.1 |
 
 已确认 18310、18311 当前没有监听，也没有现有容器映射。哪吒使用的 18005、18006、18007、18278、18288、18289 等端口不使用、不修改。
 
@@ -29,14 +29,14 @@
 首次只启动核心服务：
 
 - frontend：网页前端
-- app：FMind API、任务队列和业务逻辑
+- app：FTMind API、任务队列和业务逻辑
 - docreader：PDF/Office/PPTX 文档解析
 - postgres：业务数据库和默认向量存储
 - redis：任务队列和流式状态
 
-默认命令只启动 5 个核心服务。当前本机 FMind 还运行了 Memory 逻辑服务；它由 `memory-core` 和 `memory-proxy` 两个容器组成，因此如果按容器数量统计会多 2 个容器。
+默认命令只启动 5 个核心服务。当前本机 FTMind 还运行了 Memory 逻辑服务；它由 `memory-core` 和 `memory-proxy` 两个容器组成，因此如果按容器数量统计会多 2 个容器。
 
-本机 FMind 服务对应关系如下：
+本机 FTMind 服务对应关系如下：
 
 | 逻辑服务 | Compose 服务/容器 | 默认部署 |
 | --- | --- | --- |
@@ -47,11 +47,11 @@
 | Redis | `redis` | 启动 |
 | Agent Memory | `memory-core` + `memory-proxy` | 默认关闭 |
 
-本机的 `foxonto-*`、`foxonto-mysql`、`foxonto-redis` 等是另一套项目，不属于 FMind，不会部署到 FMind Compose 中。
+本机的 `foxonto-*`、`foxonto-mysql`、`foxonto-redis` 等是另一套项目，不属于 FTMind，不会部署到 FTMind Compose 中。
 
 首次不启用 MinIO、Neo4j、Weaviate、Qdrant/Milvus/Doris、SearXNG、Langfuse、Dex、MCP 等其他可选服务，避免额外资源占用和端口冲突。
 
-如果你希望云端与本机 FMind 完全一致，使用 Memory profile 启动 7 个容器（6 个逻辑服务）：
+如果你希望云端与本机 FTMind 完全一致，使用 Memory profile 启动 7 个容器（6 个逻辑服务）：
 
     docker compose --env-file .env --profile memory build
     docker compose --env-file .env --profile memory up -d
@@ -64,7 +64,7 @@ Memory Proxy 默认只绑定 `127.0.0.1:8096`，不需要占用 18310 之后的�
 建议只开放：
 
     22/tcp      SSH，最好限制为办公出口 IP
-    18310/tcp   FMind 演示前端
+    18310/tcp   FTMind 演示前端
     80/tcp      可选，域名 HTTP
     443/tcp     可选，域名 HTTPS
 
@@ -101,7 +101,7 @@ Memory Proxy 默认只绑定 `127.0.0.1:8096`，不需要占用 18310 之后的�
 
     mkdir -p /opt/fmind
     cd /opt/fmind
-    git clone <FMind仓库地址> .
+    git clone <FTMind仓库地址> .
     git checkout <已验证的提交或分支>
 
 如果使用压缩包上传，解压后确认目录中存在 docker-compose.yml、docker/Dockerfile.app、docker/Dockerfile.docreader、frontend、config、docreader。
@@ -122,7 +122,7 @@ Memory Proxy 默认只绑定 `127.0.0.1:8096`，不需要占用 18310 之后的�
     DB_HOST=postgres
     DB_PORT=5432
     DB_USER=postgres
-    DB_NAME=FMind
+    DB_NAME=FTMind
     DB_PASSWORD=替换为随机强密码
 
     REDIS_ADDR=redis:6379
@@ -149,7 +149,7 @@ Memory Proxy 默认只绑定 `127.0.0.1:8096`，不需要占用 18310 之后的�
     openssl rand -hex 32
     openssl rand -base64 32
 
-DB_PASSWORD、REDIS_PASSWORD 是服务密码，不等同于 FMind 网页登录账号密码。网页管理员账号在首次打开登录页后创建。真实密钥不能提交到 Git。
+DB_PASSWORD、REDIS_PASSWORD 是服务密码，不等同于 FTMind 网页登录账号密码。网页管理员账号在首次打开登录页后创建。真实密钥不能提交到 Git。
 
 ## 7. 校验、构建和启动
 
@@ -164,7 +164,7 @@ DB_PASSWORD、REDIS_PASSWORD 是服务密码，不等同于 FMind 网页登录�
     docker compose --env-file .env up -d
     docker compose --env-file .env ps
 
-首次构建会下载 Go、Node、Python 和系统依赖，服务器当前 16 vCPU/30 GiB，适合直接基于源码构建，不需要预先下载 FMind 镜像。不要未经确认执行 docker system prune 或 docker system prune -a，服务器已有其他项目。
+首次构建会下载 Go、Node、Python 和系统依赖，服务器当前 16 vCPU/30 GiB，适合直接基于源码构建，不需要预先下载 FTMind 镜像。不要未经确认执行 docker system prune 或 docker system prune -a，服务器已有其他项目。
 
 ## 8. 启动验证
 
@@ -196,7 +196,7 @@ DB_PASSWORD、REDIS_PASSWORD 是服务密码，不等同于 FMind 网页登录�
 ## 9. 首次登录和模型配置
 
 1. 打开 http://115.191.64.43:18310/login。
-2. 创建或使用 FMind 管理员账号。
+2. 创建或使用 FTMind 管理员账号。
 3. 在模型配置中添加 DeepSeek Provider，填写 API 地址、API Key 和模型名称。
 4. 保存后执行一次简单对话。
 5. 上传一个小型 PDF 或 DOCX，确认上传、解析、索引、检索、回答链路。
@@ -226,7 +226,7 @@ DB_PASSWORD、REDIS_PASSWORD 是服务密码，不等同于 FMind 网页登录�
 
     docker compose --env-file .env up -d --force-recreate app
 
-停止 FMind（不删除数据卷）：
+停止 FTMind（不删除数据卷）：
 
     docker compose --env-file .env stop
 
@@ -235,14 +235,14 @@ DB_PASSWORD、REDIS_PASSWORD 是服务密码，不等同于 FMind 网页登录�
     docker compose down -v
     docker system prune -a
 
-这些命令可能删除 FMind 数据卷或影响服务器上其他项目。
+这些命令可能删除 FTMind 数据卷或影响服务器上其他项目。
 
 ## 11. 最小备份
 
     mkdir -p /opt/fmind/backups
     stamp=$(date +%Y%m%d-%H%M%S)
     docker compose --env-file .env exec -T postgres pg_dump \
-      -U postgres -d FMind -Fc \
+      -U postgres -d FTMind -Fc \
       > "/opt/fmind/backups/fmind-$stamp.dump"
     sha256sum "/opt/fmind/backups/fmind-$stamp.dump"
     chmod 600 /opt/fmind/.env

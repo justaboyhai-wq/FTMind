@@ -1,7 +1,7 @@
 import { safeRemoveItem, safeSetItem } from "@/composables/preferenceStorage";
 import { reconcileBuiltinAgentMode } from "@/utils/agent-mode";
 
-export const SETTINGS_STORAGE_KEY = "FMind_settings";
+export const SETTINGS_STORAGE_KEY = "FTMind_settings";
 
 /** Deep-clone settings so nested arrays/objects are not shared with defaults. */
 export function cloneSettings<T>(settings: T): T {
@@ -40,7 +40,7 @@ function resetStoredSettings<T extends ReconcilableSettings>(
   reason: unknown,
 ): T {
   console.error(
-    "[settings] Failed to parse FMind_settings from localStorage, resetting to defaults:",
+    "[settings] Failed to parse FTMind_settings from localStorage, resetting to defaults:",
     reason,
   );
   safeRemoveItem(SETTINGS_STORAGE_KEY);

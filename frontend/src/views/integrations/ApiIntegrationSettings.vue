@@ -813,9 +813,9 @@ function formatApiKeyAccessModeLabel(key: TenantAPIKey): string {
 
 type PlaygroundStatus = '' | 'running' | 'success' | 'failed' | 'stopped'
 
-type FMindDesktopWindow = Window & {
-  __FMIND_API_BASE__?: string
-  __FMIND_API_LAN_BASE__?: string
+type FTMindDesktopWindow = Window & {
+  __FTMIND_API_BASE__?: string
+  __FTMIND_API_LAN_BASE__?: string
   go?: {
     main?: {
       App?: {
@@ -985,7 +985,7 @@ func signExternalUserToken(hmacSecret, externalUserID string, tenantID uint64) (
 		SignedString([]byte(hmacSecret))
 }
 
-// Send on each FMind API request:
+// Send on each FTMind API request:
 //   ${headerName}: <JWT from signExternalUserToken>
 // Tenant ID for this workspace: ${tid}`
 })
@@ -1238,9 +1238,9 @@ async function copy(text: string) {
 }
 
 async function tryLoadWailsApiBaseURL() {
-  const win = window as FMindDesktopWindow
+  const win = window as FTMindDesktopWindow
   for (let i = 0; i < 40; i++) {
-    const injected = win.__FMIND_API_BASE__
+    const injected = win.__FTMIND_API_BASE__
     if (typeof injected === 'string' && injected.trim()) {
       wailsApiBaseURL.value = injected.trim().replace(/\/$/, '')
       await tryLoadWailsLanHints(win)
@@ -1264,8 +1264,8 @@ async function tryLoadWailsApiBaseURL() {
   await tryLoadWailsLanHints(win)
 }
 
-async function tryLoadWailsLanHints(win: FMindDesktopWindow) {
-  const injectedLan = win.__FMIND_API_LAN_BASE__
+async function tryLoadWailsLanHints(win: FTMindDesktopWindow) {
+  const injectedLan = win.__FTMIND_API_LAN_BASE__
   if (typeof injectedLan === 'string' && injectedLan.trim()) {
     wailsApiLanBaseURL.value = injectedLan.trim().replace(/\/$/, '')
   }
@@ -1290,12 +1290,12 @@ async function tryLoadWailsLanHints(win: FMindDesktopWindow) {
   }
 }
 
-function desktopPortBindingsAvailable(win: FMindDesktopWindow) {
+function desktopPortBindingsAvailable(win: FTMindDesktopWindow) {
   const app = win.go?.main?.App
   return typeof app?.GetDesktopHTTPPortSetting === 'function' && typeof app?.SetDesktopHTTPPortSetting === 'function'
 }
 
-function desktopBindPublicBindingsAvailable(win: FMindDesktopWindow) {
+function desktopBindPublicBindingsAvailable(win: FTMindDesktopWindow) {
   const app = win.go?.main?.App
   return (
     typeof app?.GetDesktopHTTPBindPublicSetting === 'function' &&
@@ -1304,7 +1304,7 @@ function desktopBindPublicBindingsAvailable(win: FMindDesktopWindow) {
 }
 
 async function loadDesktopApiPrefs() {
-  const win = window as FMindDesktopWindow
+  const win = window as FTMindDesktopWindow
   if (desktopPortBindingsAvailable(win)) {
     showDesktopPortSetting.value = true
     try {
@@ -1327,7 +1327,7 @@ async function loadDesktopApiPrefs() {
 
 const onDesktopBindPublicChange = async (value: boolean) => {
   const next = value === true
-  const fn = (window as FMindDesktopWindow).go?.main?.App?.SetDesktopHTTPBindPublicSetting
+  const fn = (window as FTMindDesktopWindow).go?.main?.App?.SetDesktopHTTPBindPublicSetting
   if (typeof fn !== 'function') return
   try {
     await Promise.resolve(fn(next))
@@ -1345,7 +1345,7 @@ const saveDesktopPort = async () => {
     MessagePlugin.warning(t('tenant.api.desktopPortInvalid'))
     return
   }
-  const fn = (window as FMindDesktopWindow).go?.main?.App?.SetDesktopHTTPPortSetting
+  const fn = (window as FTMindDesktopWindow).go?.main?.App?.SetDesktopHTTPPortSetting
   if (typeof fn !== 'function') return
   try {
     await Promise.resolve(fn(port))

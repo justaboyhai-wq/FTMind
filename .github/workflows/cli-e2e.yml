@@ -1,6 +1,6 @@
 name: CLI E2E
 
-# Runs the cli/acceptance/e2e/ suite against a real FMind server.
+# Runs the cli/acceptance/e2e/ suite against a real FTMind server.
 # Cost-gated so it doesn't fire on every PR:
 #   - workflow_dispatch: maintainer can trigger manually
 #   - pull_request labeled "acceptance-e2e": adding the label kicks a run

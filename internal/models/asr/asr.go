@@ -42,7 +42,7 @@ type Config struct {
 
 // ConfigFromModel 根据 types.Model 构造 asr.Config。
 // 生产路径（从 DB 拉起）和测试连接路径（临时表单）共享这份映射。
-// 当前 ASR 不涉及 FMindCloud 凭证，所以签名不含 appID/appSecret。
+// 当前 ASR 不涉及 FTMindCloud 凭证，所以签名不含 appID/appSecret。
 func ConfigFromModel(m *types.Model) *Config {
 	if m == nil {
 		return nil

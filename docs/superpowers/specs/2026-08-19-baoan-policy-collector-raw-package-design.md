@@ -2,7 +2,7 @@
 
 ## 1. 目标
 
-在 FMind 仓库中建设一个可脱离 FMind 运行的独立插件项目，定时从宝安区政策法规官网发现并下载政策原文、原始网页、附件、官网分类、功能标签和显式关系，生成不可变、可校验、可重复转换的本地 Raw Package。
+在 FTMind 仓库中建设一个可脱离 FTMind 运行的独立插件项目，定时从宝安区政策法规官网发现并下载政策原文、原始网页、附件、官网分类、功能标签和显式关系，生成不可变、可校验、可重复转换的本地 Raw Package。
 
 Raw Package 是官网事实的长期档案，不直接等同于某一版政策 Wiki。后续政策问答、申报政策、领导讲话材料等 Wiki Schema 均以 Raw Package 为输入生成，Wiki 规则变化时不需要重新抓取官网。
 
@@ -22,7 +22,7 @@ Raw Package 是官网事实的长期档案，不直接等同于某一版政策 W
 
 ### 2.2 本阶段不包含
 
-- 不直接创建或更新 FMind Wiki 页面。
+- 不直接创建或更新 FTMind Wiki 页面。
 - 不调用大模型生成标签、摘要或关系。
 - 不把模型推断写入 Raw Package。
 - 不删除已归档的历史政策或附件。
@@ -56,7 +56,7 @@ plugins/baoan-policy-collector/
 └── README.md
 ```
 
-该模块不得导入 FMind 根模块的 application/service 或数据库实现。它只通过 Raw Package 文件契约与下游通信。允许复制极小的安全 URL 校验逻辑，但应在插件内部拥有独立测试，避免插件升级受 FMind 主服务编译状态影响。
+该模块不得导入 FTMind 根模块的 application/service 或数据库实现。它只通过 Raw Package 文件契约与下游通信。允许复制极小的安全 URL 校验逻辑，但应在插件内部拥有独立测试，避免插件升级受 FTMind 主服务编译状态影响。
 
 ## 4. 总体数据流
 
@@ -79,7 +79,7 @@ Schema、哈希和引用完整性校验
         ↓
 原子发布不可变快照 + 更新 latest.json
         ↓
-未来的 Policy Wiki Transformer / FMind Importer
+未来的 Policy Wiki Transformer / FTMind Importer
 ```
 
 采集和 Wiki 生成必须是两条独立流水线。采集器只回答“官网当时发布了什么”；Wiki Transformer 才回答“如何面向具体应用组织这些事实”。
@@ -461,7 +461,7 @@ Docker 仅运行同一二进制并挂载 `/data` 和只读配置，不引入额�
 
 ## 18. 完成标准
 
-- 独立模块可以在没有 FMind app、PostgreSQL、Redis 和 MinIO 的环境运行。
+- 独立模块可以在没有 FTMind app、PostgreSQL、Redis 和 MinIO 的环境运行。
 - 可一次性完整下载政策原文、原始 HTML、附件和显式关联页面。
 - 能对入口 HTML 和加载协议生成完整请求目录，说明每个数据请求的用途，并通过直接 HTTP 请求完成生产采集，不依赖逐项点击。
 - 可按计划自动增量运行，失败可重试，重启可续跑。
@@ -471,7 +471,7 @@ Docker 仅运行同一二进制并挂载 `/data` 和只读配置，不引入额�
 - 官网分类值不被本地规则或模型补写。
 - 动态申报状态同时保留官网信号、时间输入、计算结果和冲突。
 - 历史快照不可变，Wiki Schema 升级能够仅依靠本地 Raw Package 重放。
-- 采集器不改变现有 FMind 七容器，也不占用新的公网端口。
+- 采集器不改变现有 FTMind 七容器，也不占用新的公网端口。
 
 ## 19. 后续接口
 

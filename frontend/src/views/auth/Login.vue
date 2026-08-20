@@ -209,7 +209,7 @@ import { MessagePlugin } from 'tdesign-vue-next'
 import { useRoleLabel } from '@/composables/useRoleLabel'
 import { notifyLoginSuccess } from '@/utils/loginNotify'
 import { withTimeout } from './loginFlow'
-import brandLogo from '@/assets/img/brand/sf-logo-alone.png'
+import brandLogo from '@/assets/img/brand/ftmind-logo.png'
 import {
   login,
   register,
@@ -600,12 +600,12 @@ onMounted(async () => {
   // Do not trust a stale in-memory Pinia token after the request interceptor
   // has invalidated the persisted session. Otherwise /login immediately
   // redirects back to the protected shell and the router can visibly bounce.
-  if (authStore.isLoggedIn && localStorage.getItem('fmind_token')) {
+  if (authStore.isLoggedIn && localStorage.getItem('ftmind_token')) {
     router.replace('/platform/knowledge-bases')
     return
   }
 
-  const AUTO_SETUP_FAILED_KEY = 'fmind_auto_setup_failed'
+  const AUTO_SETUP_FAILED_KEY = 'ftmind_auto_setup_failed'
   if (localStorage.getItem(AUTO_SETUP_FAILED_KEY) !== 'true') {
     try {
       const response = await autoSetup()
@@ -1720,7 +1720,7 @@ onMounted(async () => {
 </style>
 
 <style lang="less">
-/* Standalone FMind sign-in surface. This intentionally replaces the former
+/* Standalone FTMind sign-in surface. This intentionally replaces the former
  * graph/showcase treatment without changing the authentication flow. */
 .login-layout.login-layout--gateway {
   position: relative;
@@ -2088,7 +2088,7 @@ html[theme-mode="dark"] {
     display: none;
   }
 
-  > .fmind-auth-graph {
+  > .ftmind-auth-graph {
     position: absolute;
     inset: 0;
     z-index: 0;
@@ -2522,7 +2522,7 @@ html[theme-mode="dark"] {
       padding-inline: 24px !important;
     }
 
-    > .fmind-auth-graph {
+    > .ftmind-auth-graph {
       opacity: 0.92;
     }
   }

@@ -1,4 +1,4 @@
-// Package service provides business logic implementations for FMind application
+// Package service provides business logic implementations for FTMind application
 // This package contains service layer implementations that coordinate between
 // repositories and handlers, applying business rules and transaction management
 package service

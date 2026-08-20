@@ -213,7 +213,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Provide(service.NewEvaluationService))
 	must(container.Provide(service.NewUserService))
 	must(container.Provide(service.NewSystemSettingService))
-	must(container.Provide(service.NewFMindCloudService))
+	must(container.Provide(service.NewFTMindCloudService))
 	must(container.Provide(agentbinding.NewScopeValidator))
 	must(container.Provide(agentbinding.NewService))
 	must(container.Provide(memorywiki.NewServiceWithAuthorization))
@@ -277,7 +277,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	logger.Debugf(ctx, "[Container] Registering session service...")
 	must(container.Provide(service.NewSessionService))
 
-	// External-agent Cognition MCP uses the same tenant-scoped FMind services
+	// External-agent Cognition MCP uses the same tenant-scoped FTMind services
 	// through narrow read interfaces. MemoryCore is optional; when configured,
 	// its client fails startup on partial credentials or unsafe transport.
 	must(container.Provide(cognition.NewMemoryGatewayFromEnvironment))
@@ -408,7 +408,7 @@ func BuildContainer(container *dig.Container) *dig.Container {
 	must(container.Invoke(registerIMAdapterFactories))
 	must(container.Provide(handler.NewIMHandler))
 	must(container.Provide(handler.NewEmbedChannelHandler))
-	must(container.Provide(handler.NewFMindCloudHandler))
+	must(container.Provide(handler.NewFTMindCloudHandler))
 	logger.Debugf(ctx, "[Container] HTTP handlers registered")
 
 	// Wire the chat package's local image resolver so multimodal chat can read

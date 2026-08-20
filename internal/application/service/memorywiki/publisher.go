@@ -181,8 +181,8 @@ func (s *Service) resolveTeamMemoryWiki(ctx context.Context, tenantID uint64, te
 		return nil, ErrInvalidMemoryWikiTarget
 	}
 	created, createErr := s.kb.CreateKnowledgeBase(provisioningCtx, &types.KnowledgeBase{
-		TenantID: tenantID, Name: "FMind Memory Wiki · " + teamID,
-		Description: "Reviewed team L3 memory. Managed by FMind; zero RAG ingestion.",
+		TenantID: tenantID, Name: "FTMind Memory Wiki · " + teamID,
+		Description: "Reviewed team L3 memory. Managed by FTMind; zero RAG ingestion.",
 		Type:        types.KnowledgeBaseTypeWiki, IsMemoryWiki: true, MemoryTeamID: teamID,
 		WikiConfig:       &types.WikiConfig{IsMemoryWiki: true, MemoryTeamID: teamID},
 		IndexingStrategy: types.IndexingStrategy{WikiEnabled: true},

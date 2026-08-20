@@ -1,4 +1,4 @@
-// Package feishu implements the Feishu (飞书/Lark) IM adapter for FMind.
+// Package feishu implements the Feishu (飞书/Lark) IM adapter for FTMind.
 //
 // Feishu bot flow:
 // 1. User sends a message to the bot (direct or @mention in group)
@@ -709,7 +709,7 @@ func buildStreamingCardJSON() string {
 		},
 		"header": map[string]interface{}{
 			"template": "blue",
-			"title":    map[string]string{"tag": "plain_text", "content": "FMind"},
+			"title":    map[string]string{"tag": "plain_text", "content": "FTMind"},
 		},
 		"body": map[string]interface{}{
 			"elements": []map[string]interface{}{
@@ -948,7 +948,7 @@ func (a *Adapter) cardkitUpdateElement(ctx context.Context, accessToken, cardID,
 // Feishu card markdown images use the syntax ![hover_text](image_key) where the
 // value inside the parentheses MUST be an image_key obtained from the Feishu
 // "upload image" API. External HTTP/COS URLs are rejected with
-// code=200570 "card contains invalid image keys". FMind's content pipeline
+// code=200570 "card contains invalid image keys". FTMind's content pipeline
 // rewrites provider:// storage URLs to signed HTTP URLs, so by the time content
 // reaches the card we must download each referenced image and re-upload it to
 // Feishu to obtain a usable image_key.

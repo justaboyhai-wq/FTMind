@@ -4,7 +4,7 @@
 // the JSON-RPC 2.0 wire protocol agentic IDEs use to call external tools.
 // `fmind mcp serve` exposes a curated subset of the CLI as MCP tools so
 // an IDE-side agent can list / view / search / chat against the user's
-// active FMind profile without shelling out to the CLI per call. Most
+// active FTMind profile without shelling out to the CLI per call. Most
 // tools are read-only; chat and session_ask create conversation/message
 // records.
 //

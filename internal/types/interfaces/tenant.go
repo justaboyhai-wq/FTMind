@@ -36,8 +36,8 @@ type TenantService interface {
 	SearchTenants(ctx context.Context, keyword string, tenantID uint64, page, pageSize int) ([]*types.Tenant, int64, error)
 	// GetTenantByIDForUser gets a tenant by ID with permission check
 	GetTenantByIDForUser(ctx context.Context, tenantID uint64, userID string) (*types.Tenant, error)
-	// GetFMindCloudCredentials returns the decrypted FMindCloud credentials for the current tenant.
-	GetFMindCloudCredentials(ctx context.Context) *types.FMindCloudCredentials
+	// GetFTMindCloudCredentials returns the decrypted FTMindCloud credentials for the current tenant.
+	GetFTMindCloudCredentials(ctx context.Context) *types.FTMindCloudCredentials
 }
 
 // TenantRepository defines the tenant repository interface

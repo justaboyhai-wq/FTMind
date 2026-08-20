@@ -127,8 +127,8 @@ func TestHandleModelFallback_IncludesHistoryMessages(t *testing.T) {
 		PipelineState: types.PipelineState{
 			History: []*types.History{
 				{
-					Query:  "先介绍一下 FMind",
-					Answer: "FMind 是一个知识库问答系统。",
+					Query:  "先介绍一下 FTMind",
+					Answer: "FTMind 是一个知识库问答系统。",
 				},
 			},
 		},
@@ -141,9 +141,9 @@ func TestHandleModelFallback_IncludesHistoryMessages(t *testing.T) {
 
 	require.Len(t, chatModel.lastMessages, 3)
 	assert.Equal(t, "user", chatModel.lastMessages[0].Role)
-	assert.Equal(t, "先介绍一下 FMind", chatModel.lastMessages[0].Content)
+	assert.Equal(t, "先介绍一下 FTMind", chatModel.lastMessages[0].Content)
 	assert.Equal(t, "assistant", chatModel.lastMessages[1].Role)
-	assert.Equal(t, "FMind 是一个知识库问答系统。", chatModel.lastMessages[1].Content)
+	assert.Equal(t, "FTMind 是一个知识库问答系统。", chatModel.lastMessages[1].Content)
 	assert.Equal(t, "user", chatModel.lastMessages[2].Role)
 	assert.Contains(t, chatModel.lastMessages[2].Content, "现在还能继续讲吗？")
 }

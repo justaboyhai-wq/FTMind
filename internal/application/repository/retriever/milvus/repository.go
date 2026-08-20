@@ -106,7 +106,7 @@ func (m *milvusRepository) ensureCollection(ctx context.Context, dimension int) 
 		// Define schema
 		schema := &entity.Schema{
 			CollectionName: collectionName,
-			Description:    fmt.Sprintf("FMind embeddings collection with dimension %d", dimension),
+			Description:    fmt.Sprintf("FTMind embeddings collection with dimension %d", dimension),
 			AutoID:         false,
 			Fields: []*entity.Field{
 				entity.NewField().

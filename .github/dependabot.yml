@@ -1,4 +1,4 @@
-# Dependabot configuration for the FMind repository.
+# Dependabot configuration for the FTMind repository.
 #
 # Policy:
 #   * `/cli` is the only ecosystem that receives routine version updates

@@ -109,7 +109,7 @@ PUB_IP=$(curl -fsS --max-time 5 https://ifconfig.me 2>/dev/null \
 
 cat >"${CRED_FILE}" <<INFO
 ========================================
-  FMind 实例初始化完成
+  FTMind 实例初始化完成
   生成时间: $(date -Iseconds)
 ========================================
 

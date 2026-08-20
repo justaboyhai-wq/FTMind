@@ -14,7 +14,7 @@ import (
 
 // authCreds carries the credentials a providerAdapter needs to authenticate a
 // raw HTTP request. APIKey covers the common Bearer / api-key cases; AppID and
-// AppSecret are only used by signing providers (FMindCloud).
+// AppSecret are only used by signing providers (FTMindCloud).
 type authCreds struct {
 	APIKey    string
 	AppID     string
@@ -78,11 +78,11 @@ func (baseProvider) ExtractToolCallMetadata(json.RawMessage) types.ToolCallMetad
 }
 func (baseProvider) InjectToolCallMetadata(map[string]any, types.ToolCallMetadata) {}
 
-// --- FMindCloud: custom endpoint + request signing + multi-content downgrade ---
+// --- FTMindCloud: custom endpoint + request signing + multi-content downgrade ---
 
 type fmindCloudProvider struct{ baseProvider }
 
-func (fmindCloudProvider) Name() provider.ProviderName { return provider.ProviderFMindCloud }
+func (fmindCloudProvider) Name() provider.ProviderName { return provider.ProviderFTMindCloud }
 
 func (fmindCloudProvider) Endpoint(baseURL, _ string, _ bool) string {
 	return strings.TrimRight(baseURL, "/") + "/api/v1/chat/completions"

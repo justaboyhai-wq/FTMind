@@ -1,7 +1,7 @@
 import type { ModelConfig } from '@/api/model'
 
-export const FMIND_CLOUD_BASE_URL = 'https://fmind.weixin.qq.com'
-export const FMIND_CLOUD_PROVIDER = 'fmindcloud'
+export const FTMIND_CLOUD_BASE_URL = 'https://fmind.weixin.qq.com'
+export const FTMIND_CLOUD_PROVIDER = 'fmindcloud'
 
 export type WkcModelKind = 'chat' | 'embedding' | 'rerank' | 'vllm'
 
@@ -22,7 +22,7 @@ export const WKC_MODEL_NAME_BY_KIND: Record<WkcModelKind, string> = {
 export const WKC_MODEL_KINDS: WkcModelKind[] = ['chat', 'embedding', 'rerank', 'vllm']
 
 export function isFMindCloudModel(model: ModelConfig): boolean {
-  return model.parameters?.provider === FMIND_CLOUD_PROVIDER
+  return model.parameters?.provider === FTMIND_CLOUD_PROVIDER
 }
 
 /** Returns kinds that already have a FMindCloud model of the matching backend type. */
@@ -47,8 +47,8 @@ export function buildWkcModelConfig(
   const name = WKC_MODEL_NAME_BY_KIND[kind]
   const type = BACKEND_TYPE_BY_KIND[kind]
   const parameters: ModelConfig['parameters'] = {
-    base_url: FMIND_CLOUD_BASE_URL,
-    provider: FMIND_CLOUD_PROVIDER,
+    base_url: FTMIND_CLOUD_BASE_URL,
+    provider: FTMIND_CLOUD_PROVIDER,
   }
 
   if (kind === 'embedding' && dimension) {

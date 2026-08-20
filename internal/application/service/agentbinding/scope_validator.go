@@ -48,7 +48,7 @@ func (v *databaseScopeValidator) ResolveRoles(ctx context.Context, binding *type
 	if binding.DepartmentID != "" && team.DepartmentID != binding.DepartmentID {
 		return nil, fmt.Errorf("%w: department/team mismatch", ErrUnverifiableBindingScope)
 	}
-	// Built-in FMind agents are system-owned and are not tenant/team
+	// Built-in FTMind agents are system-owned and are not tenant/team
 	// resources. A binding must target a tenant custom agent that has been
 	// explicitly attached to the selected team.
 	if types.IsBuiltinAgentID(binding.AgentID) {

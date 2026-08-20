@@ -7,14 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// FMindCloudHandler 处理 FMindCloud 凭证管理
-type FMindCloudHandler struct {
-	svc interfaces.FMindCloudService
+// FTMindCloudHandler 处理 FTMindCloud 凭证管理
+type FTMindCloudHandler struct {
+	svc interfaces.FTMindCloudService
 }
 
-// NewFMindCloudHandler 构造函数
-func NewFMindCloudHandler(svc interfaces.FMindCloudService) *FMindCloudHandler {
-	return &FMindCloudHandler{svc: svc}
+// NewFTMindCloudHandler 构造函数
+func NewFTMindCloudHandler(svc interfaces.FTMindCloudService) *FTMindCloudHandler {
+	return &FTMindCloudHandler{svc: svc}
 }
 
 type fmindCloudCredentialsRequest struct {
@@ -26,9 +26,9 @@ type fmindCloudCredentialsRequest struct {
 // 仅保存 APPID/APPSECRET 凭证到空间配置，不自动创建模型
 //
 // SaveCredentials godoc
-// @Summary      保存 FMindCloud 凭证
+// @Summary      保存 FTMindCloud 凭证
 // @Description  保存 APPID/APPSECRET 到当前空间配置（不自动创建模型）
-// @Tags         FMindCloud
+// @Tags         FTMindCloud
 // @Accept       json
 // @Produce      json
 // @Param        request  body      map[string]interface{}  true  "{app_id, app_secret}"
@@ -37,7 +37,7 @@ type fmindCloudCredentialsRequest struct {
 // @Security     Bearer
 // @Security     ApiKeyAuth
 // @Router       /fmindcloud/credentials [post]
-func (h *FMindCloudHandler) SaveCredentials(c *gin.Context) {
+func (h *FTMindCloudHandler) SaveCredentials(c *gin.Context) {
 	var req fmindCloudCredentialsRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -53,19 +53,19 @@ func (h *FMindCloudHandler) SaveCredentials(c *gin.Context) {
 }
 
 // Status GET /api/v1/models/fmindcloud/status
-// 检查当前空间的 FMindCloud 凭证是否完好，如需重新初始化则返回 needs_reinit=true
+// 检查当前空间的 FTMindCloud 凭证是否完好，如需重新初始化则返回 needs_reinit=true
 //
 // Status godoc
-// @Summary      检查 FMindCloud 凭证状态
-// @Description  检查当前空间的 FMindCloud 凭证是否完好；needs_reinit=true 表示需要重新保存
-// @Tags         FMindCloud
+// @Summary      检查 FTMindCloud 凭证状态
+// @Description  检查当前空间的 FTMindCloud 凭证是否完好；needs_reinit=true 表示需要重新保存
+// @Tags         FTMindCloud
 // @Produce      json
 // @Success      200  {object}  map[string]interface{}  "凭证状态"
 // @Failure      500  {object}  map[string]interface{}  "服务器错误"
 // @Security     Bearer
 // @Security     ApiKeyAuth
 // @Router       /models/fmindcloud/status [get]
-func (h *FMindCloudHandler) Status(c *gin.Context) {
+func (h *FTMindCloudHandler) Status(c *gin.Context) {
 	result, err := h.svc.CheckStatus(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

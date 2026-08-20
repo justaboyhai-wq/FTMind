@@ -49,7 +49,7 @@ func (s *stubTenantService) BulkSetStorageQuota(context.Context, int64) (int64, 
 func (s *stubTenantService) GetTenantByIDForUser(context.Context, uint64, string) (*types.Tenant, error) {
 	return s.tenant, nil
 }
-func (s *stubTenantService) GetFMindCloudCredentials(context.Context) *types.FMindCloudCredentials {
+func (s *stubTenantService) GetFTMindCloudCredentials(context.Context) *types.FTMindCloudCredentials {
 	return nil
 }
 

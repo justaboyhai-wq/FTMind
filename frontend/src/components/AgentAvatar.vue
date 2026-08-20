@@ -25,7 +25,7 @@ const props = withDefaults(defineProps<{
   size: 'medium'
 });
 
-// FMind 自有头像色谱：仅使用蓝、靛、紫与少量品红，避免旧品牌绿。
+// FTMind 自有头像色谱：仅使用蓝、靛、紫与少量品红，避免旧品牌绿。
 const gradients = [
   { from: '#5b5bd6', to: '#3b82f6' },
   { from: '#4f46e5', to: '#8b5cf6' },

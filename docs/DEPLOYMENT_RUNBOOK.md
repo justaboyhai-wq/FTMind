@@ -1,10 +1,10 @@
-# FMind 部署与运维手册（新员工必读）
+# FTMind 部署与运维手册（新员工必读）
 
 > 本文是当前生产实例的事实基线，校准日期为 2026-07-28。它用于部署、值守、排障、备份和回滚，不记录任何密码、私钥、AccessKey 或模型 API Key。通用代码与组件边界见[开发与系统架构](./ARCHITECTURE.md)。
 
 ## 1. 当前生产结论
 
-FMind 已采用“杭州 ECS 单机应用栈 + 阿里云托管 Tair/OSS + 远程模型 API”的纯云 MVP 架构。历史上的 WireGuard、本机 Docker、MinIO 和本地模型不再是生产请求链路的一部分。
+FTMind 已采用“杭州 ECS 单机应用栈 + 阿里云托管 Tair/OSS + 远程模型 API”的纯云 MVP 架构。历史上的 WireGuard、本机 Docker、MinIO 和本地模型不再是生产请求链路的一部分。
 
 | 项目 | 当前值 |
 | --- | --- |
@@ -28,7 +28,7 @@ flowchart LR
     U[浏览器] -->|HTTPS 443| DNS[fmind.boliboliworld.cn]
     DNS --> NG[杭州 ECS<br/>Nginx / TLS]
     NG -->|127.0.0.1:18081| FE[Frontend 容器]
-    FE -->|Compose 私网 :8080| APP[FMind App<br/>API + Asynq Workers]
+    FE -->|Compose 私网 :8080| APP[FTMind App<br/>API + Asynq Workers]
     APP --> PG[(ParadeDB / PostgreSQL)]
     APP --> Q[(Qdrant)]
     APP --> DR[DocReader gRPC]
@@ -241,12 +241,12 @@ curl -f http://127.0.0.1:18081/health
 
 ## 11. 共享 ECS 注意事项
 
-该 ECS 还承载其他历史应用和 Nginx 站点。FMind 变更必须限定在：
+该 ECS 还承载其他历史应用和 Nginx 站点。FTMind 变更必须限定在：
 
 - `/opt/fmind`；
 - Compose 项目 `fmind-mvp`；
 - `127.0.0.1:18081`；
-- FMind 自己的 Nginx vhost。
+- FTMind 自己的 Nginx vhost。
 
 不要停止整机 Nginx、删除不明容器/镜像/目录或改写其他域名配置。需要清理 Docker 缓存时，先列出占用与引用关系，确认不会影响其他应用。
 

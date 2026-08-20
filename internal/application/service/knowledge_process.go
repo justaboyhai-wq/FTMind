@@ -3263,15 +3263,15 @@ func (s *knowledgeService) resolveDocReader(ctx context.Context, engine, fileTyp
 	switch engine {
 	case docparser.SimpleEngineName:
 		return &docparser.SimpleFormatReader{}
-	case docparser.FMindCloudEngineName:
-		creds := s.tenantService.GetFMindCloudCredentials(ctx)
+	case docparser.FTMindCloudEngineName:
+		creds := s.tenantService.GetFTMindCloudCredentials(ctx)
 		if creds == nil {
-			logger.Warnf(ctx, "[resolveDocReader] FMindCloud: no tenant credentials (fileType=%s)", fileType)
+			logger.Warnf(ctx, "[resolveDocReader] FTMindCloud: no tenant credentials (fileType=%s)", fileType)
 			return nil
 		}
-		reader, err := docparser.NewFMindCloudSignedDocumentReader(creds.AppID, creds.AppSecret)
+		reader, err := docparser.NewFTMindCloudSignedDocumentReader(creds.AppID, creds.AppSecret)
 		if err != nil {
-			logger.Errorf(ctx, "[resolveDocReader] FMindCloud reader init failed: %v", err)
+			logger.Errorf(ctx, "[resolveDocReader] FTMindCloud reader init failed: %v", err)
 			return nil
 		}
 		return reader

@@ -51,7 +51,7 @@ detect_compose_cmd() {
 
 # 显示帮助信息
 show_help() {
-    printf "%b\n" "${GREEN}FMind 开发环境脚本${NC}"
+    printf "%b\n" "${GREEN}FTMind 开发环境脚本${NC}"
     echo "用法: $0 [命令] [选项]"
     echo ""
     echo "命令:"

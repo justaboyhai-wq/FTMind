@@ -1,4 +1,4 @@
-/* FMind design system. Loaded after TDesign so existing feature views
+/* FTMind design system. Loaded after TDesign so existing feature views
  * inherit the new interface without changing routes, state or API behavior. */
 :root,
 :root[theme-mode="light"] {
@@ -92,12 +92,12 @@ body { background: var(--td-bg-color-page); letter-spacing: -.01em; }
 button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--td-brand-color); outline-offset: 2px; }
 .main { background: var(--td-bg-color-page) !important; }
 
-/* FMind mark: text rather than an image allows it to remain crisp in all UI surfaces. */
-.fmind-mark { display: inline-flex; align-items: center; gap: 9px; color: #1f2328; font-size: 16px; font-weight: 700; letter-spacing: -.055em; line-height: 1; text-decoration: none; }
-.fmind-mark__glyph { display: grid; width: 29px; height: 29px; place-items: center; color: #fff; background: var(--td-brand-color); border-radius: 8px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 18%); }
-.fmind-mark__glyph svg { width: 19px; height: 19px; }
-.fmind-mark__name { line-height: 1; }
-.header-logo .fmind-mark { color: #1f2328; }
+/* FTMind mark: text rather than an image allows it to remain crisp in all UI surfaces. */
+.ftmind-mark { display: inline-flex; align-items: center; gap: 9px; color: #1f2328; font-size: 16px; font-weight: 700; letter-spacing: -.055em; line-height: 1; text-decoration: none; }
+.ftmind-mark__glyph { display: grid; width: 29px; height: 29px; place-items: center; color: #fff; background: var(--td-brand-color); border-radius: 8px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 18%); }
+.ftmind-mark__glyph svg { width: 19px; height: 19px; }
+.ftmind-mark__name { line-height: 1; }
+.header-logo .ftmind-mark { color: #1f2328; }
 
 /* Reference-style contextual navigation: a quiet rail and a light session workspace. */
 .aside_box { border-right-color: #e7e8ea !important; box-shadow: none !important; }
@@ -193,8 +193,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .embed-page, .embed-chat-container, .embed-chat { background: #f7f7f8 !important; }
 .embed-header, .embed-input-box { border-color: #e7e8ea !important; box-shadow: 0 8px 22px rgb(30 35 40 / 5%) !important; }
 
-:root[theme-mode="dark"] .fmind-mark, :root[theme-mode="dark"] .header-logo .fmind-mark { color: #f6f7fb; }
-:root[theme-mode="dark"] .fmind-workspace-topbar { background: rgb(24 24 24 / 82%); }
+:root[theme-mode="dark"] .ftmind-mark, :root[theme-mode="dark"] .header-logo .ftmind-mark { color: #f6f7fb; }
+:root[theme-mode="dark"] .ftmind-workspace-topbar { background: rgb(24 24 24 / 82%); }
 :root[theme-mode="dark"] .aside_box .logo_row { border-bottom-color: rgb(255 255 255 / 7%); }
 
 /* Hard-coded light surfaces above are intentional for the default theme.
@@ -290,6 +290,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 }
 
 @media (max-width: 760px) {
-  .fmind-workspace-topbar { padding: 0 14px; }
+  .ftmind-workspace-topbar { padding: 0 14px; }
   .aside_box { border-right: 0 !important; }
 }

@@ -367,7 +367,7 @@ func TestJsonToMarkdown_BOM(t *testing.T) {
 }
 
 func TestJsonToMarkdown_UnicodeContent(t *testing.T) {
-	input := `{"名称": "FMind 知识库", "描述": "支持中文 JSON 🎉", "emoji": "🚀"}`
+	input := `{"名称": "FTMind 知识库", "描述": "支持中文 JSON 🎉", "emoji": "🚀"}`
 	result, err := jsonToMarkdown([]byte(input))
 	visualReport(t, "Unicode / Chinese / Emoji", input, result, err, []checkResult{
 		check("no error", err == nil),
@@ -455,7 +455,7 @@ func TestJsonToMarkdown_SingleElementArray(t *testing.T) {
 
 func TestJsonToMarkdown_RealisticConfig(t *testing.T) {
 	input := `{
-  "app": {"name": "FMind", "version": "2.0.0", "debug": false},
+  "app": {"name": "FTMind", "version": "2.0.0", "debug": false},
   "database": {"host": "localhost", "port": 5432, "name": "fmind_db", "pool_size": 10},
   "redis": {"host": "localhost", "port": 6379},
   "features": {"json_upload": true, "multimodel": true, "graph_extraction": false}
@@ -465,7 +465,7 @@ func TestJsonToMarkdown_RealisticConfig(t *testing.T) {
 	visualReport(t, "Realistic: App Config (fits in 1 block)", input, result, err, []checkResult{
 		check("no error", err == nil),
 		check("all blocks are valid JSON", allBlocksValidJSON(result)),
-		check("contains 'FMind'", strings.Contains(result, "FMind")),
+		check("contains 'FTMind'", strings.Contains(result, "FTMind")),
 		check("contains 'database'", strings.Contains(result, "database")),
 		check(fmt.Sprintf("single block (fits, got %d)", blocks), blocks == 1),
 	})

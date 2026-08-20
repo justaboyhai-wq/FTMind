@@ -9,7 +9,7 @@ import (
 )
 
 // buildSetupArtifactsClean is the canonical user-facing setup artifact
-// generator. It never embeds an existing FMind API key or a direct
+// generator. It never embeds an existing FTMind API key or a direct
 // MemoryCore credential.
 func buildSetupArtifactsClean(binding *types.AgentBinding, secret string) (*interfaces.AgentBindingSetupManifest, string, error) {
 	fmind, _, proxy, err := setupEndpoints(binding.ConnectorType)
@@ -18,18 +18,18 @@ func buildSetupArtifactsClean(binding *types.AgentBinding, secret string) (*inte
 	}
 	manifest := &interfaces.AgentBindingSetupManifest{
 		BindingID: binding.ID, ExternalAgent: binding.ExternalAgent,
-		ConnectorType: binding.ConnectorType, FMindEndpoint: fmind,
+		ConnectorType: binding.ConnectorType, FTMindEndpoint: fmind,
 		MemoryProxyEndpoint: proxy,
 		Capabilities: append([]string(nil), binding.CapabilityScopes...),
 		AssetScopes: append([]string(nil), binding.AssetScopes...),
 	}
 	template := setupTemplateClean(binding.ConnectorType, fmind, proxy)
-	prompt := fmt.Sprintf(`FMind 外部 Agent 一键接入
+	prompt := fmt.Sprintf(`FTMind 外部 Agent 一键接入
 
 目标 Agent：%s
 接入类型：%s
 Binding ID：%s
-FMind 地址：%s
+FTMind 地址：%s
 MemoryProxy 地址：%s
 
 请在外部 Agent 的安全环境变量中配置（不要提交到代码库）：
@@ -52,7 +52,7 @@ X-FMind-Connector-Secret: $FMIND_AGENT_SETUP_KEY
 X-FMind-User-Key: $FMIND_USER_API_KEY
 请求体：{"binding_id":"%s","external_agent":"%s","connector_type":"%s","client_version":"<your-version>"}
 
-setup 成功后立即删除 FMIND_AGENT_SETUP_KEY，只保存响应中的运行期 Agent Key。后续请求必须同时携带用户 API Key 和 Agent Key，由 FMind 按当前角色、能力和资产范围重新鉴权。`,
+setup 成功后立即删除 FMIND_AGENT_SETUP_KEY，只保存响应中的运行期 Agent Key。后续请求必须同时携带用户 API Key 和 Agent Key，由 FTMind 按当前角色、能力和资产范围重新鉴权。`,
 		binding.ExternalAgent, binding.ConnectorType, binding.ID, fmind, proxy, secret,
 		strings.Join(binding.CapabilityScopes, "\n- "), strings.Join(binding.AssetScopes, "\n- "),
 		template, fmind, binding.ID, binding.ExternalAgent, binding.ConnectorType)

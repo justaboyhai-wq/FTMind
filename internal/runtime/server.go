@@ -5,7 +5,7 @@ import "time"
 // serverStartedAt is set once at process boot (see MarkServerStarted).
 var serverStartedAt time.Time
 
-// MarkServerStarted records the instant the FMind server process started.
+// MarkServerStarted records the instant the FTMind server process started.
 // Call once from main() before heavy init so uptime reflects the full process
 // lifetime, not merely when the HTTP listener binds.
 func MarkServerStarted() {

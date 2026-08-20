@@ -231,11 +231,11 @@ func (s *tenantService) GetTenantByIDForUser(ctx context.Context, tenantID uint6
 	return tenant, nil
 }
 
-func (s *tenantService) GetFMindCloudCredentials(ctx context.Context) *types.FMindCloudCredentials {
+func (s *tenantService) GetFTMindCloudCredentials(ctx context.Context) *types.FTMindCloudCredentials {
 	// Try to get tenant info from context first (already loaded by middleware).
 	// CredentialsConfig.Scan handles decryption, so credentials are ready to use.
 	if tenant, ok := types.TenantInfoFromContext(ctx); ok {
-		if creds := tenant.Credentials.GetFMindCloud(); creds != nil {
+		if creds := tenant.Credentials.GetFTMindCloud(); creds != nil {
 			return creds
 		}
 	}
@@ -250,7 +250,7 @@ func (s *tenantService) GetFMindCloudCredentials(ctx context.Context) *types.FMi
 	if err != nil || tenant == nil {
 		return nil
 	}
-	return tenant.Credentials.GetFMindCloud()
+	return tenant.Credentials.GetFTMindCloud()
 }
 
 func (s *tenantService) validateStorageBucketUniqueness(ctx context.Context, tenant *types.Tenant) error {

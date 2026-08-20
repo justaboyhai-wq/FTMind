@@ -1,4 +1,4 @@
-// Package client provides the implementation for interacting with the FMind API
+// Package client provides the implementation for interacting with the FTMind API
 // The Agent related interfaces are used to manage agent-based question-answering
 package client
 

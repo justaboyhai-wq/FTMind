@@ -2,7 +2,7 @@
 
 # Show help
 help:
-	@echo "FMind Makefile 帮助"
+	@echo "FTMind Makefile 帮助"
 	@echo ""
 	@echo "基础命令:"
 	@echo "  build             构建应用"

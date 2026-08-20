@@ -3,7 +3,7 @@
 // named `agent/` to match the cobra subcommand; the Go package is `agentcmd`
 // to avoid colliding with cobra's *cobra.Command identifier.
 //
-// "agent" in this subtree refers to FMind's user-defined Custom
+// "agent" in this subtree refers to FTMind's user-defined Custom
 // Agents (server resource: GET/POST /agents/...) and handles CRUD
 // operations only. Agent invocation has moved to `fmind session ask
 // --agent <id>` (see cli/cmd/session/ask.go).

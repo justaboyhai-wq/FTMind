@@ -106,7 +106,7 @@ type Tenant struct {
 	WebSearchConfig *WebSearchConfig `yaml:"web_search_config"   json:"web_search_config"   gorm:"type:jsonb"`
 	// Parser engine config overrides (MinerU endpoint, API key, etc.). Used when parsing documents; overrides env.
 	ParserEngineConfig *ParserEngineConfig `yaml:"parser_engine_config" json:"parser_engine_config" gorm:"type:jsonb"`
-	// Credentials config: third-party provider credentials (e.g. FMindCloud AppID/AppSecret)
+	// Credentials config: third-party provider credentials (e.g. FTMindCloud AppID/AppSecret)
 	Credentials *CredentialsConfig `yaml:"credentials" json:"credentials" gorm:"type:jsonb"`
 	// Storage engine config: parameters for Local, MinIO, COS. Used for document/file storage and docreader.
 	StorageEngineConfig *StorageEngineConfig `yaml:"storage_engine_config" json:"storage_engine_config" gorm:"type:jsonb"`
@@ -180,12 +180,12 @@ func (c *RetrieverEngines) Scan(value interface{}) error {
 // Stored as a single JSONB column; each provider is a nested object so new
 // providers can be added without schema changes.
 type CredentialsConfig struct {
-	FMindCloud *FMindCloudCredentials `json:"fmindcloud,omitempty"`
+	FTMindCloud *FTMindCloudCredentials `json:"fmindcloud,omitempty"`
 }
 
-// FMindCloudCredentials stores FMindCloud AppID and AppSecret.
+// FTMindCloudCredentials stores FTMindCloud AppID and AppSecret.
 // AppSecret is AES-256 encrypted before persisting to database.
-type FMindCloudCredentials struct {
+type FTMindCloudCredentials struct {
 	AppID     string `json:"app_id"`
 	AppSecret string `json:"app_secret"`
 }
@@ -247,15 +247,15 @@ func (c *APIPrincipalConfig) Scan(value interface{}) error {
 	return nil
 }
 
-// GetFMindCloud returns the FMindCloud credentials, or nil if not configured.
-func (c *CredentialsConfig) GetFMindCloud() *FMindCloudCredentials {
-	if c == nil || c.FMindCloud == nil {
+// GetFTMindCloud returns the FTMindCloud credentials, or nil if not configured.
+func (c *CredentialsConfig) GetFTMindCloud() *FTMindCloudCredentials {
+	if c == nil || c.FTMindCloud == nil {
 		return nil
 	}
-	if c.FMindCloud.AppID == "" || c.FMindCloud.AppSecret == "" {
+	if c.FTMindCloud.AppID == "" || c.FTMindCloud.AppSecret == "" {
 		return nil
 	}
-	return c.FMindCloud
+	return c.FTMindCloud
 }
 
 // Value implements the driver.Valuer interface for CredentialsConfig
@@ -264,10 +264,10 @@ func (c *CredentialsConfig) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	cp := *c
-	if cp.FMindCloud != nil && cp.FMindCloud.AppSecret != "" {
+	if cp.FTMindCloud != nil && cp.FTMindCloud.AppSecret != "" {
 		if key := utils.GetAESKey(); key != nil {
-			if encrypted, err := utils.EncryptAESGCM(cp.FMindCloud.AppSecret, key); err == nil {
-				cp.FMindCloud = &FMindCloudCredentials{AppID: cp.FMindCloud.AppID, AppSecret: encrypted}
+			if encrypted, err := utils.EncryptAESGCM(cp.FTMindCloud.AppSecret, key); err == nil {
+				cp.FTMindCloud = &FTMindCloudCredentials{AppID: cp.FTMindCloud.AppID, AppSecret: encrypted}
 			}
 		}
 	}
@@ -286,12 +286,12 @@ func (c *CredentialsConfig) Scan(value interface{}) error {
 	if err := json.Unmarshal(b, c); err != nil {
 		return err
 	}
-	if c.FMindCloud != nil {
-		if plain, ok := utils.DecryptStoredSecretLenient(c.FMindCloud.AppSecret); ok {
-			c.FMindCloud.AppSecret = plain
+	if c.FTMindCloud != nil {
+		if plain, ok := utils.DecryptStoredSecretLenient(c.FTMindCloud.AppSecret); ok {
+			c.FTMindCloud.AppSecret = plain
 		} else {
 			log.Printf("[crypto] tenant credentials we_knora_cloud.app_secret: decrypt failed (SYSTEM_AES_KEY missing/rotated?), treating as unconfigured")
-			c.FMindCloud.AppSecret = ""
+			c.FTMindCloud.AppSecret = ""
 		}
 	}
 	return nil

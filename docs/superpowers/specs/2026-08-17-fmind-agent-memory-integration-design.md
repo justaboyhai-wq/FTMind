@@ -1,4 +1,4 @@
-# FMind 与 TencentDB Agent Memory 融合设计
+# FTMind 与 TencentDB Agent Memory 融合设计
 
 - 状态：已确认，按 1.2 版规划实施
 - 版本：1.2
@@ -7,13 +7,13 @@
 
 ## 1. 背景与目标
 
-FMind 已具备知识库、Wiki、模型管理、文档处理、检索问答和知识库 Agent 能力。TencentDB Agent Memory（下文简称 MemoryCore）具备面向外部 Agent 的 L0–L3 长期记忆提取、演化和召回机制。
+FTMind 已具备知识库、Wiki、模型管理、文档处理、检索问答和知识库 Agent 能力。TencentDB Agent Memory（下文简称 MemoryCore）具备面向外部 Agent 的 L0–L3 长期记忆提取、演化和召回机制。
 
-本次融合的目标不是合并两套记忆，也不是用 MemoryCore 替换 FMind 内部记忆，而是让 FMind 增加一套面向外部 Agent 的长期记忆能力，并将审核通过的成熟 L3 认知发布为可维护、可问答的 FMind Wiki。
+本次融合的目标不是合并两套记忆，也不是用 MemoryCore 替换 FTMind 内部记忆，而是让 FTMind 增加一套面向外部 Agent 的长期记忆能力，并将审核通过的成熟 L3 认知发布为可维护、可问答的 FTMind Wiki。
 
 最终产品同时具备：
 
-1. FMind 原有知识库与知识库 Agent 能力；
+1. FTMind 原有知识库与知识库 Agent 能力；
 2. MemoryCore 面向外部 Agent 的完整 L0–L3 记忆能力；
 3. 成熟 L3 经审核后形成团队“记忆 Wiki”的知识沉淀能力；
 4. 统一的模型能力、身份范围、管理入口和运行治理能力。
@@ -23,7 +23,7 @@ FMind 已具备知识库、Wiki、模型管理、文档处理、检索问答和�
 
 ### 2.1 两套记忆保持独立
 
-FMind 原有记忆服务于 FMind 内部知识库 Agent，继续使用现有开关、Episode、Entity、Relationship 和 Neo4j 机制，本次不改造。
+FTMind 原有记忆服务于 FTMind 内部知识库 Agent，继续使用现有开关、Episode、Entity、Relationship 和 Neo4j 机制，本次不改造。
 
 MemoryCore 服务于外部 Agent，对外部对话执行 L0–L3 提取、演化、存储和原生记忆召回。
 
@@ -33,7 +33,7 @@ MemoryCore 服务于外部 Agent，对外部对话执行 L0–L3 提取、演化
 
 MemoryCore 中沉淀完成的 L0–L3 始终保留在原记忆链路中，并继续使用 MemoryCore 原生召回机制。
 
-审核通过的 L3 额外生成 FMind Wiki 投影。该投影是知识副本，不迁移、不删除、不替代原 L3。
+审核通过的 L3 额外生成 FTMind Wiki 投影。该投影是知识副本，不迁移、不删除、不替代原 L3。
 
 数据流严格单向：
 
@@ -51,7 +51,7 @@ Wiki 人工修订不得反向覆盖 MemoryCore 的 L0–L3 数据。
 `WikiConfig.IsMemoryWiki=true`，标识为“记忆知识库”。它不进入普通 Raw/RAG
 文件知识库，不触发 Docreader、普通文件切片、Embedding 或 RAG 索引任务。
 MemoryCore 自己的 L0/L1 向量/FTS/hybrid recall 以及 L2/L3 Profile write-through
-仍然保留；这套 Memory VectorDB 不得与 FMind RAG collection 混用。
+仍然保留；这套 Memory VectorDB 不得与 FTMind RAG collection 混用。
 
 标准 Markdown 是 Wiki 页面的内容格式和导出格式，不代表 Raw 文件资产。
 
@@ -59,15 +59,15 @@ MemoryCore 自己的 L0/L1 向量/FTS/hybrid recall 以及 L2/L3 Profile write-t
 
 ### 2.4 两阶段演进
 
-第一阶段保留 TypeScript MemoryCore，通过内部服务接口接入 FMind，优先验证 L0–L3 行为和产品闭环。
+第一阶段保留 TypeScript MemoryCore，通过内部服务接口接入 FTMind，优先验证 L0–L3 行为和产品闭环。
 
-第二阶段在接口契约和质量基线稳定后，将 MemoryCore 机制逐步迁移为 FMind Go 原生记忆引擎。迁移不得改变外部 Agent 接口、审核流程或 Wiki 发布契约。
+第二阶段在接口契约和质量基线稳定后，将 MemoryCore 机制逐步迁移为 FTMind Go 原生记忆引擎。迁移不得改变外部 Agent 接口、审核流程或 Wiki 发布契约。
 
 ### 2.5 控制面、代理数据面和记忆面的三层分工
 
-FMind 是控制面，是组织、用户、Agent、绑定、Binding Key、权限和策略的唯一权威来源。
+FTMind 是控制面，是组织、用户、Agent、绑定、Binding Key、权限和策略的唯一权威来源。
 
-MemoryProxy 是外部 Agent 数据面，保留 OpenAI/Anthropic 兼容协议代理、流式转发、自动对话捕获和回答前记忆注入能力。MemoryProxy 不再拥有独立的组织和长期绑定权威，只缓存 FMind 签发的短期 Binding Context。
+MemoryProxy 是外部 Agent 数据面，保留 OpenAI/Anthropic 兼容协议代理、流式转发、自动对话捕获和回答前记忆注入能力。MemoryProxy 不再拥有独立的组织和长期绑定权威，只缓存 FTMind 签发的短期 Binding Context。
 
 MemoryCore 是记忆面，负责保存 L0、自动执行 L1–L3 提取、维护记忆生命周期并提供原生召回。
 
@@ -77,25 +77,25 @@ MemoryCore 是记忆面，负责保存 L0、自动执行 L1–L3 提取、维护
 
 ### 3.1 第一阶段包含
 
-- MemoryCore 作为 FMind 内部受管服务运行；
-- FMind 外部 Agent 接入中心、组织绑定和 Binding Key；
+- MemoryCore 作为 FTMind 内部受管服务运行；
+- FTMind 外部 Agent 接入中心、组织绑定和 Binding Key；
 - OpenClaw Plugin、Hermes MemoryProvider 接入；
 - MemoryProxy OpenAI/Anthropic 兼容协议代理、自动捕获和召回注入；
 - 外部 Agent 对话自动写入和 L0–L3 原生召回；
-- FMind 与 MemoryCore 的稳定适配接口；
-- FMind 向 MemoryCore 提供统一 Chat 和 Embedding 模型能力；
+- FTMind 与 MemoryCore 的稳定适配接口；
+- FTMind 向 MemoryCore 提供统一 Chat 和 Embedding 模型能力；
 - 成熟 L3 提交人工审核；
 - 审核通过后发布到团队记忆 Wiki；
 - L3、审核任务、Wiki 页面及修订版本之间的血缘追踪；
 - 失败重试、幂等、审计和运行状态管理；
-- FMind 前端中的外部记忆管理、审核和发布记录页面；
+- FTMind 前端中的外部记忆管理、审核和发布记录页面；
 - Docker Compose 内部网络部署和服务认证。
 
 ### 3.2 第一阶段不包含
 
-- 改造或替换 FMind 原有记忆功能；
-- 将 FMind Episode/Entity 迁移为 MemoryCore L0–L3；
-- 将外部 Agent 记忆注入 FMind 内部 Agent；
+- 改造或替换 FTMind 原有记忆功能；
+- 将 FTMind Episode/Entity 迁移为 MemoryCore L0–L3；
+- 将外部 Agent 记忆注入 FTMind 内部 Agent；
 - 将 L3 发布到普通 Raw/RAG 知识库；
 - 合并记忆召回和 Wiki 问答路径；
 - 第一阶段重写 MemoryCore 的 L0–L3 算法；
@@ -107,7 +107,7 @@ MemoryCore 是记忆面，负责保存 L0、自动执行 L1–L3 提取、维护
 ## 4. 总体架构
 
 ```text
-FMind Control Plane
+FTMind Control Plane
     ├─ 组织 / 用户 / Agent
     ├─ AgentBinding / Binding Key
     ├─ 接入策略 / 审计 / 状态
@@ -126,11 +126,11 @@ FMind Control Plane
 MemoryCore（第一阶段 TypeScript）
     ├─ L0 → L1 → L2 → L3
     ├─ 原生记忆存储与召回
-    ├─ 调用 FMind Model Capability Gateway
+    ├─ 调用 FTMind Model Capability Gateway
     └─ 发出 L3 生命周期事件
                     │
                     ▼
-             FMind L3 审核中心
+             FTMind L3 审核中心
                     │ 人工审核通过
                     ▼
              Memory Wiki Publisher
@@ -138,17 +138,17 @@ MemoryCore（第一阶段 TypeScript）
                     ▼
              团队记忆 Wiki / Wiki 问答
 
-FMind 内部知识库 Agent
-    └─ FMind 原有记忆模块（保持不变）
+FTMind 内部知识库 Agent
+    └─ FTMind 原有记忆模块（保持不变）
 ```
 
-FMind 是唯一管理入口和控制面。MemoryProxy 是外部 Agent 可访问的数据入口；MemoryCore 仅开放内部网络服务，不直接向公网暴露管理接口。
+FTMind 是唯一管理入口和控制面。MemoryProxy 是外部 Agent 可访问的数据入口；MemoryCore 仅开放内部网络服务，不直接向公网暴露管理接口。
 
 ## 5. 组件职责
 
-### 5.1 FMind
+### 5.1 FTMind
 
-FMind 负责：
+FTMind 负责：
 
 - 外部 Agent 接入鉴权和身份上下文；
 - Agent 类型、实例、组织归属、接入策略和 Binding Key 生命周期；
@@ -172,7 +172,7 @@ MemoryCore 负责：
 - 记忆去重、合并、冲突、证据链和生命周期；
 - 定时、空闲、会话结束等提取触发；
 - L0–L3 原生记忆召回；
-- 向 FMind 发出 L3 成熟、更新、冲突和撤销事件。
+- 向 FTMind 发出 L3 成熟、更新、冲突和撤销事件。
 
 ### 5.3 MemoryProxy 与框架连接器
 
@@ -180,7 +180,7 @@ MemoryProxy 负责：
 
 - OpenAI-compatible 与 Anthropic-compatible 请求和流式响应代理；
 - 从模型协议中恢复用户消息、Assistant 内容、工具调用和会话标识；
-- 使用 Binding Key 解析 FMind Binding Context；
+- 使用 Binding Key 解析 FTMind Binding Context；
 - 回答前从 MemoryCore 召回并注入相关记忆；
 - 回答完成后异步写入完整 L0 Turn；
 - 跟踪在途写入、优雅停机、有限重试和断路保护；
@@ -190,20 +190,20 @@ OpenClaw Plugin 和 Hermes MemoryProvider 负责在框架生命周期中完成�
 
 ### 5.4 不纳入最终架构的组件
 
-- MemoryKnowledge Wiki：由 FMind Wiki 完整替代；
-- MemoryPanel：管理能力整合进 FMind 前端；
-- MemoryCore 独立模型供应商配置界面：由 FMind 模型管理替代。
-- MemoryProxy 原有 BindingRepo 作为长期身份权威：迁移为 FMind AgentBinding，Proxy 只保留有 TTL 的运行缓存。
+- MemoryKnowledge Wiki：由 FTMind Wiki 完整替代；
+- MemoryPanel：管理能力整合进 FTMind 前端；
+- MemoryCore 独立模型供应商配置界面：由 FTMind 模型管理替代。
+- MemoryProxy 原有 BindingRepo 作为长期身份权威：迁移为 FTMind AgentBinding，Proxy 只保留有 TTL 的运行缓存。
 
 ## 6. 身份与作用域
 
-所有外部记忆必须通过 FMind AgentBinding 获得稳定作用域：
+所有外部记忆必须通过 FTMind AgentBinding 获得稳定作用域：
 
 ```text
-FMind tenant_id ↔ MemoryCore team_id
-FMind team_id   ↔ 记忆 Wiki 归属
-FMind user_id   ↔ MemoryCore user_id
-FMind agent_id  ↔ MemoryCore agent_id
+FTMind tenant_id ↔ MemoryCore team_id
+FTMind team_id   ↔ 记忆 Wiki 归属
+FTMind user_id   ↔ MemoryCore user_id
+FTMind agent_id  ↔ MemoryCore agent_id
 workspace_id    ↔ 工作空间
 project_id      ↔ 项目范围
 task_id         ↔ 当前任务
@@ -233,7 +233,7 @@ Binding Key 是安装阶段的 Connector Secret，只在创建时显示一次，
 
 ### 7.3 绑定解析
 
-连接器携带 Connector Secret。MemoryProxy/Plugin 首次使用时调用 FMind 内部 token exchange/introspection，将 Secret 换取最长五分钟的短期 Binding Token 与签名 Binding Context：
+连接器携带 Connector Secret。MemoryProxy/Plugin 首次使用时调用 FTMind 内部 token exchange/introspection，将 Secret 换取最长五分钟的短期 Binding Token 与签名 Binding Context：
 
 ```json
 {
@@ -258,11 +258,11 @@ Binding Key 是安装阶段的 Connector Secret，只在创建时显示一次，
 }
 ```
 
-MemoryProxy 可在 Token 有效期内缓存 Context。FMind 通过短 TTL、策略版本和主动撤销事件使缓存失效。高风险操作必须实时 introspection。外部请求体中的组织和权限字段一律忽略。
+MemoryProxy 可在 Token 有效期内缓存 Context。FTMind 通过短 TTL、策略版本和主动撤销事件使缓存失效。高风险操作必须实时 introspection。外部请求体中的组织和权限字段一律忽略。
 
 ### 7.4 记忆治理
 
-MemoryCore 保持原有提取策略，FMind 增加治理入口：L1 可由授权用户纠正、确认或撤回；L2 可确认适用范围、结果与证据；L3 由团队管理员或审核员审核。冲突记忆并列显示，不静默覆盖；替代、失效、撤销和删除均保留审计与证据影响记录。
+MemoryCore 保持原有提取策略，FTMind 增加治理入口：L1 可由授权用户纠正、确认或撤回；L2 可确认适用范围、结果与证据；L3 由团队管理员或审核员审核。冲突记忆并列显示，不静默覆盖；替代、失效、撤销和删除均保留审计与证据影响记录。
 
 L0 捕获前执行敏感信息规则；L0 支持用户可见、按保留期清理和合法删除。删除或撤回事件必须传播到 MemoryCore 召回状态及其派生候选，已发布记忆 Wiki 转入复核，不直接物理删除。
 
@@ -291,11 +291,11 @@ Agent 构造提示词或发起模型请求
 → 过滤注入标签，避免再次被捕获
 ```
 
-FMind 业务服务不进入每次模型推理热路径。FMind 只处理绑定控制、策略同步、审计和管理查询。
+FTMind 业务服务不进入每次模型推理热路径。FTMind 只处理绑定控制、策略同步、审计和管理查询。
 
 ### 7.7 管理、MCP 与兼容接口
 
-FMind 提供 AgentBinding 创建、轮换、停用、连接测试、状态和审计接口，并提供 L0–L3 管理与治理。Conversation 写入接口保留给连接器、SDK、历史导入和自动化测试，不能暴露“提取 L1/L2/L3”操作。
+FTMind 提供 AgentBinding 创建、轮换、停用、连接测试、状态和审计接口，并提供 L0–L3 管理与治理。Conversation 写入接口保留给连接器、SDK、历史导入和自动化测试，不能暴露“提取 L1/L2/L3”操作。
 
 首批 Cognition MCP 固定为 `memory_get_context`、`memory_search`、`memory_capture_turn`、`memory_confirm_candidate`、`knowledge_search`、`wiki_get_page`、`document_read` 和 `context_assemble`。自动捕获仍走 Hook/Provider/Proxy；MCP 的 capture 仅用于显式工具接入和补录。所有 MCP 调用透传最终用户、项目、Agent、任务和 trace ID。
 
@@ -322,20 +322,20 @@ FMind 提供 AgentBinding 创建、轮换、停用、连接测试、状态和审
 
 `event_id` 是写入幂等键。相同事件重复提交必须返回原处理结果，不得生成重复 L0。身份字段必须由 Binding Context 填充，不能信任 Agent 请求体。
 
-FMind Go 后端内部依赖 `MemoryEngine` 抽象；第一阶段由 `TencentMemoryAdapter` 实现，第二阶段由 Go 原生引擎实现。
+FTMind Go 后端内部依赖 `MemoryEngine` 抽象；第一阶段由 `TencentMemoryAdapter` 实现，第二阶段由 Go 原生引擎实现。
 
 ## 8. 统一模型能力
 
-MemoryCore 不直接保存模型供应商密钥，改为调用 FMind 内部模型能力接口：
+MemoryCore 不直接保存模型供应商密钥，改为调用 FTMind 内部模型能力接口：
 
 ```text
 POST /internal/model-capabilities/v1/chat/completions
 POST /internal/model-capabilities/v1/embeddings
 ```
 
-接口携带租户、调用主体、用途、追踪 ID、超时和预算。FMind 根据用途路由到具体模型并记录用量。
+接口携带租户、调用主体、用途、追踪 ID、超时和预算。FTMind 根据用途路由到具体模型并记录用量。
 
-第一阶段不强制改变 MemoryCore 原生召回排序，也不强制接入 FMind Rerank。待建立召回质量基线后，再决定是否通过可选 Hook 统一 Rerank。
+第一阶段不强制改变 MemoryCore 原生召回排序，也不强制接入 FTMind Rerank。待建立召回质量基线后，再决定是否通过可选 Hook 统一 Rerank。
 
 ## 9. L3 成熟、审核和发布
 
@@ -343,11 +343,11 @@ POST /internal/model-capabilities/v1/embeddings
 
 MemoryCore 判定 L3 已成熟后发送 `memory.l3.matured`。成熟只表示可以提交审核，不表示允许发布。
 
-只有 FMind 人工审核通过，L3 才能成为记忆 Wiki 页面，并形成 `memory.l3.published` 结果。
+只有 FTMind 人工审核通过，L3 才能成为记忆 Wiki 页面，并形成 `memory.l3.published` 结果。
 
 ### 9.2 事件类型
 
-MemoryCore 向 FMind 发送：
+MemoryCore 向 FTMind 发送：
 
 - `memory.l3.matured`：新成熟版本待审核；
 - `memory.l3.updated`：已存在 L3 产生新版本；
@@ -410,7 +410,7 @@ draft
 ### 10.1 知识类型
 
 ```text
-FMind 知识
+FTMind 知识
 ├─ RAG 知识库
 │  ├─ 文件上传
 │  ├─ 网页
@@ -506,11 +506,11 @@ content_checksum: sha256:...
 
 ## 11. 持久化模型
 
-第一阶段在 FMind PostgreSQL 中新增以下逻辑实体；具体表名可在实施计划中按现有命名规范确定。
+第一阶段在 FTMind PostgreSQL 中新增以下逻辑实体；具体表名可在实施计划中按现有命名规范确定。
 
 ### 11.1 MemoryEngineBinding
 
-记录 FMind 租户、团队和 MemoryCore 作用域映射，以及服务状态和配置版本。
+记录 FTMind 租户、团队和 MemoryCore 作用域映射，以及服务状态和配置版本。
 
 关键字段：`id`、`tenant_id`、`team_id`、`engine_type`、`external_team_id`、`status`、`config_version`、时间戳。
 
@@ -558,7 +558,7 @@ wiki_id + wiki_page_id + wiki_revision_id
 
 ### 11.9 MemoryIntegrationEvent 与 Outbox
 
-保存入站事件、幂等状态、处理次数和最终结果，用于审计、防重放和故障恢复。MemoryCore 的 L3 生命周期事件必须先写 durable outbox，再由独立 worker 投递 FMind，避免 L3 提交成功但事件丢失。
+保存入站事件、幂等状态、处理次数和最终结果，用于审计、防重放和故障恢复。MemoryCore 的 L3 生命周期事件必须先写 durable outbox，再由独立 worker 投递 FTMind，避免 L3 提交成功但事件丢失。
 
 ## 12. 任务与异常恢复
 
@@ -591,7 +591,7 @@ PostgreSQL 保存事实状态，Redis/Asynq 只负责异步执行。处理规则
 
 ## 13. 前端设计
 
-FMind 增加独立的“外部记忆”管理模块，避免与现有知识库 Agent 记忆开关混淆：
+FTMind 增加独立的“外部记忆”管理模块，避免与现有知识库 Agent 记忆开关混淆：
 
 ```text
 外部记忆
@@ -621,11 +621,11 @@ FMind 增加独立的“外部记忆”管理模块，避免与现有知识库 A
 - 查看任务失败原因并执行有权限的人工重试；
 - 从记忆跳转 Wiki，从 Wiki 追溯来源记忆。
 
-记忆 Wiki 页面展示 `[记忆知识库] [L3] [已审核] [版本 N]`。FMind 现有“开启记忆功能”开关的名称、作用和行为保持不变。
+记忆 Wiki 页面展示 `[记忆知识库] [L3] [已审核] [版本 N]`。FTMind 现有“开启记忆功能”开关的名称、作用和行为保持不变。
 
 ## 14. 部署与安全
 
-第一阶段由 FMind Compose 统一编排：
+第一阶段由 FTMind Compose 统一编排：
 
 ```text
 fmind-frontend
@@ -643,7 +643,7 @@ redis
 - MemoryProxy 仅暴露受 Binding Key 保护的模型协议代理入口，管理接口只在内部网络；
 - 内部接口使用独立服务凭据，不使用用户 API Key；
 - 生产环境缺少服务密钥时启动失败；
-- 模型密钥只保存在 FMind 模型管理侧；
+- 模型密钥只保存在 FTMind 模型管理侧；
 - 日志不得记录完整对话、模型密钥或原始敏感证据；
 - 所有审核、发布、撤销和重试操作写入审计日志；
 - Connector Secret 不进入 Agent Prompt；运行请求仅使用短期 Binding Token；
@@ -658,11 +658,11 @@ redis
 
 ### 15.1 外部记忆召回
 
-Plugin、Provider 或 MemoryProxy 根据 Binding Context 直接调用 MemoryCore 原生 L0–L3 召回，并在外部 Agent 回答前注入。FMind 不进入推理热路径。
+Plugin、Provider 或 MemoryProxy 根据 Binding Context 直接调用 MemoryCore 原生 L0–L3 召回，并在外部 Agent 回答前注入。FTMind 不进入推理热路径。
 
 ### 15.2 Wiki 问答
 
-用户选择普通 Wiki 或记忆 Wiki，通过 FMind Wiki 问答能力查询审核后的稳定知识。
+用户选择普通 Wiki 或记忆 Wiki，通过 FTMind Wiki 问答能力查询审核后的稳定知识。
 
 第一阶段不自动合并两个查询结果。后续如需统一 Agent 上下文编排，必须另行设计来源权重、权限、引用和 Token 配额。
 
@@ -671,7 +671,7 @@ Plugin、Provider 或 MemoryProxy 根据 Binding Context 直接调用 MemoryCore
 ### 16.1 契约测试
 
 - 对话事件和 L3 事件 Schema 兼容性；
-- FMind Adapter 与 MemoryCore API 的请求和错误映射；
+- FTMind Adapter 与 MemoryCore API 的请求和错误映射；
 - Binding Key introspection、Context 签名、缓存和撤销协议；
 - OpenClaw、Hermes、OpenAI Proxy 与 Anthropic Proxy 的连接器契约；
 - Model Capability Gateway 的认证、超时和预算；
@@ -689,7 +689,7 @@ Plugin、Provider 或 MemoryProxy 根据 Binding Context 直接调用 MemoryCore
 - L3 新版本创建待审核修订；
 - 驳回、要求修改、冲突、撤销和废弃流程；
 - 普通 Wiki 和普通 RAG 知识库不受影响；
-- FMind 原有记忆开关行为不变。
+- FTMind 原有记忆开关行为不变。
 
 ### 16.3 隔离与安全测试
 
@@ -703,7 +703,7 @@ Plugin、Provider 或 MemoryProxy 根据 Binding Context 直接调用 MemoryCore
 
 ### 16.4 故障恢复测试
 
-- MemoryCore、FMind、Redis 或数据库短暂不可用；
+- MemoryCore、FTMind、Redis 或数据库短暂不可用；
 - 重复事件和乱序事件；
 - 发布成功但回调失败；
 - 服务重启恢复未完成任务；
@@ -712,8 +712,8 @@ Plugin、Provider 或 MemoryProxy 根据 Binding Context 直接调用 MemoryCore
 
 ### 16.5 回归测试
 
-- FMind 知识库导入、Wiki、问答和现有 Agent；
-- FMind 原有 Neo4j 记忆；
+- FTMind 知识库导入、Wiki、问答和现有 Agent；
+- FTMind 原有 Neo4j 记忆；
 - 登录、租户上下文和模型管理；
 - Compose 启动、健康检查和升级回滚。
 
@@ -732,15 +732,15 @@ Plugin、Provider 或 MemoryProxy 根据 Binding Context 直接调用 MemoryCore
 
 1. 外部 Agent 可通过 OpenClaw Plugin、Hermes Provider、OpenAI Proxy 或 Anthropic Proxy 完成绑定；
 2. 连接器在回答前自动召回、回答后自动捕获，Agent 不调用记忆提取接口；
-3. MemoryCore 完成 L0–L3 全链路，FMind 不重写其提取算法；
-4. FMind 是组织、用户、Agent、Binding Key 和策略的唯一权威；
+3. MemoryCore 完成 L0–L3 全链路，FTMind 不重写其提取算法；
+4. FTMind 是组织、用户、Agent、Binding Key 和策略的唯一权威；
 5. MemoryProxy 不再保存独立长期组织绑定，只缓存短期 Binding Context；
-6. MemoryCore 所需 Chat 和 Embedding 能力由 FMind 统一提供；
+6. MemoryCore 所需 Chat 和 Embedding 能力由 FTMind 统一提供；
 7. 成熟 L3 必须经过人工审核，未审核内容无法发布；
 8. 审核通过的 L3 进入团队独立记忆 Wiki，不进入普通 Raw/RAG 知识库；
 9. L3 和 Wiki Revision 可双向追溯，更新、冲突和撤销均保留历史；
 10. 外部记忆召回与 Wiki 问答独立运行；
-11. FMind 原有记忆功能及其开关行为不变；
+11. FTMind 原有记忆功能及其开关行为不变；
 12. 重复事件不会产生重复 L0、审核任务或 Wiki 页面；
 13. 服务重启和常见依赖故障不会丢失已确认状态；
 14. 租户、部门、团队、用户、Agent 和 binding 作用域贯穿捕获、召回、审核和 Wiki；
@@ -757,14 +757,14 @@ Plugin、Provider 或 MemoryProxy 根据 Binding Context 直接调用 MemoryCore
 - 每一步保留按租户或 Agent 回退到 TypeScript 引擎的能力；
 - 完成数据校验和稳定期后再停用 TypeScript MemoryCore。
 
-Go 化可以复用 FMind 的 PostgreSQL、Redis/Asynq、模型服务、审计和可观测性，但不得把外部记忆与 FMind 原有记忆表或召回逻辑合并。
+Go 化可以复用 FTMind 的 PostgreSQL、Redis/Asynq、模型服务、审计和可观测性，但不得把外部记忆与 FTMind 原有记忆表或召回逻辑合并。
 
 ## 19. 后续实施计划边界
 
 本设计获批后，实施计划需要进一步细化为：
 
 1. 数据库迁移和仓储层；
-2. FMind AgentBinding、Binding Key 与组织身份；
+2. FTMind AgentBinding、Binding Key 与组织身份；
 3. introspection、Binding Context 签名、缓存和撤销；
 4. MemoryProxy 身份权威迁移及 OpenAI/Anthropic 自动捕获；
 5. OpenClaw Plugin 与 Hermes Provider 绑定接入；
@@ -778,4 +778,4 @@ Go 化可以复用 FMind 的 PostgreSQL、Redis/Asynq、模型服务、审计和
 13. 契约、功能、安全、恢复和回归测试；
 14. 灰度启用、观测、回滚和第一阶段验收。
 
-实施计划必须按可独立验证的纵向切片安排，不能同时大规模改造 FMind 和 MemoryCore，也不能在第一阶段提前实施 Go 原生重写。
+实施计划必须按可独立验证的纵向切片安排，不能同时大规模改造 FTMind 和 MemoryCore，也不能在第一阶段提前实施 Go 原生重写。

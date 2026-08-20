@@ -1,6 +1,6 @@
-# FMind 开发必读：系统、基础设施与模型架构
+# FTMind 开发必读：系统、基础设施与模型架构
 
-> 本文是 FMind 的开发与部署事实基线，面向单机、私有云与生产集群。它描述当前代码与 `docker-compose.yml` 的实际组件边界、数据流和调度模型；配置项以 `.env.example` 为准。新功能、部署变更或模型接入前应先阅读本文。项目按私有部署和受控维护设计，不应将示例配置、镜像标签或外部服务地址视为公共承诺。
+> 本文是 FTMind 的开发与部署事实基线，面向单机、私有云与生产集群。它描述当前代码与 `docker-compose.yml` 的实际组件边界、数据流和调度模型；配置项以 `.env.example` 为准。新功能、部署变更或模型接入前应先阅读本文。项目按私有部署和受控维护设计，不应将示例配置、镜像标签或外部服务地址视为公共承诺。
 
 > 当前生产实例的具体主机、域名、云端 Compose、托管 Tair/OSS、模型配置和操作步骤见[部署与运维手册](./DEPLOYMENT_RUNBOOK.md)。本文件解释通用架构与代码边界；运行手册解释当前实例如何落地这些边界。
 
@@ -8,7 +8,7 @@
 
 生产环境采用杭州 ECS 单机 Compose：Frontend、App、ParadeDB/PostgreSQL、Qdrant 和 DocReader 在同一私有 Docker 网络；宿主机 Nginx 终止 HTTPS；Redis/Asynq 使用同 VPC 的阿里云 Tair；对象文件使用阿里云 OSS；Embedding 使用硅基流动 `BAAI/bge-m3`（1024 维），问答、摘要与推荐问题使用火山 AgentPlan `doubao-seed-2.0-pro`。WireGuard、本机 MinIO/Ollama 和本地 Docker 不在当前生产链路中。
 
-![FMind 系统架构](./diagrams/fmind-system-architecture-grid.png)
+![FTMind 系统架构](./diagrams/fmind-system-architecture-grid.png)
 
 可编辑源文件：[系统架构 Excalidraw](./diagrams/fmind-system-architecture-grid.excalidraw)；完整业务能力图见[业务功能架构](./diagrams/fmind-business-architecture.png)。
 
@@ -28,7 +28,7 @@
 
 ## 1. 设计目标
 
-FMind 是一个自托管知识工作台：将文件、网页和 Markdown 处理为可检索的知识，再由对话和智能体调用。设计重点是：
+FTMind 是一个自托管知识工作台：将文件、网页和 Markdown 处理为可检索的知识，再由对话和智能体调用。设计重点是：
 
 - **可替换**：模型、向量库、对象存储、文档解析器和搜索服务均通过配置或管理界面替换。
 - **可恢复**：原始文件、关系数据、向量索引和任务状态分开持久化，可按组件备份和恢复。
@@ -41,7 +41,7 @@ FMind 是一个自托管知识工作台：将文件、网页和 Markdown 处理�
 ```mermaid
 flowchart LR
     U[浏览器 / 嵌入式聊天 / CLI / 外部 Agent] --> FE[Frontend · Nginx]
-    FE -->|/api/v1| APP[FMind App · Go / Gin]
+    FE -->|/api/v1| APP[FTMind App · Go / Gin]
     APP --> PG[(PostgreSQL / ParadeDB)]
     APP --> R[(Redis)]
     APP <-->|gRPC| DR[DocReader]

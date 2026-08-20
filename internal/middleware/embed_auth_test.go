@@ -181,7 +181,7 @@ func (f *fakeTenantService) GetTenantByIDForUser(
 	return f.tenant, nil
 }
 
-func (f *fakeTenantService) GetFMindCloudCredentials(ctx context.Context) *types.FMindCloudCredentials {
+func (f *fakeTenantService) GetFTMindCloudCredentials(ctx context.Context) *types.FTMindCloudCredentials {
 	return nil
 }
 

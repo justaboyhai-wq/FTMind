@@ -114,7 +114,7 @@ const { apiBaseUrlDisplay } = useApiBaseUrlDisplay()
 
 const browserEnvExample = computed(() => {
   const base = apiBaseUrlDisplay.value || 'https://fmind.example.com/api/v1'
-  return `FMIND_BASE_URL="${base}"\nFMIND_USER_API_KEY="<scoped user API key>"\n# channel=browser_extension`
+  return `FTMIND_BASE_URL="${base}"\nFTMIND_USER_API_KEY="<scoped user API key>"\n# channel=browser_extension`
 })
 
 const capabilityKeys = ['qa', 'clip', 'notes', 'shortcuts'] as const

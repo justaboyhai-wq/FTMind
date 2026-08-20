@@ -40,7 +40,7 @@ type AgentBindingSetupManifest struct {
 	BindingID           string   `json:"binding_id"`
 	ExternalAgent       string   `json:"external_agent"`
 	ConnectorType       string   `json:"connector_type"`
-	FMindEndpoint       string   `json:"fmind_endpoint"`
+	FTMindEndpoint       string   `json:"fmind_endpoint"`
 	MemoryCoreEndpoint  string   `json:"memory_core_endpoint,omitempty"`
 	MemoryProxyEndpoint string   `json:"memory_proxy_endpoint,omitempty"`
 	Capabilities        []string `json:"capabilities"`
@@ -62,7 +62,7 @@ type AgentBindingSetupResult struct {
 	Status              string     `json:"status"`
 	ConnectorSecret     string     `json:"connector_secret"`
 	MemoryAccessKey     string     `json:"memory_access_key,omitempty"`
-	FMindEndpoint       string     `json:"fmind_endpoint"`
+	FTMindEndpoint       string     `json:"fmind_endpoint"`
 	MemoryCoreEndpoint  string     `json:"memory_core_endpoint,omitempty"`
 	MemoryProxyEndpoint string     `json:"memory_proxy_endpoint,omitempty"`
 	PolicyVersion       uint64     `json:"policy_version"`

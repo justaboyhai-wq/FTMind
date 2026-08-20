@@ -875,7 +875,7 @@ const enabledAgents = computed(() =>
 // chat input got a 403, and (b) silently overwrote the tenant default
 // for everyone else. localStorage is per-user-per-browser, which is
 // what "remember my last pick" actually wants.
-const LAST_CHAT_MODEL_KEY = 'fmind_last_chat_model_id'
+const LAST_CHAT_MODEL_KEY = 'ftmind_last_chat_model_id'
 
 const readLastChatModelID = (): string => {
   try {

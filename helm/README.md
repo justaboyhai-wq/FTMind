@@ -1,13 +1,13 @@
-# FMind Helm Chart
+# FTMind Helm Chart
 
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/fmind)](https://artifacthub.io/packages/helm/fmind/fmind)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-Helm chart for deploying [FMind](https://github.com/justaboyhai-wq/fmind) - an AI-powered Knowledge RAG Platform.
+Helm chart for deploying [FTMind](https://github.com/justaboyhai-wq/fmind) - an AI-powered Knowledge RAG Platform.
 
 ## Overview
 
-FMind is an intelligent knowledge base platform that combines:
+FTMind is an intelligent knowledge base platform that combines:
 - Document parsing and understanding
 - Vector search with BM25 hybrid retrieval
 - LLM integration for conversational AI

@@ -1,5 +1,5 @@
 [Unit]
-Description=FMind Lite - Knowledge Base Management System
+Description=FTMind Lite - Knowledge Base Management System
 After=network.target
 
 [Service]

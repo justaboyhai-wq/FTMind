@@ -1,4 +1,4 @@
-# Makefile for the FMind CLI (cli/ Go module).
+# Makefile for the FTMind CLI (cli/ Go module).
 #
 # Usage:
 #   make build         compile to ./bin/fmind with version metadata

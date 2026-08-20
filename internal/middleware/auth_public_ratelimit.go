@@ -22,7 +22,7 @@ import (
 // and bounds the noise this endpoint can add to the user-create path.
 //
 // Local in-memory only — fine for typical deployments since both
-// endpoints handle low absolute volumes; if/when FMind horizontally
+// endpoints handle low absolute volumes; if/when FTMind horizontally
 // scales the auth surface, swap to the Redis-backed limiter in
 // internal/ratelimit (shared with IM + embed surfaces).
 

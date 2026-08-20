@@ -351,7 +351,7 @@ jobs:
         id: notes
         run: |
           cat > notes.md << 'NOTES'
-          ## FMind Lite ${{ steps.ver.outputs.version }}
+          ## FTMind Lite ${{ steps.ver.outputs.version }}
 
           ### Web CLI 版（命令行 / 服务器部署）
 
@@ -406,7 +406,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "${{ steps.ver.outputs.version }}" \
-            --title "FMind Lite ${{ steps.ver.outputs.version }}" \
+            --title "FTMind Lite ${{ steps.ver.outputs.version }}" \
             --notes-file notes.md \
             FMind-lite_*.tar.gz \
             FMind-lite_*.tar.gz.sha256 \

@@ -9,11 +9,42 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/go-viper/mapstructure/v2"
+	"github.com/justaboyhai-wq/fmind/internal/types"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 )
+
+// getenvWithLegacy reads an environment variable using the FTMIND_ prefix
+// first, then falls back to the legacy FMIND_ prefix for backward
+// compatibility. The empty string is returned when neither is set.
+func getenvWithLegacy(suffix string) string {
+	if v := strings.TrimSpace(os.Getenv("FTMIND_" + suffix)); v != "" {
+		return v
+	}
+	return strings.TrimSpace(os.Getenv("FMIND_" + suffix))
+}
+
+// SyncBrandEnvironmentVariables copies FTMIND_* values to their FMIND_*
+// counterparts at startup when the legacy variable is unset. This lets the
+// rest of the codebase continue reading FMIND_* while honoring the new
+// FTMIND_* names with higher priority.
+func SyncBrandEnvironmentVariables() {
+	for _, kv := range os.Environ() {
+		key, value, ok := strings.Cut(kv, "=")
+		if !ok {
+			continue
+		}
+		upper := strings.ToUpper(key)
+		if !strings.HasPrefix(upper, "FTMIND_") {
+			continue
+		}
+		legacy := "FMIND_" + strings.TrimPrefix(upper, "FTMIND_")
+		if os.Getenv(legacy) == "" {
+			os.Setenv(legacy, value)
+		}
+	}
+}
 
 // Config 应用程序总配置
 type Config struct {
@@ -601,8 +632,8 @@ func LoadConfig() (*Config, error) {
 		"[config] tenant RBAC enforcement: enable_rbac=%v cross_tenant_access=%v "+
 			"(env: FMIND_TENANT_ENABLE_RBAC=%q FMIND_TENANT_ENABLE_CROSS_TENANT_ACCESS=%q)\n",
 		rbacOn, xtAccess,
-		os.Getenv("FMIND_TENANT_ENABLE_RBAC"),
-		os.Getenv("FMIND_TENANT_ENABLE_CROSS_TENANT_ACCESS"),
+		getenvWithLegacy("TENANT_ENABLE_RBAC"),
+		getenvWithLegacy("TENANT_ENABLE_CROSS_TENANT_ACCESS"),
 	)
 
 	return &cfg, nil
@@ -752,7 +783,7 @@ func applyKnowledgeBaseEnvOverrides(cfg *Config) {
 	if cfg.KnowledgeBase.DocumentProcessTimeout <= 0 {
 		cfg.KnowledgeBase.DocumentProcessTimeout = DefaultDocumentProcessTimeout
 	}
-	if value := strings.TrimSpace(os.Getenv("FMIND_DOCUMENT_PROCESS_TIMEOUT")); value != "" {
+	if value := strings.TrimSpace(getenvWithLegacy("DOCUMENT_PROCESS_TIMEOUT")); value != "" {
 		if d, err := time.ParseDuration(value); err == nil {
 			cfg.KnowledgeBase.DocumentProcessTimeout = d
 		}
@@ -760,7 +791,7 @@ func applyKnowledgeBaseEnvOverrides(cfg *Config) {
 	if cfg.KnowledgeBase.DocReaderCallTimeout <= 0 {
 		cfg.KnowledgeBase.DocReaderCallTimeout = 30 * time.Minute
 	}
-	if value := strings.TrimSpace(os.Getenv("FMIND_DOCREADER_CALL_TIMEOUT")); value != "" {
+	if value := strings.TrimSpace(getenvWithLegacy("DOCREADER_CALL_TIMEOUT")); value != "" {
 		if d, err := time.ParseDuration(value); err == nil && d > 0 {
 			cfg.KnowledgeBase.DocReaderCallTimeout = d
 		}
@@ -771,7 +802,7 @@ func applyAgentEnvOverrides(cfg *Config) {
 	if cfg.Agent == nil {
 		cfg.Agent = &AgentConfig{}
 	}
-	if value := strings.TrimSpace(os.Getenv("FMIND_AGENT_LLM_TIMEOUT")); value != "" {
+	if value := strings.TrimSpace(getenvWithLegacy("AGENT_LLM_TIMEOUT")); value != "" {
 		if timeout, err := time.ParseDuration(value); err == nil {
 			cfg.Agent.LLMCallTimeout = int(timeout.Seconds())
 		} else if sec, err := time.ParseDuration(value + "s"); err == nil {
@@ -781,7 +812,7 @@ func applyAgentEnvOverrides(cfg *Config) {
 	}
 	// MCP tool human-approval wait timeout (issue #1173). Accepts Go duration
 	// (e.g. "10m", "30s") or a bare number interpreted as seconds.
-	if value := strings.TrimSpace(os.Getenv("FMIND_AGENT_TOOL_APPROVAL_TIMEOUT")); value != "" {
+	if value := strings.TrimSpace(getenvWithLegacy("AGENT_TOOL_APPROVAL_TIMEOUT")); value != "" {
 		if d, err := time.ParseDuration(value); err == nil {
 			cfg.Agent.ToolApprovalTimeoutSeconds = int(d.Seconds())
 		} else if d, err := time.ParseDuration(value + "s"); err == nil {
@@ -841,14 +872,14 @@ func applyAuthAndTenantDefaults(cfg *Config) {
 	if strings.TrimSpace(cfg.Auth.RegistrationMode) == "" {
 		cfg.Auth.RegistrationMode = AuthRegistrationModeSelfServe
 	}
-	if value := strings.TrimSpace(os.Getenv("FMIND_AUTH_DEFAULT_TENANT_MODE")); value != "" {
+	if value := strings.TrimSpace(getenvWithLegacy("AUTH_DEFAULT_TENANT_MODE")); value != "" {
 		cfg.Auth.DefaultTenantMode = value
 	}
 	if strings.TrimSpace(cfg.Auth.DefaultTenantMode) == "" {
 		cfg.Auth.DefaultTenantMode = AuthDefaultTenantModeCreatePersonal
 	}
 
-	if value := strings.TrimSpace(os.Getenv("FMIND_TENANT_ENABLE_RBAC")); value != "" {
+	if value := strings.TrimSpace(getenvWithLegacy("TENANT_ENABLE_RBAC")); value != "" {
 		v := strings.EqualFold(value, "true")
 		cfg.Tenant.EnableRBAC = &v
 	}
@@ -859,7 +890,7 @@ func applyAuthAndTenantDefaults(cfg *Config) {
 		cfg.Tenant.EnableRBAC = &on
 	}
 
-	if value := strings.TrimSpace(os.Getenv("FMIND_TENANT_SELF_SERVICE_CREATION_ENABLED")); value != "" {
+	if value := strings.TrimSpace(getenvWithLegacy("TENANT_SELF_SERVICE_CREATION_ENABLED")); value != "" {
 		if enabled, err := strconv.ParseBool(value); err == nil {
 			cfg.Tenant.SelfServiceCreationEnabled = &enabled
 		} else {
@@ -874,7 +905,7 @@ func applyAuthAndTenantDefaults(cfg *Config) {
 		cfg.Tenant.SelfServiceCreationEnabled = &on
 	}
 
-	if value := strings.TrimSpace(os.Getenv("FMIND_TENANT_MAX_OWNED_PER_USER")); value != "" {
+	if value := strings.TrimSpace(getenvWithLegacy("TENANT_MAX_OWNED_PER_USER")); value != "" {
 		if n, err := strconv.Atoi(value); err == nil {
 			cfg.Tenant.MaxOwnedPerUser = n
 		} else {
@@ -911,7 +942,7 @@ func applyAuditDefaults(cfg *Config) {
 	// Env override always wins, but only when explicitly set so a
 	// stale shell variable doesn't suddenly disable the purge for a
 	// future deployment that committed a real value.
-	if value := strings.TrimSpace(os.Getenv("FMIND_AUDIT_RETENTION_DAYS")); value != "" {
+	if value := strings.TrimSpace(getenvWithLegacy("AUDIT_RETENTION_DAYS")); value != "" {
 		if n, err := strconv.Atoi(value); err == nil && n >= 0 {
 			cfg.Audit.RetentionDays = n
 		}
