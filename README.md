@@ -1,5 +1,7 @@
 # FTMind
 
+[简体中文](./README_CN.md)
+
 FTMind is a private, deployable knowledge workspace for policy research, document intelligence and evidence-first Q&A. It combines document parsing, hybrid retrieval, streaming chat, controlled Agents, linked Wiki pages, shared workspaces and an auditable answer-feedback loop.
 
 Keep credentials in environment files or a secret manager. Never commit production keys or test passwords.
