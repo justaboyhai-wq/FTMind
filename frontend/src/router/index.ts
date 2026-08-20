@@ -311,6 +311,11 @@ async function hydrateSessionFromToken(authStore: ReturnType<typeof useAuthStore
       authStore.setCanCreateTenant(canCreateTenant)
     }
 
+    // A full browser refresh creates a fresh Pinia store. Restore the
+    // server-authoritative menu actions as well, otherwise role-gated UI
+    // (such as external-memory binding creation) stays hidden until login.
+    await authStore.refreshPermissions()
+
     return true
   } catch {
     return false
