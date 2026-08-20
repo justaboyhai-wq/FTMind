@@ -193,6 +193,21 @@
 
         <!-- 下半部分：用户菜单 -->
         <div class="menu_bottom">
+            <div class="menu_bottom_items">
+                <div v-for="(item, index) in bottomMenuItems" :key="`bottom-${index}`"
+                    @click="handleMenuClick(item.path)"
+                    :class="['menu_item', isMenuItemActive(item.path) ? 'menu_item_active' : '']"
+                    :data-guide="`nav-${item.path}`">
+                    <div class="menu_item-box">
+                        <div class="menu_icon">
+                            <t-icon class="icon" :name="getMenuIconName(item)" />
+                        </div>
+                        <template v-if="!uiStore.sidebarCollapsed">
+                            <span class="menu_title" :title="item.title">{{ item.title }}</span>
+                        </template>
+                    </div>
+                </div>
+            </div>
             <UserMenu />
         </div>
 

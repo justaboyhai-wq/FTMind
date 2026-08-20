@@ -208,6 +208,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { MessagePlugin } from 'tdesign-vue-next'
 import { useRoleLabel } from '@/composables/useRoleLabel'
 import { notifyLoginSuccess } from '@/utils/loginNotify'
+import { withTimeout } from './loginFlow'
 import brandLogo from '@/assets/img/brand/sf-logo-alone.png'
 import {
   login,
@@ -424,9 +425,9 @@ const persistLoginResponse = async (response: any) => {
   // Pull runtime capabilities (including whether ordinary users may create
   // workspaces) before entering the main UI so create actions never flash
   // briefly when the deployment is invitation-only.
-  await authStore.refreshFromAuthMe()
+  await withTimeout(authStore.refreshFromAuthMe(), 10000, t('auth.postLoginTimeout'))
   await nextTick()
-  router.replace(authStore.hasValidTenant ? '/platform/knowledge-bases' : '/onboarding/workspace')
+  await withTimeout(router.replace(authStore.hasValidTenant ? '/platform/knowledge-bases' : '/onboarding/workspace'), 10000, t('auth.postLoginTimeout'))
 }
 
 const getBackendOIDCRedirectURI = () => `${window.location.origin}/api/v1/auth/oidc/callback`

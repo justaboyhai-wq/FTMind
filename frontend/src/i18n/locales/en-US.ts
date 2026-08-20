@@ -1973,6 +1973,7 @@ export default {
     passwordMismatch: 'Entered passwords do not match',
     loginError: 'Login error, please check email or password',
     loginErrorRetry: 'Login error, please try again later',
+    postLoginTimeout: 'Signed in, but workspace initialization timed out. Please refresh and try again.',
     registerError: 'Registration error, please try again later',
     forgotPasswordNotAvailable: 'Password recovery function is temporarily unavailable, please contact administrator',
     workspaceOnboarding: {
@@ -6781,6 +6782,12 @@ export default {
       notFound: 'Invitation not found or already withdrawn.',
       generic: 'Something went wrong. Please try again.',
     },
+  },
+  feedback: {
+    adminMenu: 'Feedback management', myFeedback: 'My feedback', adminTitle: 'Feedback management', adminDescription: 'Review, process, and reply to feedback submitted about answers.', adminDetail: 'Feedback details',
+    exportCsv: 'Export CSV', status: 'Status', categoryLabel: 'Issue type', descriptionLabel: 'Description', createdAt: 'Submitted', filterStatus: 'Filter by status', timeline: 'Activity', saveProcess: 'Save processing result', saved: 'Processing result saved', title: 'Submit feedback', detailTitle: 'Feedback details', button: 'Report answer issue', submit: 'Submit feedback', submitted: 'Feedback submitted', submitFailed: 'Failed to submit feedback', commentPlaceholder: 'Add a note (optional)', addComment: 'Add note', commentAdded: 'Note added', reopen: 'Reopen', reopenDefault: 'Please reopen this feedback for review.', adminReply: 'Administrator reply', expectedLabel: 'Expected correction', quotedLabel: 'Relevant excerpt', descriptionPlaceholder: 'Describe the issue in detail (at least 10 characters).', descriptionTooShort: 'Please provide at least 10 characters.',
+    categories: { wrong_fact: 'Wrong fact', outdated: 'Outdated', citation_mismatch: 'Citation mismatch', incomplete: 'Incomplete', misunderstood: 'Misunderstood', unsafe: 'Unsafe', other: 'Other' },
+    statuses: { pending: 'Pending', reviewing: 'Reviewing', needs_info: 'Needs information', fixing: 'Fixing', resolved: 'Resolved', dismissed: 'Dismissed' },
   },
   externalMemory: {
     eyebrow: 'Memory governance', title: 'External memory', subtitle: 'Connect approved external agents and govern reviewed L3 memories without changing FMind knowledge retrieval.', refresh: 'Refresh', scopeNote: 'This page is limited to workspace administrators. Connector secrets are displayed only when created or rotated.', memoryWikiBadge: 'Memory Wiki',

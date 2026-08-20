@@ -1831,6 +1831,7 @@ export default {
     passwordMismatch: "两次输入的密码不一致",
     loginError: "登录错误，请检查邮箱或密码",
     loginErrorRetry: "登录错误，请稍后重试",
+    postLoginTimeout: "登录成功，但初始化空间超时，请刷新后重试",
     registerError: "注册错误，请稍后重试",
     forgotPasswordNotAvailable: "密码找回功能暂不可用，请联系管理员",
     workspaceOnboarding: {
@@ -6801,6 +6802,12 @@ export default {
       notFound: "邀请不存在或已被撤销。",
       generic: "操作失败，请稍后重试。",
     },
+  },
+  feedback: {
+    adminMenu: '反馈管理', myFeedback: '我的反馈', adminTitle: '反馈管理', adminDescription: '查看、处理和回复用户提交的问答反馈。', adminDetail: '反馈详情',
+    exportCsv: '导出 CSV', status: '状态', categoryLabel: '问题类型', descriptionLabel: '问题说明', createdAt: '提交时间', filterStatus: '按状态筛选', timeline: '处理记录', saveProcess: '保存处理结果', saved: '处理结果已保存', title: '提交反馈', detailTitle: '反馈详情', button: '反馈回答问题', submit: '提交反馈', submitted: '反馈已提交', submitFailed: '反馈提交失败', commentPlaceholder: '补充说明（可选）', addComment: '添加说明', commentAdded: '说明已添加', reopen: '重新打开', reopenDefault: '申请重新处理该反馈', adminReply: '管理员回复', expectedLabel: '期望的修正', quotedLabel: '相关原文', descriptionPlaceholder: '请详细说明回答中存在的问题（至少 10 个字）。', descriptionTooShort: '问题说明至少需要 10 个字。',
+    categories: { wrong_fact: '事实错误', outdated: '内容已过时', citation_mismatch: '引用不符', incomplete: '内容不完整', misunderstood: '理解偏差', unsafe: '内容不安全', other: '其他' },
+    statuses: { pending: '待处理', reviewing: '处理中', needs_info: '需要补充信息', fixing: '修正中', resolved: '已解决', dismissed: '已驳回' },
   },
   externalMemory: {
     eyebrow: '记忆治理', title: '外部记忆', subtitle: '管理外部 Agent 接入与已审核的 L3 记忆，不改变 FMind 原有知识检索路径。', refresh: '刷新', scopeNote: '仅当前空间管理员可用。接入密钥仅在创建或轮换时展示一次。', memoryWikiBadge: '记忆 Wiki',
