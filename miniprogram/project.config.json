@@ -1,5 +1,5 @@
 {
-  "description": "FMind Mini Program plugin",
+  "description": "FTMind Mini Program plugin",
   "setting": {
     "urlCheck": true,
     "es6": true,
@@ -9,6 +9,6 @@
   },
   "compileType": "miniprogram",
   "libVersion": "latest",
-  "projectname": "FMind Mini Program",
+  "projectname": "FTMind Mini Program",
   "condition": {}
 }

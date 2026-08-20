@@ -19,18 +19,18 @@ type fmindCloudService struct {
 	tenantRepo interfaces.TenantRepository
 }
 
-// NewFMindCloudService 构造 FMindCloudService
-func NewFMindCloudService(
+// NewFTMindCloudService 构造 FTMindCloudService
+func NewFTMindCloudService(
 	repo interfaces.ModelRepository,
 	tenantRepo interfaces.TenantRepository,
-) interfaces.FMindCloudService {
+) interfaces.FTMindCloudService {
 	return &fmindCloudService{
 		tenantRepo: tenantRepo,
 	}
 }
 
-func IsFMindCloudDocReaderAddr(addr string) bool {
-	return strings.TrimSuffix(strings.TrimSpace(addr), "/") == strings.TrimRight(provider.FMindCloudBaseURL, "/")+"/api/v1/doc/reader"
+func IsFTMindCloudDocReaderAddr(addr string) bool {
+	return strings.TrimSuffix(strings.TrimSpace(addr), "/") == strings.TrimRight(provider.FTMindCloudBaseURL, "/")+"/api/v1/doc/reader"
 }
 
 // SaveCredentials 仅保存 APPID/APPSECRET 凭证，不自动创建模型
@@ -50,12 +50,12 @@ func (s *fmindCloudService) SaveCredentials(ctx context.Context, appID, appSecre
 	return s.updateTenantCredentials(ctx, tenantID, appID, appSecret)
 }
 
-// verifyCredentials 向 FMindCloud /api/v1/health 发送带签名头的 GET。
+// verifyCredentials 向 FTMindCloud /api/v1/health 发送带签名头的 GET。
 //
 // 注意：health 一般为探活接口，远端常不校验 APPID/SECRET 或签名；HTTP 200 通常只表示
 // 「网关/服务可达」，不能严格证明凭证有效。若需强校验，应改为调用必须鉴权的业务接口。
 func (s *fmindCloudService) verifyCredentials(ctx context.Context, appID, appSecret string) error {
-	baseURL := strings.TrimRight(provider.FMindCloudBaseURL, "/")
+	baseURL := strings.TrimRight(provider.FTMindCloudBaseURL, "/")
 	healthURL := baseURL + "/api/v1/health"
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, healthURL, nil)
@@ -89,34 +89,34 @@ func (s *fmindCloudService) verifyCredentials(ctx context.Context, appID, appSec
 	return nil
 }
 
-// CheckStatus 检查 FMindCloud 凭证是否可正常解密
-func (s *fmindCloudService) CheckStatus(ctx context.Context) (*types.FMindCloudStatusResult, error) {
+// CheckStatus 检查 FTMindCloud 凭证是否可正常解密
+func (s *fmindCloudService) CheckStatus(ctx context.Context) (*types.FTMindCloudStatusResult, error) {
 	tenantID := types.MustTenantIDFromContext(ctx)
 
 	tenant, err := s.tenantRepo.GetTenantByID(ctx, tenantID)
 	if err != nil || tenant == nil {
-		return &types.FMindCloudStatusResult{HasModels: false, NeedsReinit: false}, nil
+		return &types.FTMindCloudStatusResult{HasModels: false, NeedsReinit: false}, nil
 	}
 
-	creds := tenant.Credentials.GetFMindCloud()
+	creds := tenant.Credentials.GetFTMindCloud()
 	if creds == nil {
-		return &types.FMindCloudStatusResult{HasModels: false, NeedsReinit: false}, nil
+		return &types.FTMindCloudStatusResult{HasModels: false, NeedsReinit: false}, nil
 	}
 
 	// CredentialsConfig.Scan already attempts decryption.
 	// If the AES key has rotated, Scan silently keeps the enc:v1:... blob.
 	if strings.HasPrefix(creds.AppSecret, utils.EncPrefix) {
-		return &types.FMindCloudStatusResult{
+		return &types.FTMindCloudStatusResult{
 			HasModels:   true,
 			NeedsReinit: true,
-			Reason:      "FMindCloud 凭证解密失败（服务重启后加密密钥已变更），请重新填写 APPID 和 APPSECRET",
+			Reason:      "FTMindCloud 凭证解密失败（服务重启后加密密钥已变更），请重新填写 APPID 和 APPSECRET",
 		}, nil
 	}
 
-	return &types.FMindCloudStatusResult{HasModels: true, NeedsReinit: false}, nil
+	return &types.FTMindCloudStatusResult{HasModels: true, NeedsReinit: false}, nil
 }
 
-// updateTenantCredentials 更新空间的 FMindCloud 凭证
+// updateTenantCredentials 更新空间的 FTMindCloud 凭证
 func (s *fmindCloudService) updateTenantCredentials(ctx context.Context, tenantID uint64, appID, appSecret string) error {
 	if s.tenantRepo == nil {
 		return fmt.Errorf("tenant repository is required")
@@ -129,7 +129,7 @@ func (s *fmindCloudService) updateTenantCredentials(ctx context.Context, tenantI
 	if tenant.Credentials == nil {
 		tenant.Credentials = &types.CredentialsConfig{}
 	}
-	tenant.Credentials.FMindCloud = &types.FMindCloudCredentials{
+	tenant.Credentials.FTMindCloud = &types.FTMindCloudCredentials{
 		AppID:     appID,
 		AppSecret: appSecret,
 	}

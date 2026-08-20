@@ -1,4 +1,4 @@
-// Package wecom implements the WeCom (企业微信) IM adapter for FMind.
+// Package wecom implements the WeCom (企业微信) IM adapter for FTMind.
 //
 // WeCom Smart Bot flow:
 // 1. User sends a message to the bot (direct or @mention in group)

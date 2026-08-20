@@ -199,7 +199,7 @@
                   {{ $t('settings.fmindCloud.credentialUnconfigured') }}
                 </template>
                 <div style="margin-top: 8px;">
-                  <t-button variant="text" size="small" @click="goToFMindCloudSettings"
+                  <t-button variant="text" size="small" @click="goToFTMindCloudSettings"
                     style="padding: 0; height: auto;">
                     <template #icon><t-icon name="jump" /></template>
                     {{ $t('settings.fmindCloud.goToSettings') }}
@@ -465,7 +465,7 @@ interface ModelFormData {
 
 type EditorModelType = 'chat' | 'embedding' | 'rerank' | 'vllm' | 'asr'
 
-// FMind 的对话引擎统一使用火山引擎 AgentPlan。该值仅约束新增的
+// FTMind 的对话引擎统一使用火山引擎 AgentPlan。该值仅约束新增的
 // Chat 模型；已有模型仍保留其当前服务商，确保历史配置可以继续编辑和调用。
 const DEFAULT_CHAT_PROVIDER = 'volcengine'
 const AGENT_PLAN_CHAT_BASE_URL = 'https://ark.cn-beijing.volces.com/api/plan/v3'
@@ -909,7 +909,7 @@ const checkWkcCredentialStatus = async () => {
   }
 }
 
-const goToFMindCloudSettings = async () => {
+const goToFTMindCloudSettings = async () => {
   emit('update:visible', false)
   if (uiStore.showSettingsModal) {
     uiStore.closeSettings()

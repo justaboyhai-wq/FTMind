@@ -181,7 +181,7 @@ docker compose restart app
 
 ## 9. 如何开启和查看 Langfuse 可观测性追踪？
 
-FMind 支持通过 Langfuse 对 Agent 的 ReAct 循环、大模型 Token 消耗、工具调用以及异步任务流水线进行全链路追踪。
+FTMind 支持通过 Langfuse 对 Agent 的 ReAct 循环、大模型 Token 消耗、工具调用以及异步任务流水线进行全链路追踪。
 
 **开启步骤**：
 1. 准备一个可用的 Langfuse 实例（支持云端版或私有部署版）。
@@ -284,7 +284,7 @@ Wiki 模式允许 Agent 根据原始文档自动生成并维护一套结构化�
 
 0.6.2 新增迁移 `000059_embeddings_hnsw_1024`，为 **1024 维** embedding（如 bge-m3）在 PostgreSQL pgvector 上创建 HNSW 索引。服务启动会自动执行迁移；若你使用其他维度，该索引可能不适用，需按自身 embedding 维度另行调优。升级后首次大批量入库期间索引构建可能占用额外 I/O，属正常现象。
 
-## 21. 如何在网站嵌入 FMind 智能体（Embed Widget）？
+## 21. 如何在网站嵌入 FTMind 智能体（Embed Widget）？
 
 0.6.3 起支持**嵌入渠道**：在 **集成中心** 或 Agent 编辑器中创建 embed 渠道，绑定自定义 Agent，获取渠道 ID 与发布 Token（`em_…`），将 `fmind-widget.js` 嵌入外部网页即可提供访客问答。
 

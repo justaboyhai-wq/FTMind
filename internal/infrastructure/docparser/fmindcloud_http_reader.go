@@ -22,8 +22,8 @@ const (
 	fmindCloudReaderBaseURL = "https://fmind.weixin.qq.com/api/v1/doc"
 )
 
-// FMindCloudSignedDocumentReader implements the docreader HTTP protocol with FMindCloud signing.
-type FMindCloudSignedDocumentReader struct {
+// FTMindCloudSignedDocumentReader implements the docreader HTTP protocol with FTMindCloud signing.
+type FTMindCloudSignedDocumentReader struct {
 	appID               string
 	apiKey              string
 	client              *http.Client
@@ -32,14 +32,14 @@ type FMindCloudSignedDocumentReader struct {
 	pollTimeout         time.Duration
 }
 
-func NewFMindCloudSignedDocumentReader(appID, apiKey string) (*FMindCloudSignedDocumentReader, error) {
+func NewFTMindCloudSignedDocumentReader(appID, apiKey string) (*FTMindCloudSignedDocumentReader, error) {
 	if appID == "" {
-		return nil, fmt.Errorf("FMindCloud appID is required")
+		return nil, fmt.Errorf("FTMindCloud appID is required")
 	}
 	if apiKey == "" {
-		return nil, fmt.Errorf("FMindCloud apiKey is required")
+		return nil, fmt.Errorf("FTMindCloud apiKey is required")
 	}
-	return &FMindCloudSignedDocumentReader{
+	return &FTMindCloudSignedDocumentReader{
 		appID:               appID,
 		apiKey:              apiKey,
 		initialPollInterval: 500 * time.Millisecond,
@@ -56,23 +56,23 @@ func NewFMindCloudSignedDocumentReader(appID, apiKey string) (*FMindCloudSignedD
 	}, nil
 }
 
-func (p *FMindCloudSignedDocumentReader) Reconnect(addr string) error {
+func (p *FTMindCloudSignedDocumentReader) Reconnect(addr string) error {
 	return nil
 }
 
-func (p *FMindCloudSignedDocumentReader) IsConnected() bool { return true }
+func (p *FTMindCloudSignedDocumentReader) IsConnected() bool { return true }
 
-func (p *FMindCloudSignedDocumentReader) ListEngines(ctx context.Context, overrides map[string]string) ([]types.ParserEngineInfo, error) {
+func (p *FTMindCloudSignedDocumentReader) ListEngines(ctx context.Context, overrides map[string]string) ([]types.ParserEngineInfo, error) {
 	return []types.ParserEngineInfo{{
-		Name:        FMindCloudEngineName,
-		Description: "FMindCloud signed docreader",
+		Name:        FTMindCloudEngineName,
+		Description: "FTMindCloud signed docreader",
 		FileTypes:   []string{"docx", "doc", "pdf", "md", "markdown", "xlsx", "xls", "pptx", "ppt"},
 		Available:   true,
 	}}, nil
 }
 
-func (p *FMindCloudSignedDocumentReader) Read(ctx context.Context, req *types.ReadRequest) (*types.ReadResult, error) {
-	logger.Infof(ctx, "[FMindCloud] read start file=%q type=%q engine=%q hasURL=%v contentLen=%d requestID=%q",
+func (p *FTMindCloudSignedDocumentReader) Read(ctx context.Context, req *types.ReadRequest) (*types.ReadResult, error) {
+	logger.Infof(ctx, "[FTMindCloud] read start file=%q type=%q engine=%q hasURL=%v contentLen=%d requestID=%q",
 		req.FileName, req.FileType, req.ParserEngine, strings.TrimSpace(req.URL) != "", len(req.FileContent), req.RequestID)
 	body := httpReadRequest{
 		FileName:  req.FileName,
@@ -90,35 +90,35 @@ func (p *FMindCloudSignedDocumentReader) Read(ctx context.Context, req *types.Re
 	}
 	jsonBody, err := json.Marshal(body)
 	if err != nil {
-		logger.Errorf(context.Background(), "[FMindCloud] marshal read request: %v", err)
+		logger.Errorf(context.Background(), "[FTMindCloud] marshal read request: %v", err)
 		return nil, fmt.Errorf("http marshal read request: %w", err)
 	}
 	httpReq, err := p.newSignedRequest(ctx, http.MethodPost, fmindCloudReaderBaseURL+"/reader", jsonBody)
 	if err != nil {
-		logger.Errorf(context.Background(), "[FMindCloud] signed read request: %v", err)
+		logger.Errorf(context.Background(), "[FTMindCloud] signed read request: %v", err)
 		return nil, err
 	}
 	resp, err := p.client.Do(httpReq)
 	if err != nil {
-		logger.Errorf(context.Background(), "[FMindCloud] http read request failed: %v", err)
+		logger.Errorf(context.Background(), "[FTMindCloud] http read request failed: %v", err)
 		return nil, fmt.Errorf("http read failed: %w", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusOK {
 		bodyBytes, _ := io.ReadAll(resp.Body)
-		logger.Errorf(context.Background(), "[FMindCloud] http read unexpected status %d: %s", resp.StatusCode, string(bodyBytes))
+		logger.Errorf(context.Background(), "[FTMindCloud] http read unexpected status %d: %s", resp.StatusCode, string(bodyBytes))
 		return nil, fmt.Errorf("http read status %d: %s", resp.StatusCode, string(bodyBytes))
 	}
 	var submit fmindCloudAsyncSubmitResponse
 	if err := json.NewDecoder(resp.Body).Decode(&submit); err != nil {
-		logger.Errorf(context.Background(), "[FMindCloud] decode read submit response: %v", err)
+		logger.Errorf(context.Background(), "[FTMindCloud] decode read submit response: %v", err)
 		return nil, fmt.Errorf("http decode read submit response: %w", err)
 	}
 	if strings.TrimSpace(submit.TaskID) == "" {
-		logger.Errorf(context.Background(), "[FMindCloud] submit response missing task_id (status=%q message=%q)", submit.Status, submit.Message)
+		logger.Errorf(context.Background(), "[FTMindCloud] submit response missing task_id (status=%q message=%q)", submit.Status, submit.Message)
 		return nil, fmt.Errorf("fmindcloud docreader submit response missing task_id")
 	}
-	logger.Infof(ctx, "[FMindCloud] task submitted task_id=%s file=%q type=%q", submit.TaskID, req.FileName, req.FileType)
+	logger.Infof(ctx, "[FTMindCloud] task submitted task_id=%s file=%q type=%q", submit.TaskID, req.FileName, req.FileType)
 	return p.pollTaskResult(ctx, submit.TaskID)
 }
 
@@ -140,7 +140,7 @@ type fmindCloudAsyncTaskResponse struct {
 	UpdatedAt int64             `json:"updated_at"`
 }
 
-func (p *FMindCloudSignedDocumentReader) pollTaskResult(ctx context.Context, taskID string) (*types.ReadResult, error) {
+func (p *FTMindCloudSignedDocumentReader) pollTaskResult(ctx context.Context, taskID string) (*types.ReadResult, error) {
 	pollCtx := ctx
 	if _, ok := ctx.Deadline(); !ok && p.pollTimeout > 0 {
 		var cancel context.CancelFunc
@@ -152,12 +152,12 @@ func (p *FMindCloudSignedDocumentReader) pollTaskResult(ctx context.Context, tas
 	for {
 		httpReq, err := p.newSignedRequest(pollCtx, http.MethodGet, statusURL, nil)
 		if err != nil {
-			logger.Errorf(context.Background(), "[FMindCloud] poll signed request task_id=%s: %v", taskID, err)
+			logger.Errorf(context.Background(), "[FTMindCloud] poll signed request task_id=%s: %v", taskID, err)
 			return nil, err
 		}
 		resp, err := p.client.Do(httpReq)
 		if err != nil {
-			logger.Errorf(context.Background(), "[FMindCloud] http poll task_id=%s failed: %v", taskID, err)
+			logger.Errorf(context.Background(), "[FTMindCloud] http poll task_id=%s failed: %v", taskID, err)
 			return nil, fmt.Errorf("http poll task failed: %w", err)
 		}
 		var taskResp fmindCloudAsyncTaskResponse
@@ -166,12 +166,12 @@ func (p *FMindCloudSignedDocumentReader) pollTaskResult(ctx context.Context, tas
 			if resp.StatusCode != http.StatusOK {
 				bodyBytes, _ := io.ReadAll(resp.Body)
 				err = fmt.Errorf("http poll task status %d: %s", resp.StatusCode, string(bodyBytes))
-				logger.Errorf(context.Background(), "[FMindCloud] poll task_id=%s status %d: %s", taskID, resp.StatusCode, string(bodyBytes))
+				logger.Errorf(context.Background(), "[FTMindCloud] poll task_id=%s status %d: %s", taskID, resp.StatusCode, string(bodyBytes))
 				return
 			}
 			if decodeErr := json.NewDecoder(resp.Body).Decode(&taskResp); decodeErr != nil {
 				err = fmt.Errorf("http decode task response: %w", decodeErr)
-				logger.Errorf(context.Background(), "[FMindCloud] poll task_id=%s decode response: %v", taskID, decodeErr)
+				logger.Errorf(context.Background(), "[FTMindCloud] poll task_id=%s decode response: %v", taskID, decodeErr)
 			}
 		}()
 		if err != nil {
@@ -180,40 +180,40 @@ func (p *FMindCloudSignedDocumentReader) pollTaskResult(ctx context.Context, tas
 		switch taskResp.Status {
 		case "completed":
 			if taskResp.Result == nil {
-				logger.Infof(ctx, "[FMindCloud] task_id=%s completed with no result payload", taskID)
+				logger.Infof(ctx, "[FTMindCloud] task_id=%s completed with no result payload", taskID)
 				return &types.ReadResult{}, nil
 			}
 			res := fromHTTPReadResponse(taskResp.Result)
 			if res.Error != "" {
-				logger.Errorf(ctx, "[FMindCloud] task_id=%s completed with result.error: %s", taskID, res.Error)
+				logger.Errorf(ctx, "[FTMindCloud] task_id=%s completed with result.error: %s", taskID, res.Error)
 			} else {
-				logger.Debugf(ctx, "[FMindCloud] task_id=%s completed ok markdownLen=%d", taskID, len(res.MarkdownContent))
+				logger.Debugf(ctx, "[FTMindCloud] task_id=%s completed ok markdownLen=%d", taskID, len(res.MarkdownContent))
 			}
 			return res, nil
 		case "failed":
 			if taskResp.Error != "" {
-				logger.Errorf(context.Background(), "[FMindCloud] task_id=%s failed: %s", taskID, taskResp.Error)
+				logger.Errorf(context.Background(), "[FTMindCloud] task_id=%s failed: %s", taskID, taskResp.Error)
 				return nil, fmt.Errorf("fmindcloud docreader task failed: %s", taskResp.Error)
 			}
-			logger.Errorf(context.Background(), "[FMindCloud] task_id=%s failed: %s", taskID, taskResp.Message)
+			logger.Errorf(context.Background(), "[FTMindCloud] task_id=%s failed: %s", taskID, taskResp.Message)
 			return nil, fmt.Errorf("fmindcloud docreader task failed: %s", taskResp.Message)
 		case "cancelled":
 			if taskResp.Error != "" {
-				logger.Errorf(context.Background(), "[FMindCloud] task_id=%s cancelled: %s", taskID, taskResp.Error)
+				logger.Errorf(context.Background(), "[FTMindCloud] task_id=%s cancelled: %s", taskID, taskResp.Error)
 				return nil, fmt.Errorf("fmindcloud docreader task cancelled: %s", taskResp.Error)
 			}
-			logger.Errorf(context.Background(), "[FMindCloud] task_id=%s cancelled", taskID)
+			logger.Errorf(context.Background(), "[FTMindCloud] task_id=%s cancelled", taskID)
 			return nil, fmt.Errorf("fmindcloud docreader task cancelled")
 		}
 		if err := pollCtx.Err(); err != nil {
-			logger.Errorf(ctx, "[FMindCloud] poll task_id=%s aborted before sleep: %v", taskID, err)
+			logger.Errorf(ctx, "[FTMindCloud] poll task_id=%s aborted before sleep: %v", taskID, err)
 			return nil, err
 		}
 
 		// Exponential backoff: multiply by 1.5 each time, cap at maxPollInterval
 		select {
 		case <-pollCtx.Done():
-			logger.Errorf(ctx, "[FMindCloud] poll task_id=%s stopped: %v", taskID, pollCtx.Err())
+			logger.Errorf(ctx, "[FTMindCloud] poll task_id=%s stopped: %v", taskID, pollCtx.Err())
 			return nil, pollCtx.Err()
 		case <-time.After(currentInterval):
 			// Update interval for next iteration
@@ -226,14 +226,14 @@ func (p *FMindCloudSignedDocumentReader) pollTaskResult(ctx context.Context, tas
 	}
 }
 
-func (p *FMindCloudSignedDocumentReader) newSignedRequest(ctx context.Context, method, url string, body []byte) (*http.Request, error) {
+func (p *FTMindCloudSignedDocumentReader) newSignedRequest(ctx context.Context, method, url string, body []byte) (*http.Request, error) {
 	requestID := uuid.New().String()
 	if len(body) == 0 {
 		body = []byte("{}")
 	}
 	httpReq, err := http.NewRequestWithContext(ctx, method, url, bytes.NewReader(body))
 	if err != nil {
-		logger.Errorf(context.Background(), "[FMindCloud] http new request %s %s: %v", method, url, err)
+		logger.Errorf(context.Background(), "[FTMindCloud] http new request %s %s: %v", method, url, err)
 		return nil, fmt.Errorf("http new request: %w", err)
 	}
 	httpReq.Header.Set("Content-Type", "application/json")

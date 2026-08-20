@@ -2,7 +2,7 @@
 set -euo pipefail
 
 #
-# 本地构建 + 打包 FMind macOS 桌面应用 (.app)
+# 本地构建 + 打包 FTMind macOS 桌面应用 (.app)
 #
 # 用法:
 #   ./scripts/package-mac-app.sh

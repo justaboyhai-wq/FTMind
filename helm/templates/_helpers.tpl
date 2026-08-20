@@ -2,7 +2,7 @@
 Copyright 2025 Tencent
 SPDX-License-Identifier: MIT
 
-FMind Helm Chart Template Helpers
+FTMind Helm Chart Template Helpers
 
 Best Practices References:
 - https://helm.sh/docs/chart_best_practices/templates/

@@ -351,7 +351,7 @@ func matchPrefix(err error, prefix string) bool {
 	return strings.HasPrefix(string(e.Code), prefix)
 }
 
-// serverNotFoundRE matches the FMind server's structured error-envelope body
+// serverNotFoundRE matches the FTMind server's structured error-envelope body
 // for the typed "not found" code (1003 = ErrNotFound). Server's 1007 is the
 // generic ErrInternalServer bucket — including it would mis-classify every
 // validation / DB failure (e.g. SQLSTATE 22001 "value too long") as

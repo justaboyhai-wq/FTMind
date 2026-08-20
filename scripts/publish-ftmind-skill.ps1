@@ -14,12 +14,12 @@ if (-not $clawhub) {
   throw "The clawhub CLI is not installed. Install it with 'npm i -g clawhub', then run 'clawhub login'."
 }
 
-$skillDir = Join-Path $PSScriptRoot "..\frontend\public\fmind-skill"
+$skillDir = Join-Path $PSScriptRoot "..\frontend\public\ftmind-skill"
 if (-not (Test-Path (Join-Path $skillDir "SKILL.md"))) {
-  throw "FMind skill package is missing SKILL.md: $skillDir"
+  throw "FTMind skill package is missing SKILL.md: $skillDir"
 }
 
-& $clawhub.Source skill publish $skillDir --slug fmind --version $Version
+& $clawhub.Source skill publish $skillDir --slug ftmind --version $Version
 if ($LASTEXITCODE -ne 0) {
   throw "ClawHub publish failed with exit code $LASTEXITCODE. No repository files were changed by this script."
 }

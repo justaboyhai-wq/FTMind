@@ -802,7 +802,7 @@ onMounted(loadAll)
   color: #0052D9;
 }
 
-// 解析引擎徽章配色 —— 内置引擎使用 FMind 品牌色，外部工具保留各自识别色。
+// 解析引擎徽章配色 —— 内置引擎使用 FTMind 品牌色，外部工具保留各自识别色。
 .engine-card--builtin .engine-card__badge,
 .engine-card--fmindcloud .engine-card__badge {
   background: color-mix(in srgb, var(--td-brand-color) 12%, transparent);

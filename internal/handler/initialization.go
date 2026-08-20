@@ -1696,16 +1696,16 @@ func (h *InitializationHandler) buildTestModel(
 	}
 }
 
-// resolveTenantFMindCloudCreds 从当前空间上下文里取出 FMindCloud 凭证，
-// 供测试连接端点补齐 appID/appSecret。与 service.resolveFMindCloudCredentials
+// resolveTenantFTMindCloudCreds 从当前空间上下文里取出 FTMindCloud 凭证，
+// 供测试连接端点补齐 appID/appSecret。与 service.resolveFTMindCloudCredentials
 // 对应，但因为 handler 还没有被注入 tenantService（历史原因），暂时从
 // TenantInfoFromContext 读取，等效果相同。
-func (h *InitializationHandler) resolveTenantFMindCloudCreds(ctx context.Context) (string, string, bool) {
+func (h *InitializationHandler) resolveTenantFTMindCloudCreds(ctx context.Context) (string, string, bool) {
 	tenantInfo, ok := types.TenantInfoFromContext(ctx)
 	if !ok {
 		return "", "", false
 	}
-	creds := tenantInfo.Credentials.GetFMindCloud()
+	creds := tenantInfo.Credentials.GetFTMindCloud()
 	if creds == nil {
 		return "", "", true
 	}
@@ -1748,7 +1748,7 @@ func (h *InitializationHandler) CheckRemoteModel(c *gin.Context) {
 		c.Error(errors.NewBadRequestError(utils.FormatSSRFError("Base URL", req.BaseURL, err)))
 		return
 	}
-	appID, appSecret, ok := h.resolveTenantFMindCloudCreds(ctx)
+	appID, appSecret, ok := h.resolveTenantFTMindCloudCreds(ctx)
 	if !ok {
 		logger.Error(ctx, "Tenant info not found")
 		c.Error(errors.NewBadRequestError("空间信息未找到"))
@@ -1822,7 +1822,7 @@ func (h *InitializationHandler) TestEmbeddingModel(c *gin.Context) {
 		}
 	}
 
-	appID, appSecret, ok := h.resolveTenantFMindCloudCreds(ctx)
+	appID, appSecret, ok := h.resolveTenantFTMindCloudCreds(ctx)
 	if !ok {
 		logger.Error(ctx, "Tenant info not found")
 		c.Error(errors.NewBadRequestError("空间信息未找到"))
@@ -1978,7 +1978,7 @@ func (h *InitializationHandler) CheckRerankModel(c *gin.Context) {
 		return
 	}
 
-	appID, appSecret, ok := h.resolveTenantFMindCloudCreds(ctx)
+	appID, appSecret, ok := h.resolveTenantFTMindCloudCreds(ctx)
 	if !ok {
 		logger.Error(ctx, "Tenant info not found")
 		c.Error(errors.NewBadRequestError("空间信息未找到"))
@@ -2040,7 +2040,7 @@ func (h *InitializationHandler) CheckASRModel(c *gin.Context) {
 		return
 	}
 
-	// 用统一构造器生成测试用 *types.Model（ASR 不涉及 FMindCloud 凭证），
+	// 用统一构造器生成测试用 *types.Model（ASR 不涉及 FTMindCloud 凭证），
 	// 发送一段极短的静默 WAV 音频验证 /v1/audio/transcriptions 端点可达。
 	model := h.buildTestModel(&req, types.ModelTypeASR, types.ModelSourceRemote)
 	asrInstance, err := asr.NewASR(asr.ConfigFromModel(model))

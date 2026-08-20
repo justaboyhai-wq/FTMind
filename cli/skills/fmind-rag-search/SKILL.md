@@ -1,16 +1,16 @@
 ---
 name: fmind-rag-search
-description: Use when retrieving from or asking questions against a FMind knowledge base via the `fmind` CLI — and especially when unsure whether to use `chat`, `session ask`, or `search chunks` for a given goal.
+description: Use when retrieving from or asking questions against a FTMind knowledge base via the `fmind` CLI — and especially when unsure whether to use `chat`, `session ask`, or `search chunks` for a given goal.
 metadata:
   tested_against: v0.10
 ---
 
-# FMind — retrieval & RAG queries
+# FTMind — retrieval & RAG queries
 
 **REQUIRED BACKGROUND:** read the `fmind-shared` skill first (auth, `--kb`
 resolution, the JSON envelope, exit codes, streaming/NDJSON output).
 
-FMind gives you several ways to "ask about a knowledge base." Picking the wrong
+FTMind gives you several ways to "ask about a knowledge base." Picking the wrong
 one wastes turns or returns the wrong shape. Use the decision table.
 
 ## Pick the command by your goal

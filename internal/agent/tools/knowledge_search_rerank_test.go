@@ -48,7 +48,7 @@ func TestApplyModelRerankScores_faqUsesCompositeScale(t *testing.T) {
 	}
 	originals := []*searchResultWithMeta{
 		{
-			SearchResult:      &types.SearchResult{ID: "faq-1", Content: "Q: FMind", Score: 0.011},
+			SearchResult:      &types.SearchResult{ID: "faq-1", Content: "Q: FTMind", Score: 0.011},
 			KnowledgeBaseType: types.KnowledgeBaseTypeFAQ,
 		},
 		{

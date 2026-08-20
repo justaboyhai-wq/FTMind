@@ -46,9 +46,9 @@
 - [ ] 能 SSH 进去（用控制台的默认密码 / 你导入的 key）
 - [ ] `systemctl status fmind-firstboot` 显示已成功执行（或已 disable + 文件被删）
 - [ ] `cat /root/fmind-credentials.txt` 里有随机密码
-- [ ] 浏览器打开公网 IP 能访问 FMind，能注册管理员
-- [ ] `docker compose -f /opt/FMind/docker-compose.yml ps` 全部 healthy
-- [ ] `cat /opt/FMind/.cloud-image-meta` 显示正确的版本
+- [ ] 浏览器打开公网 IP 能访问 FTMind，能注册管理员
+- [ ] `docker compose -f /opt/fmind/docker-compose.yml ps` 全部 healthy
+- [ ] `cat /opt/fmind/.cloud-image-meta` 显示正确的版本
 
 ## 共享给其他用户
 
@@ -91,7 +91,7 @@ Lighthouse 的镜像可以「共享给 CVM」，转成 CVM 自定义镜像后即
 7. 提交审核（云市场运营人员审核约 7 个工作日）
 8. 审核通过后，用户在云市场或购买 CVM 时即可选到你的镜像
 
-> FMind 由独立维护者维护。若需要讨论镜像发布或部署兼容性，请在 [FMind GitHub Issues](https://github.com/justaboyhai-wq/fmind/issues) 中提出。
+> FTMind 由独立维护者维护。若需要讨论镜像发布或部署兼容性，请在 [FTMind GitHub Issues](https://github.com/justaboyhai-wq/fmind/issues) 中提出。
 
 ## 注意事项
 

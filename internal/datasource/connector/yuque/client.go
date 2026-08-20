@@ -17,7 +17,7 @@ import (
 const (
 	defaultTimeout  = 30 * time.Second
 	defaultPageSize = 100
-	userAgent       = "FMind-Yuque-Connector/1.0"
+	userAgent       = "FTMind-Yuque-Connector/1.0"
 )
 
 // client wraps the Yuque Open API.

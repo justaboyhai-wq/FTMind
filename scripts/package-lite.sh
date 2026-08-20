@@ -2,7 +2,7 @@
 set -euo pipefail
 
 #
-# 本地构建 + 打包 FMind Lite 发行包
+# 本地构建 + 打包 FTMind Lite 发行包
 #
 # 用法:
 #   ./scripts/package-lite.sh              # 自动检测版本

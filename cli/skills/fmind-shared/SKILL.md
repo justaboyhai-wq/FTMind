@@ -1,13 +1,13 @@
 ---
 name: fmind-shared
-description: Use when driving a FMind RAG server through the `fmind` CLI as an agent — authenticating, managing knowledge bases / documents / sessions / agents, running search or chat, or interpreting the CLI's JSON envelopes and exit codes. Read this before any other fmind-* skill.
+description: Use when driving a FTMind RAG server through the `fmind` CLI as an agent — authenticating, managing knowledge bases / documents / sessions / agents, running search or chat, or interpreting the CLI's JSON envelopes and exit codes. Read this before any other fmind-* skill.
 metadata:
   tested_against: v0.10
 ---
 
-# FMind CLI — shared base
+# FTMind CLI — shared base
 
-`fmind` is the agent-first CLI for a FMind RAG server. Every command prints
+`fmind` is the agent-first CLI for a FTMind RAG server. Every command prints
 a JSON envelope and uses a typed exit code, so you branch on machine-readable
 output, not prose. Read this skill before any task-specific `fmind-*` skill.
 
@@ -44,15 +44,15 @@ fmind auth status          # verify: who am I, which tenant
   to delete the profile entirely.
 - `fmind doctor` runs 4 health checks (reachability, credential, version, storage).
 
-## 1a. FMind unified credential boundary
+## 1a. FTMind unified credential boundary
 
-`FMIND_USER_API_KEY` is the canonical name for a user-scoped FMind API key.
+`FMIND_USER_API_KEY` is the canonical name for a user-scoped FTMind API key.
 The CLI accepts `FMIND_API_KEY` as a compatibility alias, but a user key only
 identifies the user and never elevates tenant, team, knowledge-base, or memory
 permissions. External-agent memory is a separate data plane: do not point the
 CLI at MemoryCore and do not put an Agent Binding runtime key in normal
 Knowledge API calls. Agents that need L0-L2 recall or Memory Wiki access must
-use the FMind/MemoryProxy gateway and carry the runtime key in the gateway's
+use the FTMind/MemoryProxy gateway and carry the runtime key in the gateway's
 dedicated header. The gateway re-checks the user's role, binding capabilities,
 asset scopes, and resource state on every request.
 

@@ -8,7 +8,7 @@ withDefaults(defineProps<{
 
 <template>
   <svg
-    class="fmind-empty-art"
+    class="ftmind-empty-art"
     viewBox="0 0 200 160"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -94,7 +94,7 @@ withDefaults(defineProps<{
 </template>
 
 <style scoped lang="less">
-.fmind-empty-art {
+.ftmind-empty-art {
   --fmind-art-primary: var(--td-brand-color, #5b5bd6);
   --fmind-art-secondary: #3b82f6;
   --fmind-art-accent: #8b5cf6;

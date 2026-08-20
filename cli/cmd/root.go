@@ -134,16 +134,17 @@ var cobraFlagErrorPrefixes = []string{
 func NewRootCmd(f *cmdutil.Factory) *cobra.Command {
 	v, commit, date := build.Info()
 	cmd := &cobra.Command{
-		Use:   "fmind",
-		Short: "FMind CLI",
-		Long: `Command-line client for the FMind RAG server. Manage knowledge bases
+		Use:     "ftmind",
+		Aliases: []string{"fmind"},
+		Short:   "FTMind CLI",
+		Long: `Command-line client for the FTMind RAG server. Manage knowledge bases
 and documents, run hybrid search, chat with grounded answers, or expose
 a curated read-only MCP tool surface for AI agents.`,
-		Example: `  fmind profile add prod --host=https://kb.example.com --use
-  fmind auth login
-  fmind kb list
-  fmind chat "summarise the design doc"
-  fmind doctor --format json`,
+		Example: `  ftmind profile add prod --host=https://kb.example.com --use
+  ftmind auth login
+  ftmind kb list
+  ftmind chat "summarise the design doc"
+  ftmind doctor --format json`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		// Version makes cobra auto-register a `--version` global flag that

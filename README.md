@@ -1,10 +1,10 @@
-# FMind
+# FTMind
 
 [简体中文](./README_CN.md)
 
 ## Overview
 
-FMind turns files, web pages and Markdown into a private, searchable knowledge workspace. It combines document parsing, embeddings, hybrid retrieval, streaming chat, controlled Agents and Wiki generation in one deployable application.
+FTMind turns files, web pages and Markdown into a private, searchable knowledge workspace. It combines document parsing, embeddings, hybrid retrieval, streaming chat, controlled Agents and Wiki generation in one deployable application.
 
 This is a controlled application repository for private deployment and internal maintenance. Deploy it only through approved infrastructure, configure external services with managed credentials, and retain operational data in the intended environment. Models, vector stores, object storage, parsing engines and web-search providers are independently configurable.
 
@@ -28,7 +28,7 @@ The current production profile is a cloud MVP on the Hangzhou ECS: the applicati
 
 - Docker Desktop with Docker Compose
 
-### Start FMind
+### Start FTMind
 
 ```bash
 cp .env.example .env

@@ -34,7 +34,7 @@ instance.interceptors.request.use(
 
     // 嵌入渠道使用 Embed token；勿用本地 JWT 覆盖（否则调试页会 401）
     if (!isEmbedAuth) {
-      const token = localStorage.getItem('fmind_token');
+      const token = localStorage.getItem('ftmind_token');
       if (token) {
         config.headers["Authorization"] = `Bearer ${token}`;
       }
@@ -53,7 +53,7 @@ instance.interceptors.request.use(
     // 后端 IsTenantAccessible 已经允许 header 指向 home 空间（自家），
     // 所以无脑附不会引入新风险。
     if (!isEmbedAuth && !isEmbedPath) {
-      const selectedTenantId = localStorage.getItem('fmind_selected_tenant_id');
+      const selectedTenantId = localStorage.getItem('ftmind_selected_tenant_id');
       if (selectedTenantId) {
         config.headers["X-Tenant-ID"] = selectedTenantId;
       }
@@ -161,7 +161,7 @@ instance.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
       
-      const refreshToken = localStorage.getItem('fmind_refresh_token');
+      const refreshToken = localStorage.getItem('ftmind_refresh_token');
       
       if (refreshToken) {
         try {
@@ -173,8 +173,8 @@ instance.interceptors.response.use(
             const { token, refreshToken: newRefreshToken } = response.data;
             
             // 更新localStorage中的token
-            localStorage.setItem('fmind_token', token);
-            localStorage.setItem('fmind_refresh_token', newRefreshToken);
+            localStorage.setItem('ftmind_token', token);
+            localStorage.setItem('ftmind_refresh_token', newRefreshToken);
             
             // 更新请求头
             originalRequest.headers['Authorization'] = 'Bearer ' + token;
@@ -188,10 +188,10 @@ instance.interceptors.response.use(
           }
         } catch (refreshError) {
           // 刷新失败，清除所有token并跳转到登录页
-          localStorage.removeItem('fmind_token');
-          localStorage.removeItem('fmind_refresh_token');
-          localStorage.removeItem('fmind_user');
-          localStorage.removeItem('fmind_tenant');
+          localStorage.removeItem('ftmind_token');
+          localStorage.removeItem('ftmind_refresh_token');
+          localStorage.removeItem('ftmind_user');
+          localStorage.removeItem('ftmind_tenant');
           
           processQueue(refreshError, null);
           
@@ -203,9 +203,9 @@ instance.interceptors.response.use(
         }
       } else {
         // 没有refresh token，直接跳转到登录页
-        localStorage.removeItem('fmind_token');
-        localStorage.removeItem('fmind_user');
-        localStorage.removeItem('fmind_tenant');
+        localStorage.removeItem('ftmind_token');
+        localStorage.removeItem('ftmind_user');
+        localStorage.removeItem('ftmind_tenant');
         
         redirectToLogin();
         

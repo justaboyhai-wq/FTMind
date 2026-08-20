@@ -749,7 +749,7 @@ const handleWikiDrawerClick = (e: MouseEvent) => {
 
 // Import icons
 import agentIcon from '@/assets/img/agent.svg';
-import thinkingIcon from '@/assets/img/fmind-thinking.svg';
+import thinkingIcon from '@/assets/img/ftmind-thinking.svg';
 
 interface SessionData {
   id?: string;

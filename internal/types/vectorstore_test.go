@@ -782,7 +782,7 @@ func TestIndexConfig_GetIndexNameOrDefault(t *testing.T) {
 			name:       "weaviate default",
 			config:     IndexConfig{},
 			engineType: WeaviateRetrieverEngineType,
-			expected:   "FMind_embeddings",
+			expected:   "FTMind_embeddings",
 		},
 		// Postgres (no index config)
 		{
@@ -1005,7 +1005,7 @@ func TestValidateIndexConfig(t *testing.T) {
 	t.Run("valid names with underscore and hyphen", func(t *testing.T) {
 		ic := IndexConfig{
 			IndexName:        "my_index-v2",
-			CollectionPrefix: "FMind_embeddings",
+			CollectionPrefix: "FTMind_embeddings",
 			CollectionName:   "custom-collection-name",
 		}
 		assert.NoError(t, ValidateIndexConfig(ic))

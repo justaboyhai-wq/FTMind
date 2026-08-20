@@ -1,12 +1,12 @@
-// Package main is the main package for the FMind server
+// Package main is the main package for the FTMind server
 // It contains the main function and the entry point for the server
 //
-// @title           FMind API
+// @title           FTMind API
 // @version         1.0
-// @description     FMind 知识库管理系统 API 文档
+// @description     FTMind 知识库管理系统 API 文档
 // @termsOfService  http://swagger.io/terms/
 //
-// @contact.name   FMind Github
+// @contact.name   FTMind Github
 // @contact.url    https://github.com/justaboyhai-wq/fmind
 //
 // @BasePath  /api/v1
@@ -40,6 +40,11 @@ import (
 )
 
 func main() {
+	// Honor FTMIND_* environment variables by copying them to the legacy
+	// FMIND_* names when the legacy names are unset. Existing deployments and
+	// third-party scripts that set FMIND_* continue to work unchanged.
+	config.SyncBrandEnvironmentVariables()
+
 	// Set Gin mode
 	if os.Getenv("GIN_MODE") == "release" {
 		gin.SetMode(gin.ReleaseMode)

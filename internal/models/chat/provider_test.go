@@ -35,7 +35,7 @@ func TestResolveProvider(t *testing.T) {
 		{"azure reasoning", provider.ProviderAzureOpenAI, "gpt-5-mini", azureReasoningProvider{}},
 		{"moonshot fixed temp", provider.ProviderMoonshot, "moonshot-v1-8k", moonshotProvider{}},
 		{"moonshot other falls back", provider.ProviderMoonshot, "kimi-latest", baseProvider{}},
-		{"fmind cloud", provider.ProviderFMindCloud, "anything", fmindCloudProvider{}},
+		{"fmind cloud", provider.ProviderFTMindCloud, "anything", fmindCloudProvider{}},
 		{"unknown falls back", provider.ProviderName("nope"), "x", baseProvider{}},
 	}
 	for _, tc := range cases {

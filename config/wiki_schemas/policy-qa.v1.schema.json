@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://fmind.local/schemas/wiki/policy-qa.v1.schema.json",
-  "title": "FMind 政策问答 Wiki Schema v1",
-  "description": "从 baoan.raw/v1 生成 FMind Wiki 页面及可追溯事实。official、computed、derived_ai 禁止互相覆盖。",
+  "title": "FTMind 政策问答 Wiki Schema v1",
+  "description": "从 baoan.raw/v1 生成 FTMind Wiki 页面及可追溯事实。official、computed、derived_ai 禁止互相覆盖。",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "generated_at", "source_snapshot", "pages", "statements", "operation_log"],
@@ -38,7 +38,7 @@
       "properties": {
         "slug": { "type": "string", "pattern": "^[a-z0-9][a-z0-9/_-]*$" },
         "title": { "$ref": "#/$defs/nonEmptyString" },
-        "page_type": { "description": "兼容 FMind 原生页面类型；政策领域类型存入 page_metadata.domain_type。", "enum": ["summary", "entity", "concept", "synthesis", "comparison"] },
+        "page_type": { "description": "兼容 FTMind 原生页面类型；政策领域类型存入 page_metadata.domain_type。", "enum": ["summary", "entity", "concept", "synthesis", "comparison"] },
         "status": { "enum": ["draft", "published", "archived"] },
         "content": { "type": "string" },
         "summary": { "type": "string" },

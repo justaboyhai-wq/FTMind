@@ -25,12 +25,12 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/options/assetserver"
 	"github.com/wailsapp/wails/v2/pkg/options/mac"
 
+	"github.com/joho/godotenv"
 	"github.com/justaboyhai-wq/fmind/internal/config"
 	"github.com/justaboyhai-wq/fmind/internal/container"
 	"github.com/justaboyhai-wq/fmind/internal/logger"
 	"github.com/justaboyhai-wq/fmind/internal/runtime"
 	"github.com/justaboyhai-wq/fmind/internal/types/interfaces"
-	"github.com/joho/godotenv"
 	wailsruntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -140,7 +140,7 @@ window.open=function(url){
 })();`
 
 // wailsThemeSyncJS：与 index.html 首屏一致，在 DomReady 再跑一遍，覆盖 Ctrl+R 后 runtime 就绪时机
-const wailsThemeSyncJS = `(function(){try{var t=localStorage.getItem('FMind_theme')||'light';if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';var bg=t==='dark'?'#181818':'#eee';document.documentElement.setAttribute('theme-mode',t);document.documentElement.style.background=bg;document.documentElement.style.minHeight='100%';document.documentElement.style.colorScheme=t==='dark'?'dark':'light';if(document.body){document.body.style.background=bg;document.body.style.minHeight='100%';}var w=window.runtime;if(!w)return;if(t==='dark'){if(w.WindowSetDarkTheme)w.WindowSetDarkTheme();if(w.WindowSetBackgroundColour)w.WindowSetBackgroundColour(24,24,24,255);}else{if(w.WindowSetLightTheme)w.WindowSetLightTheme();if(w.WindowSetBackgroundColour)w.WindowSetBackgroundColour(238,238,238,255);}}catch(e){}})()`
+const wailsThemeSyncJS = `(function(){try{var t=localStorage.getItem('FTMind_theme')||'light';if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';var bg=t==='dark'?'#181818':'#eee';document.documentElement.setAttribute('theme-mode',t);document.documentElement.style.background=bg;document.documentElement.style.minHeight='100%';document.documentElement.style.colorScheme=t==='dark'?'dark':'light';if(document.body){document.body.style.background=bg;document.body.style.minHeight='100%';}var w=window.runtime;if(!w)return;if(t==='dark'){if(w.WindowSetDarkTheme)w.WindowSetDarkTheme();if(w.WindowSetBackgroundColour)w.WindowSetBackgroundColour(24,24,24,255);}else{if(w.WindowSetLightTheme)w.WindowSetLightTheme();if(w.WindowSetBackgroundColour)w.WindowSetBackgroundColour(238,238,238,255);}}catch(e){}})()`
 
 const fmindGitHubRepoURL = "https://github.com/justaboyhai-wq/fmind"
 
@@ -162,6 +162,9 @@ func main() {
 
 	// Load .env explicitly for the desktop app so DB_DRIVER gets loaded
 	_ = godotenv.Load()
+	// Honor FTMIND_* environment variables by copying them to the legacy
+	// FMIND_* names when the legacy names are unset.
+	config.SyncBrandEnvironmentVariables()
 	configureDesktopStorage(execPath)
 	logger.ConfigureFromEnv()
 
@@ -179,7 +182,7 @@ func main() {
 	// Build dependency injection container
 	c := container.BuildContainer(runtime.GetContainer())
 
-	// Initialize the FMind App struct
+	// Initialize the FTMind App struct
 	app := NewApp()
 
 	// Error channel to capture server startup errors
@@ -262,15 +265,15 @@ func main() {
 	// Create application with options
 	// macOS app menu
 	AppMenu := menu.NewMenu()
-	FileMenu := AppMenu.AddSubmenu("FMind Lite")
-	FileMenu.AddText("About FMind", keys.CmdOrCtrl("i"), func(_ *menu.CallbackData) {
+	FileMenu := AppMenu.AddSubmenu("FTMind Lite")
+	FileMenu.AddText("About FTMind", keys.CmdOrCtrl("i"), func(_ *menu.CallbackData) {
 		if app.ctx == nil {
 			return
 		}
 		choice, err := wailsruntime.MessageDialog(app.ctx, wailsruntime.MessageDialogOptions{
 			Type:          wailsruntime.InfoDialog,
-			Title:         "FMind Lite",
-			Message:       fmt.Sprintf("FMind Lite — Desktop Edition\n\nA RAG framework for document understanding and semantic Q&A over complex, heterogeneous content.\n\nVersion %s\n© 2026 Tencent\n\nGitHub:\n%s", desktopAboutVersion(), fmindGitHubRepoURL),
+			Title:         "FTMind Lite",
+			Message:       fmt.Sprintf("FTMind Lite — Desktop Edition\n\nA RAG framework for document understanding and semantic Q&A over complex, heterogeneous content.\n\nVersion %s\n© 2026 Tencent\n\nGitHub:\n%s", desktopAboutVersion(), fmindGitHubRepoURL),
 			Buttons:       []string{"Open GitHub", "OK"},
 			DefaultButton: "OK",
 		})
@@ -310,7 +313,7 @@ func main() {
 	// Start Wails application
 	// We use a Reverse Proxy to seamlessly proxy Wails' frontend to our Go backend
 	err := wails.Run(&options.App{
-		Title:         "FMind Lite",
+		Title:         "FTMind Lite",
 		Width:         1280,
 		Height:        800,
 		DisableResize: false,
@@ -326,11 +329,11 @@ func main() {
 			// 注入真实 API 根路径（与 window.location.origin 不同）；无 Go 绑定时仍可显示。
 			if u := strings.TrimSpace(app.backendURL); u != "" {
 				apiRoot := strings.TrimRight(u, "/") + "/api/v1"
-				inject := fmt.Sprintf(`try{window.__FMIND_API_BASE__=%s}catch(e){}`, strconv.Quote(apiRoot))
+				inject := fmt.Sprintf(`try{window.__FTMIND_API_BASE__=%s;window.__FMIND_API_BASE__=window.__FTMIND_API_BASE__}catch(e){}`, strconv.Quote(apiRoot))
 				wailsruntime.WindowExecJS(ctx, inject)
 			}
 			if lan := strings.TrimSpace(app.apiLanBaseURL); lan != "" {
-				injectLan := fmt.Sprintf(`try{window.__FMIND_API_LAN_BASE__=%s}catch(e){}`, strconv.Quote(lan))
+				injectLan := fmt.Sprintf(`try{window.__FTMIND_API_LAN_BASE__=%s;window.__FMIND_API_LAN_BASE__=window.__FTMIND_API_LAN_BASE__}catch(e){}`, strconv.Quote(lan))
 				wailsruntime.WindowExecJS(ctx, injectLan)
 			}
 		},
@@ -386,7 +389,7 @@ func defaultMacAppSupportDir(execPath string) (string, error) {
 		return "", err
 	}
 
-	appName := "FMind Lite"
+	appName := "FTMind Lite"
 	if idx := strings.Index(execPath, ".app/Contents/MacOS"); idx >= 0 {
 		bundleName := filepath.Base(execPath[:idx+4])
 		if trimmed := strings.TrimSuffix(bundleName, ".app"); trimmed != "" {

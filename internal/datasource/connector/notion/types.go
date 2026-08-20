@@ -1,6 +1,6 @@
-// Package notion implements the Notion data source connector for FMind.
+// Package notion implements the Notion data source connector for FTMind.
 //
-// It syncs pages, databases, and attachments from Notion workspaces into FMind knowledge bases.
+// It syncs pages, databases, and attachments from Notion workspaces into FTMind knowledge bases.
 //
 // Notion API docs:
 //   - Authentication: https://developers.notion.com/docs/authorization

@@ -484,7 +484,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style lang="less" scoped>
-.fmind-auth-graph {
+.ftmind-auth-graph {
   position: absolute;
   inset: 0;
   overflow: hidden;
@@ -495,14 +495,14 @@ onBeforeUnmount(() => {
   isolation: isolate;
 }
 
-.fmind-auth-graph__canvas,
-.fmind-auth-graph__grid,
-.fmind-auth-graph__aurora {
+.ftmind-auth-graph__canvas,
+.ftmind-auth-graph__grid,
+.ftmind-auth-graph__aurora {
   position: absolute;
   inset: 0;
 }
 
-.fmind-auth-graph__canvas {
+.ftmind-auth-graph__canvas {
   z-index: 2;
   width: 100%;
   height: 100%;
@@ -514,7 +514,7 @@ onBeforeUnmount(() => {
   }
 }
 
-.fmind-auth-graph__grid {
+.ftmind-auth-graph__grid {
   z-index: 1;
   pointer-events: none;
   opacity: 0.72;
@@ -525,7 +525,7 @@ onBeforeUnmount(() => {
   mask-image: radial-gradient(ellipse at 42% 50%, #000 12%, transparent 80%);
 }
 
-.fmind-auth-graph__aurora {
+.ftmind-auth-graph__aurora {
   z-index: 0;
   pointer-events: none;
   filter: blur(58px);
@@ -533,13 +533,13 @@ onBeforeUnmount(() => {
   will-change: transform;
 }
 
-.fmind-auth-graph__aurora--one {
+.ftmind-auth-graph__aurora--one {
   inset: -44% -18% -36% -26%;
   background: conic-gradient(from 122deg at 48% 46%, transparent 0 18%, rgba(52, 71, 255, 0.14) 28%, transparent 40% 59%, rgba(129, 140, 248, 0.12) 71%, transparent 84%);
   animation: authAuroraSpin 26s linear infinite;
 }
 
-.fmind-auth-graph__aurora--two {
+.ftmind-auth-graph__aurora--two {
   width: 78vw;
   height: 78vw;
   left: -12vw;
@@ -549,7 +549,7 @@ onBeforeUnmount(() => {
   animation: authAuroraFloat 11s ease-in-out infinite alternate;
 }
 
-.fmind-auth-graph__tooltip {
+.ftmind-auth-graph__tooltip {
   position: absolute;
   z-index: 4;
   visibility: hidden;
@@ -588,7 +588,7 @@ onBeforeUnmount(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .fmind-auth-graph__aurora {
+  .ftmind-auth-graph__aurora {
     animation: none;
   }
 }
@@ -596,21 +596,21 @@ onBeforeUnmount(() => {
 
 <style lang="less">
 html[theme-mode='dark'] {
-  .fmind-auth-graph {
+  .ftmind-auth-graph {
     background:
       radial-gradient(circle at 26% 48%, rgba(99, 102, 241, 0.18), transparent 40%),
       radial-gradient(circle at 76% 22%, rgba(129, 140, 248, 0.12), transparent 32%),
       #0c1020;
   }
 
-  .fmind-auth-graph__grid {
+  .ftmind-auth-graph__grid {
     opacity: 0.58;
     background-image:
       linear-gradient(rgba(129, 140, 248, 0.07) 1px, transparent 1px),
       linear-gradient(90deg, rgba(129, 140, 248, 0.07) 1px, transparent 1px);
   }
 
-  .fmind-auth-graph__tooltip {
+  .ftmind-auth-graph__tooltip {
     color: #aeb7d0;
     border-color: rgba(129, 140, 248, 0.28);
     background: rgba(18, 23, 45, 0.92);

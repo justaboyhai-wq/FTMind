@@ -57,8 +57,8 @@ func (e *builtinEngine) CheckAvailable(docreaderConnected bool, _ map[string]str
 // SimpleEngineName is the engine name for Go-native simple format handling.
 const SimpleEngineName = "simple"
 
-// FMindCloudEngineName is the engine name for FMindCloud-backed document parsing.
-const FMindCloudEngineName = "fmindcloud"
+// FTMindCloudEngineName is the engine name for FTMindCloud-backed document parsing.
+const FTMindCloudEngineName = "fmindcloud"
 
 // ---------------------------------------------------------------------------
 // simple — Go handles md/txt/csv natively, no external service needed.
@@ -80,13 +80,13 @@ func (e *simpleEngine) CheckAvailable(_ bool, _ map[string]string) (bool, string
 }
 
 // ---------------------------------------------------------------------------
-// fmindcloud — Tenant-scoped FMindCloud docreader with signed requests.
+// fmindcloud — Tenant-scoped FTMindCloud docreader with signed requests.
 // ---------------------------------------------------------------------------
 
 type fmindCloudEngine struct{}
 
-func (e *fmindCloudEngine) Name() string        { return FMindCloudEngineName }
-func (e *fmindCloudEngine) Description() string { return "FMindCloud document reader" }
+func (e *fmindCloudEngine) Name() string        { return FTMindCloudEngineName }
+func (e *fmindCloudEngine) Description() string { return "FTMindCloud document reader" }
 func (e *fmindCloudEngine) FileTypes(_ bool) []string {
 	return []string{"docx", "doc", "pdf", "md", "markdown", "xlsx", "xls", "pptx", "ppt"}
 }
@@ -94,7 +94,7 @@ func (e *fmindCloudEngine) CheckAvailable(docreaderConnected bool, overrides map
 	if overrides["fmindcloud_app_id"] != "" {
 		return true, ""
 	}
-	return false, "FMind Cloud credentials not configured. Go to Settings → FMind Cloud to set up."
+	return false, "FTMind Cloud credentials not configured. Go to Settings → FTMind Cloud to set up."
 }
 
 // ---------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 # 云端 App / 本地组件部署
 
-本目录提供“云端 App + 本地组件”的迁移模板：云端部署 FMind `frontend` 和 `app` 两个容器；PostgreSQL、Redis、MinIO、Qdrant、DocReader 和模型服务运行在本地网络，并通过 WireGuard 或等价专网以固定私网地址提供服务。
+本目录提供“云端 App + 本地组件”的迁移模板：云端部署 FTMind `frontend` 和 `app` 两个容器；PostgreSQL、Redis、MinIO、Qdrant、DocReader 和模型服务运行在本地网络，并通过 WireGuard 或等价专网以固定私网地址提供服务。
 
 > 当前生产实例采用更保守的 **云端前端代理 + 本机完整 App** 模式，而不是本模板的双 App 模式。这样可避免复制现有密钥、重复消费 Asynq 队列和本机/云端状态漂移。请先阅读 [部署与运维手册](../../docs/DEPLOYMENT_RUNBOOK.md)，未完成迁移评审前不要启动第二个连接同一 Redis/PostgreSQL 的 App。
 

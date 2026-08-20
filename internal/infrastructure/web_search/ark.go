@@ -20,14 +20,14 @@ const (
 	// customer's AgentPlan subscription rather than the standard Ark account.
 	defaultArkAgentPlanResponsesURL = "https://ark.cn-beijing.volces.com/api/plan/v3/responses"
 	// AgentPlan's model catalogue exposes this model name directly. Keep the
-	// search adapter aligned with the defaults that FMind creates for an
+	// search adapter aligned with the defaults that FTMind creates for an
 	// AgentPlan account instead of using a standard-Ark date-suffixed alias.
 	defaultArkAgentPlanModel = "doubao-seed-2.0-lite"
 	defaultArkTimeout        = 45 * time.Second
 	maxArkResults            = 10
 )
 
-// ArkProvider adapts Ark's built-in Web Search tool to FMind's normal
+// ArkProvider adapts Ark's built-in Web Search tool to FTMind's normal
 // provider contract. The model performs the web search; this provider asks it
 // to return a small, source-preserving JSON result set for the existing agent
 // toolchain and citation UI.

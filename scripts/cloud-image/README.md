@@ -1,7 +1,7 @@
-# FMind 云镜像打包脚本（Cloud-Agnostic）
+# FTMind 云镜像打包脚本（Cloud-Agnostic）
 
-> **本文档面向「想把 FMind 打包成云镜像（AMI / 自定义镜像 / Snapshot）分发给其他人」的用户。**
-> **如果你只是想自己用 FMind，请直接看主仓 [README](../../README.md)，`docker compose up -d` 即可。**
+> **本文档面向「想把 FTMind 打包成云镜像（AMI / 自定义镜像 / Snapshot）分发给其他人」的用户。**
+> **如果你只是想自己用 FTMind，请直接看主仓 [README](../../README.md)，`docker compose up -d` 即可。**
 
 ## 这套脚本能做什么
 
@@ -9,7 +9,7 @@
 
 - 别人基于这份镜像创建新实例后，**首次开机会自动**：
   - 生成全新的随机密钥（DB / Redis / JWT / AES）
-  - 启动 FMind 全部默认容器
+  - 启动 FTMind 全部默认容器
   - 把生成的凭证写到 `/root/fmind-credentials.txt`
   - 自删除一次性初始化脚本
 - 实现「**开机即用、零私密泄漏、每实例独立密钥**」
@@ -39,9 +39,9 @@ scripts/cloud-image/
     └── fmind-firstboot.service # 首次启动 init(执行后自删)
 ```
 
-## 不需要 clone 整个 FMind 仓库
+## 不需要 clone 整个 FTMind 仓库
 
-FMind 所有容器都从 Docker Hub 拉镜像（`wechatopenai/fmind-*`），Go / Python / 前端源码都不需要带到宿主机。
+FTMind 所有容器都从 Docker Hub 拉镜像（`wechatopenai/fmind-*`），Go / Python / 前端源码都不需要带到宿主机。
 
 `docker-compose.yml` 实际从宿主机挂载到容器的只有：
 
@@ -63,14 +63,14 @@ FMind 所有容器都从 Docker Hub 拉镜像（`wechatopenai/fmind-*`），Go /
 
 ## 镜像里启动哪些容器
 
-FMind `docker-compose.yml` 大量服务是 **profile 限定**，本镜像只默认启动核心 5 个。
+FTMind `docker-compose.yml` 大量服务是 **profile 限定**，本镜像只默认启动核心 5 个。
 
 **默认启动（5 个常驻容器，开机自启）：**
 
 | 容器 | 角色 |
 |---|---|
 | `frontend` | Vue UI / NGINX 反代 |
-| `app` | FMind Go 后端 |
+| `app` | FTMind Go 后端 |
 | `docreader` | Python 文档解析 (gRPC) |
 | `postgres` (ParadeDB) | 主库 + pgvector 向量检索 + BM25 |
 | `redis` | 流式输出 / 缓存 / 异步队列 |
@@ -120,7 +120,7 @@ docker compose --profile odl-hybrid up -d --build odl-hybrid  # Docling hybrid�
 
 要求：systemd + 联网 + sudo 权限。推荐 Ubuntu 22.04 / Debian 12 / CentOS Stream 9。
 
-**1. 拷入脚本（任选一种，都不用 clone 整个 FMind 仓库）。**
+**1. 拷入脚本（任选一种，都不用 clone 整个 FTMind 仓库）。**
 
 > 命令需要写入 `/opt/`，最省心的做法是先 `sudo -i` 切到 root 再粘贴。
 > 如果坚持每行加 `sudo`，注意 `>>` 重定向是在你当前 shell 执行的，必须改用 `sudo tee -a`。

@@ -1,18 +1,18 @@
-# fmind — FMind CLI
+# fmind — FTMind CLI
 
-A command-line interface for the FMind RAG knowledge-base server. Lets you
+A command-line interface for the FTMind RAG knowledge-base server. Lets you
 authenticate, manage knowledge bases and documents, run hybrid search, and
 ask streaming RAG questions from your terminal or from an AI agent.
 
 ```bash
 $ fmind --help
-Command-line client for the FMind RAG server. Manage knowledge bases
+Command-line client for the FTMind RAG server. Manage knowledge bases
 and documents, run hybrid search, chat with grounded answers, or expose
 a curated read-only MCP tool surface for AI agents.
 
 Available Commands:
   agent       Manage custom agents (CRUD + status/check)
-  api         Make a raw API request to the FMind server
+  api         Make a raw API request to the FTMind server
   auth        Manage authentication credentials and profiles
   chat        Ask a streaming RAG question against a knowledge base
   chunk       Manage document chunks (RAG retrieval debug)
@@ -49,7 +49,7 @@ Requires Go 1.26+.
 
 ```bash
 git clone https://github.com/justaboyhai-wq/fmind.git
-cd FMind/cli
+cd FTMind/cli
 go build -o fmind .
 sudo mv fmind /usr/local/bin/   # or anywhere on $PATH
 ```
@@ -65,7 +65,7 @@ until then, use the from-source build above.
 ## 5-minute quickstart
 
 ```bash
-# 1. Register your FMind server as a profile and make it active
+# 1. Register your FTMind server as a profile and make it active
 fmind profile add prod --host https://kb.example.com --use
 
 # 2. Authenticate the active profile (interactive password prompt)
@@ -118,7 +118,7 @@ fmind agent check ag_abc     # deep: probes every KB in the agent's scope
 
 ### Agent quick start
 
-For AI agents (any MCP-capable host) integrating FMind:
+For AI agents (any MCP-capable host) integrating FTMind:
 
 1. Install: build from source (see [Install](#install))
 2. Authenticate. In a sandbox / CI, the **stateless** path needs no `auth login`
@@ -143,7 +143,7 @@ For AI agents (any MCP-capable host) integrating FMind:
    any destructive call.
 
 **Bundled Agent Skills.** This CLI ships [Agent Skills](https://agentskills.io/specification)
-under [`skills/`](skills/) that teach an agent to drive FMind without trial and error:
+under [`skills/`](skills/) that teach an agent to drive FTMind without trial and error:
 
 - [`fmind-shared`](skills/fmind-shared/SKILL.md) — **read first**: auth/profile
   sequence, `--kb` resolution, the JSON-envelope + exit-code contract, the exit-10
@@ -302,7 +302,7 @@ is the guard against unintended writes.
 
 ## Advanced operations not exposed as flags
 
-FMind CLI exposes top use cases as polished commands; deep
+FTMind CLI exposes top use cases as polished commands; deep
 configuration goes through the raw HTTP passthrough. CLI flag coverage
 targets common workflows, not 1:1 API parity. Examples of deep
 operations that intentionally go through `fmind api`:

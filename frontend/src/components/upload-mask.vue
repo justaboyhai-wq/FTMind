@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import FMindEmptyStateArt from '@/components/FMindEmptyStateArt.vue'
+import FTMindEmptyStateArt from '@/components/FTMindEmptyStateArt.vue'
 const { t } = useI18n()
 </script>
 <template>
     <div class="mask">
-        <FMindEmptyStateArt class="upload-mask-art" variant="knowledge" />
+        <FTMindEmptyStateArt class="upload-mask-art" variant="knowledge" />
         <span class="drag-txt">{{ $t('file.upload') }}</span>
         <span class="drag-type-txt">{{ $t('knowledgeBase.pdfDocFormat') }}</span>
         <span class="drag-type-txt">{{ $t('knowledgeBase.textMarkdownFormat') }}</span>

@@ -1,7 +1,7 @@
 apiVersion: v2
 name: fmind
 description: |
-  FMind - AI-powered Knowledge RAG Platform for building intelligent knowledge bases
+  FTMind - AI-powered Knowledge RAG Platform for building intelligent knowledge bases
   with document parsing, vector search, and LLM integration.
 type: application
 version: 0.1.0
@@ -20,7 +20,7 @@ keywords:
   - vector-search
   - chatbot
 maintainers:
-  - name: FMind Community
+  - name: FTMind Community
     url: https://github.com/justaboyhai-wq/fmind
 annotations:
   artifacthub.io/license: MIT

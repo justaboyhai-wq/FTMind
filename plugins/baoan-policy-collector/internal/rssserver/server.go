@@ -102,7 +102,7 @@ func (s *Server) feed(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 	out, err := xml.Marshal(feed{Version: "2.0", Channel: channel{
-		Title: "宝安政策原文（FMind Canonical）", Link: base + s.cfg.FeedPath,
+		Title: "宝安政策原文（FTMind Canonical）", Link: base + s.cfg.FeedPath,
 		Description: "由 baoan.raw/v1 统一组装为 baoan.canonical-md/v1 的政策文档。", Items: entries,
 	}})
 	if err != nil {

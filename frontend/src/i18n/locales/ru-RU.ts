@@ -52,12 +52,12 @@ export default {
     reopen: 'Обучение',
     steps: {
       welcome: {
-        title: 'Добро пожаловать в FMind',
+        title: 'Добро пожаловать в FTMind',
         desc: 'Несколько простых шагов познакомят вас с базами знаний, чатом и агентами. Нажмите «Далее», чтобы начать.',
       },
       knowledge: {
         title: 'Создайте базу знаний',
-        desc: 'С этого всё начинается: загружайте документы, веб-страницы или FAQ, и FMind автоматически разберёт и проиндексирует их. Нажмите здесь, чтобы открыть базы знаний.',
+        desc: 'С этого всё начинается: загружайте документы, веб-страницы или FAQ, и FTMind автоматически разберёт и проиндексирует их. Нажмите здесь, чтобы открыть базы знаний.',
       },
       chat: {
         title: 'Начните чат с ИИ',
@@ -1147,37 +1147,37 @@ export default {
       desc: 'Ваша роль не позволяет открыть этот раздел настроек. Обратитесь к администратору пространства, чтобы запросить нужную роль.',
     },
     fmindCloud: {
-      title: 'FMind Cloud',
-      description: 'Настройте учётные данные APPID и APPSECRET для FMind Cloud. Данные используются для модельных сервисов и движка парсинга документов.',
+      title: 'FTMind Cloud',
+      description: 'Настройте учётные данные APPID и APPSECRET для FTMind Cloud. Данные используются для модельных сервисов и движка парсинга документов.',
       viewDocs: 'Документация',
       unconfigured: 'Учётные данные не настроены. Заполните APPID и APPSECRET.',
       configured: 'Учётные данные настроены, статус в норме.',
-      expired: 'Учётные данные FMind Cloud истекли',
+      expired: 'Учётные данные FTMind Cloud истекли',
       expiredDefault: 'Ключ шифрования изменился после перезапуска. Сохранённые данные не могут быть расшифрованы. Введите данные заново.',
       reconfigure: 'Перенастроить',
       appIdLabel: 'APPID',
-      appIdDesc: 'ID приложения FMind Cloud',
+      appIdDesc: 'ID приложения FTMind Cloud',
       appIdPlaceholder: 'Введите APPID',
       appSecretLabel: 'APPSECRET',
-      appSecretDesc: 'Секрет приложения FMind Cloud',
+      appSecretDesc: 'Секрет приложения FTMind Cloud',
       appSecretPlaceholder: 'Введите APPSECRET',
       saveHint: 'Данные будут проверены и зашифрованы перед сохранением.',
       saveBtn: 'Сохранить',
       usageTitle: 'Инструкция',
-      usageSteps: '1. Сохраните APPID и APPSECRET\n2. Добавьте chat, embedding, rerank и vlm в разделе «Облачные модели» ниже\n3. Парсинг: Настройки БЗ → Движок парсинга → FMind Cloud',
+      usageSteps: '1. Сохраните APPID и APPSECRET\n2. Добавьте chat, embedding, rerank и vlm в разделе «Облачные модели» ниже\n3. Парсинг: Настройки БЗ → Движок парсинга → FTMind Cloud',
       fillRequired: 'Заполните APPID и APPSECRET',
       saveSuccess: 'Учётные данные сохранены',
       saveFailed: 'Не удалось сохранить данные',
-      credentialConfigured: 'Учётные данные FMind Cloud настроены.',
+      credentialConfigured: 'Учётные данные FTMind Cloud настроены.',
       credentialExpired: 'Данные истекли. Перенастройте.',
-      credentialUnconfigured: 'Учётные данные FMind Cloud не настроены. Заполните APPID и APPSECRET.',
+      credentialUnconfigured: 'Учётные данные FTMind Cloud не настроены. Заполните APPID и APPSECRET.',
       checkingStatus: 'Проверка статуса...',
       goToSettings: 'Перейти в настройки',
-      modelHintConfigured: 'Учётные данные FMind Cloud настроены. Поддерживаемые модели см. в',
+      modelHintConfigured: 'Учётные данные FTMind Cloud настроены. Поддерживаемые модели см. в',
       modelHintDocsLink: 'документации API',
       modelsSection: {
         title: 'Облачные модели',
-        descReady: 'Зарегистрируйте четыре стандартные модели FMind Cloud для чата, поиска, реранкинга и зрения.',
+        descReady: 'Зарегистрируйте четыре стандартные модели FTMind Cloud для чата, поиска, реранкинга и зрения.',
         descPending: 'Сначала сохраните учётные данные выше, затем добавьте модели здесь.',
         statusAdded: 'Добавлена',
         statusPending: 'Нужны учётные данные',
@@ -1193,10 +1193,10 @@ export default {
       addModelsFailed: 'Не удалось добавить модели',
       addModelsEmbeddingFailed: 'Тест подключения Embedding не пройден; не удалось определить размерность вектора',
       addModelsDisplayName: {
-        chat: 'FMind Cloud Chat',
-        embedding: 'FMind Cloud Embedding',
-        rerank: 'FMind Cloud ReRank',
-        vllm: 'FMind Cloud Vision',
+        chat: 'FTMind Cloud Chat',
+        embedding: 'FTMind Cloud Embedding',
+        rerank: 'FTMind Cloud ReRank',
+        vllm: 'FTMind Cloud Vision',
       },
     },
     system: 'Настройки системы',
@@ -1596,7 +1596,7 @@ export default {
   },
   initialization: {
     title: 'Инициализация',
-    welcome: 'Добро пожаловать в FMind',
+    welcome: 'Добро пожаловать в FTMind',
     description: 'Пожалуйста, настройте систему перед началом работы',
     step1: 'Шаг 1: Настройка LLM модели',
     step2: 'Шаг 2: Настройка модели встраивания',
@@ -1818,11 +1818,11 @@ export default {
     backToLogin: 'Вернуться ко входу',
     registerNow: 'Зарегистрироваться',
     loginHint: 'Войдите, чтобы продолжить, или создайте аккаунт ниже, если вы впервые здесь.',
-    firstTime: 'Впервые в FMind?',
+    firstTime: 'Впервые в FTMind?',
     registerSuccess: 'Регистрация завершена. Войдите в систему',
     registerFailed: 'Ошибка регистрации',
     subtitle: 'RAG, ReAct-агент и Wiki — корпоративный фреймворк знаний на основе больших моделей',
-    registerSubtitle: 'Создайте аккаунт и начните работу с FMind',
+    registerSubtitle: 'Создайте аккаунт и начните работу с FTMind',
     emailPlaceholder: 'Введите адрес электронной почты',
     passwordPlaceholder: 'Введите пароль (8-32 символа, включая буквы и цифры)',
     confirmPasswordPlaceholder: 'Введите пароль ещё раз',
@@ -2940,7 +2940,7 @@ export default {
     builtinTag: 'Built-in'
   },
   createChat: {
-    title: 'Привет, я FMind — ваши знания всегда под рукой',
+    title: 'Привет, я FTMind — ваши знания всегда под рукой',
     newSessionTitle: 'Новая сессия',
     messages: {
       selectKnowledgeBase: 'Сначала выберите базу знаний',
@@ -4926,8 +4926,8 @@ export default {
           desc: 'PaddleOCR-VL Cloud API',
         },
         fmindCloud: {
-          name: 'FMind Cloud',
-          desc: 'Парсинг документов через FMind Cloud',
+          name: 'FTMind Cloud',
+          desc: 'Парсинг документов через FTMind Cloud',
         },
         markitdown: {
           name: 'MarkItDown',
@@ -6056,7 +6056,7 @@ export default {
 	      capabilityMessageHistory: 'История сообщений',
 	      capabilityMessageHistoryHint: 'Позволяет искать историю чатов пространства и читать статистику истории. Не даёт доступ к настройкам пространства.',
 	      capabilityManageModels: 'Управление моделями',
-	      capabilityManageModelsHint: 'Управление конфигурациями моделей, учётными данными, проверками подключения и данными FMind Cloud.',
+	      capabilityManageModelsHint: 'Управление конфигурациями моделей, учётными данными, проверками подключения и данными FTMind Cloud.',
 	      capabilityManageMcpServices: 'Управление MCP-сервисами',
 	      capabilityManageMcpServicesHint: 'Управление MCP-сервисами, учётными данными, политиками подтверждения инструментов и OAuth-состоянием этого субъекта.',
 	      capabilityManageDatasources: 'Управление источниками данных',
@@ -6102,7 +6102,7 @@ export default {
         'Любой, у кого есть API key, может подменить заголовок ID пользователя, выдать себя за другого внешнего пользователя и переиспользовать или перехватить его авторизацию MCP OAuth. Не используйте в браузере или ненадёжных клиентах; для пользовательских приложений выбирайте подписанный token.',
       signedRecommended: 'Рекомендуется для пользовательских приложений: ваш backend подписывает краткоживущий HS256 JWT для внешнего пользователя.',
       signedFlowDetail:
-        'HMAC secret храните только в FMind и на доверенном backend — не передавайте в запросах и не отдавайте браузеру. В заголовке запроса передаётся JWT, подписанный этим secret (меняется при каждой выдаче или после истечения), а не сам secret. JWT должен содержать sub (ID внешнего пользователя), tenant_id, aud=fmind и exp (не более 24 ч).',
+        'HMAC secret храните только в FTMind и на доверенном backend — не передавайте в запросах и не отдавайте браузеру. В заголовке запроса передаётся JWT, подписанный этим secret (меняется при каждой выдаче или после истечения), а не сам secret. JWT должен содержать sub (ID внешнего пользователя), tenant_id, aud=fmind и exp (не более 24 ч).',
       directHeader: 'Заголовок ID пользователя',
       requireDirectHeader: 'Требовать заголовок ID пользователя',
       requireDirectHeaderDesc:
@@ -6110,7 +6110,7 @@ export default {
       tokenHeader: 'Заголовок token',
       tokenHeaderDesc: 'Клиент передаёт JWT, подписанный backend, в этом фиксированном заголовке.',
       hmacSecret: 'HMAC secret',
-      hmacSecretDesc: 'Тот же secret, что в FMind; только для подписи JWT на backend — не отправляйте его в заголовке запроса.',
+      hmacSecretDesc: 'Тот же secret, что в FTMind; только для подписи JWT на backend — не отправляйте его в заголовке запроса.',
       secretConfigured: 'Secret настроен (повторно не показывается); введите новое значение для ротации',
       secretSavedCopyHint: 'Secret сохранён. Скопируйте его в backend сейчас — после ухода со страницы просмотреть его будет нельзя.',
       generateSecret: 'Сгенерировать secret',
@@ -6198,7 +6198,7 @@ export default {
     chrome: {
       title: 'Помощник по знаниям',
       subtitle:
-        'Для self-hosted FMind: вопросы в боковой панели, клиппинг страниц и Markdown-заметки в базы знаний прямо при просмотре.',
+        'Для self-hosted FTMind: вопросы в боковой панели, клиппинг страниц и Markdown-заметки в базы знаний прямо при просмотре.',
       capabilitiesTitle: 'Возможности',
       capabilities: {
         qa: {
@@ -6233,7 +6233,7 @@ export default {
         },
         port: {
           title: 'Десктоп: фиксированный порт',
-          desc: 'В FMind Desktop задайте фиксированный порт API (например 37841) в API-информации.',
+          desc: 'В FTMind Desktop задайте фиксированный порт API (например 37841) в API-информации.',
         },
         install: {
           title: 'Установите расширение',
@@ -6252,9 +6252,9 @@ export default {
       storeMeta: 'Chrome Web Store · v1.0.0',
     },
     claw: {
-      title: 'FMind Skill',
+      title: 'FTMind Skill',
       subtitle:
-        'Импорт документов и гибридный поиск (вектор + ключевые слова) через REST API FMind — загрузки, URL, Markdown и поиск.',
+        'Импорт документов и гибридный поиск (вектор + ключевые слова) через REST API FTMind — загрузки, URL, Markdown и поиск.',
       capabilitiesTitle: 'Возможности Skill',
       capabilities: {
         upload: { title: 'Загрузка файлов', desc: 'PDF, Word, Excel и др. с автоматическим разбором.' },
@@ -6268,7 +6268,7 @@ export default {
         api: { title: 'API-учётные данные', desc: 'Скопируйте API Key и URL в «Настройки → API-информация».' },
         env: {
           title: 'Переменные окружения',
-          desc: 'Задайте FMIND_BASE_URL и FMIND_API_KEY в shell или ~/.zshrc / ~/.bashrc. Пример ниже использует текущий API URL — замените API Key на фактическое значение.',
+          desc: 'Задайте FTMIND_BASE_URL и FTMIND_API_KEY в shell или ~/.zshrc / ~/.bashrc. Пример ниже использует текущий API URL — замените API Key на фактическое значение.',
         },
         install: {
           title: 'Установка Skill',
@@ -6283,7 +6283,7 @@ export default {
       ecosystemNote:
         'Skill размещён на ClawHub ({\'@\'}justaboyhai-wq/fmind). Полная документация API — на странице ClawHub.',
       installCta: 'Открыть ClawHub',
-      installCtaHint: 'Установка FMind Skill · откроется в новой вкладке',
+      installCtaHint: 'Установка FTMind Skill · откроется в новой вкладке',
       hubMeta: 'ClawHub · {\'@\'}justaboyhai-wq/fmind · MIT-0',
     },
   },

@@ -385,12 +385,12 @@ const PROTECTED_FILE_RETRY_COOLDOWN_MS = 5000;
 function getProtectedFileRequestHeaders(): Record<string, string> {
   const headers: Record<string, string> = {};
   try {
-    const token = (localStorage.getItem('fmind_token') || '').trim();
+    const token = (localStorage.getItem('ftmind_token') || '').trim();
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const selectedTenantId = (localStorage.getItem('fmind_selected_tenant_id') || '').trim();
+    const selectedTenantId = (localStorage.getItem('ftmind_selected_tenant_id') || '').trim();
     if (selectedTenantId) {
       // Always attach when a selected tenant is set. Same rationale as
       // utils/request.ts / api/chat/streame.ts: the

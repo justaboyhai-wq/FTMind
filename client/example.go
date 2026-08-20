@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// ExampleUsage demonstrates the complete usage flow of the FMind client, including:
+// ExampleUsage demonstrates the complete usage flow of the FTMind client, including:
 // - Creating a client instance
 // - Creating a knowledge base
 // - Uploading knowledge files

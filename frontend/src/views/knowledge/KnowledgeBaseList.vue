@@ -631,7 +631,7 @@
 
         <!-- 全部空状态：保留「新建知识库」CTA，因为是空间没有任何 KB 的真空场景 -->
         <div v-if="spaceSelection === 'all' && filteredKnowledgeBases.length === 0 && !loading" class="empty-state">
-          <FMindEmptyStateArt class="empty-art" variant="knowledge" />
+          <FTMindEmptyStateArt class="empty-art" variant="knowledge" />
           <span class="empty-txt">{{ $t('knowledgeList.empty.title') }}</span>
           <span class="empty-desc">{{ $t('knowledgeList.empty.description') }}</span>
           <t-button v-if="authStore.hasRole('contributor')" class="kb-create-btn empty-state-btn"
@@ -659,7 +659,7 @@
 
         <!-- 我的知识库空状态 -->
         <div v-if="spaceSelection === 'mine' && kbs.length === 0 && !loading" class="empty-state">
-          <FMindEmptyStateArt class="empty-art" variant="knowledge" />
+          <FTMindEmptyStateArt class="empty-art" variant="knowledge" />
           <span class="empty-txt">{{ $t('knowledgeList.empty.title') }}</span>
           <span class="empty-desc">{{ $t('knowledgeList.empty.description') }}</span>
           <t-button v-if="authStore.hasRole('contributor')" class="kb-create-btn empty-state-btn"
@@ -671,7 +671,7 @@
 
         <!-- 空间下知识库空状态 -->
         <div v-if="spaceSelectionOrgId && !spaceKbsLoading && spaceKbsList.length === 0" class="empty-state">
-          <FMindEmptyStateArt class="empty-art" variant="shared" />
+          <FTMindEmptyStateArt class="empty-art" variant="shared" />
           <span class="empty-txt">{{ $t('knowledgeList.empty.sharedTitle') }}</span>
           <span class="empty-desc">{{ $t('knowledgeList.empty.sharedDescription') }}</span>
         </div>
@@ -801,7 +801,7 @@ import { useTenantModelReadiness } from '@/composables/useTenantModelReadiness'
 import { useI18n } from 'vue-i18n'
 import { useListUrlState } from '@/composables/useListUrlState'
 import { useResourcePins } from '@/composables/useResourcePins'
-import FMindEmptyStateArt from '@/components/FMindEmptyStateArt.vue'
+import FTMindEmptyStateArt from '@/components/FTMindEmptyStateArt.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -1371,7 +1371,7 @@ function isMyKb(kb: { creator_id?: string }): boolean {
 }
 
 // kbOriginVariant 决定卡片右下角徽章的展示形态：
-//   - 我自己创建的：mine（FMind 品牌色“我创建”）
+//   - 我自己创建的：mine（FTMind 品牌色“我创建”）
 //   - 同空间他人创建的：creator 变体——只显示创建者名字。用户始终在
 //     某个工作空间内浏览（顶部 TenantSelector 已经标了空间身份），右下
 //     角再贴一遍空间名属于重复信息；contributor / admin / owner / viewer
@@ -1958,7 +1958,7 @@ const handleUploadFinishedEvent = (event: Event) => {
 
 
 // 共享知识库卡片样式
-// 共享标识使用 FMind 品牌表面，位置贴右上角。
+// 共享标识使用 FTMind 品牌表面，位置贴右上角。
 .shared-badge {
   position: absolute;
   top: 8px;
@@ -2012,7 +2012,7 @@ const handleUploadFinishedEvent = (event: Event) => {
   }
 }
 
-// 「我的」知识库标签与 .org-source 使用同一套 FMind 品牌表面。
+// 「我的」知识库标签与 .org-source 使用同一套 FTMind 品牌表面。
 .personal-source {
   display: inline-flex;
   align-items: center;

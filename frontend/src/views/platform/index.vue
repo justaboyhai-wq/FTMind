@@ -2,7 +2,7 @@
     <div class="main" ref="dropzone">
         <Menu></Menu>
         <div class="platform-column">
-            <header class="fmind-workspace-topbar">
+            <header class="ftmind-workspace-topbar">
                 <div class="fmind-workspace-crumb">
                     <span class="fmind-workspace-crumb__dot" aria-hidden="true"></span>
                     <span>FTMind</span>
@@ -294,7 +294,7 @@ onUnmounted(() => {
     flex-direction: column;
 }
 
-.fmind-workspace-topbar {
+.ftmind-workspace-topbar {
     display: flex;
     height: 50px;
     flex: 0 0 50px;
@@ -308,16 +308,16 @@ onUnmounted(() => {
     font-weight: 620;
 }
 
-.fmind-workspace-crumb, .fmind-workspace-status {
+.ftmind-workspace-crumb, .ftmind-workspace-status {
     display: inline-flex;
     align-items: center;
     gap: 8px;
 }
 
-.fmind-workspace-crumb small { color: var(--td-text-color-placeholder); font-size: 11px; font-weight: 500; }
-.fmind-workspace-crumb__dot { width: 7px; height: 7px; background: var(--td-brand-color); border-radius: 50%; box-shadow: 0 0 0 3px var(--td-brand-color-light); }
-.fmind-workspace-status { color: var(--td-text-color-placeholder); font-size: 11px; }
-.fmind-workspace-status > span {
+.ftmind-workspace-crumb small { color: var(--td-text-color-placeholder); font-size: 11px; font-weight: 500; }
+.ftmind-workspace-crumb__dot { width: 7px; height: 7px; background: var(--td-brand-color); border-radius: 50%; box-shadow: 0 0 0 3px var(--td-brand-color-light); }
+.ftmind-workspace-status { color: var(--td-text-color-placeholder); font-size: 11px; }
+.ftmind-workspace-status > span {
     width: 7px;
     height: 7px;
     border-radius: 2px;
@@ -333,7 +333,7 @@ onUnmounted(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .fmind-workspace-status > span { animation: none; }
+    .ftmind-workspace-status > span { animation: none; }
 }
 
 /* 右侧路由区：占满剩余宽度与整列高度，并把 min-height:0 传给子页面以便内部 flex 滚动 */

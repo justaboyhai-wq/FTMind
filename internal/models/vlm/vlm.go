@@ -41,7 +41,7 @@ type Config struct {
 
 // ConfigFromModel 根据 types.Model 构造 vlm.Config。
 // 生产路径（从 DB 拉起）和测试连接路径（临时表单）共享这份映射。
-// appID / appSecret 是已解密的 FMindCloud 凭证，调用方负责传入。
+// appID / appSecret 是已解密的 FTMindCloud 凭证，调用方负责传入。
 // InterfaceType 会根据 source / 模型参数自动回退到合理默认值。
 func ConfigFromModel(m *types.Model, appID, appSecret string) *Config {
 	if m == nil {
@@ -108,8 +108,8 @@ func newVLM(config *Config, ollamaService *ollama.OllamaService) (VLM, error) {
 	if providerName == "" {
 		providerName = provider.DetectProvider(config.BaseURL)
 	}
-	if providerName == provider.ProviderFMindCloud {
-		return NewFMindCloudVLM(config)
+	if providerName == provider.ProviderFTMindCloud {
+		return NewFTMindCloudVLM(config)
 	}
 
 	return NewRemoteAPIVLM(config)

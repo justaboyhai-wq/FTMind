@@ -1,5 +1,5 @@
 // Package cognition defines the stable MCP contract for external-agent memory
-// access. The existing FMind MCP client/server integrations remain unchanged;
+// access. The existing FTMind MCP client/server integrations remain unchanged;
 // this contract is an additive bridge for MemoryProxy and future connectors.
 package cognition
 

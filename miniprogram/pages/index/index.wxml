@@ -1,12 +1,12 @@
 <view class="page">
   <view class="card hero">
-    <view class="title">FMind Knowledge</view>
+    <view class="title">FTMind Knowledge</view>
     <view class="muted">Import a web page into a selected knowledge base from WeChat.</view>
   </view>
 
   <view class="card section">
     <view wx:if="{{needsSettings}}" class="notice">
-      Configure the FMind API base URL and API key before loading knowledge bases.
+      Configure the FTMind API base URL and API key before loading knowledge bases.
       <button bindtap="openSettings" class="secondary">Open Settings</button>
     </view>
 

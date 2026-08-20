@@ -7,7 +7,7 @@ source: RBAC说明.md
 
 # 空间 RBAC 说明
 
-本文档介绍 FMind 的**空间内权限控制（Workspace RBAC）**，包括角色矩阵、资源归属模型，以及它与 [共享空间](./共享空间说明.md) 的关系。
+本文档介绍 FTMind 的**空间内权限控制（Workspace RBAC）**，包括角色矩阵、资源归属模型，以及它与 [共享空间](./共享空间说明.md) 的关系。
 
 > 状态：已发布；由配置项 `tenant.enable_rbac` 控制，默认 `true`（强制鉴权）。
 > 完整说明、灰度方案、Schema、路由守卫等参见 [`docs/RBAC说明.md`](../../RBAC说明.md)。

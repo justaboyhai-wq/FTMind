@@ -104,7 +104,7 @@ func runMigrate(args []string) error {
 	rollbackApply := fs.Bool("rollback", false, "restore names and metadata from --rollback-file")
 	rollback := fs.String("rollback-file", "baoan-policy-migration-rollback.json", "rollback manifest path")
 	dbURL := fs.String("db-url", os.Getenv("DATABASE_URL"), "PostgreSQL URL (or DATABASE_URL)")
-	datasourceID := fs.String("datasource-id", "", "existing FMind RSS data source ID; seed its cursor after apply")
+	datasourceID := fs.String("datasource-id", "", "existing FTMind RSS data source ID; seed its cursor after apply")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -887,7 +887,7 @@ func rssContentFingerprint(content string) string {
 	return "h:" + hex.EncodeToString(sum[:])[:16]
 }
 
-// rssFeedSignalFingerprint intentionally mirrors FMind's RSS connector. The
+// rssFeedSignalFingerprint intentionally mirrors FTMind's RSS connector. The
 // signal lets its first incremental run skip an adopted policy before it
 // fetches the linked canonical page, so existing knowledge IDs stay intact.
 func rssFeedSignalFingerprint(item *gofeed.Item, feedContent string) string {
@@ -915,7 +915,7 @@ func rssFeedSignalFingerprint(item *gofeed.Item, feedContent string) string {
 	return "s:" + hex.EncodeToString(sum[:])[:16]
 }
 
-// rssFeedContentSignal mirrors FMind's RSS connector but deliberately omits
+// rssFeedContentSignal mirrors FTMind's RSS connector but deliberately omits
 // categories, allowing a policy whose only feed change is tagging to retain
 // its existing knowledge ID and derived artifacts.
 func rssFeedContentSignal(item *gofeed.Item, feedContent string) string {

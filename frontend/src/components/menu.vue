@@ -4,7 +4,7 @@
         <div class="logo_row" v-if="!uiStore.sidebarCollapsed">
             <div class="logo_box" @click="router.push('/platform/knowledge-bases')" style="cursor: pointer;">
                 <span class="fmind-mark" aria-label="FTMind">
-                    <img :src="sfLogo" class="fmind-mark__logo" alt="" />
+                    <img :src="sfLogo" class="ftmind-mark__logo" alt="" />
                     <span class="fmind-mark__name">FTMind</span>
                 </span>
                 <sup v-if="isLiteEdition" class="lite-badge">Lite</sup>
@@ -261,7 +261,7 @@ import telegramLogo from '@/assets/img/im/telegram.svg';
 import dingtalkLogo from '@/assets/img/im/dingtalk.svg';
 import mattermostLogo from '@/assets/img/im/mattermost.svg';
 import wechatLogo from '@/assets/img/im/wechat.svg';
-import sfLogo from '@/assets/img/brand/sf-logo-alone.png';
+import sfLogo from '@/assets/img/brand/ftmind-logo.png';
 import qqbotLogo from '@/assets/img/im/qqbot.png';
 
 const PLATFORM_LOGO: Record<string, string> = {
@@ -412,7 +412,7 @@ const isMenuItemActive = (itemPath: string): boolean => {
     }
 };
 
-// FMind 使用同一套 currentColor 线性图标；激活态只改变颜色和表面，
+// FTMind 使用同一套 currentColor 线性图标；激活态只改变颜色和表面，
 // 不再切换成套的位图状态资源。
 const getMenuIconName = (item: MenuItem): string => {
     const iconByPath: Record<string, string> = {
@@ -1244,13 +1244,13 @@ const onDragHandleMouseDown = (e: MouseEvent) => {
         min-width: 0;
         overflow: hidden;
 
-        .fmind-mark {
+        .ftmind-mark {
             display: inline-flex;
             align-items: center;
             min-width: 0;
         }
 
-        .fmind-mark__logo {
+        .ftmind-mark__logo {
             width: 30px;
             height: 30px;
             margin-right: 8px;
@@ -1258,7 +1258,7 @@ const onDragHandleMouseDown = (e: MouseEvent) => {
             flex: 0 0 auto;
         }
 
-        .fmind-mark__name {
+        .ftmind-mark__name {
             color: var(--td-text-color-primary);
             font-family: var(--app-font-family);
             font-size: 24px;
@@ -1944,7 +1944,7 @@ html[theme-mode="dark"] .aside_box .menu_item_c_active .menu_icon .icon {
     opacity: 0.9;
 }
 
-// Active icons use the FMind brand color inherited from the menu item.
+// Active icons use the FTMind brand color inherited from the menu item.
 html[theme-mode="dark"] .aside_box .menu_item_active .menu_icon .icon {
     filter: none;
     opacity: 1;

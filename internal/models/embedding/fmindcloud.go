@@ -17,8 +17,8 @@ import (
 
 const fmindCloudEmbedPath = "/api/v1/embeddings"
 
-// FMindCloudEmbedder 实现 embedding.Embedder 接口，对接 FMindCloud /api/v1/embeddings
-type FMindCloudEmbedder struct {
+// FTMindCloudEmbedder 实现 embedding.Embedder 接口，对接 FTMindCloud /api/v1/embeddings
+type FTMindCloudEmbedder struct {
 	modelName                 string
 	remoteModelName           string
 	modelID                   string
@@ -31,13 +31,13 @@ type FMindCloudEmbedder struct {
 	EmbedderPooler
 }
 
-// NewFMindCloudEmbedder 构造 FMindCloudEmbedder
-func NewFMindCloudEmbedder(config Config) (*FMindCloudEmbedder, error) {
+// NewFTMindCloudEmbedder 构造 FTMindCloudEmbedder
+func NewFTMindCloudEmbedder(config Config) (*FTMindCloudEmbedder, error) {
 	if config.AppID == "" {
-		return nil, fmt.Errorf("FMindCloud embedder: AppID is required")
+		return nil, fmt.Errorf("FTMindCloud embedder: AppID is required")
 	}
 	if config.AppSecret == "" {
-		return nil, fmt.Errorf("FMindCloud embedder: AppSecret is required")
+		return nil, fmt.Errorf("FTMindCloud embedder: AppSecret is required")
 	}
 	remoteModelName := ""
 	if config.ExtraConfig != nil {
@@ -45,12 +45,12 @@ func NewFMindCloudEmbedder(config Config) (*FMindCloudEmbedder, error) {
 	}
 	baseURL := strings.TrimRight(config.BaseURL, "/")
 	if baseURL == "" {
-		baseURL = provider.FMindCloudBaseURL
+		baseURL = provider.FTMindCloudBaseURL
 	}
 	if err := validateEmbeddingBaseURL(baseURL); err != nil {
 		return nil, err
 	}
-	return &FMindCloudEmbedder{
+	return &FTMindCloudEmbedder{
 		modelName:                 config.ModelName,
 		remoteModelName:           remoteModelName,
 		modelID:                   config.ModelID,
@@ -77,7 +77,7 @@ type fmindCloudEmbedResponse struct {
 	} `json:"data"`
 }
 
-func (e *FMindCloudEmbedder) Embed(ctx context.Context, text string) ([]float32, error) {
+func (e *FTMindCloudEmbedder) Embed(ctx context.Context, text string) ([]float32, error) {
 	results, err := e.BatchEmbed(ctx, []string{text})
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func (e *FMindCloudEmbedder) Embed(ctx context.Context, text string) ([]float32,
 	return results[0], nil
 }
 
-func (e *FMindCloudEmbedder) BatchEmbed(ctx context.Context, texts []string) ([][]float32, error) {
+func (e *FTMindCloudEmbedder) BatchEmbed(ctx context.Context, texts []string) ([][]float32, error) {
 	reqBody := fmindCloudEmbedRequest{Model: e.effectiveModelName(), Input: texts}
 	if e.supportsDimensionOverride && e.dimensions > 0 {
 		reqBody.Dimensions = e.dimensions
@@ -138,21 +138,21 @@ func (e *FMindCloudEmbedder) BatchEmbed(ctx context.Context, texts []string) ([]
 	return result, nil
 }
 
-func (e *FMindCloudEmbedder) BatchEmbedWithPool(ctx context.Context, model Embedder, texts []string) ([][]float32, error) {
+func (e *FTMindCloudEmbedder) BatchEmbedWithPool(ctx context.Context, model Embedder, texts []string) ([][]float32, error) {
 	return e.BatchEmbed(ctx, texts)
 }
 
-func (e *FMindCloudEmbedder) SetSupportsDimensionOverride(supported bool) {
+func (e *FTMindCloudEmbedder) SetSupportsDimensionOverride(supported bool) {
 	e.supportsDimensionOverride = supported
 }
 
-func (e *FMindCloudEmbedder) effectiveModelName() string {
+func (e *FTMindCloudEmbedder) effectiveModelName() string {
 	if e.remoteModelName != "" {
 		return e.remoteModelName
 	}
 	return e.modelName
 }
 
-func (e *FMindCloudEmbedder) GetModelName() string { return e.modelName }
-func (e *FMindCloudEmbedder) GetModelID() string   { return e.modelID }
-func (e *FMindCloudEmbedder) GetDimensions() int   { return e.dimensions }
+func (e *FTMindCloudEmbedder) GetModelName() string { return e.modelName }
+func (e *FTMindCloudEmbedder) GetModelID() string   { return e.modelID }
+func (e *FTMindCloudEmbedder) GetDimensions() int   { return e.dimensions }

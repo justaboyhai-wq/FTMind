@@ -87,7 +87,7 @@ func (s *Server) ToolNames() []string {
 // tool argument or caller-supplied BindingContext.
 func (s *Server) HTTPHandler() http.Handler {
 	mcpServer := mcpserver.NewMCPServer(
-		"FMind Cognition",
+		"FTMind Cognition",
 		"1.0.0",
 		mcpserver.WithToolCapabilities(false),
 	)
@@ -190,7 +190,7 @@ func bindingTokenFromRequest(request *http.Request) (string, error) {
 
 func cognitionTool(name string) mcp.Tool {
 	options := []mcp.ToolOption{
-		mcp.WithDescription("FMind scoped cognition operation: " + name),
+		mcp.WithDescription("FTMind scoped cognition operation: " + name),
 		mcp.WithString("trace_id", mcp.Description("End-to-end audit trace identifier")),
 		mcp.WithSchemaAdditionalProperties(true),
 	}

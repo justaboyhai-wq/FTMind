@@ -16,10 +16,10 @@ func TestStripAtMentionBasic(t *testing.T) {
 		{"single-word bot double-space", "@Bot  /stop", "/stop"},
 		{"single-word bot single-space", "@Bot /stop", "/stop"},
 		{"single-word bot double-space chinese", "@Bot  你好世界", "你好世界"},
-		{"multi-word bot double-space", "@FMind Bot  /stop", "/stop"},
-		{"multi-word bot double-space chinese", "@FMind Bot  什么是上下文工程", "什么是上下文工程"},
-		{"multi-word bot single-space command", "@FMind Bot /stop", "/stop"},
-		{"multi-word bot single-space chinese", "@FMind Bot 什么是老登", "什么是老登"},
+		{"multi-word bot double-space", "@FTMind Bot  /stop", "/stop"},
+		{"multi-word bot double-space chinese", "@FTMind Bot  什么是上下文工程", "什么是上下文工程"},
+		{"multi-word bot single-space command", "@FTMind Bot /stop", "/stop"},
+		{"multi-word bot single-space chinese", "@FTMind Bot 什么是老登", "什么是老登"},
 		{"leading whitespace", "  @Bot  hello  ", "hello"},
 		{"double-space in user content", "@Bot  hello  world", "hello  world"},
 	}
@@ -37,25 +37,25 @@ func TestLongConnClient_StripAtMention(t *testing.T) {
 	t.Run("learns bot name from double-space then handles single-space", func(t *testing.T) {
 		c := &LongConnClient{}
 
-		// First message: double-space → learn "FMind Bot"
-		got := c.stripAtMention("@FMind Bot  什么是上下文工程")
+		// First message: double-space → learn "FTMind Bot"
+		got := c.stripAtMention("@FTMind Bot  什么是上下文工程")
 		if got != "什么是上下文工程" {
 			t.Errorf("first message: got %q, want %q", got, "什么是上下文工程")
 		}
 
 		// Verify bot name was cached
-		if name, _ := c.botDisplayName.Load().(string); name != "FMind Bot" {
-			t.Errorf("cached bot name = %q, want %q", name, "FMind Bot")
+		if name, _ := c.botDisplayName.Load().(string); name != "FTMind Bot" {
+			t.Errorf("cached bot name = %q, want %q", name, "FTMind Bot")
 		}
 
 		// Second message: single-space → should use cached name
-		got = c.stripAtMention("@FMind Bot /stop")
+		got = c.stripAtMention("@FTMind Bot /stop")
 		if got != "/stop" {
 			t.Errorf("second message: got %q, want %q", got, "/stop")
 		}
 
 		// Single-space with chinese content
-		got = c.stripAtMention("@FMind Bot 什么是B+树")
+		got = c.stripAtMention("@FTMind Bot 什么是B+树")
 		if got != "什么是B+树" {
 			t.Errorf("chinese single-space: got %q, want %q", got, "什么是B+树")
 		}
@@ -63,10 +63,10 @@ func TestLongConnClient_StripAtMention(t *testing.T) {
 
 	t.Run("preconfigured bot name", func(t *testing.T) {
 		c := &LongConnClient{}
-		c.botDisplayName.Store("FMind Bot")
+		c.botDisplayName.Store("FTMind Bot")
 
 		// Single-space should work immediately without learning
-		got := c.stripAtMention("@FMind Bot /stop")
+		got := c.stripAtMention("@FTMind Bot /stop")
 		if got != "/stop" {
 			t.Errorf("got %q, want %q", got, "/stop")
 		}
@@ -131,7 +131,7 @@ func TestLongConnClient_StripAtMention(t *testing.T) {
 	t.Run("cold start single-space command", func(t *testing.T) {
 		c := &LongConnClient{}
 		// No cached name, single space → heuristic detects " /" boundary
-		got := c.stripAtMention("@FMind Bot /stop")
+		got := c.stripAtMention("@FTMind Bot /stop")
 		if got != "/stop" {
 			t.Errorf("got %q, want %q", got, "/stop")
 		}
@@ -140,7 +140,7 @@ func TestLongConnClient_StripAtMention(t *testing.T) {
 	t.Run("cold start single-space chinese", func(t *testing.T) {
 		c := &LongConnClient{}
 		// No cached name, single space → heuristic detects non-ASCII boundary
-		got := c.stripAtMention("@FMind Bot 什么是老登")
+		got := c.stripAtMention("@FTMind Bot 什么是老登")
 		if got != "什么是老登" {
 			t.Errorf("got %q, want %q", got, "什么是老登")
 		}
@@ -149,7 +149,7 @@ func TestLongConnClient_StripAtMention(t *testing.T) {
 	t.Run("cold start all-ascii content falls back to first word", func(t *testing.T) {
 		c := &LongConnClient{}
 		// No cached name, all ASCII → heuristic can't find boundary, strips first @word
-		got := c.stripAtMention("@FMind Bot hello")
+		got := c.stripAtMention("@FTMind Bot hello")
 		if got != "Bot hello" {
 			t.Errorf("got %q, want %q", got, "Bot hello")
 		}

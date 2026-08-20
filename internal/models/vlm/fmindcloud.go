@@ -17,8 +17,8 @@ import (
 
 const fmindCloudVLMPath = "/api/v1/chat/completions"
 
-// FMindCloudVLM implements VLM via the FMindCloud API.
-type FMindCloudVLM struct {
+// FTMindCloudVLM implements VLM via the FTMindCloud API.
+type FTMindCloudVLM struct {
 	modelName       string
 	remoteModelName string
 	modelID         string
@@ -28,13 +28,13 @@ type FMindCloudVLM struct {
 	client          *http.Client
 }
 
-// NewFMindCloudVLM creates a FMindCloud-backed VLM instance.
-func NewFMindCloudVLM(config *Config) (*FMindCloudVLM, error) {
+// NewFTMindCloudVLM creates a FTMindCloud-backed VLM instance.
+func NewFTMindCloudVLM(config *Config) (*FTMindCloudVLM, error) {
 	if config.AppID == "" {
-		return nil, fmt.Errorf("FMindCloud VLM: AppID is required")
+		return nil, fmt.Errorf("FTMindCloud VLM: AppID is required")
 	}
 	if config.AppSecret == "" {
-		return nil, fmt.Errorf("FMindCloud VLM: AppSecret is required")
+		return nil, fmt.Errorf("FTMindCloud VLM: AppSecret is required")
 	}
 	baseURL := strings.TrimRight(config.BaseURL, "/")
 	if err := validateVLMBaseURL(baseURL); err != nil {
@@ -48,7 +48,7 @@ func NewFMindCloudVLM(config *Config) (*FMindCloudVLM, error) {
 			}
 		}
 	}
-	return &FMindCloudVLM{
+	return &FTMindCloudVLM{
 		modelName:       config.ModelName,
 		remoteModelName: remoteModelName,
 		modelID:         config.ModelID,
@@ -90,8 +90,8 @@ type fmindCloudVLMResponse struct {
 	} `json:"choices"`
 }
 
-// Predict sends images with a text prompt to the FMindCloud API.
-func (v *FMindCloudVLM) Predict(ctx context.Context, imgBytesList [][]byte, prompt string) (string, error) {
+// Predict sends images with a text prompt to the FTMindCloud API.
+func (v *FTMindCloudVLM) Predict(ctx context.Context, imgBytesList [][]byte, prompt string) (string, error) {
 	var parts []fmindCloudVLMContentPart
 
 	parts = append(parts, fmindCloudVLMContentPart{
@@ -147,7 +147,7 @@ func (v *FMindCloudVLM) Predict(ctx context.Context, imgBytesList [][]byte, prom
 	for _, img := range imgBytesList {
 		totalImageSize += len(img)
 	}
-	logger.Infof(ctx, "[VLM] Calling FMindCloud API, model=%s, baseURL=%s, numImages=%d, totalImageSize=%d",
+	logger.Infof(ctx, "[VLM] Calling FTMindCloud API, model=%s, baseURL=%s, numImages=%d, totalImageSize=%d",
 		v.effectiveModelName(), v.baseURL, len(imgBytesList), totalImageSize)
 
 	resp, err := v.client.Do(req)
@@ -173,16 +173,16 @@ func (v *FMindCloudVLM) Predict(ctx context.Context, imgBytesList [][]byte, prom
 	}
 
 	content := vlmResp.Choices[0].Message.Content
-	logger.Infof(ctx, "[VLM] FMindCloud response received, len=%d", len(content))
+	logger.Infof(ctx, "[VLM] FTMindCloud response received, len=%d", len(content))
 	return content, nil
 }
 
-func (v *FMindCloudVLM) effectiveModelName() string {
+func (v *FTMindCloudVLM) effectiveModelName() string {
 	if v.remoteModelName != "" {
 		return v.remoteModelName
 	}
 	return v.modelName
 }
 
-func (v *FMindCloudVLM) GetModelName() string { return v.modelName }
-func (v *FMindCloudVLM) GetModelID() string   { return v.modelID }
+func (v *FTMindCloudVLM) GetModelName() string { return v.modelName }
+func (v *FTMindCloudVLM) GetModelID() string   { return v.modelID }

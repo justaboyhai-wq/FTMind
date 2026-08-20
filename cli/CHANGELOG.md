@@ -5,7 +5,7 @@ repository) will be documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and the CLI follows [Semantic Versioning](https://semver.org/) independently
-of the FMind server / frontend release cadence.
+of the FTMind server / frontend release cadence.
 
 CLI history before v0.3 is recorded in the project root
 [CHANGELOG.md](../CHANGELOG.md) under the release that introduced the CLI.
@@ -499,7 +499,7 @@ CLI history before v0.3 is recorded in the project root
   `search_chunks`, `chat`, `agent_list`, `agent_invoke`). Destructive
   verbs are intentionally excluded.
 - `fmind agent list` / `agent view` / `agent invoke` — manage and
-  call FMind's server-side Custom Agent resources.
+  call FTMind's server-side Custom Agent resources.
 - `fmind auth token` — print the active credential to `stdout` for
   scripting (raw secret by default; `--json` emits `{token, mode, context}`).
 - `fmind doc upload --from-url` — ingest a remote URL.

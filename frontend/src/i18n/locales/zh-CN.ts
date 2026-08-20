@@ -52,12 +52,12 @@ export default {
     reopen: "新手引导",
     steps: {
       welcome: {
-        title: "欢迎使用 FMind",
+        title: "欢迎使用 FTMind",
         desc: "只需几步，带你快速了解知识库、对话与智能体的核心用法。点击「下一步」开始。",
       },
       knowledge: {
         title: "创建你的知识库",
-        desc: "知识库是一切的起点：上传文档、网页或 FAQ，FMind 会自动解析并建立索引。点击这里进入知识库。",
+        desc: "知识库是一切的起点：上传文档、网页或 FAQ，FTMind 会自动解析并建立索引。点击这里进入知识库。",
       },
       chat: {
         title: "发起智能对话",
@@ -1100,37 +1100,37 @@ export default {
       title: "权限不足",
       desc: "你当前的角色无权访问此设置项。请联系本空间的管理员获取所需角色。",
     },    fmindCloud: {
-      title: "FMind Cloud",
-      description: "配置 FMind Cloud 的 APPID 和 APPSECRET 凭证。凭证用于模型服务和文档解析引擎。",
+      title: "FTMind Cloud",
+      description: "配置 FTMind Cloud 的 APPID 和 APPSECRET 凭证。凭证用于模型服务和文档解析引擎。",
       viewDocs: "查看文档",
       unconfigured: "尚未配置凭证，请填写 APPID 和 APPSECRET",
       configured: "凭证已配置，状态正常",
-      expired: "FMind Cloud 凭证已失效",
+      expired: "FTMind Cloud 凭证已失效",
       expiredDefault: "服务重启后加密密钥已变更，已保存的凭证无法解密。请重新填写凭证。",
       reconfigure: "重新配置",
       appIdLabel: "APPID",
-      appIdDesc: "FMind Cloud 的应用 ID",
+      appIdDesc: "FTMind Cloud 的应用 ID",
       appIdPlaceholder: "请输入 APPID",
       appSecretLabel: "APPSECRET",
-      appSecretDesc: "FMind Cloud 的应用密钥",
+      appSecretDesc: "FTMind Cloud 的应用密钥",
       appSecretPlaceholder: "请输入 APPSECRET",
       saveHint: "保存后将验证服务可达性并加密存储凭证",
       saveBtn: "保存凭证",
       usageTitle: "使用说明",
-      usageSteps: "1. 填写并保存 APPID / APPSECRET\n2. 在下方「云模型接入」中按行添加 chat、embedding、rerank、vlm\n3. 文档解析：知识库设置 → 解析引擎，选择 FMind Cloud 引擎",
+      usageSteps: "1. 填写并保存 APPID / APPSECRET\n2. 在下方「云模型接入」中按行添加 chat、embedding、rerank、vlm\n3. 文档解析：知识库设置 → 解析引擎，选择 FTMind Cloud 引擎",
       fillRequired: "请填写 APPID 和 APPSECRET",
       saveSuccess: "凭证保存成功",
       saveFailed: "凭证保存失败",
-      credentialConfigured: "FMind Cloud 凭证已配置",
+      credentialConfigured: "FTMind Cloud 凭证已配置",
       credentialExpired: "凭证已失效，请重新配置。",
-      credentialUnconfigured: "尚未配置 FMind Cloud 凭证，请先填写 APPID 和 APPSECRET。",
+      credentialUnconfigured: "尚未配置 FTMind Cloud 凭证，请先填写 APPID 和 APPSECRET。",
       checkingStatus: "正在检查凭证状态...",
       goToSettings: "前往设置中配置",
-      modelHintConfigured: "FMind Cloud 凭证已配置。支持的模型可参考",
+      modelHintConfigured: "FTMind Cloud 凭证已配置。支持的模型可参考",
       modelHintDocsLink: "接口文档",
       modelsSection: {
         title: "云模型接入",
-        descReady: "将 FMind Cloud 提供的四类标准模型注册到当前空间，用于对话、向量检索、重排序与多模态理解。",
+        descReady: "将 FTMind Cloud 提供的四类标准模型注册到当前空间，用于对话、向量检索、重排序与多模态理解。",
         descPending: "请先保存上方凭证，再在此添加云模型。",
         statusAdded: "已添加",
         statusPending: "待配置凭证",
@@ -1147,10 +1147,10 @@ export default {
       addModelsAllExist: "四类模型均已存在",
       addModelsEmbeddingFailed: "Embedding 模型连接测试失败，无法获取向量维度",
       addModelsDisplayName: {
-        chat: "FMind Cloud 对话",
-        embedding: "FMind Cloud Embedding",
-        rerank: "FMind Cloud ReRank",
-        vllm: "FMind Cloud 视觉",
+        chat: "FTMind Cloud 对话",
+        embedding: "FTMind Cloud Embedding",
+        rerank: "FTMind Cloud ReRank",
+        vllm: "FTMind Cloud 视觉",
       },
     },
     system: "系统设置",
@@ -1555,7 +1555,7 @@ export default {
   },
   initialization: {
     title: "初始化",
-    welcome: "欢迎使用FMind",
+    welcome: "欢迎使用FTMind",
     description: "请先配置系统以开始使用",
     step1: "步骤1：配置LLM模型",
     step2: "步骤2：配置嵌入模型",
@@ -1807,11 +1807,11 @@ export default {
     backToLogin: "返回登录",
     registerNow: "立即注册",
     loginHint: "登录以继续使用；首次使用请在下方创建账户。",
-    firstTime: "首次使用 FMind？",
+    firstTime: "首次使用 FTMind？",
     registerSuccess: "注册成功，请登录",
     registerFailed: "注册失败",
     subtitle: "RAG 问答、ReAct 智能体与 Wiki 知识库，大模型驱动的企业级知识框架",
-    registerSubtitle: "创建账户并开始使用 FMind",
+    registerSubtitle: "创建账户并开始使用 FTMind",
     emailPlaceholder: "输入邮箱地址",
     passwordPlaceholder: "输入密码（8-32个字符，包含字母和数字）",
     confirmPasswordPlaceholder: "再次输入密码",
@@ -3478,7 +3478,7 @@ export default {
     },
   },
   createChat: {
-    title: "Hi，我是 FMind，让你的知识触手可及",
+    title: "Hi，我是 FTMind，让你的知识触手可及",
     newSessionTitle: "新会话",
     messages: {
       selectKnowledgeBase: "请先选择知识库",
@@ -3717,7 +3717,7 @@ export default {
     allowFileUploadDesc: "开启后，访客可上传图片与文档附件。仅当绑定的智能体已启用图片上传时才会生效。",
     webhookUrl: "Webhook 地址",
     webhookUrlPlaceholder: "https://your-server.example.com/fmind/embed-events",
-    webhookUrlDesc: "可选。访客发消息与助手回复完成时，FMind 会向该 HTTPS 地址 POST 事件（message_sent / message_received）。",
+    webhookUrlDesc: "可选。访客发消息与助手回复完成时，FTMind 会向该 HTTPS 地址 POST 事件（message_sent / message_received）。",
     webhookSecret: "Webhook 签名密钥",
     webhookSecretPlaceholder: "用于 HMAC-SHA256 签名（X-FMind-Signature）",
     webhookSecretKeep: "留空表示不修改已保存的密钥",
@@ -5472,8 +5472,8 @@ export default {
           desc: "PaddleOCR-VL 云 API",
         },
         fmindCloud: {
-          name: "FMind Cloud",
-          desc: "使用 FMind Cloud 进行文档解析",
+          name: "FTMind Cloud",
+          desc: "使用 FTMind Cloud 进行文档解析",
         },
         markitdown: {
           name: "MarkItDown",
@@ -6304,7 +6304,7 @@ export default {
 	      capabilityMessageHistory: "消息历史",
 	      capabilityMessageHistoryHint: "允许检索空间聊天历史并读取聊天历史统计；不授予空间配置权限。",
 	      capabilityManageModels: "管理模型",
-	      capabilityManageModelsHint: "允许管理模型配置、模型凭据、模型连通性测试和 FMind Cloud 凭据。",
+	      capabilityManageModelsHint: "允许管理模型配置、模型凭据、模型连通性测试和 FTMind Cloud 凭据。",
 	      capabilityManageMcpServices: "管理 MCP 服务",
 	      capabilityManageMcpServicesHint: "允许管理 MCP 服务、凭据、工具审批策略和该主体的 OAuth 授权状态。",
 	      capabilityManageDatasources: "管理数据源",
@@ -6350,7 +6350,7 @@ export default {
         "任何持有 API Key 的调用方都可以通过修改用户 ID 请求头冒充其他外部用户，从而共用或劫持其 MCP OAuth 授权。请勿用于浏览器或不可信客户端；面向终端用户请使用「签名 Token」。",
       signedRecommended: "推荐给面向用户的应用：由你的业务后端为外部用户签发短期 HS256 JWT。",
       signedFlowDetail:
-        "HMAC 密钥仅保存在 FMind 与你的可信后端，切勿放入请求或下发给浏览器。请求头里传的是用该密钥签出的 JWT 字符串（每次签发或过期后会变），不是密钥本身。JWT 须包含 sub（外部用户 ID）、tenant_id、aud=fmind、exp（有效期不超过 24 小时）。",
+        "HMAC 密钥仅保存在 FTMind 与你的可信后端，切勿放入请求或下发给浏览器。请求头里传的是用该密钥签出的 JWT 字符串（每次签发或过期后会变），不是密钥本身。JWT 须包含 sub（外部用户 ID）、tenant_id、aud=fmind、exp（有效期不超过 24 小时）。",
       directHeader: "用户 ID 请求头",
       requireDirectHeader: "必须携带用户 ID",
       requireDirectHeaderDesc:
@@ -6358,7 +6358,7 @@ export default {
       tokenHeader: "Token 请求头",
       tokenHeaderDesc: "客户端在该固定请求头中携带后端签发的 JWT。",
       hmacSecret: "HMAC 密钥",
-      hmacSecretDesc: "与 FMind 保存的同一份密钥；仅用于后端签发 JWT，不要作为请求头发送。",
+      hmacSecretDesc: "与 FTMind 保存的同一份密钥；仅用于后端签发 JWT，不要作为请求头发送。",
       secretConfigured: "已配置密钥（不可回看）；输入新值可轮换",
       secretSavedCopyHint: "密钥已保存，请立即复制到后端配置。离开本页后将无法再次查看。",
       generateSecret: "生成密钥",
@@ -6446,7 +6446,7 @@ export default {
     chrome: {
       title: "知识管理助手",
       subtitle:
-        "配合 FMind 自建服务使用：在任意网页侧边栏提问、剪藏内容、Markdown 速记，将浏览中的知识沉淀到你的知识库。",
+        "配合 FTMind 自建服务使用：在任意网页侧边栏提问、剪藏内容、Markdown 速记，将浏览中的知识沉淀到你的知识库。",
       capabilitiesTitle: "核心能力",
       capabilities: {
         qa: {
@@ -6481,7 +6481,7 @@ export default {
         },
         port: {
           title: "桌面版配置固定端口（推荐）",
-          desc: "使用 FMind 桌面版时，在 API 信息中设置固定端口（如 37841），避免每次启动后地址变化导致插件断连。",
+          desc: "使用 FTMind 桌面版时，在 API 信息中设置固定端口（如 37841），避免每次启动后地址变化导致插件断连。",
         },
         install: {
           title: "安装 Chrome 插件",
@@ -6500,9 +6500,9 @@ export default {
       storeMeta: "Chrome 应用商店 · v1.0.0",
     },
     claw: {
-      title: "FMind Skill",
+      title: "FTMind Skill",
       subtitle:
-        "通过 FMind REST API 导入文档并执行混合检索（向量 + 关键词）。适用于上传文件/URL/Markdown 到知识库、跨库检索与浏览知识内容。",
+        "通过 FTMind REST API 导入文档并执行混合检索（向量 + 关键词）。适用于上传文件/URL/Markdown 到知识库、跨库检索与浏览知识内容。",
       capabilitiesTitle: "Skill 能力",
       capabilities: {
         upload: {
@@ -6534,7 +6534,7 @@ export default {
         },
         env: {
           title: "配置环境变量",
-          desc: "在终端或 ~/.zshrc、~/.bashrc 中设置 FMIND_BASE_URL 与 FMIND_API_KEY。下方示例已填入当前 API 地址，请将 API Key 替换为实际值。",
+          desc: "在终端或 ~/.zshrc、~/.bashrc 中设置 FTMIND_BASE_URL 与 FTMIND_API_KEY。下方示例已填入当前 API 地址，请将 API Key 替换为实际值。",
         },
         install: {
           title: "安装 Skill",
@@ -6552,7 +6552,7 @@ export default {
       ecosystemNote:
         "Skill 托管于 ClawHub（{'@'}justaboyhai-wq/fmind），完整 API 说明与版本历史请参见 ClawHub 页面。",
       installCta: "前往 ClawHub",
-      installCtaHint: "安装 FMind Skill · 将在新标签页打开",
+      installCtaHint: "安装 FTMind Skill · 将在新标签页打开",
       hubMeta: "ClawHub · {'@'}justaboyhai-wq/fmind · MIT-0",
     },
   },
@@ -6803,10 +6803,10 @@ export default {
     },
   },
   externalMemory: {
-    eyebrow: '记忆治理', title: '外部记忆', subtitle: '管理外部 Agent 接入与已审核的 L3 记忆，不改变 FMind 原有知识检索路径。', refresh: '刷新', scopeNote: '仅当前空间管理员可用。接入密钥仅在创建或轮换时展示一次。', memoryWikiBadge: '记忆 Wiki',
+    eyebrow: '记忆治理', title: '外部记忆', subtitle: '管理外部 Agent 接入与已审核的 L3 记忆，不改变 FTMind 原有知识检索路径。', refresh: '刷新', scopeNote: '仅当前空间管理员可用。接入密钥仅在创建或轮换时展示一次。', memoryWikiBadge: '记忆 Wiki',
     tabs: { bindings: 'Agent 接入', reviews: 'L3 审核与发布' },
     bindings: { title: 'Agent 接入', desc: '每个绑定仅允许一个外部 Agent 在指定团队及明确能力范围内使用记忆。', create: '创建绑定', createTitle: '创建外部 Agent 绑定', empty: '还没有外部 Agent 绑定。', rotate: '轮换密钥', revoke: '撤销', revokeTitle: '撤销绑定？', revokeHint: '撤销后，{name} 将立即被禁止获取新的记忆访问 Token。', revoked: '绑定已撤销', rotated: '接入密钥已轮换' },
-    fields: { teamId: '团队 ID', userId: '用户 ID', agentId: 'FMind Agent ID', externalAgent: '外部 Agent ID', connector: '接入类型', capabilities: '能力范围', assetScopes: '资产范围', assetScopesHelp: '每行一个或以逗号分隔，如 team:engineering。' }, policy: { capture: '采集记忆', recall: '召回记忆', l3: '启用 L3 审核后发布 Wiki' },
+    fields: { teamId: '团队 ID', userId: '用户 ID', agentId: 'FTMind Agent ID', externalAgent: '外部 Agent ID', connector: '接入类型', capabilities: '能力范围', assetScopes: '资产范围', assetScopesHelp: '每行一个或以逗号分隔，如 team:engineering。' }, policy: { capture: '采集记忆', recall: '召回记忆', l3: '启用 L3 审核后发布 Wiki' },
     secret: { title: '保存接入密钥', warning: '请立即复制密钥，关闭此对话框后将不能再次查看。', copy: '复制', copied: '密钥已复制', copyFailed: '复制失败，请手动选中密钥复制。', confirm: '已安全保存' },
     reviews: { title: 'L3 审核与发布', desc: '只有审核通过的 L3 记忆才能发布到专用的“零 RAG”记忆 Wiki。', allStatuses: '所有状态', empty: '暂无 L3 记忆待处理。', open: '审核', detailTitle: 'L3 记忆审核', markdown: 'Markdown', evidence: '证据', noEvidence: '当前没有记录证据。', reviewComment: '审核评论', comment: '评论', commentRequired: '要求修改时必须填写说明。', commentOptional: '可选评论' },
     actions: { approve: '通过', reject: '拒绝', requestChanges: '要求修改', publish: '发布到记忆 Wiki', saved: '审核已保存', published: '已发布到记忆 Wiki' }, columns: { externalAgent: '外部 Agent', connector: '接入', team: '团队', policy: '策略', status: '状态', actions: '操作', title: 'L3 标题', agent: 'Agent' }, status: { pending_review: '待审核', changes_requested: '需修改', approved: '已通过', publishing: '正在发布', published: '已发布', rejected: '已拒绝', revoked: '已撤销', active: '已启用' }, validation: { required: '该字段为必填项。' }, error: { load: '加载外部记忆数据失败。', save: '保存失败，请稍后再试。' },

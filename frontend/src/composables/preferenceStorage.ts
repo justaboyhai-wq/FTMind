@@ -1,14 +1,14 @@
 /**
  * Shared localStorage utilities for per-user UI preferences (theme, fonts).
  *
- * Storage layout: FMind_${userId}_${suffix}, where userId is the active
+ * Storage layout: FTMind_${userId}_${suffix}, where userId is the active
  * user's id or "anon" before login. Read paths are intentionally narrow —
  * no cross-namespace fallbacks — so one user's preferences cannot bleed
  * into another user's session.
  *
  * One-shot migration adopts pre-existing values into the current user's
  * namespace at login time:
- *   - Legacy un-namespaced keys (FMind_${suffix}) from earlier branch
+ *   - Legacy un-namespaced keys (FTMind_${suffix}) from earlier branch
  *     versions are inherited and removed.
  *   - The "anon" namespace (used while no user is logged in) is also
  *     adopted and cleared, so the next user to log in cannot inherit it.
@@ -23,7 +23,7 @@ const PREFERENCE_SUFFIXES = [
 
 export function readUserId(): string {
   try {
-    const raw = localStorage.getItem('fmind_user')
+    const raw = localStorage.getItem('ftmind_user')
     if (!raw) return 'anon'
     const parsed = JSON.parse(raw)
     return parsed?.id ? String(parsed.id) : 'anon'
@@ -46,7 +46,7 @@ export function safeSetItem(key: string, value: string): void {
   } catch (err) {
     // Quota exceeded, disabled storage, private mode — surface in DevTools
     // so the issue is at least diagnosable, but don't break the UI.
-    console.warn(`[FMind] failed to persist preference "${key}":`, err)
+    console.warn(`[FTMind] failed to persist preference "${key}":`, err)
   }
 }
 
@@ -59,7 +59,7 @@ export function safeRemoveItem(key: string): void {
 }
 
 export function userKey(suffix: string): string {
-  return `FMind_${readUserId()}_${suffix}`
+  return `FTMind_${readUserId()}_${suffix}`
 }
 
 export function loadPreference(suffix: string): string | null {
@@ -85,20 +85,32 @@ export function migratePreferencesIntoUser(): void {
   migratedForUser = userId
 
   for (const suffix of PREFERENCE_SUFFIXES) {
-    const target = `FMind_${userId}_${suffix}`
+    const target = `FTMind_${userId}_${suffix}`
     const targetExists = safeGetItem(target) !== null
 
-    const anonKey = `FMind_anon_${suffix}`
-    const legacyKey = `FMind_${suffix}`
+    const anonKey = `FTMind_anon_${suffix}`
+    const legacyKey = `FTMind_${suffix}`
+    const rebrandLegacyKey = `FMind_${suffix}`
+    const rebrandUserKey = `FMind_${userId}_${suffix}`
 
     if (!targetExists) {
       const anonValue = safeGetItem(anonKey)
       if (anonValue !== null) {
         safeSetItem(target, anonValue)
       } else {
-        const legacyValue = safeGetItem(legacyKey)
-        if (legacyValue !== null) {
-          safeSetItem(target, legacyValue)
+        const rebrandUserValue = safeGetItem(rebrandUserKey)
+        if (rebrandUserValue !== null) {
+          safeSetItem(target, rebrandUserValue)
+        } else {
+          const legacyValue = safeGetItem(legacyKey)
+          if (legacyValue !== null) {
+            safeSetItem(target, legacyValue)
+          } else {
+            const rebrandLegacyValue = safeGetItem(rebrandLegacyKey)
+            if (rebrandLegacyValue !== null) {
+              safeSetItem(target, rebrandLegacyValue)
+            }
+          }
         }
       }
     }
@@ -106,6 +118,8 @@ export function migratePreferencesIntoUser(): void {
     // Always clean up source keys so subsequent users cannot inherit them.
     safeRemoveItem(anonKey)
     safeRemoveItem(legacyKey)
+    safeRemoveItem(rebrandLegacyKey)
+    safeRemoveItem(rebrandUserKey)
   }
 }
 

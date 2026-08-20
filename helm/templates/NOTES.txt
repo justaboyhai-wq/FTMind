@@ -2,12 +2,12 @@
 Copyright 2025 Tencent
 SPDX-License-Identifier: MIT
 
-Post-installation notes for FMind Helm chart.
+Post-installation notes for FTMind Helm chart.
 Ref: https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/templates/NOTES.txt
 */}}
 
 ================================================================================
-  FMind has been installed successfully!
+  FTMind has been installed successfully!
 ================================================================================
 
 Release: {{ .Release.Name }}
@@ -19,13 +19,13 @@ Version: {{ .Chart.AppVersion }}
 --------------------------------------------------------------------------------
 
 {{- if .Values.ingress.enabled }}
-FMind is accessible via Ingress:
+FTMind is accessible via Ingress:
 
   URL: {{ if .Values.ingress.tls.enabled }}https{{ else }}http{{ end }}://{{ .Values.ingress.host }}
 
 {{- else }}
 
-To access FMind, use port-forwarding:
+To access FTMind, use port-forwarding:
 
   # Frontend (Web UI)
   kubectl port-forward svc/frontend -n {{ .Release.Namespace }} 8080:80
@@ -36,7 +36,7 @@ To access FMind, use port-forwarding:
 
 {{- if not .Values.ingress.enabled }}
 
-To expose FMind externally, enable Ingress:
+To expose FTMind externally, enable Ingress:
 
   helm upgrade {{ .Release.Name }} ./helm \
     --set ingress.enabled=true \
@@ -83,7 +83,7 @@ Optional components enabled:
   CONNECTING TO LLM
 --------------------------------------------------------------------------------
 
-FMind requires an LLM backend. Configure via environment variables:
+FTMind requires an LLM backend. Configure via environment variables:
 
   helm upgrade {{ .Release.Name }} ./helm \
     --set app.extraEnv[0].name=OLLAMA_BASE_URL \

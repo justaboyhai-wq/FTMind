@@ -429,7 +429,7 @@ func (r *repository) ensureCollection(ctx context.Context, dimension int) error 
 		collectionName,
 		uint32(r.shardsNum),
 		uint32(r.replicasNum),
-		fmt.Sprintf("FMind embeddings collection with dimension %d", dimension),
+		fmt.Sprintf("FTMind embeddings collection with dimension %d", dimension),
 		indexes,
 	)
 	if err != nil {

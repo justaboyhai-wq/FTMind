@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// AgentBinding connects an external agent runtime to an FMind agent and an
+// AgentBinding connects an external agent runtime to an FTMind agent and an
 // organization scope. ConnectorSecret is intentionally not persisted here;
 // long-lived secrets belong in the secret store and are exchanged for a
 // short-lived binding token by the binding service.

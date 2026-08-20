@@ -1,4 +1,4 @@
-// Package client provides the implementation for interacting with the FMind API
+// Package client provides the implementation for interacting with the FTMind API
 // The Knowledge related interfaces are used to manage knowledge entries in the knowledge base
 // Knowledge entries can be created from local files, web URLs, or directly from text content
 // They can also be retrieved, deleted, and downloaded as files

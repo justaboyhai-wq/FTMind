@@ -21,7 +21,7 @@ import (
 
 const (
 	envWeaviateCollection = "WEAVIATE_COLLECTION"
-	defaultCollectionName = "FMind_embeddings"
+	defaultCollectionName = "FTMind_embeddings"
 	fieldContent          = "content"
 	fieldSourceID         = "source_id"
 	fieldSourceType       = "source_type"
@@ -80,7 +80,7 @@ func (w *weaviateRepository) ensureCollection(ctx context.Context, dimension int
 		//定义class结构
 		classObj := models.Class{
 			Class:       collectionName,
-			Description: fmt.Sprintf("FMind embeddings collection with dimension %d", dimension),
+			Description: fmt.Sprintf("FTMind embeddings collection with dimension %d", dimension),
 			VectorConfig: map[string]models.VectorConfig{
 				fieldEmbedding: {
 					VectorIndexType: "hnsw",

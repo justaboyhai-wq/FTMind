@@ -312,7 +312,7 @@ func (c IndexConfig) GetIndexNameOrDefault(engineType RetrieverEngineType) strin
 		if c.CollectionPrefix != "" {
 			return c.CollectionPrefix
 		}
-		return "FMind_embeddings"
+		return "FTMind_embeddings"
 	case DorisRetrieverEngineType:
 		// Doris uses the prefix as the table base name; per-dimension tables are
 		// suffixed with _<dim> at runtime by the repository layer.
@@ -739,7 +739,7 @@ func GetVectorStoreTypes() []VectorStoreTypeInfo {
 				{Name: "api_key", Type: "string", Required: false, Sensitive: true, Description: "API Key"},
 			},
 			IndexFields: []VectorStoreFieldInfo{
-				{Name: "collection_prefix", Type: "string", Required: false, Description: "Collection Prefix", Default: "FMind_embeddings"},
+				{Name: "collection_prefix", Type: "string", Required: false, Description: "Collection Prefix", Default: "FTMind_embeddings"},
 				{Name: "desired_shard_count", Type: "number", Required: false, Description: "Shard Count", Default: 1},
 				{Name: "replication_factor", Type: "number", Required: false, Description: "Replication Factor", Default: 1},
 			},

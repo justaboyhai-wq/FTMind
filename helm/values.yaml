@@ -1,7 +1,7 @@
 # Copyright 2025 Tencent
 # SPDX-License-Identifier: MIT
 #
-# FMind Helm Chart Values
+# FTMind Helm Chart Values
 #
 # Best Practices References:
 # - https://helm.sh/docs/chart_best_practices/values/
@@ -402,7 +402,7 @@ secrets:
   tenantAesKey: ""
   # -- System AES-256 key for database field encryption (must be exactly 32 bytes).
   # Encrypts: tenants.api_key, model API keys, vector store credentials,
-  # web search provider keys, FMindCloud.AppSecret.
+  # web search provider keys, FTMindCloud.AppSecret.
   # STRONGLY RECOMMENDED to set this explicitly in production. Same caveat as
   # tenantAesKey: losing this key makes all encrypted fields unreadable
   # (the UI will display ciphertext like "enc:v1:..." instead of plaintext).

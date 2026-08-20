@@ -16,8 +16,8 @@ import (
 
 const fmindCloudRerankPath = "/api/v1/rerank"
 
-// FMindCloudReranker 实现 rerank.Reranker 接口，对接 FMindCloud /api/v1/rerank
-type FMindCloudReranker struct {
+// FTMindCloudReranker 实现 rerank.Reranker 接口，对接 FTMindCloud /api/v1/rerank
+type FTMindCloudReranker struct {
 	modelName       string
 	remoteModelName string
 	modelID         string
@@ -27,13 +27,13 @@ type FMindCloudReranker struct {
 	client          *http.Client
 }
 
-// NewFMindCloudReranker 构造 FMindCloudReranker
-func NewFMindCloudReranker(config *RerankerConfig) (*FMindCloudReranker, error) {
+// NewFTMindCloudReranker 构造 FTMindCloudReranker
+func NewFTMindCloudReranker(config *RerankerConfig) (*FTMindCloudReranker, error) {
 	if config.AppID == "" {
-		return nil, fmt.Errorf("FMindCloud reranker: AppID is required")
+		return nil, fmt.Errorf("FTMindCloud reranker: AppID is required")
 	}
 	if config.AppSecret == "" {
-		return nil, fmt.Errorf("FMindCloud reranker: AppSecret is required")
+		return nil, fmt.Errorf("FTMindCloud reranker: AppSecret is required")
 	}
 	baseURL := strings.TrimRight(config.BaseURL, "/")
 	if err := validateRerankBaseURL(baseURL); err != nil {
@@ -43,7 +43,7 @@ func NewFMindCloudReranker(config *RerankerConfig) (*FMindCloudReranker, error) 
 	if config.ExtraConfig != nil {
 		remoteModelName = strings.TrimSpace(config.ExtraConfig["remote_model_name"])
 	}
-	return &FMindCloudReranker{
+	return &FTMindCloudReranker{
 		modelName:       config.ModelName,
 		remoteModelName: remoteModelName,
 		modelID:         config.ModelID,
@@ -70,7 +70,7 @@ type fmindCloudRerankResponse struct {
 	} `json:"results"`
 }
 
-func (r *FMindCloudReranker) Rerank(ctx context.Context, query string, documents []string) ([]RankResult, error) {
+func (r *FTMindCloudReranker) Rerank(ctx context.Context, query string, documents []string) ([]RankResult, error) {
 	reqBody := fmindCloudRerankRequest{
 		Model:     r.effectiveModelName(),
 		Query:     query,
@@ -123,12 +123,12 @@ func (r *FMindCloudReranker) Rerank(ctx context.Context, query string, documents
 	return results, nil
 }
 
-func (r *FMindCloudReranker) effectiveModelName() string {
+func (r *FTMindCloudReranker) effectiveModelName() string {
 	if r.remoteModelName != "" {
 		return r.remoteModelName
 	}
 	return r.modelName
 }
 
-func (r *FMindCloudReranker) GetModelName() string { return r.modelName }
-func (r *FMindCloudReranker) GetModelID() string   { return r.modelID }
+func (r *FTMindCloudReranker) GetModelName() string { return r.modelName }
+func (r *FTMindCloudReranker) GetModelID() string   { return r.modelID }

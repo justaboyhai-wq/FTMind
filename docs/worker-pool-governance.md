@@ -1,6 +1,6 @@
 # Worker Pool Governance
 
-FMind uses guaranteed per-stage worker pools plus an elastic pool for the
+FTMind uses guaranteed per-stage worker pools plus an elastic pool for the
 document ingestion pipeline. Worker concurrency is a scheduling budget, not a
 replacement for model quotas, DocReader capacity, vector-store limits, or
 database connection limits.

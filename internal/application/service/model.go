@@ -63,13 +63,13 @@ func (s *modelService) decryptAppSecret(encrypted string) string {
 	return encrypted
 }
 
-// resolveFMindCloudCredentials 为 FMindCloud 厂商模型补全 AppID/AppSecret。
+// resolveFTMindCloudCredentials 为 FTMindCloud 厂商模型补全 AppID/AppSecret。
 // 当模型自身参数中未存储凭证时，自动从空间配置中获取（SaveCredentials 保存的凭证）。
-func (s *modelService) resolveFMindCloudCredentials(ctx context.Context, params *types.ModelParameters) (appID, appSecret string) {
+func (s *modelService) resolveFTMindCloudCredentials(ctx context.Context, params *types.ModelParameters) (appID, appSecret string) {
 	appID = params.AppID
 	appSecret = s.decryptAppSecret(params.AppSecret)
 
-	if provider.ProviderName(params.Provider) != provider.ProviderFMindCloud {
+	if provider.ProviderName(params.Provider) != provider.ProviderFTMindCloud {
 		return
 	}
 	if appID != "" && appSecret != "" {
@@ -79,7 +79,7 @@ func (s *modelService) resolveFMindCloudCredentials(ctx context.Context, params 
 	if s.tenantService == nil {
 		return
 	}
-	creds := s.tenantService.GetFMindCloudCredentials(ctx)
+	creds := s.tenantService.GetFTMindCloudCredentials(ctx)
 	if creds == nil {
 		return
 	}
@@ -421,7 +421,7 @@ func (s *modelService) GetEmbeddingModel(ctx context.Context, modelId string) (e
 
 	logger.Infof(ctx, "Getting embedding model: %s, source: %s", model.Name, model.Source)
 
-	appID, appSecret := s.resolveFMindCloudCredentials(ctx, &model.Parameters)
+	appID, appSecret := s.resolveFTMindCloudCredentials(ctx, &model.Parameters)
 
 	embedder, err := embedding.NewEmbedder(embedding.ConfigFromModel(model, appID, appSecret), s.pooler, s.ollamaService)
 	if err != nil {
@@ -468,7 +468,7 @@ func (s *modelService) GetEmbeddingModelForTenant(ctx context.Context, modelId s
 
 	logger.Infof(ctx, "Getting cross-tenant embedding model: %s, source: %s, tenant: %d", model.Name, model.Source, tenantID)
 
-	appID, appSecret := s.resolveFMindCloudCredentials(ctx, &model.Parameters)
+	appID, appSecret := s.resolveFTMindCloudCredentials(ctx, &model.Parameters)
 
 	embedder, err := embedding.NewEmbedder(embedding.ConfigFromModel(model, appID, appSecret), s.pooler, s.ollamaService)
 	if err != nil {
@@ -498,7 +498,7 @@ func (s *modelService) GetRerankModel(ctx context.Context, modelId string) (rera
 
 	logger.Infof(ctx, "Getting rerank model: %s, source: %s", model.Name, model.Source)
 
-	appID, appSecret := s.resolveFMindCloudCredentials(ctx, &model.Parameters)
+	appID, appSecret := s.resolveFTMindCloudCredentials(ctx, &model.Parameters)
 
 	reranker, err := rerank.NewReranker(rerank.ConfigFromModel(model, appID, appSecret))
 	if err != nil {
@@ -541,7 +541,7 @@ func (s *modelService) GetChatModel(ctx context.Context, modelId string) (chat.C
 
 	logger.Infof(ctx, "Getting chat model: %s, source: %s", model.Name, model.Source)
 
-	appID, appSecret := s.resolveFMindCloudCredentials(ctx, &model.Parameters)
+	appID, appSecret := s.resolveFTMindCloudCredentials(ctx, &model.Parameters)
 
 	chatModel, err := chat.NewChat(chat.ConfigFromModel(model, appID, appSecret), s.ollamaService)
 	if err != nil {
@@ -578,7 +578,7 @@ func (s *modelService) GetVLMModel(ctx context.Context, modelId string) (vlm.VLM
 
 	logger.Infof(ctx, "Getting VLM model: %s, source: %s", model.Name, model.Source)
 
-	appID, appSecret := s.resolveFMindCloudCredentials(ctx, &model.Parameters)
+	appID, appSecret := s.resolveFTMindCloudCredentials(ctx, &model.Parameters)
 
 	vlmModel, err := vlm.NewVLM(vlm.ConfigFromModel(model, appID, appSecret), s.ollamaService)
 	if err != nil {

@@ -145,7 +145,7 @@ func (c *Client) do(ctx context.Context, rawURL string, maxBytes int64) (Respons
 	if err != nil {
 		return Response{}, err
 	}
-	req.Header.Set("User-Agent", "FMind-BaoanPolicyCollector/1.0")
+	req.Header.Set("User-Agent", "FTMind-BaoanPolicyCollector/1.0")
 	r, err := c.http.Do(req)
 	if err != nil {
 		return Response{}, unwrapRedirect(err)

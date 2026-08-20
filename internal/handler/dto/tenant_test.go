@@ -66,7 +66,7 @@ func sampleSecretTenant() *types.Tenant {
 			ProxyURL: "http://proxy.internal:8080",
 		},
 		Credentials: &types.CredentialsConfig{
-			FMindCloud: &types.FMindCloudCredentials{
+			FTMindCloud: &types.FTMindCloudCredentials{
 				AppID:     "wk-app-id-abc",
 				AppSecret: "wk-app-secret-def",
 			},

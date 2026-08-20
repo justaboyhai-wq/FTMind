@@ -39,7 +39,7 @@ import (
 // iostreams.IO. The bar to add a new closure is at least 2 commands sharing the
 // same dependency; resist factory bloat.
 //
-// Client returns a *sdk.Client (the FMind SDK). Commands that want narrow
+// Client returns a *sdk.Client (the FTMind SDK). Commands that want narrow
 // service interfaces declare them in their own files and let the real SDK
 // satisfy them implicitly via duck typing.
 type Factory struct {

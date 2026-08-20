@@ -54,7 +54,7 @@ services:
   searxng:
     image: searxng/searxng:latest
     container_name: FMind-searxng-dev
-    # Local dev: bind to loopback by default; the host-side FMind process
+    # Local dev: bind to loopback by default; the host-side FTMind process
     # reaches it at http://127.0.0.1:${SEARXNG_PORT}.
     ports:
       - "${SEARXNG_BIND:-127.0.0.1}:${SEARXNG_PORT:-8888}:8080"
@@ -300,7 +300,7 @@ services:
       - FMind-network-dev
     restart: unless-stopped
 
-  # Optional source-built Agent Memory services for a host-run FMind app.
+  # Optional source-built Agent Memory services for a host-run FTMind app.
   # The local app should listen on APP_PORT and use the FMIND_MEMORY_CORE_*
   # values documented in .env.example. HTTP is permitted only for the two
   # exact development hosts below.

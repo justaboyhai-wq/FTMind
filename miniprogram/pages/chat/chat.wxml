@@ -1,14 +1,14 @@
 <view class="page">
   <view class="card">
     <view class="title">Knowledge Chat</view>
-    <view class="muted">Ask the selected FMind knowledge base.</view>
+    <view class="muted">Ask the selected FTMind knowledge base.</view>
 
     <view class="field">
       <text class="label">Question</text>
       <textarea value="{{query}}" placeholder="Ask something..." bindinput="onQueryInput" />
     </view>
 
-    <button bindtap="ask" loading="{{loading}}" disabled="{{!query}}">Ask FMind</button>
+    <button bindtap="ask" loading="{{loading}}" disabled="{{!query}}">Ask FTMind</button>
   </view>
 
   <view class="card answer-card" wx:if="{{answer || rawResponse}}">

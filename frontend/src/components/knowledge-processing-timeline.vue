@@ -2419,7 +2419,7 @@ const processConfigLines = computed<string[]>(() => {
   top: calc(100% + 8px);
 }
 
-/* Status colors are independent from the FMind brand palette.
+/* Status colors are independent from the FTMind brand palette.
    Done keeps the universal success semantic, while running uses an
    amber striped treatment so lifecycle states remain easy to scan. */
 .kp-bar-done {

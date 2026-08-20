@@ -17,7 +17,7 @@ if [[ "${ans}" != "YES" ]]; then
   exit 0
 fi
 
-echo "[cleanup] 1/8 停止 FMind 容器"
+echo "[cleanup] 1/8 停止 FTMind 容器"
 COMPOSE_PROJECT=""
 if [[ -d "${FMIND_DIR}" ]]; then
   cd "${FMIND_DIR}"
@@ -27,7 +27,7 @@ if [[ -d "${FMIND_DIR}" ]]; then
   docker compose down -v --remove-orphans || true
 fi
 
-echo "[cleanup] 2/8 清空 FMind 业务数据 + 首启 marker / 日志"
+echo "[cleanup] 2/8 清空 FTMind 业务数据 + 首启 marker / 日志"
 if [[ -d "${FMIND_DIR}" ]]; then
   rm -rf "${FMIND_DIR}/data"/* "${FMIND_DIR}/logs"/* 2>/dev/null || true
   # 故意不在这里重建 .env: 让镜像里 .env 缺失, 任何在 firstboot 之前

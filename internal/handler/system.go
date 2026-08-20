@@ -254,7 +254,7 @@ func (h *SystemHandler) ListParserEngines(c *gin.Context) {
 			if tenant.ParserEngineConfig != nil {
 				overrides = tenant.ParserEngineConfig.ToOverridesMap()
 			}
-			if creds := tenant.Credentials.GetFMindCloud(); creds != nil {
+			if creds := tenant.Credentials.GetFTMindCloud(); creds != nil {
 				if overrides == nil {
 					overrides = make(map[string]string)
 				}
@@ -316,7 +316,7 @@ func (h *SystemHandler) ReconnectDocReader(c *gin.Context) {
 			if tenant.ParserEngineConfig != nil {
 				overrides = tenant.ParserEngineConfig.ToOverridesMap()
 			}
-			if creds := tenant.Credentials.GetFMindCloud(); creds != nil {
+			if creds := tenant.Credentials.GetFTMindCloud(); creds != nil {
 				if overrides == nil {
 					overrides = make(map[string]string)
 				}
@@ -357,7 +357,7 @@ func (h *SystemHandler) CheckParserEngines(c *gin.Context) {
 	merged := types.MergeParserEngineConfigForUpdate(&body, existing)
 	overrides := merged.ToOverridesMap()
 	if tenant != nil {
-		if creds := tenant.Credentials.GetFMindCloud(); creds != nil {
+		if creds := tenant.Credentials.GetFTMindCloud(); creds != nil {
 			if overrides == nil {
 				overrides = make(map[string]string)
 			}
@@ -373,7 +373,7 @@ func (h *SystemHandler) CheckParserEngines(c *gin.Context) {
 
 func (h *SystemHandler) resolveDocReader(ctx context.Context, overrides map[string]string) (interfaces.DocumentReader, string, string) {
 	if len(overrides) > 0 {
-		if addr := strings.TrimSpace(overrides["docreader_addr"]); addr != "" && service.IsFMindCloudDocReaderAddr(addr) {
+		if addr := strings.TrimSpace(overrides["docreader_addr"]); addr != "" && service.IsFTMindCloudDocReaderAddr(addr) {
 			reader := h.ResolveDocumentReader(ctx, addr)
 			return reader, addr, transportFromDocReaderAddr(addr)
 		}
@@ -1132,12 +1132,12 @@ func (h *SystemHandler) ResolveDocumentReader(ctx context.Context, addr string) 
 		return h.documentReader
 	}
 
-	if service.IsFMindCloudDocReaderAddr(addr) {
-		creds := h.tenantSvc.GetFMindCloudCredentials(ctx)
+	if service.IsFTMindCloudDocReaderAddr(addr) {
+		creds := h.tenantSvc.GetFTMindCloudCredentials(ctx)
 		if creds == nil {
 			return nil
 		}
-		reader, err := docparser.NewFMindCloudSignedDocumentReader(creds.AppID, creds.AppSecret)
+		reader, err := docparser.NewFTMindCloudSignedDocumentReader(creds.AppID, creds.AppSecret)
 		if err != nil {
 			return nil
 		}

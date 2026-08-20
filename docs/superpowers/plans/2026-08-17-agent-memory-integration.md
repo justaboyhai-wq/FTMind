@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add an FMind-governed external Agent access center in which plugins, providers, and MemoryProxy automatically capture conversations and inject MemoryCore recall, while reviewed L3 memories publish only into team memory Wikis.
+**Goal:** Add an FTMind-governed external Agent access center in which plugins, providers, and MemoryProxy automatically capture conversations and inject MemoryCore recall, while reviewed L3 memories publish only into team memory Wikis.
 
-**Architecture:** FMind is the control plane and sole authority for organization, users, Agents, bindings, keys, policies, review, and Wiki publication. MemoryProxy plus OpenClaw/Hermes connectors form the data plane for automatic capture and recall injection; MemoryCore remains the L0-L3 processing and recall plane. External Agents never invoke L1-L3 extraction directly: connectors capture complete turns into L0 and MemoryCore's existing pipeline performs extraction asynchronously.
+**Architecture:** FTMind is the control plane and sole authority for organization, users, Agents, bindings, keys, policies, review, and Wiki publication. MemoryProxy plus OpenClaw/Hermes connectors form the data plane for automatic capture and recall injection; MemoryCore remains the L0-L3 processing and recall plane. External Agents never invoke L1-L3 extraction directly: connectors capture complete turns into L0 and MemoryCore's existing pipeline performs extraction asynchronously.
 
 **Tech Stack:** Go 1.26, Gin, GORM, PostgreSQL/SQLite, Redis/Asynq, Vue 3, TypeScript 6, TDesign, Node.js 22, Hono/MemoryProxy, MemoryCore Gateway, Vitest, Docker Compose.
 
@@ -14,13 +14,13 @@
 
 1. Organization-scoped AgentBinding and hashed Binding Key control plane.
 2. Signed Binding Context introspection, caching, revocation, and audit.
-3. MemoryProxy OpenAI/Anthropic automatic capture and recall with FMind identity.
+3. MemoryProxy OpenAI/Anthropic automatic capture and recall with FTMind identity.
 4. OpenClaw Plugin and Hermes Provider binding support.
-5. MemoryCore source-built deployment and FMind model capability gateway.
+5. MemoryCore source-built deployment and FTMind model capability gateway.
 6. L3 lifecycle events, review, memory Wiki publication, and recovery.
-7. FMind frontend access center, memory administration, and end-to-end rollout.
+7. FTMind frontend access center, memory administration, and end-to-end rollout.
 
-FMind's existing `enable_memory` preference, Neo4j memory service, and knowledge-base Agent memory path are outside the change set.
+FTMind's existing `enable_memory` preference, Neo4j memory service, and knowledge-base Agent memory path are outside the change set.
 
 ## Task 0: Freeze the PRD delta and existing-capability matrix
 
@@ -30,11 +30,11 @@ FMind's existing `enable_memory` preference, Neo4j memory service, and knowledge
 
 - [ ] **Step 1: Record approved PRD overrides**
 
-State unambiguously: only reviewed L3 publishes to a memory Wiki; L2 remains in MemoryCore and is not published; memory Wiki does not create Raw/RAG assets; FMind internal memory remains unchanged.
+State unambiguously: only reviewed L3 publishes to a memory Wiki; L2 remains in MemoryCore and is not published; memory Wiki does not create Raw/RAG assets; FTMind internal memory remains unchanged.
 
 - [ ] **Step 2: Map every PRD P0 function**
 
-For each `FR-ORG-*`, `FR-AGT-*`, `FR-MEM-*`, `FR-RAW-*`, `FR-PAR-*`, `FR-RAG-*`, `FR-WIKI-*`, `FR-SKL-*`, `FR-GOV-*`, and `FR-OPS-*`, record `existing/reuse`, `adapt`, `new`, or `deferred`, exact FMind file/service, test evidence, and delivery task.
+For each `FR-ORG-*`, `FR-AGT-*`, `FR-MEM-*`, `FR-RAW-*`, `FR-PAR-*`, `FR-RAG-*`, `FR-WIKI-*`, `FR-SKL-*`, `FR-GOV-*`, and `FR-OPS-*`, record `existing/reuse`, `adapt`, `new`, or `deferred`, exact FTMind file/service, test evidence, and delivery task.
 
 - [ ] **Step 3: Freeze MVP exclusions**
 
@@ -142,7 +142,7 @@ Expected: compilation failure.
 
 - [ ] **Step 3: Implement management service**
 
-Never accept `tenant_id` from JSON. Resolve it from auth context and validate department/team/user/Agent references through existing FMind organization services. Supported connectors are constants: `openclaw_plugin`, `hermes_provider`, `openai_proxy`, `anthropic_proxy`, `generic_sdk`.
+Never accept `tenant_id` from JSON. Resolve it from auth context and validate department/team/user/Agent references through existing FTMind organization services. Supported connectors are constants: `openclaw_plugin`, `hermes_provider`, `openai_proxy`, `anthropic_proxy`, `generic_sdk`.
 
 - [ ] **Step 4: Add management routes**
 
@@ -219,7 +219,7 @@ git add internal/middleware/service_auth.go internal/middleware/service_auth_tes
 git commit -m "feat(bindings): issue signed binding contexts"
 ```
 
-## Task 4: Move MemoryProxy identity authority to FMind
+## Task 4: Move MemoryProxy identity authority to FTMind
 
 **Files:**
 - Create: `E:/worktest/TencentDB-Agent-Memory/MemoryProxy/src/fmind/binding-client.ts`
@@ -233,13 +233,13 @@ git commit -m "feat(bindings): issue signed binding contexts"
 
 - [ ] **Step 1: Write failing binding tests**
 
-Verify first-request introspection, cache hit, TTL expiry, policy-version rejection, revoked key, FMind outage behavior, and that request-body/header team/user/Agent values cannot override signed Context.
+Verify first-request introspection, cache hit, TTL expiry, policy-version rejection, revoked key, FTMind outage behavior, and that request-body/header team/user/Agent values cannot override signed Context.
 
 - [ ] **Step 2: Verify failure**
 
 Run from `MemoryProxy`: `npm test -- --run src/fmind`
 
-Expected: FAIL because FMind binding client does not exist.
+Expected: FAIL because FTMind binding client does not exist.
 
 - [ ] **Step 3: Implement client and bounded cache**
 
@@ -247,7 +247,7 @@ Read Connector Secret from the proxy credential position, exchange it for a shor
 
 - [ ] **Step 4: Replace identity resolution**
 
-Make FMind Context authoritative for space/team/user/Agent. Retain existing Redis `BindingRepo` only as a disposable session hot cache keyed by `binding_id + external_session_id`; remove its role as long-term organization authority.
+Make FTMind Context authoritative for space/team/user/Agent. Retain existing Redis `BindingRepo` only as a disposable session hot cache keyed by `binding_id + external_session_id`; remove its role as long-term organization authority.
 
 - [ ] **Step 5: Verify and commit in Memory repository**
 
@@ -257,7 +257,7 @@ Expected: PASS.
 
 ```bash
 git add MemoryProxy/src/fmind MemoryProxy/src/db/binding-repo.ts MemoryProxy/src/identity.ts MemoryProxy/src/handler.ts MemoryProxy/src/anthropicHandler.ts MemoryProxy/src/config.ts
-git commit -m "feat(proxy): use FMind agent bindings"
+git commit -m "feat(proxy): use FTMind agent bindings"
 ```
 
 ## Task 5: Preserve automatic proxy capture and recall
@@ -311,7 +311,7 @@ OpenClaw: `before_prompt_build` recalls, `agent_end` captures, `before_message_w
 
 - [ ] **Step 2: Implement Binding Key configuration**
 
-Replace separately configured team/user/Agent authority with `FMIND_BINDING_KEY` plus FMind introspection URL. Keep framework-native session IDs.
+Replace separately configured team/user/Agent authority with `FMIND_BINDING_KEY` plus FTMind introspection URL. Keep framework-native session IDs.
 
 - [ ] **Step 3: Preserve original extraction semantics**
 
@@ -325,10 +325,10 @@ Expected: PASS.
 
 ```bash
 git add MemoryCore/openclaw-plugin MemoryCore/hermes-plugin
-git commit -m "feat(connectors): bind OpenClaw and Hermes through FMind"
+git commit -m "feat(connectors): bind OpenClaw and Hermes through FTMind"
 ```
 
-## Task 7: Add FMind model capability gateway and wire MemoryCore
+## Task 7: Add FTMind model capability gateway and wire MemoryCore
 
 **Files:**
 - Create: `internal/application/service/modelcap/service.go`
@@ -350,9 +350,9 @@ POST /internal/model-capabilities/v1/chat/completions
 POST /internal/model-capabilities/v1/embeddings
 ```
 
-Reuse FMind `ModelService`; do not create another provider registry.
+Reuse FTMind `ModelService`; do not create another provider registry.
 
-- [ ] **Step 3: Point MemoryCore at FMind**
+- [ ] **Step 3: Point MemoryCore at FTMind**
 
 Use existing OpenAI-compatible LLM and embedding configuration. Preserve prompts, thresholds, capture/extraction/pipeline settings, and recall ranking.
 
@@ -428,9 +428,9 @@ Cover matured, updated, conflicted, revoked, duplicate delivery, transient retry
 
 - [ ] **Step 2: Implement MemoryCore sender**
 
-Write a durable outbox record in the same committed unit as native L3. An independent worker delivers it to FMind; callback failure is observable/retryable and never rolls back L3.
+Write a durable outbox record in the same committed unit as native L3. An independent worker delivers it to FTMind; callback failure is observable/retryable and never rolls back L3.
 
-- [ ] **Step 3: Implement FMind intake**
+- [ ] **Step 3: Implement FTMind intake**
 
 Add `POST /internal/v1/memory/events`; validate service signature, schema, Binding Context scope, checksum, Markdown ≤1 MiB, and evidence ≤256 KiB; persist before returning 202.
 
@@ -509,7 +509,7 @@ Cover `memory_get_context`, `memory_search`, `memory_capture_turn`, `memory_conf
 
 - [ ] **Step 2: Implement atomic tools**
 
-Reuse existing FMind knowledge/document services and MemoryCore adapter. `memory_capture_turn` is an explicit connector/repair tool, not an L1-L3 extraction trigger.
+Reuse existing FTMind knowledge/document services and MemoryCore adapter. `memory_capture_turn` is an explicit connector/repair tool, not an L1-L3 extraction trigger.
 
 - [ ] **Step 3: Implement Context Package**
 
@@ -521,7 +521,7 @@ Run: `go test ./internal/mcpserver/cognition -count=1`
 
 Expected: PASS.
 
-## Task 14: Build the FMind Agent access and memory UI
+## Task 14: Build the FTMind Agent access and memory UI
 
 **Files:**
 - Create: `frontend/src/api/agent-binding/index.ts`
@@ -582,7 +582,7 @@ Run: `docker compose --profile memory config`
 
 Run: `docker compose --profile memory build fmind-memory-proxy fmind-memory-core fmind-server fmind-frontend`
 
-Expected: valid configuration and successful local-source builds without downloaded FMind/Memory images.
+Expected: valid configuration and successful local-source builds without downloaded FTMind/Memory images.
 
 - [ ] **Step 4: Commit each repository separately**
 
@@ -612,9 +612,9 @@ Deliver matured L3, verify no Wiki before review, approve, verify memory Wiki re
 
 - [ ] **Step 4: Run regression gates**
 
-Run FMind `go test ./...`, frontend `npm test && npm run type-check && npm run build`, MemoryCore `npm test && npm run build:plugin`, MemoryProxy `npm test`, and Compose smoke tests. Assert L0 capture success ≥99% in the soak fixture, Context Package P95 ≤4s, authorization violations = 0, claim evidence coverage = 100%, and end-to-end trace identifiers on every sampled flow.
+Run FTMind `go test ./...`, frontend `npm test && npm run type-check && npm run build`, MemoryCore `npm test && npm run build:plugin`, MemoryProxy `npm test`, and Compose smoke tests. Assert L0 capture success ≥99% in the soak fixture, Context Package P95 ≤4s, authorization violations = 0, claim evidence coverage = 100%, and end-to-end trace identifiers on every sampled flow.
 
-Expected: PASS; FMind existing memory behavior remains unchanged.
+Expected: PASS; FTMind existing memory behavior remains unchanged.
 
 - [ ] **Step 5: Roll out by checkpoint**
 

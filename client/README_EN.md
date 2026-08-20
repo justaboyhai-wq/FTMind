@@ -1,6 +1,6 @@
-# FMind HTTP Client
+# FTMind HTTP Client
 
-This package provides a client library for interacting with FMind services, supporting all HTTP-based interface calls, making it easier for other modules to integrate with FMind services without having to write HTTP request code directly.
+This package provides a client library for interacting with FTMind services, supporting all HTTP-based interface calls, making it easier for other modules to integrate with FTMind services without having to write HTTP request code directly.
 
 ## Main Features
 

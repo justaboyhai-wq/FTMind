@@ -162,7 +162,7 @@ func (s *Service) RequestPublicationChanges(ctx context.Context, tenantID uint64
 	return s.transitionPublicationReview(ctx, tenantID, id, reviewer, comment, types.MemoryReviewStatusChangesRequested)
 }
 
-// RevokePublication is the authenticated FMind management path for a
+// RevokePublication is the authenticated FTMind management path for a
 // published projection. Source-system revocations still enter through the
 // signed lifecycle event endpoint; this method creates an internal,
 // version-scoped revocation event only after the Admin/Owner gate succeeds.

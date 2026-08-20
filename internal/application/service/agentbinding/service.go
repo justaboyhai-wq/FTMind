@@ -296,11 +296,11 @@ func (s *Service) Setup(ctx context.Context, req interfaces.AgentBindingSetupReq
 	if err != nil {
 		return nil, ErrInvalidBinding
 	}
-	return &interfaces.AgentBindingSetupResult{BindingID: binding.ID, Status: binding.Status, ConnectorSecret: runtimeSecret, MemoryAccessKey: dataSecret, FMindEndpoint: publicEndpoint("FMIND_PUBLIC_BASE_URL"), MemoryCoreEndpoint: publicEndpoint("MEMORY_CORE_PUBLIC_URL"), MemoryProxyEndpoint: publicEndpoint("MEMORY_PROXY_PUBLIC_URL"), PolicyVersion: binding.PolicyVersion, ExpiresAt: binding.ExpiresAt}, nil
+	return &interfaces.AgentBindingSetupResult{BindingID: binding.ID, Status: binding.Status, ConnectorSecret: runtimeSecret, MemoryAccessKey: dataSecret, FTMindEndpoint: publicEndpoint("FMIND_PUBLIC_BASE_URL"), MemoryCoreEndpoint: publicEndpoint("MEMORY_CORE_PUBLIC_URL"), MemoryProxyEndpoint: publicEndpoint("MEMORY_PROXY_PUBLIC_URL"), PolicyVersion: binding.PolicyVersion, ExpiresAt: binding.ExpiresAt}, nil
 }
 
 func connectorNeedsMemoryDataKey(connector string) bool {
-	// MemoryCore is kept private. External agents use the FMind/MemoryProxy
+	// MemoryCore is kept private. External agents use the FTMind/MemoryProxy
 	// gateway, so a second data-plane secret has no verifier and must not be
 	// issued. Keep the function for wire compatibility with older callers.
 	return false
@@ -362,7 +362,7 @@ func setupEndpoints(connector string) (fmind, core, proxy string, err error) {
 	if fmind, err = validatedEndpoint("FMIND_PUBLIC_BASE_URL", true); err != nil {
 		return "", "", "", err
 	}
-	// MemoryCore is an internal service. External agents must use the FMind /
+	// MemoryCore is an internal service. External agents must use the FTMind /
 	// MemoryProxy gateway and must never be given a public Core endpoint or a
 	// direct data-plane credential. Keep the optional value for backwards
 	// compatible manifests, but do not make setup depend on it.
@@ -384,9 +384,9 @@ func buildSetupArtifacts(binding *types.AgentBinding, secret string) (*interface
 		if err != nil {
 			return nil, "", err
 		}
-		manifest := &interfaces.AgentBindingSetupManifest{BindingID: binding.ID, ExternalAgent: binding.ExternalAgent, ConnectorType: binding.ConnectorType, FMindEndpoint: fmind, MemoryCoreEndpoint: core, MemoryProxyEndpoint: proxy, Capabilities: append([]string(nil), binding.CapabilityScopes...), AssetScopes: append([]string(nil), binding.AssetScopes...)}
+		manifest := &interfaces.AgentBindingSetupManifest{BindingID: binding.ID, ExternalAgent: binding.ExternalAgent, ConnectorType: binding.ConnectorType, FTMindEndpoint: fmind, MemoryCoreEndpoint: core, MemoryProxyEndpoint: proxy, Capabilities: append([]string(nil), binding.CapabilityScopes...), AssetScopes: append([]string(nil), binding.AssetScopes...)}
 		template := setupTemplate(binding.ConnectorType, fmind, manifest.MemoryCoreEndpoint, manifest.MemoryProxyEndpoint)
-		prompt := fmt.Sprintf("FMind 外部 Agent 一键接入\n\n目标 Agent: %s\nConnector: %s\nBinding ID: %s\nFMind 地址: %s\nMemoryCore 地址: %s\nMemoryProxy 地址: %s\n一次性接入密钥（仅可使用一次，30分钟后失效）: %s\n\n已启用能力:\n- %s\n\n资产范围:\n- %s\n\n%s\n\n请将密钥保存到本地安全环境变量 FMIND_CONNECTOR_SECRET，不要输出到日志、URL、模型上下文或提交到代码仓库。配置完成后调用：\nPOST %s/internal/v1/agent-bindings/setup\n请求体: {\"binding_id\":\"%s\",\"external_agent\":\"%s\",\"connector_type\":\"%s\",\"client_version\":\"<your-version>\"}\n请求头: X-FMind-Connector-Secret: $FMIND_CONNECTOR_SECRET\n\nsetup 成功后删除一次性密钥，将响应中的 connector_secret 保存为运行期凭证；如果响应包含 memory_access_key，则仅保存到 FMIND_MEMORY_ACCESS_KEY。后续每次请求都必须重新校验 Binding Token，并遵守角色、能力和资产范围。失败时请检查公开 HTTPS 地址、反向代理路由、密钥是否过期以及 Agent/Connector 标识是否完全匹配。", binding.ExternalAgent, binding.ConnectorType, binding.ID, fmind, manifest.MemoryCoreEndpoint, manifest.MemoryProxyEndpoint, secret, strings.Join(binding.CapabilityScopes, "\n- "), strings.Join(binding.AssetScopes, "\n- "), template, fmind, binding.ID, binding.ExternalAgent, binding.ConnectorType)
+		prompt := fmt.Sprintf("FTMind 外部 Agent 一键接入\n\n目标 Agent: %s\nConnector: %s\nBinding ID: %s\nFTMind 地址: %s\nMemoryCore 地址: %s\nMemoryProxy 地址: %s\n一次性接入密钥（仅可使用一次，30分钟后失效）: %s\n\n已启用能力:\n- %s\n\n资产范围:\n- %s\n\n%s\n\n请将密钥保存到本地安全环境变量 FMIND_CONNECTOR_SECRET，不要输出到日志、URL、模型上下文或提交到代码仓库。配置完成后调用：\nPOST %s/internal/v1/agent-bindings/setup\n请求体: {\"binding_id\":\"%s\",\"external_agent\":\"%s\",\"connector_type\":\"%s\",\"client_version\":\"<your-version>\"}\n请求头: X-FMind-Connector-Secret: $FMIND_CONNECTOR_SECRET\n\nsetup 成功后删除一次性密钥，将响应中的 connector_secret 保存为运行期凭证；如果响应包含 memory_access_key，则仅保存到 FMIND_MEMORY_ACCESS_KEY。后续每次请求都必须重新校验 Binding Token，并遵守角色、能力和资产范围。失败时请检查公开 HTTPS 地址、反向代理路由、密钥是否过期以及 Agent/Connector 标识是否完全匹配。", binding.ExternalAgent, binding.ConnectorType, binding.ID, fmind, manifest.MemoryCoreEndpoint, manifest.MemoryProxyEndpoint, secret, strings.Join(binding.CapabilityScopes, "\n- "), strings.Join(binding.AssetScopes, "\n- "), template, fmind, binding.ID, binding.ExternalAgent, binding.ConnectorType)
 		return manifest, prompt, nil
 	*/
 }
@@ -398,11 +398,11 @@ func buildSetupArtifactsUTF8(binding *types.AgentBinding, secret string) (*inter
 	}
 	manifest := &interfaces.AgentBindingSetupManifest{
 		BindingID: binding.ID, ExternalAgent: binding.ExternalAgent, ConnectorType: binding.ConnectorType,
-		FMindEndpoint: fmind, MemoryCoreEndpoint: core, MemoryProxyEndpoint: proxy,
+		FTMindEndpoint: fmind, MemoryCoreEndpoint: core, MemoryProxyEndpoint: proxy,
 		Capabilities: append([]string(nil), binding.CapabilityScopes...), AssetScopes: append([]string(nil), binding.AssetScopes...),
 	}
 	template := setupTemplateUTF8(binding.ConnectorType, fmind, proxy)
-	prompt := fmt.Sprintf("FMind 外部 Agent 一键接入\n\n目标 Agent: %s\nConnector: %s\nBinding ID: %s\nFMind 地址: %s\nMemoryProxy 地址: %s\n\n用户 API Key（管理员选择的现有 Key，请在外部 Agent 本地环境变量中填写）：\nFMIND_USER_API_KEY=${FMIND_USER_API_KEY}\n\n一次性 Agent 接入密钥（仅可使用一次，30 分钟后失效）：\nFMIND_AGENT_SETUP_KEY=%s\n\n已启用能力：\n- %s\n\n资产范围：\n- %s\n\n%s\n\n请勿输出或记录密钥，不要放入 URL、模型上下文或代码仓库。配置完成后调用 setup，成功后删除 FMIND_AGENT_SETUP_KEY，并只保存响应中的运行期 Agent Key。\nsetup：POST %s/internal/v1/agent-bindings/setup\n请求头：X-FMind-Connector-Secret: $FMIND_AGENT_SETUP_KEY\n请求体：{\"binding_id\":\"%s\",\"external_agent\":\"%s\",\"connector_type\":\"%s\",\"client_version\":\"<your-version>\"}\n后续数据请求必须同时携带 X-FMind-User-Key 与 X-FMind-Agent-Key，由 FMind 网关校验用户角色、Binding 能力和资产范围。", binding.ExternalAgent, binding.ConnectorType, binding.ID, fmind, proxy, secret, strings.Join(binding.CapabilityScopes, "\n- "), strings.Join(binding.AssetScopes, "\n- "), template, fmind, binding.ID, binding.ExternalAgent, binding.ConnectorType)
+	prompt := fmt.Sprintf("FTMind 外部 Agent 一键接入\n\n目标 Agent: %s\nConnector: %s\nBinding ID: %s\nFTMind 地址: %s\nMemoryProxy 地址: %s\n\n用户 API Key（管理员选择的现有 Key，请在外部 Agent 本地环境变量中填写）：\nFMIND_USER_API_KEY=${FMIND_USER_API_KEY}\n\n一次性 Agent 接入密钥（仅可使用一次，30 分钟后失效）：\nFMIND_AGENT_SETUP_KEY=%s\n\n已启用能力：\n- %s\n\n资产范围：\n- %s\n\n%s\n\n请勿输出或记录密钥，不要放入 URL、模型上下文或代码仓库。配置完成后调用 setup，成功后删除 FMIND_AGENT_SETUP_KEY，并只保存响应中的运行期 Agent Key。\nsetup：POST %s/internal/v1/agent-bindings/setup\n请求头：X-FMind-Connector-Secret: $FMIND_AGENT_SETUP_KEY\n请求体：{\"binding_id\":\"%s\",\"external_agent\":\"%s\",\"connector_type\":\"%s\",\"client_version\":\"<your-version>\"}\n后续数据请求必须同时携带 X-FMind-User-Key 与 X-FMind-Agent-Key，由 FTMind 网关校验用户角色、Binding 能力和资产范围。", binding.ExternalAgent, binding.ConnectorType, binding.ID, fmind, proxy, secret, strings.Join(binding.CapabilityScopes, "\n- "), strings.Join(binding.AssetScopes, "\n- "), template, fmind, binding.ID, binding.ExternalAgent, binding.ConnectorType)
 	return manifest, prompt, nil
 }
 
@@ -424,7 +424,7 @@ func setupTemplate(connector, fmind, core, proxy string) string {
 	case "openclaw_plugin":
 		return fmt.Sprintf("OpenClaw 配置片段:\n{\"fmind\":{\"endpoint\":\"%s\",\"connectorSecret\":\"env:FMIND_CONNECTOR_SECRET\"},\"memoryCore\":{\"url\":\"%s\",\"apiKey\":\"env:FMIND_MEMORY_ACCESS_KEY\"}}\n并执行 openclaw gateway restart。", fmind, core)
 	case "openai_proxy", "anthropic_proxy":
-		return fmt.Sprintf("代理环境变量:\nOPENAI/ANTHROPIC_BASE_URL=%s\nOPENAI/ANTHROPIC_API_KEY=$FMIND_CONNECTOR_SECRET\nConnector Secret 只能由 FMind Proxy 消费，禁止转发给上游模型服务。", proxy)
+		return fmt.Sprintf("代理环境变量:\nOPENAI/ANTHROPIC_BASE_URL=%s\nOPENAI/ANTHROPIC_API_KEY=$FMIND_CONNECTOR_SECRET\nConnector Secret 只能由 FTMind Proxy 消费，禁止转发给上游模型服务。", proxy)
 	case "hermes_provider":
 		return fmt.Sprintf("Hermes Provider 配置:\nFMIND_ENDPOINT=%s\nFMIND_CONNECTOR_SECRET=$FMIND_CONNECTOR_SECRET\nFMIND_MEMORY_CORE_ENDPOINT=%s\nFMIND_MEMORY_ACCESS_KEY=$FMIND_MEMORY_ACCESS_KEY", fmind, core)
 	case "generic_sdk":

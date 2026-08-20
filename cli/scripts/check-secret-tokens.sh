@@ -4,7 +4,7 @@
 # API key or JWT most easily gets pasted by accident (copying a working
 # session into a how-to). Same intent as a gitleaks/doc-token pre-commit scan.
 #
-# Heuristic, low false-positive: a real FMind API key is `sk-` followed by a
+# Heuristic, low false-positive: a real FTMind API key is `sk-` followed by a
 # long high-entropy body that CONTAINS A DIGIT (e.g.
 # sk-bVd4ebLoyn-DKevdkgw527XAakwv4G6Tz6FhgXPlOpBO-Ico); placeholder words like
 # `sk-specific` / `sk-staging` have no digit and are short, so they pass. JWTs

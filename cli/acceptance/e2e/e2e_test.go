@@ -1,6 +1,6 @@
 //go:build acceptance_e2e
 
-// Package e2e_test drives the FMind CLI binary against a real running
+// Package e2e_test drives the FTMind CLI binary against a real running
 // server to validate the RAG closing loop end-to-end.
 //
 // Build tag isolation: //go:build acceptance_e2e excludes this file from
@@ -188,13 +188,13 @@ profiles:
 // window.
 func writeSampleDoc(t *testing.T) string {
 	t.Helper()
-	content := `FMind E2E Sample Document
+	content := `FTMind E2E Sample Document
 
-This sample document is used by the FMind CLI acceptance test suite to
+This sample document is used by the FTMind CLI acceptance test suite to
 validate the end-to-end retrieval-augmented generation pipeline.
 
 向量检索的核心思想是把文本通过 embedding 模型映射到高维向量空间,然后通过余弦相似度
-等度量找出语义最接近的内容片段。FMind 支持 vector + keyword 的混合检索模式。
+等度量找出语义最接近的内容片段。FTMind 支持 vector + keyword 的混合检索模式。
 
 The hybrid search mode combines vector similarity (semantic) with keyword
 matching (lexical) to balance recall and precision.
@@ -208,7 +208,7 @@ matching (lexical) to balance recall and precision.
 }
 
 // waitDocReady polls `doc list` until the uploaded document's status indicates
-// indexing is complete. FMind server uses a few status values across versions
+// indexing is complete. FTMind server uses a few status values across versions
 // ("ready", "completed", "ok") - accept any non-pending/non-processing/non-failed
 // state so we don't break on a server-side rename. Failed status fails the test
 // fast.

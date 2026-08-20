@@ -5,15 +5,15 @@
   "frontend:dir": "../../frontend",
   "wailsjsdir": "../../frontend/src",
   "author": {
-    "name": "FMind Team",
+    "name": "FTMind Team",
     "email": ""
   },
   "info": {
     "companyName": "Tencent",
-    "productName": "FMind Lite",
+    "productName": "FTMind Lite",
     "productVersion": "1.0.0",
     "copyright": "Copyright 2026 Tencent",
-    "comments": "FMind Desktop Edition"
+    "comments": "FTMind Desktop Edition"
   },
   "mac": {
     "category": "public.app-category.productivity",

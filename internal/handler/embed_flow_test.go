@@ -116,7 +116,7 @@ func (f *flowTenantSvc) SearchTenants(context.Context, string, uint64, int, int)
 func (f *flowTenantSvc) GetTenantByIDForUser(context.Context, uint64, string) (*types.Tenant, error) {
 	return f.tenant, nil
 }
-func (f *flowTenantSvc) GetFMindCloudCredentials(context.Context) *types.FMindCloudCredentials {
+func (f *flowTenantSvc) GetFTMindCloudCredentials(context.Context) *types.FTMindCloudCredentials {
 	return nil
 }
 

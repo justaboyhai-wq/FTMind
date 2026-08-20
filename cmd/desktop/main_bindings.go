@@ -11,7 +11,7 @@ import (
 func main() {
 	app := NewApp()
 	_ = wails.Run(&options.App{
-		Title: "FMind Lite",
+		Title: "FTMind Lite",
 		Bind:  []interface{}{app},
 	})
 }

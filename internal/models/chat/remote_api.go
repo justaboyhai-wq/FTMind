@@ -87,12 +87,12 @@ func NewRemoteAPIChat(chatConfig *ChatConfig) (*RemoteAPIChat, error) {
 			modelName = override
 		}
 	}
-	if providerName == provider.ProviderFMindCloud {
+	if providerName == provider.ProviderFTMindCloud {
 		if chatConfig.AppID == "" {
-			return nil, fmt.Errorf("FMindCloud provider: AppID is required")
+			return nil, fmt.Errorf("FTMindCloud provider: AppID is required")
 		}
 		if chatConfig.AppSecret == "" {
-			return nil, fmt.Errorf("FMindCloud provider: AppSecret is required")
+			return nil, fmt.Errorf("FTMindCloud provider: AppSecret is required")
 		}
 	}
 
