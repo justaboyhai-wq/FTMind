@@ -75,6 +75,12 @@ config/builtin_models.yaml
 *_key
 *_secret
 
+# Local Docker archives and audit outputs must not inflate build contexts.
+*.tar
+*.tar.gz
+*.bin.gz
+/audit-reports/
+
 # 大的归档/压缩包
 packages/protoc-*.zip
 !packages/protoc-*-linux-x86_64.zip
